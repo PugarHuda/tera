@@ -1,0 +1,15 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Pricing builder: JPY rejects decimals, a custom price flows into the simulator",
+  "description": "FR1. Builder validation and the hand-off of a custom catalog to the simulator.",
+  "priority": "p0",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page, click 'Builder' in the top navigation bar, then click 'Reset to reference catalog'" },
+    { "type": "assertion", "description": "Assert the text 'Catalog is valid: 8 prices, 4 coupons, 2 tax rates.' is shown" },
+    { "type": "action", "description": "In the first price row, change Currency to JPY and set Amount to 29.5" },
+    { "type": "assertion", "description": "Assert an alert reads 'starter_m: JPY has no minor unit, so the amount cannot have decimals'" },
+    { "type": "action", "description": "Set the first price's Amount to 4500 and its Price id to starter_jpy, then click 'Simulate with this catalog'" },
+    { "type": "assertion", "description": "Assert the simulator shows the custom catalog banner, no 'Load scenario' dropdown, and Invoice 1 total ¥4,500" }
+  ]
+}
