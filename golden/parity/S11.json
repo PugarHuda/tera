@@ -1,15 +1,15 @@
 {
   "id": "S11",
   "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
-  "verified_at": "2026-10-17T09:00:03.239Z",
+  "verified_at": "2026-10-17T09:14:17.333Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTT22QR5nixgqN5dpBVQxd",
-  "customer": "cus_VSOFOnvjx6uAmG",
+  "test_clock": "clock_1URTgo2QR5nixgqN68hqGTJo",
+  "customer": "cus_VSOTIGB0zZqYA5",
   "stripe": [
     {
-      "id": "in_1URTT32QR5nixgqNbQ0zfmI5",
+      "id": "in_1URTgq2QR5nixgqNVLNnYpwP",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -23,10 +23,11 @@
       "discount": 0,
       "tax": 0,
       "total": 2900,
-      "amount_due": 2900
+      "amount_due": 2900,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTD2QR5nixgqNN7bZqTYn",
+      "id": "in_1URTgy2QR5nixgqNVPAbof5w",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -40,7 +41,8 @@
       "discount": 580,
       "tax": 0,
       "total": 2320,
-      "amount_due": 2320
+      "amount_due": 2320,
+      "starting_balance": 0
     }
   ]
 }

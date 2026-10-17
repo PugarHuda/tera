@@ -68,7 +68,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
 
 ### R5 — Coupons
-- `percent_off` applies to the invoice subtotal (including proration lines). **VERIFY** for proration lines.
+- `percent_off` applies only to **non-proration** lines. While a `percent_off` coupon is active, proration lines are computed at the discounted price and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
 - A coupon code applied to the same subscription more than once has **no additional effect** (idempotent, including page reloads and double submits).
@@ -88,6 +89,16 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
 - With `grandfather = false`, existing subscribers move at their **next renewal** (no proration); MRR delta = Σ (new − old) × quantity.
 
+### R10 — Customer credit balance
+- An invoice whose total is negative (e.g. a downgrade with `always_invoice`) charges nothing: `amount_due = 0` and the negative total becomes customer credit.
+- Each invoice records `starting_balance` (≤ 0) and `amount_due = max(0, total + starting_balance)`; leftover credit carries to the next invoice.
+
+### R11 — Rejected timelines (Stripe rejects these; the API returns 422)
+- A second `subscribe`/`start_trial` while a subscription is active; any event after the subscription was canceled.
+- `change_price` to a price in another currency; an `amount_off` coupon whose currency differs from the subscription's.
+- `report_usage` on a licensed (non-metered) price.
+- A price or quantity change during a trial does not prorate (R4): the new terms bill when the trial ends.
+
 ### R12 — Billing mode
 - Tera models Stripe's **classic** billing mode. New Stripe subscriptions default to *flexible* mode, where a monthly → yearly change does not reset the anchor; the parity replay pins `billing_mode: classic`.
 - Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
@@ -99,7 +110,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
 - **I4** Zero-decimal currencies never display a decimal separator.
 - **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
-- **I6** Invoice periods are contiguous with no gaps or overlaps.
+- **I6** Invoice periods are contiguous with no gaps or overlaps, and `amount_due` is never negative.
 
 ## 6. Functional requirements
 
@@ -129,7 +140,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Non-positive prices or non-integer seat counts show an error alert.
 
 ### FR4 Stripe Parity Check [SHIPPED]
-- `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (classic billing mode, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer) is committed under `golden/parity/`.
+- `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (classic billing mode, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total, starting_balance, amount_due). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer) is committed under `golden/parity/`.
 - Page `/parity` lists every timeline scenario with a ✅ Match / ❌ Diff / — Not replayable badge and the summary "N / M scenarios match Stripe to the cent"; expanding a row shows Tera and Stripe invoices side by side; "Re-run live in Stripe" replays it now.
 - `GET /api/parity` returns the recorded evidence; `POST /api/parity {"scenario":"S05"}` replays one golden scenario live (golden ids only; one live run per 30 s → 429).
 - The Stripe key is server-side only (`STRIPE_SECRET_KEY`, test mode enforced) and never returned to the client.
@@ -145,10 +156,10 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A corrupted `t` value never crashes the page: an alert reads "This shared link is invalid or corrupted, so the default scenario was loaded instead." and S05 is loaded.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
-- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, total_display`.
+- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
 - `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[] }` → `{ affected, mrr_before, mrr_after, mrr_delta }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
-- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate or an event before subscribe → **422** `{ error }`.
+- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
 
@@ -167,7 +178,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-17, 22/22 replayable scenarios are verified; S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-17, 25/25 replayable scenarios are verified (including amount_due and starting_balance); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

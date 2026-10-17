@@ -1,15 +1,15 @@
 {
   "id": "S13",
   "title": "$10 off for 3 months",
-  "verified_at": "2026-10-17T09:00:32.104Z",
+  "verified_at": "2026-10-17T09:14:53.407Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTTA2QR5nixgqN8KQKsGht",
-  "customer": "cus_VSOFNeSTLZIujg",
+  "test_clock": "clock_1URTgx2QR5nixgqNof67ZsuH",
+  "customer": "cus_VSOT5qnTY2fNMI",
   "stripe": [
     {
-      "id": "in_1URTTB2QR5nixgqN2HARL8ki",
+      "id": "in_1URTgy2QR5nixgqND5xRRpDV",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -23,10 +23,11 @@
       "discount": 1000,
       "tax": 0,
       "total": 1900,
-      "amount_due": 1900
+      "amount_due": 1900,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTJ2QR5nixgqN0znwhGO8",
+      "id": "in_1URTh52QR5nixgqNafsjEzzP",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -40,10 +41,11 @@
       "discount": 1000,
       "tax": 0,
       "total": 1900,
-      "amount_due": 1900
+      "amount_due": 1900,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTU2QR5nixgqNZhEwps4H",
+      "id": "in_1URThO2QR5nixgqNOsQycQPe",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -57,10 +59,11 @@
       "discount": 1000,
       "tax": 0,
       "total": 1900,
-      "amount_due": 1900
+      "amount_due": 1900,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTf2QR5nixgqN4KaY853b",
+      "id": "in_1URThY2QR5nixgqNp2xX3xM1",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -74,7 +77,8 @@
       "discount": 0,
       "tax": 0,
       "total": 2900,
-      "amount_due": 2900
+      "amount_due": 2900,
+      "starting_balance": 0
     }
   ]
 }

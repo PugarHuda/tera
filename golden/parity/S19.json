@@ -1,15 +1,15 @@
 {
   "id": "S19",
   "title": "EUR locale display",
-  "verified_at": "2026-10-17T09:00:31.065Z",
+  "verified_at": "2026-10-17T09:14:40.567Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTTe2QR5nixgqNuQDRde50",
-  "customer": "cus_VSOGjYHMtuLRMT",
+  "test_clock": "clock_1URThM2QR5nixgqNKQmnFpuZ",
+  "customer": "cus_VSOU1JevDk9Uhy",
   "stripe": [
     {
-      "id": "in_1URTTf2QR5nixgqNxaIPrJji",
+      "id": "in_1URThN2QR5nixgqN65oOqHMD",
       "date": "2027-01-01",
       "currency": "eur",
       "lines": [
@@ -23,7 +23,8 @@
       "discount": 0,
       "tax": 0,
       "total": 2900,
-      "amount_due": 2900
+      "amount_due": 2900,
+      "starting_balance": 0
     }
   ]
 }

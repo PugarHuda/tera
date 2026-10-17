@@ -1,15 +1,15 @@
 {
   "id": "S01",
   "title": "Flat monthly subscription",
-  "verified_at": "2026-10-17T08:59:23.742Z",
+  "verified_at": "2026-10-17T09:13:39.083Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTSZ2QR5nixgqNHOFZB1GK",
-  "customer": "cus_VSOFNxwIsTrwMc",
+  "test_clock": "clock_1URTgL2QR5nixgqN3SsEzLVc",
+  "customer": "cus_VSOT9sTBfueOyb",
   "stripe": [
     {
-      "id": "in_1URTSa2QR5nixgqNmoKUxIsu",
+      "id": "in_1URTgN2QR5nixgqNzamlJyqr",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -23,7 +23,8 @@
       "discount": 0,
       "tax": 0,
       "total": 2900,
-      "amount_due": 2900
+      "amount_due": 2900,
+      "starting_balance": 0
     }
   ]
 }

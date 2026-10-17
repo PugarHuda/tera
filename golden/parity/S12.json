@@ -1,15 +1,15 @@
 {
   "id": "S12",
   "title": "FOREVER25 on Pro",
-  "verified_at": "2026-10-17T09:00:14.710Z",
+  "verified_at": "2026-10-17T09:14:24.273Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTT32QR5nixgqNKBrFAHn8",
-  "customer": "cus_VSOFMZ9lIYRTPF",
+  "test_clock": "clock_1URTgp2QR5nixgqNUTJejJcC",
+  "customer": "cus_VSOTUO2basq6i4",
   "stripe": [
     {
-      "id": "in_1URTT42QR5nixgqNmAQfV1yo",
+      "id": "in_1URTgq2QR5nixgqNIjsyT8JN",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -23,10 +23,11 @@
       "discount": 1975,
       "tax": 0,
       "total": 5925,
-      "amount_due": 5925
+      "amount_due": 5925,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTC2QR5nixgqNS7FaEFEF",
+      "id": "in_1URTgw2QR5nixgqNvNynUOVs",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -40,10 +41,11 @@
       "discount": 1975,
       "tax": 0,
       "total": 5925,
-      "amount_due": 5925
+      "amount_due": 5925,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTO2QR5nixgqNPcvC08qH",
+      "id": "in_1URTh62QR5nixgqNiOaL42Y2",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -57,7 +59,8 @@
       "discount": 1975,
       "tax": 0,
       "total": 5925,
-      "amount_due": 5925
+      "amount_due": 5925,
+      "starting_balance": 0
     }
   ]
 }

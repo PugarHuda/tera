@@ -1,15 +1,15 @@
 {
   "id": "S21",
   "title": "Monthly to annual resets anchor, invoices now",
-  "verified_at": "2026-10-17T09:00:41.328Z",
+  "verified_at": "2026-10-17T09:14:57.513Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTTk2QR5nixgqN7JMgisJR",
-  "customer": "cus_VSOGipSxEnh83n",
+  "test_clock": "clock_1URThY2QR5nixgqNIUQa62bs",
+  "customer": "cus_VSOUus6IXQNEXl",
   "stripe": [
     {
-      "id": "in_1URTTl2QR5nixgqNboLDRAPM",
+      "id": "in_1URThZ2QR5nixgqNtHpAPaMt",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -23,10 +23,11 @@
       "discount": 0,
       "tax": 0,
       "total": 2900,
-      "amount_due": 2900
+      "amount_due": 2900,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTq2QR5nixgqNb61Zs2Fe",
+      "id": "in_1URThe2QR5nixgqNYXfT9RvR",
       "date": "2027-01-17",
       "currency": "usd",
       "lines": [
@@ -45,7 +46,8 @@
       "discount": 0,
       "tax": 0,
       "total": 27597,
-      "amount_due": 27597
+      "amount_due": 27597,
+      "starting_balance": 0
     }
   ]
 }

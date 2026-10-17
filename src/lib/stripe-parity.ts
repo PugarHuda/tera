@@ -80,6 +80,7 @@ async function advance(stripe: Stripe, clockId: string, from: number, to: number
 export type ParityInvoice = Pick<Invoice, "date" | "currency" | "subtotal" | "discount" | "tax" | "total"> & {
   lines: { description: string; amount: number; proration: boolean }[];
   amount_due: number;
+  starting_balance: number;
   id: string;
 };
 
@@ -150,6 +151,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       tax: (inv.total_taxes ?? []).reduce((a, t) => a + t.amount, 0),
       total: inv.total,
       amount_due: inv.amount_due,
+      starting_balance: inv.starting_balance,
     }));
   return { clockId: clock.id, customerId: customer.id, invoices: out };
 }
@@ -172,6 +174,8 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
       ["discount", t.discount, s.discount],
       ["tax", t.tax, s.tax],
       ["total", t.total, s.total],
+      ["starting_balance", t.starting_balance, s.starting_balance],
+      ["amount_due", t.amount_due, s.amount_due],
     ];
     for (const [field, a, b] of checks) if (JSON.stringify(a) !== JSON.stringify(b)) diffs.push({ invoice: i + 1, field, tera: a, stripe: b });
   }

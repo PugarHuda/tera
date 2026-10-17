@@ -1,15 +1,15 @@
 {
   "id": "S18",
   "title": "JPY zero-decimal upgrade",
-  "verified_at": "2026-10-17T09:00:33.124Z",
+  "verified_at": "2026-10-17T09:14:47.579Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTTZ2QR5nixgqNLG0u0Lkd",
-  "customer": "cus_VSOGsusTHdZ9P9",
+  "test_clock": "clock_1URThL2QR5nixgqNx22ISKm2",
+  "customer": "cus_VSOUDGpHoNnqO0",
   "stripe": [
     {
-      "id": "in_1URTTb2QR5nixgqNrzfJccyp",
+      "id": "in_1URThN2QR5nixgqNlPuoRkqc",
       "date": "2027-01-01",
       "currency": "jpy",
       "lines": [
@@ -23,10 +23,11 @@
       "discount": 0,
       "tax": 0,
       "total": 3000,
-      "amount_due": 3000
+      "amount_due": 3000,
+      "starting_balance": 0
     },
     {
-      "id": "in_1URTTh2QR5nixgqNY1Cq7j1f",
+      "id": "in_1URThU2QR5nixgqNDnYj2VtZ",
       "date": "2027-02-01",
       "currency": "jpy",
       "lines": [
@@ -50,7 +51,8 @@
       "discount": 0,
       "tax": 0,
       "total": 10419,
-      "amount_due": 10419
+      "amount_due": 10419,
+      "starting_balance": 0
     }
   ]
 }

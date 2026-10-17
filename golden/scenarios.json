@@ -975,6 +975,161 @@
       ]
     },
     {
+      "id": "S26",
+      "status": "verified",
+      "rules": [
+        "R4",
+        "R3"
+      ],
+      "title": "Price change during a trial does not prorate",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "nothing was paid during the trial, so there is no unused time to credit; the new price simply bills when the trial ends (anchor 15th)",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-15",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-15",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S26.json"
+    },
+    {
+      "id": "S27",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R10"
+      ],
+      "title": "Downgrade with always_invoice creates a credit balance",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "remaining 15/31: -round(7900*15/31)=-3823, +round(2900*15/31)=1403 -> total -2420, amount_due 0, balance -2420; next invoice 2900 - 2420 = 480 due",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "amount_due": 7900
+        },
+        {
+          "date": "2027-01-17",
+          "lines": [
+            -3823,
+            1403
+          ],
+          "total": -2420,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": -2420,
+          "amount_due": 480
+        }
+      ],
+      "parity": "golden/parity/S27.json"
+    },
+    {
+      "id": "S28",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5"
+      ],
+      "title": "Upgrade under a forever 25% coupon: prorations are pre-discounted, not re-discounted",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "proration uses the discounted price: -round(2900*0.75*15/31)=-1052, +round(7900*0.75*15/31)=2867; proration lines are not discountable, so the coupon only hits 7900: round(7900*0.25)=1975; total -1052+2867+7900-1975=7740",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 725,
+          "total": 2175
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -1052,
+            2867,
+            7900
+          ],
+          "discount": 1975,
+          "total": 7740
+        }
+      ],
+      "parity": "golden/parity/S28.json"
+    },
+    {
       "id": "S24",
       "status": "draft",
       "rules": [

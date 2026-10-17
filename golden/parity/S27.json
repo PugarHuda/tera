@@ -1,0 +1,71 @@
+{
+  "id": "S27",
+  "title": "Downgrade with always_invoice creates a credit balance",
+  "verified_at": "2026-10-17T09:15:12.055Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URThi2QR5nixgqNnKh6suuF",
+  "customer": "cus_VSOUa6GkOi0dlO",
+  "stripe": [
+    {
+      "id": "in_1URThj2QR5nixgqNHkzSGuAz",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URThp2QR5nixgqN4Qb6wmqj",
+      "date": "2027-01-17",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera pro_m after 17 Jan 2027",
+          "amount": -3823,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on Tera starter_m after 17 Jan 2027",
+          "amount": 1403,
+          "proration": true
+        }
+      ],
+      "subtotal": -2420,
+      "discount": 0,
+      "tax": 0,
+      "total": -2420,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URThs2QR5nixgqN3JXzO4IM",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 480,
+      "starting_balance": -2420
+    }
+  ]
+}
