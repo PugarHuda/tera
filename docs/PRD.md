@@ -147,7 +147,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Metered usage is replayed with a Stripe **Meter** (`tera_api_calls`, sum aggregation) and a graduated tiered price; meter events carry the test clock's time and the replay waits for Stripe's aggregation before the period closes (S23).
 
 ### FR5 Push to Stripe [SHIPPED]
-- The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key` `tera_<id>`, coupons with id `TERA_<code>`, tax rates by display name `tera_<id>`. Re-running never duplicates objects.
+- The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key`, coupons by id and tax rates by display name, each keyed as `<id>_<sha256 of its definition>`: re-running never duplicates objects, and a changed definition (e.g. starter_m at $39) creates a new Stripe object instead of silently reusing the old $29 price.
 
 ### FR6 Shareable link [SHIPPED]
 - A "Copy share link" button on `/` encodes the current timeline into the URL (`/?t=<base64url JSON>`), shows the link in a read-only field and copies it to the clipboard.

@@ -1,7 +1,11 @@
 // FR4/FR5: replay a timeline in Stripe test mode with test clocks and compare invoices line by line.
 // Server-only: needs STRIPE_SECRET_KEY (test mode). Never import from client components.
 import Stripe from "stripe";
+import { createHash } from "node:crypto";
 import type { Catalog, Invoice, TimelineEvent } from "./billing";
+
+// Stripe objects are keyed by id + a hash of their definition: same definition -> reused, changed definition -> new object.
+const key = (prefix: string, id: string, def: unknown) => `${prefix}_${id}_${createHash("sha256").update(JSON.stringify(def)).digest("hex").slice(0, 10)}`;
 
 export const STRIPE_API_VERSION = "2026-09-30.endive";
 
@@ -21,8 +25,12 @@ const MONTH = 28 * 86_400; // advances are capped at 2 intervals of the shortest
 export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   const prices: Record<string, string> = {};
   const wanted = Object.entries(catalog.prices);
-  const existing = await stripe.prices.list({ lookup_keys: wanted.map(([id]) => `tera_${id}`), limit: 100 });
-  for (const p of existing.data) prices[p.lookup_key!.slice(5)] = p.id;
+  const lookup = Object.fromEntries(wanted.map(([id, p]) => [id, key("tera", id, p)]));
+  const existing = await stripe.prices.list({ lookup_keys: Object.values(lookup), limit: 100 });
+  for (const [id, k] of Object.entries(lookup)) {
+    const found = existing.data.find((p) => p.lookup_key === k);
+    if (found) prices[id] = found.id;
+  }
   let meterId: string | null = null;
   for (const [id, p] of wanted) {
     if (p.usage_type === "metered") meterId ??= await ensureMeter(stripe);
@@ -30,7 +38,7 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
     const created =
       p.usage_type === "metered"
         ? await stripe.prices.create({
-            lookup_key: `tera_${id}`,
+            lookup_key: lookup[id],
             currency: p.currency,
             recurring: { interval: p.interval, usage_type: "metered", meter: meterId! },
             billing_scheme: "tiered",
@@ -39,7 +47,7 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
             product_data: { name: `Tera ${id}` },
           })
         : await stripe.prices.create({
-            lookup_key: `tera_${id}`,
+            lookup_key: lookup[id],
             currency: p.currency,
             unit_amount: p.unit_amount!,
             recurring: { interval: p.interval },
@@ -50,7 +58,7 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
 
   const coupons: Record<string, string> = {};
   for (const [code, c] of Object.entries(catalog.coupons ?? {})) {
-    const id = `TERA_${code}`;
+    const id = key("TERA", code, c);
     try {
       await stripe.coupons.retrieve(id);
     } catch {
@@ -68,13 +76,21 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   const taxRates: Record<string, string> = {};
   const listed = await stripe.taxRates.list({ active: true, limit: 100 });
   for (const [id, r] of Object.entries(catalog.tax_rates ?? {})) {
-    const name = `tera_${id}`;
+    const name = key("tera", id, r);
     const found = listed.data.find((t) => t.display_name === name);
     taxRates[id] = found
       ? found.id
       : (await stripe.taxRates.create({ display_name: name, percentage: r.percentage, inclusive: r.behavior === "inclusive" })).id;
   }
   return { prices, coupons, taxRates, meterId };
+}
+
+// Concurrent replays share one push per catalog so they never race to create the same lookup key.
+const pushes = new Map<string, ReturnType<typeof pushCatalog>>();
+export function pushCatalogOnce(stripe: Stripe, catalog: Catalog) {
+  const k = JSON.stringify(catalog);
+  if (!pushes.has(k)) pushes.set(k, pushCatalog(stripe, catalog).catch((e) => (pushes.delete(k), Promise.reject(e))));
+  return pushes.get(k)!;
 }
 
 export const METER_EVENT = "tera_api_calls";
@@ -127,7 +143,7 @@ export type ParityInvoice = Pick<Invoice, "date" | "currency" | "subtotal" | "di
 
 /** Replay a timeline against Stripe and return the invoices Stripe produced. */
 export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[]) {
-  const ids = await pushCatalog(stripe, catalog);
+  const ids = await pushCatalogOnce(stripe, catalog);
   const events = [...timeline].sort((a, b) => sec(a.at) - sec(b.at));
   const start = sec(events[0].at);
   const clock = await stripe.testHelpers.testClocks.create({ frozen_time: start, name: `tera ${new Date().toISOString()}` });

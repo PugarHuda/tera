@@ -1,15 +1,15 @@
 {
   "id": "S06",
   "title": "Downgrade day 17 of 31",
-  "verified_at": "2026-10-17T09:22:51.812Z",
+  "verified_at": "2026-10-17T09:26:39.109Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTp92QR5nixgqNX9dEkkFc",
-  "customer": "cus_VSOciCg2GTGrlc",
+  "test_clock": "clock_1URTsq2QR5nixgqNK4uPr8wo",
+  "customer": "cus_VSOgHXDeV5VKtq",
   "stripe": [
     {
-      "id": "in_1URTpB2QR5nixgqN21j4tJ0l",
+      "id": "in_1URTsr2QR5nixgqNpHZhFrVi",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTpI2QR5nixgqN5dRjw7I1",
+      "id": "in_1URTsx2QR5nixgqNwOO31CvC",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
