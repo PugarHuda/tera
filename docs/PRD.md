@@ -116,7 +116,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 > **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
 >
-> Live app: `/builder` = Pricing Builder (FR1), `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+> Live app: `/builder` = Pricing Builder (FR1), `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/reference` = API reference (FR9), `/mcp-setup` = MCP server (FR8), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
 
 ### FR1 Pricing Builder [SHIPPED]
 - Page `/builder`: create, edit and delete prices (USD, EUR, GBP, JPY; monthly or yearly), coupons (% or amount off; once, repeating with months, forever) and tax rates (exclusive or inclusive). It starts from the reference catalog; "Reset to reference catalog" restores it. Drafts survive a reload (browser storage, convenience only).
@@ -167,6 +167,14 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
+
+### FR8 MCP server [SHIPPED]
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
+- Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
+- `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
+
+### FR9 Interactive API reference [SHIPPED]
+- `/reference` renders the OpenAPI document with Scalar, including a "try it" client for every endpoint.
 
 ## 7. Non-functional
 - The simulation engine is a pure TypeScript module: no I/O, deterministic, unit-testable.

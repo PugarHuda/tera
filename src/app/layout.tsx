@@ -31,7 +31,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/builder">Builder</Link>
             <Link href="/migrate">Migration</Link>
             <Link href="/parity">Stripe parity</Link>
-            <a href="/api/openapi.json">API</a>
+            <a href="/reference">API</a>
+            <a href="/mcp-setup">MCP</a>
             <a href="https://github.com/PugarHuda/tera" className="ml-auto opacity-70">
               GitHub
             </a>
