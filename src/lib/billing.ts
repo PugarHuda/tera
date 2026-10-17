@@ -112,6 +112,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     if (!p) throw new Error(`Unknown price: ${id}`);
     return p;
   };
+  const taxRate = (id: string) => {
+    const r = catalog.tax_rates?.[id];
+    if (!r) throw new Error(`Unknown tax rate: ${id}`);
+    return r;
+  };
   const licensedAmount = (s: Sub) => {
     const p = price(s.priceId);
     return p.usage_type === "metered" ? 0 : (p.unit_amount ?? 0) * s.quantity;
@@ -225,7 +230,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           status: trial ? "trialing" : "active",
           cancelAtPeriodEnd: false,
           coupon: null,
-          taxRate: e.tax_rate ? catalog.tax_rates![e.tax_rate] : null,
+          taxRate: e.tax_rate ? taxRate(e.tax_rate) : null,
           pending: [],
           usage: 0,
         };

@@ -1,0 +1,270 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+
+type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
+type EventType = TimelineEvent["type"];
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior";
+
+const FIELDS: Record<EventType, Field[]> = {
+  subscribe: ["price", "quantity", "coupon", "tax_rate"],
+  start_trial: ["price", "trial_days", "quantity", "tax_rate"],
+  change_price: ["price", "proration_behavior"],
+  change_quantity: ["quantity", "proration_behavior"],
+  apply_coupon: ["coupon"],
+  report_usage: ["quantity"],
+  cancel_at_period_end: [],
+  advance_to: [],
+};
+const LABEL: Record<EventType, string> = {
+  subscribe: "Subscribe",
+  start_trial: "Start trial",
+  change_price: "Change price",
+  change_quantity: "Change quantity",
+  apply_coupon: "Apply coupon",
+  report_usage: "Report usage",
+  cancel_at_period_end: "Cancel at period end",
+  advance_to: "Advance clock to",
+};
+const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
+
+const day = (iso: string) => iso.slice(0, 10);
+
+export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios: Scenario[] }) {
+  const playable = scenarios.filter((s) => s.timeline);
+  const [scenarioId, setScenarioId] = useState(playable[4]?.id ?? "");
+  const [timeline, setTimeline] = useState<TimelineEvent[]>(playable[4]?.timeline ?? []);
+  const [pristine, setPristine] = useState(true);
+  const [locale, setLocale] = useState("en-US");
+
+  const scenario = playable.find((s) => s.id === scenarioId);
+
+  const outcome = useMemo(() => {
+    for (let i = 1; i < timeline.length; i++)
+      if (timeline[i].at < timeline[i - 1].at) return { error: `Event ${i + 1} is before event ${i}: keep the timeline in chronological order.` };
+    if (timeline.length === 0) return { error: "Add a subscribe event to start." };
+    try {
+      return { result: simulate(catalog, timeline) };
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
+  }, [catalog, timeline]);
+
+  const load = (id: string) => {
+    setScenarioId(id);
+    setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
+    setPristine(true);
+  };
+  const edit = (next: TimelineEvent[]) => {
+    setTimeline(next);
+    setPristine(false);
+  };
+  const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
+
+  const golden =
+    pristine && scenario?.expect && outcome.result
+      ? outcome.result.invoices.length === scenario.expect.length &&
+        outcome.result.invoices.every((inv, i) => inv.total === scenario.expect![i].total)
+      : null;
+
+  const prices = Object.keys(catalog.prices);
+  const coupons = Object.keys(catalog.coupons ?? {});
+  const taxes = Object.keys(catalog.tax_rates ?? {});
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-2">
+      <section aria-labelledby="timeline-h">
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <h2 id="timeline-h" className="mr-auto text-lg font-semibold">
+            Customer timeline
+          </h2>
+          <label className="text-sm">
+            <span className="block text-xs opacity-70">Load scenario</span>
+            <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
+              {playable.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.id} · {s.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <ol className="space-y-3" data-testid="timeline">
+          {timeline.map((e, i) => (
+            <li key={i} className="card flex flex-wrap items-end gap-2" data-testid={`event-${i}`}>
+              <span className="w-6 self-center text-xs opacity-50">{i + 1}</span>
+              <label className="text-sm">
+                <span className="block text-xs opacity-70">Date</span>
+                <input
+                  type="date"
+                  className="input"
+                  aria-label={`Event ${i + 1} date`}
+                  value={day(e.at)}
+                  onChange={(ev) => ev.target.value && update(i, { at: `${ev.target.value}T00:00:00Z` })}
+                />
+              </label>
+              <label className="text-sm">
+                <span className="block text-xs opacity-70">Event</span>
+                <select
+                  className="input"
+                  aria-label={`Event ${i + 1} type`}
+                  value={e.type}
+                  onChange={(ev) => update(i, { type: ev.target.value as EventType })}
+                >
+                  {(Object.keys(FIELDS) as EventType[]).map((t) => (
+                    <option key={t} value={t}>
+                      {LABEL[t]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {FIELDS[e.type].map((f) => (
+                <label key={f} className="text-sm">
+                  <span className="block text-xs opacity-70">{f.replace("_", " ")}</span>
+                  {f === "quantity" || f === "trial_days" ? (
+                    <input
+                      type="number"
+                      min={0}
+                      className="input w-24"
+                      aria-label={`Event ${i + 1} ${f}`}
+                      value={e[f] ?? ""}
+                      onChange={(ev) => update(i, { [f]: ev.target.value === "" ? undefined : Number(ev.target.value) })}
+                    />
+                  ) : (
+                    <select
+                      className="input"
+                      aria-label={`Event ${i + 1} ${f}`}
+                      value={e[f] ?? ""}
+                      onChange={(ev) => update(i, { [f]: ev.target.value || undefined })}
+                    >
+                      <option value="">—</option>
+                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : ["create_prorations", "always_invoice"]).map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </label>
+              ))}
+              <button
+                type="button"
+                className="btn-ghost ml-auto"
+                aria-label={`Delete event ${i + 1}`}
+                onClick={() => edit(timeline.filter((_, j) => j !== i))}
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ol>
+        <button
+          type="button"
+          className="btn mt-3"
+          onClick={() => {
+            const last = timeline.at(-1);
+            const at = last ? new Date(Date.parse(last.at) + 30 * 86_400_000).toISOString().slice(0, 10) + "T00:00:00Z" : "2027-01-01T00:00:00Z";
+            edit([...timeline, last ? { at, type: "advance_to" } : { at, type: "subscribe", price: prices[0] }]);
+          }}
+        >
+          + Add event
+        </button>
+      </section>
+
+      <section aria-labelledby="invoices-h">
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <h2 id="invoices-h" className="mr-auto text-lg font-semibold">
+            Invoices
+          </h2>
+          {golden !== null && (
+            <span data-testid="golden-badge" className={`badge ${golden ? "badge-ok" : "badge-bad"}`}>
+              {golden ? "✅ Matches golden expected" : "❌ Differs from golden expected"}
+            </span>
+          )}
+          <label className="text-sm">
+            <span className="block text-xs opacity-70">Locale</span>
+            <select data-testid="locale-select" className="input" value={locale} onChange={(e) => setLocale(e.target.value)}>
+              {LOCALES.map((l) => (
+                <option key={l}>{l}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {outcome.error ? (
+          <p role="alert" data-testid="sim-error" className="card border-red-500 text-red-600">
+            {outcome.error}
+          </p>
+        ) : (
+          <>
+            <p className="mb-3 text-sm opacity-70" data-testid="sub-status">
+              Status: <strong>{outcome.result!.status}</strong>
+              {outcome.result!.canceled_at && ` (canceled ${outcome.result!.canceled_at})`}
+            </p>
+            <ol className="space-y-3">
+              {outcome.result!.invoices.map((inv, i) => (
+                <InvoiceCard key={i} n={i + 1} inv={inv} locale={locale} />
+              ))}
+            </ol>
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: string }) {
+  const m = (x: number) => formatMoney(x, inv.currency, locale);
+  return (
+    <li className="card" data-testid={`invoice-${n}`}>
+      <div className="mb-2 flex items-baseline justify-between">
+        <span className="font-medium">
+          Invoice {n} · {inv.date}
+        </span>
+        <span className="font-mono text-lg font-semibold" data-testid={`invoice-${n}-total`}>
+          {m(inv.total)}
+        </span>
+      </div>
+      <p className="mb-2 text-xs opacity-60">
+        Period {inv.period_start} → {inv.period_end} · {inv.currency.toUpperCase()}
+      </p>
+      <table className="w-full text-sm">
+        <tbody>
+          {inv.lines.map((l, j) => (
+            <tr key={j} data-testid={`invoice-${n}-line-${j + 1}`}>
+              <td className="py-0.5">
+                {l.description}
+                {l.proration && <span className="badge ml-2">proration</span>}
+              </td>
+              <td className="text-right font-mono">{m(l.amount)}</td>
+            </tr>
+          ))}
+          <tr className="border-t border-current/10">
+            <td className="pt-1 opacity-70">Subtotal</td>
+            <td className="pt-1 text-right font-mono" data-testid={`invoice-${n}-subtotal`}>
+              {m(inv.subtotal)}
+            </td>
+          </tr>
+          {inv.discount > 0 && (
+            <tr>
+              <td className="opacity-70">Discount</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-discount`}>
+                −{m(inv.discount)}
+              </td>
+            </tr>
+          )}
+          {inv.tax > 0 && (
+            <tr>
+              <td className="opacity-70">Tax{inv.total === inv.subtotal - inv.discount ? " (included)" : ""}</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-tax`}>
+                {m(inv.tax)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </li>
+  );
+}

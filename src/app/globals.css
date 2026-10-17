@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card: #f6f6f4;
 }
 
 @theme inline {
@@ -16,11 +17,40 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --card: #161616;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-current/10 p-4;
+    background: var(--card);
+  }
+  .input {
+    @apply rounded-md border border-current/20 bg-transparent px-2 py-1.5;
+  }
+  .input option {
+    background: var(--background);
+  }
+  .btn {
+    @apply rounded-md bg-foreground px-3 py-1.5 text-sm font-medium text-background;
+  }
+  .btn-ghost {
+    @apply rounded-md px-2 py-1 opacity-60 hover:opacity-100;
+  }
+  .badge {
+    @apply rounded-full border border-current/20 px-2 py-0.5 text-xs;
+  }
+  .badge-ok {
+    @apply border-green-600 text-green-600;
+  }
+  .badge-bad {
+    @apply border-red-600 text-red-600;
+  }
 }
