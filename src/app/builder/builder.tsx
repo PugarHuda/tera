@@ -32,8 +32,8 @@ function toRows(c: Catalog): Rows {
 }
 
 // Major units in the form, minor units in the catalog. Returns the first problem in plain words.
-function toCatalog(rows: Rows): { catalog?: Catalog; error?: string } {
-  const prices: Record<string, Price> = {};
+function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalog; error?: string } {
+  const prices: Record<string, Price> = { ...fixed };
   for (const r of rows.prices) {
     const d = digits(r.currency);
     if (d === 0 && /[.,]/.test(r.amount)) return { error: `${r.id}: ${r.currency.toUpperCase()} has no minor unit, so the amount cannot have decimals` };
@@ -79,7 +79,9 @@ export function Builder({ reference }: { reference: Catalog }) {
     } catch {}
   }, [rows]);
 
-  const { catalog, error } = useMemo(() => toCatalog(rows), [rows]);
+  // Metered (tiered) prices are not editable here; they are carried over unchanged so nothing is silently dropped.
+  const metered = useMemo(() => Object.fromEntries(Object.entries(reference.prices).filter(([, p]) => p.usage_type === "metered")), [reference]);
+  const { catalog, error } = useMemo(() => toCatalog(rows, metered), [rows, metered]);
   const set = <K extends keyof Rows>(k: K, i: number, patch: Partial<Rows[K][number]>) =>
     setRows((r) => ({ ...r, [k]: r[k].map((x, j) => (j === i ? { ...x, ...patch } : x)) }));
   const remove = (k: keyof Rows, i: number) => setRows((r) => ({ ...r, [k]: r[k].filter((_, j) => j !== i) }));
@@ -101,6 +103,11 @@ export function Builder({ reference }: { reference: Catalog }) {
     <div className="space-y-6">
       <section className="card space-y-3" aria-labelledby="prices-h">
         <h2 id="prices-h" className="font-semibold">Prices</h2>
+        {Object.keys(metered).length > 0 && (
+          <p className="text-xs opacity-60">
+            Metered prices with graduated tiers ({Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
+          </p>
+        )}
         {rows.prices.map((p, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2" data-testid={`price-row-${i}`}>
             <label className="text-sm">
