@@ -119,10 +119,12 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Reference values: S05 → invoice 1 `$29.00`, invoice 2 `$103.20` (lines −$14.03, $38.23, $79.00). S10 (SAVE20 once) → first invoice discounted by 20 %, second not. S22 → status `canceled`.
 
 ### FR3 Migration Planner [SHIPPED]
-- Page `/migrate`. Inputs: current monthly price (USD), new monthly price (USD), a "Grandfather existing customers" checkbox, and seats per customer (comma separated).
-- Output, recomputed instantly: customers affected, MRR before, MRR after, MRR change (signed).
+- Page `/migrate`. Inputs: current price, new price (USD), billing interval (monthly, or annual where MRR = price ÷ 12 per customer, rounded per customer), a "Grandfather existing customers" checkbox, and the customer base.
+- Customer base: a bare list of seat counts (`1, 1, 3`) or a CSV `name,seats` (header optional, quoted names allowed), typed, pasted, loaded with "Load sample customers" or imported with "Import CSV file".
+- Output, recomputed instantly: customers affected (customers whose MRR changes), MRR before, MRR after, MRR change (signed), and a "Who pays more" table per customer sorted by change, exportable with "Export CSV".
 - Default inputs $29 → $39, seats `1, 1, 3`: affected 3, MRR $145.00 → $195.00, change +$50.00. With grandfathering: affected 0, change +$0.00.
-- Non-positive prices or non-integer seat counts show an error alert.
+- Annual reference (golden S29): $290/yr → $390/yr, acme 2 seats + globex 1 seat → MRR $72.50 → $97.50 (+$25.00); acme +$16.67, globex +$8.33.
+- Non-positive prices show "Prices must be positive amounts."; a bad seat count in the bare list shows "Seat counts must be positive whole numbers."; bad CSV rows are reported with their line number.
 
 ### FR4 Stripe Parity Check [PLANNED]
 - Replays a timeline in Stripe test mode using test clocks, then fetches the invoices.
@@ -140,7 +142,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
 - `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, total_display`.
-- `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[] }` → `{ affected, mrr_before, mrr_after, mrr_delta }`.
+- `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[], interval? }` where a customer is a seat count or `{ name, seats }` → `{ affected, mrr_before, mrr_after, mrr_delta, per_customer[] }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
 - Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate or an event before subscribe → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
