@@ -44,3 +44,6 @@ next-env.d.ts
 .playwright-mcp/
 .vercel
 .env*.local
+
+.vercel
+.env*
