@@ -98,6 +98,23 @@ export function Simulator({
         outcome.result.invoices.every((inv, i) => inv.total === scenario.expect![i].total)
       : null;
 
+  // Option labels carry the terms (amount, interval, discount) so nobody has to memorise ids.
+  const optionLabel = (field: Field, id: string) => {
+    if (field === "price") {
+      const p = catalog.prices[id];
+      return p.usage_type === "metered" ? `${id} — metered, tiered` : `${id} — ${formatMoney(p.unit_amount ?? 0, p.currency)}/${p.interval === "month" ? "mo" : "yr"}`;
+    }
+    if (field === "coupon") {
+      const c = catalog.coupons![id];
+      const off = c.percent_off != null ? `${c.percent_off}% off` : `${formatMoney(c.amount_off ?? 0, c.currency ?? "usd")} off`;
+      return `${id} — ${off} ${c.duration === "repeating" ? `for ${c.duration_in_months} months` : c.duration}`;
+    }
+    if (field === "tax_rate") {
+      const r = catalog.tax_rates![id];
+      return `${id} — ${r.percentage}% ${r.behavior}`;
+    }
+    return id;
+  };
   const prices = Object.keys(catalog.prices);
   const coupons = Object.keys(catalog.coupons ?? {});
   const taxes = Object.keys(catalog.tax_rates ?? {});
@@ -173,7 +190,7 @@ export function Simulator({
                       <option value="">—</option>
                       {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : ["create_prorations", "always_invoice"]).map((o) => (
                         <option key={o} value={o}>
-                          {o}
+                          {optionLabel(f, o)}
                         </option>
                       ))}
                     </select>
