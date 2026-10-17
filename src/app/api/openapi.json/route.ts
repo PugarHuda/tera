@@ -50,7 +50,16 @@ const spec = {
                   unit_amount: { type: "integer", minimum: 1 },
                   new_unit_amount: { type: "integer", minimum: 1 },
                   grandfather: { type: "boolean" },
-                  customers: { type: "array", items: { type: "integer", minimum: 1 }, description: "Seat count per customer" },
+                  interval: { type: "string", enum: ["month", "year"], default: "month", description: "Annual prices count as amount/12 MRR per customer" },
+                  customers: {
+                    type: "array",
+                    items: {
+                      oneOf: [
+                        { type: "integer", minimum: 1, description: "Seat count" },
+                        { type: "object", required: ["name", "seats"], properties: { name: { type: "string" }, seats: { type: "integer", minimum: 1 } } },
+                      ],
+                    },
+                  },
                 },
               },
               example: { unit_amount: 2900, new_unit_amount: 3900, grandfather: false, customers: [1, 1, 3] },
@@ -69,6 +78,19 @@ const spec = {
                     mrr_before: { type: "integer" },
                     mrr_after: { type: "integer" },
                     mrr_delta: { type: "integer" },
+                    per_customer: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                          seats: { type: "integer" },
+                          mrr_before: { type: "integer" },
+                          mrr_after: { type: "integer" },
+                          mrr_delta: { type: "integer" },
+                        },
+                      },
+                    },
                   },
                 },
               },

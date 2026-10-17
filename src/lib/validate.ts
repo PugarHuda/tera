@@ -1,6 +1,6 @@
 // Input validation for the public API (trust boundary). Throws BadRequest with a human message.
 import golden from "../../golden/scenarios.json";
-import type { Catalog, TimelineEvent } from "./billing";
+import type { Catalog, TimelineEvent, migrate } from "./billing";
 
 export class BadRequest extends Error {}
 
@@ -98,9 +98,14 @@ export function parseMigration(x: unknown) {
   if (!isInt(x.unit_amount, 1)) fail("unit_amount must be a positive integer");
   if (!isInt(x.new_unit_amount, 1)) fail("new_unit_amount must be a positive integer");
   if (typeof x.grandfather !== "boolean") fail("grandfather must be a boolean");
-  if (!Array.isArray(x.customers) || x.customers.length > 100_000 || !x.customers.every((q) => isInt(q, 1, 1e6)))
-    fail("customers must be an array of positive seat counts (max 100000)");
-  return x as { unit_amount: number; new_unit_amount: number; grandfather: boolean; customers: number[] };
+  if (x.interval !== undefined && x.interval !== "month" && x.interval !== "year") fail('interval must be "month" or "year"');
+  if (!Array.isArray(x.customers) || x.customers.length > 100_000) fail("customers must be an array (max 100000)");
+  x.customers.forEach((c: unknown, i: number) => {
+    const seats = isObj(c) ? c.seats : c;
+    if (!isInt(seats, 1, 1e6)) fail(`customers[${i}] needs a positive whole number of seats`);
+    if (isObj(c) && (typeof c.name !== "string" || !c.name.trim() || c.name.length > 200)) fail(`customers[${i}].name must be a non-empty string`);
+  });
+  return x as unknown as Parameters<typeof migrate>[0];
 }
 
 export function badRequest(e: unknown) {

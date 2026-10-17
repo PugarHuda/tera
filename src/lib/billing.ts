@@ -330,16 +330,33 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 }
 
-// R9. ponytail: monthly prices only; annual MRR (/12) when annual migration lands.
-export function migrate(input: { unit_amount: number; new_unit_amount: number; grandfather: boolean; customers: number[] }) {
-  const seats = input.customers.reduce((a, q) => a + q, 0);
-  const mrr_before = seats * input.unit_amount;
-  const mrr_after = input.grandfather ? mrr_before : seats * input.new_unit_amount;
+// R9. A customer is a seat count or a named account; annual prices count toward MRR as round(amount / 12) per customer.
+export type MigrationCustomer = number | { name: string; seats: number };
+
+export function migrate(input: {
+  unit_amount: number;
+  new_unit_amount: number;
+  grandfather: boolean;
+  customers: MigrationCustomer[];
+  interval?: Interval;
+}) {
+  const months = input.interval === "year" ? 12 : 1;
+  const mrr = (unit: number, seats: number) => roundMinor((unit * seats) / months);
+  const per_customer = input.customers.map((c, i) => {
+    const { name, seats } = typeof c === "number" ? { name: `customer ${i + 1}`, seats: c } : c;
+    const mrr_before = mrr(input.unit_amount, seats);
+    const mrr_after = input.grandfather ? mrr_before : mrr(input.new_unit_amount, seats);
+    return { name, seats, mrr_before, mrr_after, mrr_delta: mrr_after - mrr_before };
+  });
+  const sum = (k: "mrr_before" | "mrr_after") => per_customer.reduce((a, c) => a + c[k], 0);
+  const mrr_before = sum("mrr_before");
+  const mrr_after = sum("mrr_after");
   return {
-    affected: input.grandfather ? 0 : input.customers.length,
+    affected: per_customer.filter((c) => c.mrr_delta !== 0).length,
     mrr_before,
     mrr_after,
     mrr_delta: mrr_after - mrr_before,
+    per_customer,
   };
 }
 
