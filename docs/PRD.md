@@ -68,7 +68,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
 
 ### R5 — Coupons
-- `percent_off` applies to the invoice subtotal (including proration lines). **VERIFY** for proration lines.
+- `percent_off` applies only to **non-proration** lines. While a `percent_off` coupon is active, proration lines are computed at the discounted price and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
 - A coupon code applied to the same subscription more than once has **no additional effect** (idempotent, including page reloads and double submits).

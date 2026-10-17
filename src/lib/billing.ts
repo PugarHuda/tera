@@ -131,10 +131,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   const finalize = () => {
     if (!draft || !sub) return;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
+    // R5: proration lines are not discountable (they were already priced at the discounted rate).
+    const discountable = draft.lines.filter((l) => !l.proration).reduce((a, l) => a + l.amount, 0);
     let discount = 0;
-    if (sub.coupon && sub.coupon.remaining > 0 && subtotal > 0) {
+    if (sub.coupon && sub.coupon.remaining > 0 && discountable > 0) {
       const c = catalog.coupons![sub.coupon.code];
-      discount = c.percent_off != null ? roundMinor((subtotal * c.percent_off) / 100) : Math.min(c.amount_off ?? 0, subtotal);
+      discount = c.percent_off != null ? roundMinor((discountable * c.percent_off) / 100) : Math.min(c.amount_off ?? 0, discountable);
       sub.coupon.remaining -= 1;
     }
     const taxable = subtotal - discount;
@@ -209,12 +211,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   // R3: credit unused time on the old amount, charge remaining time on the new one.
+  // R5: while a percent_off coupon is active, Stripe prorates at the discounted price.
   const prorate = (s: Sub, at: number, oldAmount: number, newAmount: number): InvoiceLine[] => {
     const remaining = s.periodEnd - at;
     const period = s.periodEnd - s.periodStart;
+    const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
+    const rate = c?.percent_off != null ? 1 - c.percent_off / 100 : 1;
     return [
-      { description: "Unused time", amount: -roundMinor((oldAmount * remaining) / period), proration: true },
-      { description: "Remaining time", amount: roundMinor((newAmount * remaining) / period), proration: true },
+      { description: "Unused time", amount: -roundMinor((oldAmount * rate * remaining) / period), proration: true },
+      { description: "Remaining time", amount: roundMinor((newAmount * rate * remaining) / period), proration: true },
     ];
   };
 
