@@ -1,0 +1,14 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Migration planner: grandfathering toggles the impact between +$50.00 and +$0.00",
+  "description": "R9. Grandfathered customers keep the old price, so affected = 0 and MRR is unchanged; unticking restores the full impact.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page, then click the 'Migration' link in the top navigation bar" },
+    { "type": "action", "description": "Tick the 'Grandfather existing customers' checkbox" },
+    { "type": "assertion", "description": "Assert 'Customers affected' shows 0, 'MRR after' shows $145.00 and 'MRR change' shows +$0.00" },
+    { "type": "action", "description": "Untick the 'Grandfather existing customers' checkbox" },
+    { "type": "assertion", "description": "Assert 'Customers affected' shows 3 and 'MRR change' shows +$50.00" }
+  ]
+}

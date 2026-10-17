@@ -31,11 +31,15 @@ const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
 
 const day = (iso: string) => iso.slice(0, 10);
 
+// Edits that end up back at the scenario's timeline (add then delete, change then revert) count as unedited.
+const canonical = (t: TimelineEvent[]) =>
+  JSON.stringify(t.map((e) => Object.fromEntries(Object.entries(e).filter(([, v]) => v !== undefined).sort(([a], [b]) => a.localeCompare(b)))));
+const sameTimeline = (a: TimelineEvent[], b: TimelineEvent[]) => canonical(a) === canonical(b);
+
 export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios: Scenario[] }) {
   const playable = scenarios.filter((s) => s.timeline);
   const [scenarioId, setScenarioId] = useState(playable[4]?.id ?? "");
   const [timeline, setTimeline] = useState<TimelineEvent[]>(playable[4]?.timeline ?? []);
-  const [pristine, setPristine] = useState(true);
   const [locale, setLocale] = useState("en-US");
 
   const scenario = playable.find((s) => s.id === scenarioId);
@@ -54,16 +58,12 @@ export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios:
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
-    setPristine(true);
   };
-  const edit = (next: TimelineEvent[]) => {
-    setTimeline(next);
-    setPristine(false);
-  };
+  const edit = (next: TimelineEvent[]) => setTimeline(next);
   const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
   const golden =
-    pristine && scenario?.expect && outcome.result
+    scenario?.expect && scenario.timeline && sameTimeline(timeline, scenario.timeline) && outcome.result
       ? outcome.result.invoices.length === scenario.expect.length &&
         outcome.result.invoices.every((inv, i) => inv.total === scenario.expect![i].total)
       : null;
