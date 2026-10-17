@@ -998,6 +998,52 @@
         "mrr_after": 14500,
         "mrr_delta": 0
       }
+    },
+    {
+      "id": "S29",
+      "status": "draft",
+      "rules": [
+        "R9"
+      ],
+      "title": "Annual price migration reports MRR per customer",
+      "migration": {
+        "price": "pro_y",
+        "new_unit_amount": 39000,
+        "grandfather": false,
+        "customers": [
+          {
+            "name": "acme",
+            "seats": 2
+          },
+          {
+            "name": "globex",
+            "seats": 1
+          }
+        ]
+      },
+      "math": "annual MRR = round(unit_amount*seats/12) per customer: acme 4833 -> 6500, globex 2417 -> 3250; totals 7250 -> 9750",
+      "expect_report": {
+        "affected": 2,
+        "mrr_before": 7250,
+        "mrr_after": 9750,
+        "mrr_delta": 2500,
+        "per_customer": [
+          {
+            "name": "acme",
+            "seats": 2,
+            "mrr_before": 4833,
+            "mrr_after": 6500,
+            "mrr_delta": 1667
+          },
+          {
+            "name": "globex",
+            "seats": 1,
+            "mrr_before": 2417,
+            "mrr_after": 3250,
+            "mrr_delta": 833
+          }
+        ]
+      }
     }
   ]
 }
