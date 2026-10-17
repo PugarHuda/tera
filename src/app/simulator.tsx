@@ -255,6 +255,22 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
               </td>
             </tr>
           )}
+          {inv.starting_balance < 0 && (
+            <tr>
+              <td className="opacity-70">Applied credit balance</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-credit`}>
+                {m(Math.max(inv.starting_balance, -Math.max(inv.total, 0)))}
+              </td>
+            </tr>
+          )}
+          {inv.amount_due !== inv.total && (
+            <tr className="font-semibold">
+              <td>Amount due{inv.total < 0 ? ` (${m(-inv.total)} added to credit balance)` : ""}</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-amount-due`}>
+                {m(inv.amount_due)}
+              </td>
+            </tr>
+          )}
           {inv.tax > 0 && (
             <tr>
               <td className="opacity-70">Tax{inv.total === inv.subtotal - inv.discount ? " (included)" : ""}</td>

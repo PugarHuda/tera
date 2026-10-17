@@ -88,6 +88,16 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
 - With `grandfather = false`, existing subscribers move at their **next renewal** (no proration); MRR delta = Σ (new − old) × quantity.
 
+### R10 — Customer credit balance
+- An invoice whose total is negative (e.g. a downgrade with `always_invoice`) charges nothing: `amount_due = 0` and the negative total becomes customer credit.
+- Each invoice records `starting_balance` (≤ 0) and `amount_due = max(0, total + starting_balance)`; leftover credit carries to the next invoice.
+
+### R11 — Rejected timelines (Stripe rejects these; the API returns 422)
+- A second `subscribe`/`start_trial` while a subscription is active; any event after the subscription was canceled.
+- `change_price` to a price in another currency; an `amount_off` coupon whose currency differs from the subscription's.
+- `report_usage` on a licensed (non-metered) price.
+- A price or quantity change during a trial does not prorate (R4): the new terms bill when the trial ends.
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
@@ -95,7 +105,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
 - **I4** Zero-decimal currencies never display a decimal separator.
 - **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
-- **I6** Invoice periods are contiguous with no gaps or overlaps.
+- **I6** Invoice periods are contiguous with no gaps or overlaps, and `amount_due` is never negative.
 
 ## 6. Functional requirements
 
@@ -136,10 +146,10 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A public read-only URL that shows the plan, timeline and invoices without a login.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
-- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, total_display`.
+- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
 - `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[] }` → `{ affected, mrr_before, mrr_after, mrr_delta }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
-- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate or an event before subscribe → **422** `{ error }`.
+- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
 
