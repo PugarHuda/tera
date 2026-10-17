@@ -1,0 +1,155 @@
+# Tera — Product Requirements Document
+
+> *Tera* (Indonesian): to officially calibrate a measuring instrument.
+> Tera calibrates your pricing: see exactly what every customer will be charged before you change it — proven to match Stripe on every pull request.
+
+Status: v0.1 draft · Owner: hudapugar@gmail.com · Hackathon: TestSprite Season 4
+
+---
+
+## 1. Problem
+
+SaaS founders are afraid to touch pricing. A price change, a mid-cycle upgrade, a coupon or a tax rule produces invoices nobody previewed. Stripe executes billing; it does not let you *simulate* it across customers and time before you commit. Mistakes are found by customers, on their card statements.
+
+## 2. Product
+
+Tera is a pricing simulator that sits **on top of Stripe** (it never moves money):
+
+1. **Pricing Builder** — define plans and prices.
+2. **Customer Timeline Simulator** — run a virtual customer through events and get every invoice, to the cent.
+3. **Price Migration Planner** — preview the impact of a price change on an existing customer base.
+4. **Stripe Parity Check** — replay any scenario in Stripe test mode and diff the result line by line.
+5. **Push to Stripe** — create the validated products/prices/coupons in Stripe.
+6. **Shareable Report** — public read-only link to a simulation.
+
+### Users
+- **Founder / PM** — designs pricing, wants confidence before launch.
+- **Engineer** — integrates billing, wants a reference for expected invoices.
+
+## 3. Domain model
+
+| Entity | Fields |
+|---|---|
+| Plan | id, name, prices[] |
+| Price | id, currency, unit_amount (minor units), interval (`month`/`year`), billing_scheme (`per_unit`/`tiered`), usage_type (`licensed`/`metered`), tiers[] |
+| Coupon | code, percent_off \| amount_off+currency, duration (`once`/`repeating`/`forever`), duration_in_months |
+| TaxRate | percentage, behavior (`inclusive`/`exclusive`) |
+| Customer (virtual) | id, name, currency |
+| Event | at (ISO-8601 UTC), type, payload |
+| Invoice | period_start, period_end, lines[], subtotal, discount, tax, total |
+| InvoiceLine | description, amount (minor units), proration (bool), period |
+
+Event types: `subscribe`, `start_trial`, `change_price`, `change_quantity`, `apply_coupon`, `report_usage`, `cancel_at_period_end`, `advance_to`.
+
+## 4. Billing rules (the source of truth for the engine and the tests)
+
+All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must be confirmed against Stripe test mode before its golden values are frozen.
+
+### R1 — Money
+- All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
+- Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
+- Rounding mode: round half away from zero. **VERIFY** (no golden scenario depends on an exact .5 until verified).
+
+### R2 — Billing periods
+- The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
+- Time is measured in seconds. All golden scenarios use 00:00:00 UTC timestamps, so the fraction of a period equals the fraction of days.
+
+### R3 — Proration (price or quantity change mid-period)
+Two lines are generated, each rounded separately:
+- **Unused time credit:** `−round(old_amount × remaining / period)`
+- **Remaining time charge:** `+round(new_amount × remaining / period)`
+
+where `old_amount`/`new_amount` = unit_amount × quantity.
+- `proration_behavior = create_prorations` (default): lines are added to the **next** invoice.
+- `proration_behavior = always_invoice`: lines are invoiced **immediately**.
+- Changing the **interval** (month → year) resets the billing anchor to the change time and invoices immediately: unused-time credit + full new-period charge.
+
+### R4 — Trials
+- A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
+
+### R5 — Coupons
+- `percent_off` applies to the invoice subtotal (including proration lines). **VERIFY** for proration lines.
+- `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
+- `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
+- A coupon code applied to the same subscription more than once has **no additional effect** (idempotent, including page reloads and double submits).
+
+### R6 — Tax
+- Tax is computed **after** discounts.
+- Exclusive: `tax = round(taxable × rate)`, `total = taxable + tax`.
+- Inclusive: `tax = round(taxable × rate / (1 + rate))`, `total = taxable`.
+
+### R7 — Metered, graduated tiers
+- Each tier charges its own units at its own rate: `Σ units_in_tier × tier_rate`, rounded once per line.
+
+### R8 — Cancellation
+- `cancel_at_period_end`: no proration and no further invoices; the status becomes `canceled` at period end.
+
+### R9 — Price migration
+- Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
+- With `grandfather = false`, existing subscribers move at their **next renewal** (no proration); MRR delta = Σ (new − old) × quantity.
+
+## 5. Invariants (must hold for every simulation)
+
+- **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
+- **I2** An unused-time credit never exceeds what was paid for that period.
+- **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
+- **I4** Zero-decimal currencies never display a decimal separator.
+- **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
+- **I6** Invoice periods are contiguous with no gaps or overlaps.
+
+## 6. Functional requirements
+
+### FR1 Pricing Builder
+- Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
+- Validation: amount > 0, an integer in minor units; JPY rejects decimals; tiers are contiguous.
+
+### FR2 Timeline Simulator
+- Add, edit, reorder and delete events; the timeline rejects events out of chronological order.
+- Output: an invoice list. Each invoice expands to its lines, with proration lines labelled.
+- Amounts are formatted per currency and locale (`$29.00`, `29,00 €` in de-DE, `¥3,000`).
+
+### FR3 Migration Planner
+- Input: a price change, a grandfather toggle and a customer base (seeded or CSV).
+- Output: MRR before and after, per-customer delta, and the count of affected customers.
+
+### FR4 Stripe Parity Check
+- Replays a timeline in Stripe test mode using test clocks, then fetches the invoices.
+- Shows a line-by-line diff with a ✅ Match / ❌ Diff badge per invoice.
+- The Stripe key is server-side only and never returned to the client.
+
+### FR5 Push to Stripe
+- Creates the products, prices and coupons in Stripe test mode; the operation is idempotent.
+
+### FR6 Shareable report
+- A public read-only URL that shows the plan, timeline and invoices without a login.
+
+### FR7 Public API (tested directly by TestSprite's API suite)
+- `POST /api/simulate` — input `{ plans, coupons, taxRates, timeline }`, output `{ invoices[] }`.
+- `POST /api/migrate` — input a migration plan, output the impact report.
+- `GET /api/scenarios/:id` — returns a golden scenario with its expected output.
+- Documented in an OpenAPI spec at `/api/openapi.json`.
+
+## 7. Non-functional
+- The simulation engine is a pure TypeScript module: no I/O, deterministic, unit-testable.
+- p95 `/api/simulate` latency is under 300 ms for 50 events.
+- Every pull request gets a Vercel preview deployment, and TestSprite UI + API suites run against it and **block merge**.
+- Accessibility: keyboard-operable builder and timeline, labelled inputs.
+
+## 8. Testing strategy
+
+| Layer | What | Where |
+|---|---|---|
+| Unit | Engine against `golden/scenarios.json` | CI, every push |
+| API E2E | TestSprite API suite on `/api/simulate` (golden scenarios + invariants) | Every PR, blocking |
+| UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
+| Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
+
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`).
+
+## 9. Out of scope (v1)
+Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.
+
+## 10. Success criteria (hackathon)
+- All golden scenarios are `verified` against Stripe.
+- 20+ feature PRs, each gated by TestSprite with merge blocking enabled.
+- At least 3 PRs where TestSprite caught a real billing bug, followed by a fix commit and a green check.

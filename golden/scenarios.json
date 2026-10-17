@@ -1,0 +1,1003 @@
+{
+  "_note": "Hand-derived from docs/PRD.md rules. status=draft until replayed in Stripe test mode; then status=verified. Amounts in minor units (JPY: major).",
+  "catalog": {
+    "prices": {
+      "starter_m": {
+        "currency": "usd",
+        "unit_amount": 2900,
+        "interval": "month"
+      },
+      "pro_m": {
+        "currency": "usd",
+        "unit_amount": 7900,
+        "interval": "month"
+      },
+      "pro_y": {
+        "currency": "usd",
+        "unit_amount": 29000,
+        "interval": "year"
+      },
+      "team_seat_m": {
+        "currency": "usd",
+        "unit_amount": 1200,
+        "interval": "month"
+      },
+      "starter_m_eur": {
+        "currency": "eur",
+        "unit_amount": 2900,
+        "interval": "month"
+      },
+      "basic_m_jpy": {
+        "currency": "jpy",
+        "unit_amount": 3000,
+        "interval": "month"
+      },
+      "premium_m_jpy": {
+        "currency": "jpy",
+        "unit_amount": 8000,
+        "interval": "month"
+      },
+      "api_metered_m": {
+        "currency": "usd",
+        "interval": "month",
+        "usage_type": "metered",
+        "billing_scheme": "tiered",
+        "tiers": [
+          {
+            "up_to": 1000,
+            "unit_amount_decimal": "0"
+          },
+          {
+            "up_to": 10000,
+            "unit_amount_decimal": "1"
+          },
+          {
+            "up_to": null,
+            "unit_amount_decimal": "0.5"
+          }
+        ]
+      }
+    },
+    "coupons": {
+      "SAVE20": {
+        "percent_off": 20,
+        "duration": "once"
+      },
+      "FOREVER25": {
+        "percent_off": 25,
+        "duration": "forever"
+      },
+      "TENOFF3": {
+        "amount_off": 1000,
+        "currency": "usd",
+        "duration": "repeating",
+        "duration_in_months": 3
+      },
+      "FIFTYOFF": {
+        "amount_off": 5000,
+        "currency": "usd",
+        "duration": "once"
+      }
+    },
+    "tax_rates": {
+      "tax10_ex": {
+        "percentage": 10,
+        "behavior": "exclusive"
+      },
+      "vat20_in": {
+        "percentage": 20,
+        "behavior": "inclusive"
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "id": "S01",
+      "status": "draft",
+      "rules": [
+        "R2"
+      ],
+      "title": "Flat monthly subscription",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "status": "draft",
+      "rules": [
+        "R2"
+      ],
+      "title": "Annual plan",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "period_end": "2028-01-01",
+          "lines": [
+            29000
+          ],
+          "total": 29000
+        }
+      ]
+    },
+    {
+      "id": "S03",
+      "status": "draft",
+      "rules": [
+        "R2"
+      ],
+      "title": "Per-seat x5",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 5
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            6000
+          ],
+          "total": 6000
+        }
+      ]
+    },
+    {
+      "id": "S04",
+      "status": "draft",
+      "rules": [
+        "R4"
+      ],
+      "title": "14-day trial moves the anchor",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14
+        },
+        {
+          "at": "2027-01-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-15",
+          "period_end": "2027-02-15",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S05",
+      "status": "draft",
+      "rules": [
+        "R3"
+      ],
+      "title": "Upgrade day 17 of 31, prorations on next invoice",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "remaining 15/31: -round(2900*15/31)=-1403, +round(7900*15/31)=3823",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -1403,
+            3823,
+            7900
+          ],
+          "total": 10320
+        }
+      ]
+    },
+    {
+      "id": "S06",
+      "status": "draft",
+      "rules": [
+        "R3"
+      ],
+      "title": "Downgrade day 17 of 31",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -3823,
+            1403,
+            2900
+          ],
+          "total": 480
+        }
+      ]
+    },
+    {
+      "id": "S07",
+      "status": "draft",
+      "rules": [
+        "R2",
+        "R3"
+      ],
+      "title": "February: mid-month upgrade is exactly half",
+      "timeline": [
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "remaining 14/28",
+      "expect": [
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            -1450,
+            3950,
+            7900
+          ],
+          "total": 10400
+        }
+      ]
+    },
+    {
+      "id": "S08",
+      "status": "draft",
+      "rules": [
+        "R2",
+        "R3"
+      ],
+      "title": "Leap-year February",
+      "timeline": [
+        {
+          "at": "2028-02-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2028-02-15T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2028-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "remaining 15/29: -1500, +round(118500/29)=4086",
+      "expect": [
+        {
+          "date": "2028-02-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        },
+        {
+          "date": "2028-03-01",
+          "lines": [
+            -1500,
+            4086,
+            7900
+          ],
+          "total": 10486
+        }
+      ]
+    },
+    {
+      "id": "S09",
+      "status": "draft",
+      "rules": [
+        "R3"
+      ],
+      "title": "Add 3 seats mid-cycle",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 5
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 8
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "-round(6000*15/31)=-2903, +round(9600*15/31)=4645",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            6000
+          ],
+          "total": 6000
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -2903,
+            4645,
+            9600
+          ],
+          "total": 11342
+        }
+      ]
+    },
+    {
+      "id": "S10",
+      "status": "draft",
+      "rules": [
+        "R5"
+      ],
+      "title": "SAVE20 once",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 580,
+          "total": 2320
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S11",
+      "status": "draft",
+      "rules": [
+        "R5"
+      ],
+      "invariants": [
+        "I3"
+      ],
+      "title": "SAVE20 applied twice (reload) is idempotent",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 580,
+          "total": 2320
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S12",
+      "status": "draft",
+      "rules": [
+        "R5"
+      ],
+      "title": "FOREVER25 on Pro",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1975,
+          "total": 5925
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1975,
+          "total": 5925
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1975,
+          "total": 5925
+        }
+      ]
+    },
+    {
+      "id": "S13",
+      "status": "draft",
+      "rules": [
+        "R5"
+      ],
+      "title": "$10 off for 3 months",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "TENOFF3"
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "total": 1900
+        },
+        {
+          "date": "2027-02-01",
+          "total": 1900
+        },
+        {
+          "date": "2027-03-01",
+          "total": 1900
+        },
+        {
+          "date": "2027-04-01",
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S14",
+      "status": "draft",
+      "rules": [
+        "R5"
+      ],
+      "title": "amount_off larger than invoice is capped, not carried",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "FIFTYOFF"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 2900,
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S15",
+      "status": "draft",
+      "rules": [
+        "R6"
+      ],
+      "title": "10% exclusive tax",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "tax_rate": "tax10_ex"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "tax": 290,
+          "total": 3190
+        }
+      ]
+    },
+    {
+      "id": "S16",
+      "status": "draft",
+      "rules": [
+        "R6"
+      ],
+      "title": "20% inclusive VAT",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "tax_rate": "vat20_in"
+        }
+      ],
+      "math": "round(2900*0.2/1.2)=483",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "tax": 483,
+          "total": 2900
+        }
+      ]
+    },
+    {
+      "id": "S17",
+      "status": "draft",
+      "rules": [
+        "R5",
+        "R6"
+      ],
+      "title": "Coupon then exclusive tax",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "SAVE20",
+          "tax_rate": "tax10_ex"
+        }
+      ],
+      "math": "7900-1580=6320; tax round(632)=632",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1580,
+          "tax": 632,
+          "total": 6952
+        }
+      ]
+    },
+    {
+      "id": "S18",
+      "status": "draft",
+      "rules": [
+        "R1",
+        "R3"
+      ],
+      "invariants": [
+        "I4"
+      ],
+      "title": "JPY zero-decimal upgrade",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "basic_m_jpy"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "premium_m_jpy"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "-round(3000*15/31)=-1452, +round(8000*15/31)=3871",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            3000
+          ],
+          "total": 3000,
+          "display_en": "¥3,000"
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -1452,
+            3871,
+            8000
+          ],
+          "total": 10419,
+          "display_en": "¥10,419"
+        }
+      ]
+    },
+    {
+      "id": "S19",
+      "status": "draft",
+      "rules": [
+        "R1"
+      ],
+      "title": "EUR locale display",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m_eur"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "display_de": "29,00 €"
+        }
+      ]
+    },
+    {
+      "id": "S20",
+      "status": "draft",
+      "rules": [
+        "R3"
+      ],
+      "title": "Upgrade with always_invoice",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        },
+        {
+          "date": "2027-01-17",
+          "lines": [
+            -1403,
+            3823
+          ],
+          "total": 2420
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ]
+    },
+    {
+      "id": "S21",
+      "status": "draft",
+      "rules": [
+        "R3"
+      ],
+      "title": "Monthly to annual resets anchor, invoices now",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        },
+        {
+          "date": "2027-01-17",
+          "period_end": "2028-01-17",
+          "lines": [
+            -1403,
+            29000
+          ],
+          "total": 27597
+        }
+      ]
+    },
+    {
+      "id": "S22",
+      "status": "draft",
+      "rules": [
+        "R8"
+      ],
+      "title": "Cancel at period end: no further invoices",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900
+        }
+      ],
+      "expect_status": {
+        "2027-02-01": "canceled"
+      }
+    },
+    {
+      "id": "S23",
+      "status": "draft",
+      "rules": [
+        "R7"
+      ],
+      "title": "Graduated metered usage 12,346 calls",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 12346
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "1000*0 + 9000*1 + 2346*0.5 = 10173",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            9000,
+            1173
+          ],
+          "total": 10173
+        }
+      ]
+    },
+    {
+      "id": "S24",
+      "status": "draft",
+      "rules": [
+        "R9"
+      ],
+      "title": "Migration $29 -> $39, no grandfathering",
+      "migration": {
+        "price": "starter_m",
+        "new_unit_amount": 3900,
+        "grandfather": false,
+        "customers": [
+          1,
+          1,
+          3
+        ]
+      },
+      "expect_report": {
+        "affected": 3,
+        "mrr_before": 14500,
+        "mrr_after": 19500,
+        "mrr_delta": 5000
+      }
+    },
+    {
+      "id": "S25",
+      "status": "draft",
+      "rules": [
+        "R9"
+      ],
+      "title": "Same migration, grandfathered",
+      "migration": {
+        "price": "starter_m",
+        "new_unit_amount": 3900,
+        "grandfather": true,
+        "customers": [
+          1,
+          1,
+          3
+        ]
+      },
+      "expect_report": {
+        "affected": 0,
+        "mrr_before": 14500,
+        "mrr_after": 14500,
+        "mrr_delta": 0
+      }
+    }
+  ]
+}
