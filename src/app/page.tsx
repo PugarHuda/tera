@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import golden from "../../golden/scenarios.json";
 import type { Catalog } from "@/lib/billing";
@@ -47,10 +48,14 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
       {custom && (
         <p className="card mb-6 text-sm" data-testid="custom-catalog-banner">
           Using a custom catalog from the Pricing Builder ({Object.keys(custom.prices).length} prices). Golden scenarios are hidden because they
-          use the reference catalog. <a className="underline" href="/">Back to the reference catalog</a>
+          use the reference catalog. <Link className="underline" href="/">
+            Back to the reference catalog
+          </Link>
         </p>
       )}
       <Simulator
+        // Client-side navigation between links must reset the editor to the new URL's timeline.
+        key={`${t}|${c}`}
         catalog={custom ?? (golden.catalog as unknown as Catalog)}
         catalogParam={custom && typeof c === "string" ? c : undefined}
         scenarios={custom ? [] : scenarios}

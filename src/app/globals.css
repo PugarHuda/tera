@@ -33,7 +33,7 @@ body {
     background: var(--card);
   }
   .input {
-    @apply rounded-md border border-current/20 bg-transparent px-2 py-1.5;
+    @apply max-w-full rounded-md border border-current/20 bg-transparent px-2 py-1.5;
   }
   .input option {
     background: var(--background);

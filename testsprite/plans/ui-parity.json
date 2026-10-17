@@ -1,12 +1,12 @@
 {
   "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
   "type": "frontend",
-  "name": "Stripe parity page: 26/26 scenarios match and S05 shows identical Tera and Stripe invoices",
+  "name": "Stripe parity page: 31/31 scenarios match and S05 shows identical Tera and Stripe invoices",
   "description": "FR4. The parity page must report every golden timeline scenario as verified against Stripe test mode and show both sides of the comparison.",
   "priority": "p0",
   "planSteps": [
     { "type": "action", "description": "Open the app home page and click 'Stripe parity' in the top navigation bar" },
-    { "type": "assertion", "description": "Assert the summary reads exactly '26 / 26 scenarios match Stripe to the cent'" },
+    { "type": "assertion", "description": "Assert the summary reads exactly '31 / 31 scenarios match Stripe to the cent'" },
     { "type": "assertion", "description": "Assert the rows for S05, S11, S23 and S27 each show a '✅ Match' badge" },
     { "type": "action", "description": "Click the row title 'S05 · Upgrade day 17 of 31, prorations on next invoice' to expand it" },
     { "type": "assertion", "description": "Assert the expanded table shows Tera total $103.20 and Stripe total $103.20 for the 2027-02-01 invoice, and Stripe lines -$14.03 $38.23 $79.00" }

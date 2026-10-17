@@ -67,7 +67,9 @@ describe("invariants", () => {
       const paid: number[] = [];
       for (const inv of simulate(catalog, s.timeline!).invoices) {
         const credit = -inv.lines.filter((l) => l.amount < 0).reduce((a, l) => a + l.amount, 0);
-        expect(credit).toBeLessThanOrEqual(Math.max(0, ...paid));
+        // A second change in one period also refunds time charged by the first change's proration (S33).
+        const charged = inv.lines.filter((l) => l.proration && l.amount > 0).reduce((a, l) => a + l.amount, 0);
+        expect(credit).toBeLessThanOrEqual(Math.max(0, ...paid) + charged);
         paid.push(inv.lines.filter((l) => l.amount > 0).reduce((a, l) => a + l.amount, 0));
       }
     }

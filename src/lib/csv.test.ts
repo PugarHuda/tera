@@ -20,4 +20,8 @@ describe("customer CSV", () => {
     expect(csv).toBe('name,seats\n"Globex, LLC",1\n');
     expect(parseCustomers(csv).customers).toEqual([{ name: "Globex, LLC", seats: 1 }]);
   });
+  it("neutralises spreadsheet formulas in text but keeps negative numbers", () => {
+    expect(toCsv([{ name: '=HYPERLINK("http://x")', delta: -12.5 }])).toBe(`name,delta\n"'=HYPERLINK(""http://x"")",-12.5\n`);
+    expect(toCsv([{ name: "@SUM(A1)" }, { name: "-1+2" }])).toBe("name\n'@SUM(A1)\n'-1+2\n");
+  });
 });

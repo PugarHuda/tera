@@ -68,7 +68,9 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
 
 ### R5 — Coupons
-- `percent_off` applies only to **non-proration** lines. While a `percent_off` coupon is active, proration lines are computed at the discounted price and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- `percent_off` applies only to **non-proration** lines. Proration lines are priced already discounted and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- The **unused-time credit** refunds the rate the current amount was actually charged at: the period invoice's `percent_off` (even a `once` coupon that is now used up, S30), or the rate of the latest proration charge (S33). A coupon applied mid-period does not reduce the credit for time already paid in full (S34).
+- The **remaining-time charge** is priced at the `percent_off` coupon still active at the change, and becomes the rate later credits refund.
 - `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
@@ -103,10 +105,13 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Tera models Stripe's **classic** billing mode. New Stripe subscriptions default to *flexible* mode, where a monthly → yearly change does not reset the anchor; the parity replay pins `billing_mode: classic`.
 - Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
 
+### R13 — Changing the price of an item
+- Like a Stripe subscription item update, `change_price` without a `quantity` resets the quantity to **1** (S31); pass `quantity` to keep seats (S32). Found by a live "Verify in Stripe" replay of a custom timeline.
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
-- **I2** An unused-time credit never exceeds what was paid for that period.
+- **I2** An unused-time credit never exceeds what was paid for that period (including earlier proration charges in the same period, S33).
 - **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
 - **I4** Zero-decimal currencies never display a decimal separator.
 - **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
@@ -125,7 +130,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S23).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S34).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -133,6 +138,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Each invoice shows its date, period, lines (proration lines carry a "proration" badge), subtotal, discount (if any), tax (if any) and a bold total.
 - While a loaded scenario is unedited, a badge shows "✅ Matches golden expected" when every invoice total equals the golden expected total.
 - A locale dropdown (en-US, de-DE, ja-JP, en-GB) reformats amounts: `$103.20` in en-US, `103,20 $` in de-DE; JPY never shows decimals (`¥10,419`).
+- "Verify in Stripe" replays the current timeline in a fresh Stripe test clock and shows "✅ Matches Stripe" with the test clock id, or each differing field (Tera vs Stripe).
+- "Export CSV (minor units)" downloads one row per invoice (date, currency, lines, subtotal, discount, tax, total, starting balance, amount due); text cells are neutralised against spreadsheet formula injection.
 - Reference values: S05 → invoice 1 `$29.00`, invoice 2 `$103.20` (lines −$14.03, $38.23, $79.00). S10 (SAVE20 once) → first invoice discounted by 20 %, second not. S22 → status `canceled`.
 
 ### FR3 Migration Planner [SHIPPED]
@@ -167,9 +174,11 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
+- `POST /api/parity` — `{ scenario }` or `{ timeline, catalog? }` (≤ 15 events, ≤ 2 years): live replay in a Stripe test clock, returns `{ match, diffs, tera, stripe, test_clock }`; 429 with `retry-after` during the 30 s cooldown.
+- The API is cookie-less and sends `Access-Control-Allow-Origin: *`, so browser apps on any origin can call it. Pages send a Content-Security-Policy, `nosniff`, Referrer-Policy and Permissions-Policy; `/robots.txt` keeps crawlers off `/api/`, `/sitemap.xml` and `/llms.txt` describe the site.
 
 ### FR8 MCP server [SHIPPED]
-- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
 - Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
 - `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
 

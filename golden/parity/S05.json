@@ -1,15 +1,15 @@
 {
   "id": "S05",
   "title": "Upgrade day 17 of 31, prorations on next invoice",
-  "verified_at": "2026-10-17T09:26:41.788Z",
+  "verified_at": "2026-10-17T11:40:55.373Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTsq2QR5nixgqNFRtOgG7h",
-  "customer": "cus_VSOgXO3ZMzLYQZ",
+  "test_clock": "clock_1URVyj2QR5nixgqNysRhCYkv",
+  "customer": "cus_VSQqSC6xpwClzK",
   "stripe": [
     {
-      "id": "in_1URTsr2QR5nixgqNC0zgNtZ4",
+      "id": "in_1URVyl2QR5nixgqNAM0zT94t",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTsz2QR5nixgqNpTP1YlaW",
+      "id": "in_1URVyu2QR5nixgqNTAGIWcRl",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

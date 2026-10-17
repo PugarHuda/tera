@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
@@ -11,7 +12,7 @@ type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "pror
 const FIELDS: Record<EventType, Field[]> = {
   subscribe: ["price", "quantity", "coupon", "tax_rate"],
   start_trial: ["price", "trial_days", "quantity", "tax_rate"],
-  change_price: ["price", "proration_behavior"],
+  change_price: ["price", "quantity", "proration_behavior"],
   change_quantity: ["quantity", "proration_behavior"],
   apply_coupon: ["coupon"],
   report_usage: ["quantity"],
@@ -61,10 +62,15 @@ export function Simulator({
   );
   const [shareUrl, setShareUrl] = useState("");
   const [locale, setLocale] = useState("en-US");
+  // Live check: replay this exact timeline in a Stripe test clock (POST /api/parity).
+  const [stripeCheck, setStripeCheck] = useState<
+    { state: "running" } | { state: "done"; match: boolean; diffs: { invoice: number; field: string; tera: unknown; stripe: unknown }[]; clock: string; count: number } | { state: "error"; error: string } | null
+  >(null);
 
   const scenario = playable.find((s) => s.id === scenarioId);
 
-  const outcome = useMemo(() => {
+  // React Compiler memoizes this; it only re-runs when catalog or timeline change.
+  const outcome = ((): { error: string; result?: undefined } | { result: ReturnType<typeof simulate>; error?: undefined } => {
     for (let i = 1; i < timeline.length; i++)
       if (timeline[i].at < timeline[i - 1].at) return { error: `Event ${i + 1} is before event ${i}: keep the timeline in chronological order.` };
     if (timeline.length === 0) return { error: "Add a subscribe event to start." };
@@ -73,16 +79,29 @@ export function Simulator({
     } catch (e) {
       return { error: (e as Error).message };
     }
-  }, [catalog, timeline]);
+  })();
 
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
     setShareUrl("");
+    setStripeCheck(null);
   };
   const edit = (next: TimelineEvent[]) => {
     setTimeline(next);
     setShareUrl("");
+    setStripeCheck(null);
+  };
+  const verifyInStripe = async () => {
+    setStripeCheck({ state: "running" });
+    try {
+      const res = await fetch("/api/parity", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ timeline, catalog }) });
+      const body = await res.json();
+      if (!res.ok) return setStripeCheck({ state: "error", error: body.error ?? `HTTP ${res.status}` });
+      setStripeCheck({ state: "done", match: body.match, diffs: body.diffs, clock: body.test_clock, count: body.stripe.length });
+    } catch (e) {
+      setStripeCheck({ state: "error", error: (e as Error).message });
+    }
   };
   const share = async () => {
     const url = `${location.origin}/?t=${encodeTimeline(timeline)}${catalogParam ? `&c=${catalogParam}` : ""}`;
@@ -92,6 +111,26 @@ export function Simulator({
     } catch {
       // Clipboard can be blocked; the link is still shown below for manual copy.
     }
+  };
+  const exportCsv = () => {
+    const rows = outcome.result!.invoices.map((inv, i) => ({
+      invoice: i + 1,
+      date: inv.date,
+      currency: inv.currency,
+      lines: inv.lines.map((l) => `${l.description} ${l.amount}`).join("; "),
+      subtotal: inv.subtotal,
+      discount: inv.discount,
+      tax: inv.tax,
+      total: inv.total,
+      starting_balance: inv.starting_balance,
+      amount_due: inv.amount_due,
+    }));
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([toCsv(rows)], { type: "text/csv" })),
+      download: `tera-invoices${scenarioId ? `-${scenarioId}` : ""}.csv`,
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
   const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
@@ -124,13 +163,13 @@ export function Simulator({
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      <section aria-labelledby="timeline-h">
+      <section aria-labelledby="timeline-h" className="min-w-0">
         <div className="mb-4 flex flex-wrap items-end gap-3">
           <h2 id="timeline-h" className="mr-auto text-lg font-semibold">
             Customer timeline
           </h2>
           {playable.length > 0 && (
-            <label className="text-sm">
+            <label className="max-w-full text-sm">
               <span className="block text-xs opacity-70">Load scenario</span>
               <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
                 {!scenarioId && <option value="">Custom (shared link)</option>}
@@ -229,6 +268,38 @@ export function Simulator({
         <button type="button" className="btn-ghost ml-2 mt-3 border border-current/20" data-testid="share-button" onClick={share}>
           Copy share link
         </button>
+        <button
+          type="button"
+          className="btn-ghost ml-2 mt-3 border border-current/20"
+          data-testid="verify-stripe"
+          disabled={!!outcome.error || stripeCheck?.state === "running"}
+          onClick={verifyInStripe}
+        >
+          {stripeCheck?.state === "running" ? "Replaying in Stripe…" : "Verify in Stripe"}
+        </button>
+        {stripeCheck && stripeCheck.state !== "running" && (
+          <div role="status" data-testid="stripe-check" className="card mt-3 text-sm">
+            {stripeCheck.state === "error" ? (
+              <span className="text-red-700 dark:text-red-400">Stripe replay failed: {stripeCheck.error}</span>
+            ) : stripeCheck.match ? (
+              <span>
+                <span className="badge badge-ok">✅ Matches Stripe</span> Stripe produced the same {stripeCheck.count} invoice{stripeCheck.count === 1 ? "" : "s"} to
+                the cent (test clock <code className="text-xs">{stripeCheck.clock}</code>).
+              </span>
+            ) : (
+              <>
+                <span className="badge badge-bad">❌ Differs from Stripe</span>
+                <ul className="mt-2 font-mono text-xs">
+                  {stripeCheck.diffs.map((d, i) => (
+                    <li key={i}>
+                      invoice {d.invoice} {d.field}: Tera {JSON.stringify(d.tera)} · Stripe {JSON.stringify(d.stripe)}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
         {shareUrl && (
           <label className="mt-3 block text-sm">
             <span className="block text-xs opacity-70">Link copied — anyone with it sees these exact invoices</span>
@@ -237,7 +308,7 @@ export function Simulator({
         )}
       </section>
 
-      <section aria-labelledby="invoices-h">
+      <section aria-labelledby="invoices-h" className="min-w-0">
         <div className="mb-4 flex flex-wrap items-end gap-3">
           <h2 id="invoices-h" className="mr-auto text-lg font-semibold">
             Invoices
@@ -263,9 +334,16 @@ export function Simulator({
           </p>
         ) : (
           <>
-            <p className="mb-3 text-sm opacity-70" data-testid="sub-status">
-              Status: <strong>{outcome.result!.status}</strong>
-              {outcome.result!.canceled_at && ` (canceled ${outcome.result!.canceled_at})`}
+            <p className="mb-3 flex items-center gap-2 text-sm" data-testid="sub-status">
+              <span className="opacity-70">
+                Status: <strong>{outcome.result!.status}</strong>
+                {outcome.result!.canceled_at && ` (canceled ${outcome.result!.canceled_at})`}
+              </span>
+              {outcome.result!.invoices.length > 0 && (
+                <button type="button" className="btn-ghost ml-auto border border-current/20 text-xs" data-testid="export-invoices" onClick={exportCsv}>
+                  Export CSV (minor units)
+                </button>
+              )}
             </p>
             <ol className="space-y-3">
               {outcome.result!.invoices.map((inv, i) => (
