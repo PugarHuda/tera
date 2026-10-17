@@ -32,6 +32,11 @@ const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
 
 const day = (iso: string) => iso.slice(0, 10);
 
+// Edits that end up back at the scenario's timeline (add then delete, change then revert) count as unedited.
+const canonical = (t: TimelineEvent[]) =>
+  JSON.stringify(t.map((e) => Object.fromEntries(Object.entries(e).filter(([, v]) => v !== undefined).sort(([a], [b]) => a.localeCompare(b)))));
+const sameTimeline = (a: TimelineEvent[], b: TimelineEvent[]) => canonical(a) === canonical(b);
+
 export function Simulator({
   catalog,
   scenarios,
@@ -44,11 +49,13 @@ export function Simulator({
   initialTimeline?: TimelineEvent[];
 }) {
   const playable = scenarios.filter((s) => s.timeline);
-  const [scenarioId, setScenarioId] = useState(initialTimeline ? "" : (initialScenarioId ?? ""));
+  // A shared link that replays a golden scenario exactly is recognised as that scenario.
+  const [scenarioId, setScenarioId] = useState(
+    initialTimeline ? (playable.find((s) => s.timeline && sameTimeline(s.timeline, initialTimeline))?.id ?? "") : (initialScenarioId ?? ""),
+  );
   const [timeline, setTimeline] = useState<TimelineEvent[]>(
     initialTimeline ?? playable.find((s) => s.id === initialScenarioId)?.timeline ?? [],
   );
-  const [pristine, setPristine] = useState(!initialTimeline);
   const [shareUrl, setShareUrl] = useState("");
   const [locale, setLocale] = useState("en-US");
 
@@ -68,12 +75,10 @@ export function Simulator({
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
-    setPristine(true);
     setShareUrl("");
   };
   const edit = (next: TimelineEvent[]) => {
     setTimeline(next);
-    setPristine(false);
     setShareUrl("");
   };
   const share = async () => {
@@ -88,7 +93,7 @@ export function Simulator({
   const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
   const golden =
-    pristine && scenario?.expect && outcome.result
+    scenario?.expect && scenario.timeline && sameTimeline(timeline, scenario.timeline) && outcome.result
       ? outcome.result.invoices.length === scenario.expect.length &&
         outcome.result.invoices.every((inv, i) => inv.total === scenario.expect![i].total)
       : null;

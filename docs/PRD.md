@@ -134,7 +134,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### FR6 Shareable link [SHIPPED]
 - A "Copy share link" button on `/` encodes the current timeline into the URL (`/?t=<base64url JSON>`), shows the link in a read-only field and copies it to the clipboard.
-- Opening that link restores the exact same timeline and therefore the exact same invoices; the scenario dropdown shows "Custom (shared link)" and no golden badge is shown.
+- Opening that link restores the exact same timeline and therefore the exact same invoices. If it is exactly a golden scenario, that scenario is selected and the golden badge shows; otherwise the dropdown shows "Custom (shared link)" and no badge is shown.
 - `/?s=S10` opens a golden scenario directly (case-insensitive). An unknown id falls back to S05.
 - A corrupted `t` value never crashes the page: an alert reads "This shared link is invalid or corrupted, so the default scenario was loaded instead." and S05 is loaded.
 
