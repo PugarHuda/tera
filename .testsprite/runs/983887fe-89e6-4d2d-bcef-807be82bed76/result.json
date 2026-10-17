@@ -1,0 +1,24 @@
+{
+  "testId": "72cc5f49-85af-4404-a683-3aa77e6dd173",
+  "status": "failed",
+  "startedAt": "2026-10-17T09:16:09.631Z",
+  "finishedAt": "2026-10-17T09:20:27.724Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/20261017-092025-43d2bce2.webm?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZQ3DRZAIIIEQLNES%2F20261017%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261017T093000Z&X-Amz-Expires=604800&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEC8aCXVzLWVhc3QtMSJIMEYCIQDhC3vKNy3imqHlc5LrpGb%2BhB%2ByDyN59ZqY3GAS6itvIQIhAPBRBiF%2BBkrL%2BdBXPaP0qDuSagy5qtUovw7dk8ECBV2hKoQECPj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMNjU0NjU0NDI1MTA0IgwzpHAPQntOMht2MnUq2AP7iZ341W6EidDlUexr%2F0Gn6XIElXkltZYwi0fJMoYZC8WzBjriMtgvRZZ6%2F1I03FIBPCfOwywAnV805UERtyLlDIKauasoKWJ9UIcEQ7pcb3bB%2FUgvJ1lBWSHsAXHpga0ZAOoTOl5h1fDV5SHDZB%2BNd0h9P67iP%2B0ARQoT5CaviNfY5dIHTm%2BxWz4QvbqNbpjJvNwUGmhwCRKaJNRFgAbwZPDvUc1qt04iMoB2Y3lYF292Bmh8o9LCT0ZIeA3xEXs0sTkdMs4fgCpiupgOA8IieskZxYby7KhUR9yanvixpksMT2n9Qah7LRSNUSA5HF%2Fo%2BpBDvJHx5YBACaLjurTUmtHOxYSbHvxKi7mt7huhnfuaQKSgejNCU%2FxiQO0nhhzv7SvLBZb5DSJWrbtAXEUkA7Qe04PTMXClz%2F4d40cUmOkAVwGBhWKsersv5XV8nIH%2FoqKlYl59neyq5UIeofPVItYyjTfBPBAMj9HD0F5swVweDHh1%2FzzMDX2MLNgfnWcZscwzO%2F42YveANUh45ISqPsp2%2FbUTXMg71et%2BP5zramZf%2FhXYbmEp4160nGufzPbpw%2Bxj2f0HW2zxNbCKMFYmMCpqs4KfYUolY4PBaV6NAguwP9WO3Q4HMPmwzNYGOqQBxk%2Bo7y24Ij8o%2FZFDzoSOizJsJfmGDGstB6xs5ASyrG7Du6WJVHsxiA%2FU%2F6F00KuMOPinbsM4pRpQfyaK1nOLXNWaaFSyIC5tTai3MswU8421sxvdC2h74q8LyFj4IubJnO67R7o%2F0U4Vp1yMfk0h9yFyeP95F03knVY9Xmk%2BmjFJ%2FzEIjWMswkqLlMMEhADqmqYN4pcEtIIq37uVKAYrzh17M8Y%3D&X-Amz-Signature=11800fcc894581d478d771f28cef7e0ca3125b2af76abb9c221646dd63174422&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_327664f248ff06b2",
+  "runIdIfAvailable": "983887fe-89e6-4d2d-bcef-807be82bed76",
+  "codeVersion": null,
+  "targetUrl": "https://tera-git-feat-api-docs-mcp-hudas-projects-a8e7f558.vercel.app",
+  "targetUrlSource": null,
+  "environment": {
+    "id": "35e3c1c1-a382-4f7d-884f-b60f669b9851",
+    "name": "github-pr-6"
+  },
+  "failedStepIndex": 9,
+  "failureKind": "assertion",
+  "verdict": "failed",
+  "executionStatus": "completed",
+  "summary": "Failed (assertion): Most likely the hosting-side app has a synchronization/state-management bug where the golden-match indicator is set to false when a timeline event is added, but the code path that handles deletion does not restore it. In other words, the totals returned to baseline, but the badge depends on a separate piece of state that was not recomputed or was not invalidated after the delete. Another possibility is an API/cache issue on the deployed build where the badge state is served … Target: environment github-pr-6 (https://tera-git-feat-api-docs-mcp-hudas-projects-a8e7f558.vercel.app).",
+  "apiOutput": null,
+  "trace": null
+}

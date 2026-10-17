@@ -116,7 +116,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 > **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
 >
-> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/reference` = API reference (FR9), `/mcp-setup` = MCP server (FR8), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
 
 ### FR1 Pricing Builder [PLANNED]
 - Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
@@ -134,10 +134,12 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Reference values: S05 → invoice 1 `$29.00`, invoice 2 `$103.20` (lines −$14.03, $38.23, $79.00). S10 (SAVE20 once) → first invoice discounted by 20 %, second not. S22 → status `canceled`.
 
 ### FR3 Migration Planner [SHIPPED]
-- Page `/migrate`. Inputs: current monthly price (USD), new monthly price (USD), a "Grandfather existing customers" checkbox, and seats per customer (comma separated).
-- Output, recomputed instantly: customers affected, MRR before, MRR after, MRR change (signed).
+- Page `/migrate`. Inputs: current price, new price (USD), billing interval (monthly, or annual where MRR = price ÷ 12 per customer, rounded per customer), a "Grandfather existing customers" checkbox, and the customer base.
+- Customer base: a bare list of seat counts (`1, 1, 3`) or a CSV `name,seats` (header optional, quoted names allowed), typed, pasted, loaded with "Load sample customers" or imported with "Import CSV file".
+- Output, recomputed instantly: customers affected (customers whose MRR changes), MRR before, MRR after, MRR change (signed), and a "Who pays more" table per customer sorted by change, exportable with "Export CSV".
 - Default inputs $29 → $39, seats `1, 1, 3`: affected 3, MRR $145.00 → $195.00, change +$50.00. With grandfathering: affected 0, change +$0.00.
-- Non-positive prices or non-integer seat counts show an error alert.
+- Annual reference (golden S29): $290/yr → $390/yr, acme 2 seats + globex 1 seat → MRR $72.50 → $97.50 (+$25.00); acme +$16.67, globex +$8.33.
+- Non-positive prices show "Prices must be positive amounts."; a bad seat count in the bare list shows "Seat counts must be positive whole numbers."; bad CSV rows are reported with their line number.
 
 ### FR4 Stripe Parity Check [SHIPPED]
 - `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (classic billing mode, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total, starting_balance, amount_due). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer) is committed under `golden/parity/`.
@@ -157,11 +159,19 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
 - `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
-- `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[] }` → `{ affected, mrr_before, mrr_after, mrr_delta }`.
+- `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[], interval? }` where a customer is a seat count or `{ name, seats }` → `{ affected, mrr_before, mrr_after, mrr_delta, per_customer[] }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
 - Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
+
+### FR8 MCP server [SHIPPED]
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
+- Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
+- `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
+
+### FR9 Interactive API reference [SHIPPED]
+- `/reference` renders the OpenAPI document with Scalar, including a "try it" client for every endpoint.
 
 ## 7. Non-functional
 - The simulation engine is a pure TypeScript module: no I/O, deterministic, unit-testable.

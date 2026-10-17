@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import golden from "../../golden/scenarios.json";
-import { formatMoney, migrate, simulate, type Catalog, type TimelineEvent } from "./billing";
+import { formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
 
 type Expected = {
   date: string;
@@ -22,9 +22,9 @@ describe("golden scenarios", () => {
   for (const s of golden.scenarios as Array<Record<string, unknown>>) {
     it(`${s.id} ${s.title}`, () => {
       if (s.migration) {
-        const m = s.migration as { price: string; new_unit_amount: number; grandfather: boolean; customers: number[] };
-        const unit_amount = catalog.prices[m.price].unit_amount!;
-        expect(migrate({ ...m, unit_amount })).toEqual(s.expect_report);
+        const m = s.migration as { price: string; new_unit_amount: number; grandfather: boolean; customers: MigrationCustomer[] };
+        const { unit_amount, interval } = catalog.prices[m.price];
+        expect(migrate({ ...m, unit_amount: unit_amount!, interval })).toMatchObject(s.expect_report as object);
         return;
       }
       const result = simulate(catalog, s.timeline as TimelineEvent[]);

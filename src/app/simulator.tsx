@@ -184,6 +184,7 @@ export function Simulator({
                 type="button"
                 className="btn-ghost ml-auto"
                 aria-label={`Delete event ${i + 1}`}
+                data-testid={`delete-event-${i + 1}`}
                 onClick={() => edit(timeline.filter((_, j) => j !== i))}
               >
                 ✕
@@ -194,6 +195,7 @@ export function Simulator({
         <button
           type="button"
           className="btn mt-3"
+          data-testid="add-event"
           onClick={() => {
             const last = timeline.at(-1);
             const at = last ? new Date(Date.parse(last.at) + 30 * 86_400_000).toISOString().slice(0, 10) + "T00:00:00Z" : "2027-01-01T00:00:00Z";
