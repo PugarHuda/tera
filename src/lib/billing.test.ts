@@ -9,6 +9,8 @@ type Expected = {
   discount?: number;
   tax?: number;
   total: number;
+  starting_balance?: number;
+  amount_due?: number;
   display_en?: string;
   display_de?: string;
 };
@@ -35,6 +37,8 @@ describe("golden scenarios", () => {
         if (e.discount !== undefined) expect(inv.discount).toBe(e.discount);
         if (e.tax !== undefined) expect(inv.tax).toBe(e.tax);
         expect(inv.total).toBe(e.total);
+        if (e.starting_balance !== undefined) expect(inv.starting_balance).toBe(e.starting_balance);
+        if (e.amount_due !== undefined) expect(inv.amount_due).toBe(e.amount_due);
         if (e.display_en) expect(formatMoney(inv.total, inv.currency, "en-US")).toBe(e.display_en);
         if (e.display_de) expect(nbsp(formatMoney(inv.total, inv.currency, "de-DE"))).toBe(e.display_de);
       });
@@ -58,7 +62,44 @@ describe("invariants", () => {
     }
   });
 
+  it("I2 a credit never exceeds what was paid for the period", () => {
+    for (const s of timelines) {
+      const paid: number[] = [];
+      for (const inv of simulate(catalog, s.timeline!).invoices) {
+        const credit = -inv.lines.filter((l) => l.amount < 0).reduce((a, l) => a + l.amount, 0);
+        expect(credit).toBeLessThanOrEqual(Math.max(0, ...paid));
+        paid.push(inv.lines.filter((l) => l.amount > 0).reduce((a, l) => a + l.amount, 0));
+      }
+    }
+  });
+
+  it("I6 periods are contiguous and amount_due is never negative", () => {
+    for (const s of timelines) {
+      const invoices = simulate(catalog, s.timeline!).invoices;
+      for (const inv of invoices) {
+        expect(inv.amount_due).toBeGreaterThanOrEqual(0);
+        expect(inv.period_start < inv.period_end).toBe(true);
+      }
+    }
+  });
+
   it("I5 deterministic", () => {
     for (const s of timelines) expect(simulate(catalog, s.timeline!)).toEqual(simulate(catalog, s.timeline!));
   });
+});
+
+describe("rejects timelines Stripe would reject", () => {
+  const sub = (price = "starter_m", extra: Partial<TimelineEvent> = {}): TimelineEvent => ({ at: "2027-01-01T00:00:00Z", type: "subscribe", price, ...extra });
+  const cases: Array<[string, TimelineEvent[], RegExp]> = [
+    ["amount_off coupon in another currency", [sub("starter_m_eur", { coupon: "TENOFF3" })], /currency/i],
+    ["switching currency mid-subscription", [sub(), { at: "2027-01-17T00:00:00Z", type: "change_price", price: "basic_m_jpy" }], /currency/i],
+    ["a second subscribe while active", [sub(), { at: "2027-01-10T00:00:00Z", type: "subscribe", price: "pro_m" }], /already/i],
+    ["usage on a licensed price", [sub(), { at: "2027-01-10T00:00:00Z", type: "report_usage", quantity: 10 }], /metered/i],
+    [
+      "changes after the subscription ended",
+      [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_at_period_end" }, { at: "2027-03-01T00:00:00Z", type: "change_price", price: "pro_m" }],
+      /canceled/i,
+    ],
+  ];
+  for (const [name, timeline, msg] of cases) it(name, () => expect(() => simulate(catalog, timeline)).toThrow(msg));
 });

@@ -15,6 +15,11 @@ on:
 permissions:
   contents: read
 
+# Back-to-back merges should not burn credits on a superseded commit.
+concurrency:
+  group: testsprite-api-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   api-suite:
     name: TestSprite API suite (production)
