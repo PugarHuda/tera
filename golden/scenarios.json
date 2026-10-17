@@ -1901,6 +1901,66 @@
       ],
       "status": "verified",
       "parity": "golden/parity/S42.json"
+    },
+    {
+      "id": "S43",
+      "status": "verified",
+      "rules": [
+        "R3"
+      ],
+      "title": "A no-op change with always_invoice still invoices earlier pending prorations now",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 2
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 6
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 6,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10, 22/31 left: -round(2400*22/31)=-1703, +round(7200*22/31)=5110, pending. 01-20 changes nothing, but always_invoice invoices the pending lines now: 3407. Renewal 02-01: 7200",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2400
+          ],
+          "discount": 0,
+          "total": 2400
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            -1703,
+            5110
+          ],
+          "discount": 0,
+          "total": 3407
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7200
+          ],
+          "discount": 0,
+          "total": 7200
+        }
+      ],
+      "parity": "golden/parity/S43.json"
     }
   ]
 }
