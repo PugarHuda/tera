@@ -16,6 +16,8 @@
 | Customer timeline simulator | `/` |
 | Price migration planner (MRR impact, grandfathering) | `/migrate` |
 | Public API: `POST /api/simulate`, `POST /api/migrate`, `GET /api/scenarios[/:id]` | `src/app/api` |
+| Interactive API reference (Scalar) | `/reference` |
+| MCP server for AI agents (`simulate_timeline`, `plan_price_migration`, …) | `/api/mcp`, setup at `/mcp-setup` |
 | Pure, deterministic billing engine | `src/lib/billing.ts` |
 
 ## Tests: what a green check means
