@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { encodeTimeline } from "@/lib/share";
 
-type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
+export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
 type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior";
 
@@ -36,10 +37,26 @@ const canonical = (t: TimelineEvent[]) =>
   JSON.stringify(t.map((e) => Object.fromEntries(Object.entries(e).filter(([, v]) => v !== undefined).sort(([a], [b]) => a.localeCompare(b)))));
 const sameTimeline = (a: TimelineEvent[], b: TimelineEvent[]) => canonical(a) === canonical(b);
 
-export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios: Scenario[] }) {
+export function Simulator({
+  catalog,
+  scenarios,
+  initialScenarioId,
+  initialTimeline,
+}: {
+  catalog: Catalog;
+  scenarios: Scenario[];
+  initialScenarioId?: string;
+  initialTimeline?: TimelineEvent[];
+}) {
   const playable = scenarios.filter((s) => s.timeline);
-  const [scenarioId, setScenarioId] = useState(playable[4]?.id ?? "");
-  const [timeline, setTimeline] = useState<TimelineEvent[]>(playable[4]?.timeline ?? []);
+  // A shared link that replays a golden scenario exactly is recognised as that scenario.
+  const [scenarioId, setScenarioId] = useState(
+    initialTimeline ? (playable.find((s) => s.timeline && sameTimeline(s.timeline, initialTimeline))?.id ?? "") : (initialScenarioId ?? ""),
+  );
+  const [timeline, setTimeline] = useState<TimelineEvent[]>(
+    initialTimeline ?? playable.find((s) => s.id === initialScenarioId)?.timeline ?? [],
+  );
+  const [shareUrl, setShareUrl] = useState("");
   const [locale, setLocale] = useState("en-US");
 
   const scenario = playable.find((s) => s.id === scenarioId);
@@ -58,8 +75,21 @@ export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios:
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
+    setShareUrl("");
   };
-  const edit = (next: TimelineEvent[]) => setTimeline(next);
+  const edit = (next: TimelineEvent[]) => {
+    setTimeline(next);
+    setShareUrl("");
+  };
+  const share = async () => {
+    const url = `${location.origin}/?t=${encodeTimeline(timeline)}`;
+    setShareUrl(url);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard can be blocked; the link is still shown below for manual copy.
+    }
+  };
   const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
   const golden =
@@ -82,6 +112,7 @@ export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios:
           <label className="text-sm">
             <span className="block text-xs opacity-70">Load scenario</span>
             <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
+              {!scenarioId && <option value="">Custom (shared link)</option>}
               {playable.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.id} · {s.title}
@@ -171,6 +202,15 @@ export function Simulator({ catalog, scenarios }: { catalog: Catalog; scenarios:
         >
           + Add event
         </button>
+        <button type="button" className="btn-ghost ml-2 mt-3 border border-current/20" data-testid="share-button" onClick={share}>
+          Copy share link
+        </button>
+        {shareUrl && (
+          <label className="mt-3 block text-sm">
+            <span className="block text-xs opacity-70">Link copied — anyone with it sees these exact invoices</span>
+            <input readOnly className="input w-full font-mono text-xs" data-testid="share-url" value={shareUrl} onFocus={(e) => e.target.select()} />
+          </label>
+        )}
       </section>
 
       <section aria-labelledby="invoices-h">

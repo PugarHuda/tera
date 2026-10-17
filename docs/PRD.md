@@ -111,7 +111,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 > **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
 >
-> Live app: `/` = Timeline Simulator (FR2), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
 
 ### FR1 Pricing Builder [PLANNED]
 - Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
@@ -142,8 +142,11 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 ### FR5 Push to Stripe [PLANNED]
 - Creates the products, prices and coupons in Stripe test mode; the operation is idempotent.
 
-### FR6 Shareable report [PLANNED]
-- A public read-only URL that shows the plan, timeline and invoices without a login.
+### FR6 Shareable link [SHIPPED]
+- A "Copy share link" button on `/` encodes the current timeline into the URL (`/?t=<base64url JSON>`), shows the link in a read-only field and copies it to the clipboard.
+- Opening that link restores the exact same timeline and therefore the exact same invoices. If it is exactly a golden scenario, that scenario is selected and the golden badge shows; otherwise the dropdown shows "Custom (shared link)" and no badge is shown.
+- `/?s=S10` opens a golden scenario directly (case-insensitive). An unknown id falls back to S05.
+- A corrupted `t` value never crashes the page: an alert reads "This shared link is invalid or corrupted, so the default scenario was loaded instead." and S05 is loaded.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
 - `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
