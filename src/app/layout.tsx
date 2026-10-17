@@ -28,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Tera
             </Link>
             <Link href="/">Simulator</Link>
+            <Link href="/builder">Builder</Link>
             <Link href="/migrate">Migration</Link>
             <Link href="/parity">Stripe parity</Link>
             <a href="/api/openapi.json">API</a>

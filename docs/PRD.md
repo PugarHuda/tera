@@ -116,11 +116,13 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 > **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
 >
-> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+> Live app: `/builder` = Pricing Builder (FR1), `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
 
-### FR1 Pricing Builder [PLANNED]
-- Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
-- Validation: amount > 0, an integer in minor units; JPY rejects decimals; tiers are contiguous.
+### FR1 Pricing Builder [SHIPPED]
+- Page `/builder`: create, edit and delete prices (USD, EUR, GBP, JPY; monthly or yearly), coupons (% or amount off; once, repeating with months, forever) and tax rates (exclusive or inclusive). It starts from the reference catalog; "Reset to reference catalog" restores it. Drafts survive a reload (browser storage, convenience only).
+- Amounts are typed in major units and stored in minor units. JPY rejects decimals ("JPY has no minor unit, so the amount cannot have decimals"); duplicate price ids, non-positive amounts and invalid ids are reported, and the same validator as the API runs on the whole catalog. A valid catalog shows "Catalog is valid: N prices, M coupons, K tax rates."
+- "Simulate with this catalog" opens `/?c=<catalog>` with a subscribe on the first price; share links keep the catalog. Golden scenarios are hidden for custom catalogs and a banner names the custom catalog.
+- "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
 - The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S23).
@@ -149,6 +151,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Metered usage is replayed with a Stripe **Meter** (`tera_api_calls`, sum aggregation) and a graduated tiered price; meter events carry the test clock's time and the replay waits for Stripe's aggregation before the period closes (S23).
 
 ### FR5 Push to Stripe [SHIPPED]
+- `POST /api/stripe/push {catalog}` validates the catalog (400 on invalid input) and creates or reuses its Stripe objects; 10 s cooldown (429).
 - The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key`, coupons by id and tax rates by display name, each keyed as `<id>_<sha256 of its definition>`: re-running never duplicates objects, and a changed definition (e.g. starter_m at $39) creates a new Stripe object instead of silently reusing the old $29 price.
 
 ### FR6 Shareable link [SHIPPED]

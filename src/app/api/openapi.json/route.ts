@@ -8,7 +8,7 @@ const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R9 in docs/PRD.md.",
+      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R12 in docs/PRD.md. 26/26 golden scenarios verified against Stripe test mode (see /parity).",
   },
   paths: {
     "/api/simulate": {
@@ -98,6 +98,21 @@ const spec = {
           },
           "400": { description: "Malformed input", content: { "application/json": { schema: error } } },
         },
+      },
+    },
+    "/api/parity": {
+      get: { summary: "Recorded Stripe test-clock evidence for every golden scenario", responses: { "200": { description: "Evidence records" } } },
+      post: {
+        summary: "Replay one golden scenario live in Stripe test mode and diff it against Tera",
+        requestBody: { required: true, content: { "application/json": { example: { scenario: "S05" } } } },
+        responses: { "200": { description: "match, diffs, tera and stripe invoices" }, "400": { description: "Not a golden scenario id" }, "429": { description: "Cooldown" } },
+      },
+    },
+    "/api/stripe/push": {
+      post: {
+        summary: "Create or reuse a catalog's prices, coupons and tax rates in Stripe test mode",
+        requestBody: { required: true, content: { "application/json": { example: { catalog: { prices: { pro_m: { currency: "usd", unit_amount: 7900, interval: "month" } } } } } } },
+        responses: { "200": { description: "Stripe ids per catalog entry" }, "400": { description: "Invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown" } },
       },
     },
     "/api/scenarios": {

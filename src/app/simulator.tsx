@@ -42,11 +42,14 @@ export function Simulator({
   scenarios,
   initialScenarioId,
   initialTimeline,
+  catalogParam,
 }: {
   catalog: Catalog;
   scenarios: Scenario[];
   initialScenarioId?: string;
   initialTimeline?: TimelineEvent[];
+  /** Encoded custom catalog, kept in share links so they replay with the same prices. */
+  catalogParam?: string;
 }) {
   const playable = scenarios.filter((s) => s.timeline);
   // A shared link that replays a golden scenario exactly is recognised as that scenario.
@@ -82,7 +85,7 @@ export function Simulator({
     setShareUrl("");
   };
   const share = async () => {
-    const url = `${location.origin}/?t=${encodeTimeline(timeline)}`;
+    const url = `${location.origin}/?t=${encodeTimeline(timeline)}${catalogParam ? `&c=${catalogParam}` : ""}`;
     setShareUrl(url);
     try {
       await navigator.clipboard.writeText(url);
@@ -109,17 +112,19 @@ export function Simulator({
           <h2 id="timeline-h" className="mr-auto text-lg font-semibold">
             Customer timeline
           </h2>
-          <label className="text-sm">
-            <span className="block text-xs opacity-70">Load scenario</span>
-            <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
-              {!scenarioId && <option value="">Custom (shared link)</option>}
-              {playable.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.id} · {s.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          {playable.length > 0 && (
+            <label className="text-sm">
+              <span className="block text-xs opacity-70">Load scenario</span>
+              <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
+                {!scenarioId && <option value="">Custom (shared link)</option>}
+                {playable.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.id} · {s.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
 
         <ol className="space-y-3" data-testid="timeline">
