@@ -18,6 +18,7 @@ export const EVENT_TYPES = [
 ] as const;
 
 const MAX_EVENTS = 100;
+const ID = /^[A-Za-z0-9_]{1,40}$/;
 const MAX_SPAN_MS = 10 * 366 * 86_400_000;
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
 
@@ -31,6 +32,14 @@ function fail(msg: string): never {
 export function parseCatalog(x: unknown): Catalog {
   if (x === undefined) return defaultCatalog;
   if (!isObj(x) || !isObj(x.prices)) fail("catalog.prices must be an object");
+  const limits: Array<[string, unknown, number]> = [["prices", x.prices, 50], ["coupons", x.coupons ?? {}, 50], ["tax_rates", x.tax_rates ?? {}, 20]];
+  for (const [name, obj, max] of limits) {
+    const keys = Object.keys(obj as object);
+    if (keys.length > max) fail(`catalog.${name} is limited to ${max} entries`);
+    const bad = keys.find((k) => !ID.test(k));
+    if (bad !== undefined) fail(`catalog.${name} id "${bad}" must be 1-40 letters, digits or underscores`);
+  }
+  if (Object.keys(x.prices).length === 0) fail("catalog.prices needs at least one price");
   for (const [id, p] of Object.entries(x.prices)) {
     const at = `catalog.prices.${id}`;
     if (!isObj(p)) fail(`${at} must be an object`);
