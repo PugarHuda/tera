@@ -466,7 +466,7 @@
       "invariants": [
         "I3"
       ],
-      "title": "SAVE20 applied twice (reload) is idempotent",
+      "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
       "timeline": [
         {
           "at": "2027-01-01T00:00:00Z",
@@ -494,18 +494,19 @@
           "lines": [
             2900
           ],
-          "discount": 580,
-          "total": 2320
+          "discount": 0,
+          "total": 2900
         },
         {
           "date": "2027-02-01",
           "lines": [
             2900
           ],
-          "discount": 0,
-          "total": 2900
+          "discount": 580,
+          "total": 2320
         }
-      ]
+      ],
+      "math": "Stripe finalizes the first invoice when the subscription is created, so a coupon applied at the same instant (twice: a reload) discounts the next invoice exactly once. Corrected after the Stripe test-clock replay contradicted the hand derivation."
     },
     {
       "id": "S12",
