@@ -1,0 +1,68 @@
+{
+  "id": "S20",
+  "title": "Upgrade with always_invoice",
+  "verified_at": "2026-10-17T09:00:46.939Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTTj2QR5nixgqNWqaTcvAe",
+  "customer": "cus_VSOG6i9SvWNZsS",
+  "stripe": [
+    {
+      "id": "in_1URTTk2QR5nixgqNjdo1pRKl",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900
+    },
+    {
+      "id": "in_1URTTo2QR5nixgqN7Tu1uCOC",
+      "date": "2027-01-17",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera starter_m after 17 Jan 2027",
+          "amount": -1403,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on Tera pro_m after 17 Jan 2027",
+          "amount": 3823,
+          "proration": true
+        }
+      ],
+      "subtotal": 2420,
+      "discount": 0,
+      "tax": 0,
+      "total": 2420,
+      "amount_due": 2420
+    },
+    {
+      "id": "in_1URTTv2QR5nixgqNPTrIV7lK",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900
+    }
+  ]
+}

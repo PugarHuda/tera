@@ -1,0 +1,46 @@
+{
+  "id": "S04",
+  "title": "14-day trial moves the anchor",
+  "verified_at": "2026-10-17T08:59:32.934Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTSd2QR5nixgqNwhzlD2CT",
+  "customer": "cus_VSOFLtErb8bO9q",
+  "stripe": [
+    {
+      "id": "in_1URTSe2QR5nixgqNBKfnT1f7",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera starter_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0
+    },
+    {
+      "id": "in_1URTSj2QR5nixgqNG5maTAxk",
+      "date": "2027-01-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900
+    }
+  ]
+}

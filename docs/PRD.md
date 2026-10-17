@@ -88,6 +88,10 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
 - With `grandfather = false`, existing subscribers move at their **next renewal** (no proration); MRR delta = Σ (new − old) × quantity.
 
+### R12 — Billing mode
+- Tera models Stripe's **classic** billing mode. New Stripe subscriptions default to *flexible* mode, where a monthly → yearly change does not reset the anchor; the parity replay pins `billing_mode: classic`.
+- Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
@@ -101,7 +105,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 > **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
 >
-> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+> Live app: `/` = Timeline Simulator (FR2) + Shareable link (FR6), `/parity` = Stripe parity (FR4/FR5), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
 
 ### FR1 Pricing Builder [PLANNED]
 - Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
@@ -124,13 +128,15 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Default inputs $29 → $39, seats `1, 1, 3`: affected 3, MRR $145.00 → $195.00, change +$50.00. With grandfathering: affected 0, change +$0.00.
 - Non-positive prices or non-integer seat counts show an error alert.
 
-### FR4 Stripe Parity Check [PLANNED]
-- Replays a timeline in Stripe test mode using test clocks, then fetches the invoices.
-- Shows a line-by-line diff with a ✅ Match / ❌ Diff badge per invoice.
-- The Stripe key is server-side only and never returned to the client.
+### FR4 Stripe Parity Check [SHIPPED]
+- `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (classic billing mode, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer) is committed under `golden/parity/`.
+- Page `/parity` lists every timeline scenario with a ✅ Match / ❌ Diff / — Not replayable badge and the summary "N / M scenarios match Stripe to the cent"; expanding a row shows Tera and Stripe invoices side by side; "Re-run live in Stripe" replays it now.
+- `GET /api/parity` returns the recorded evidence; `POST /api/parity {"scenario":"S05"}` replays one golden scenario live (golden ids only; one live run per 30 s → 429).
+- The Stripe key is server-side only (`STRIPE_SECRET_KEY`, test mode enforced) and never returned to the client.
+- Metered usage (S23) is not replayed yet: Stripe usage-based billing needs meter events against the test clock.
 
-### FR5 Push to Stripe [PLANNED]
-- Creates the products, prices and coupons in Stripe test mode; the operation is idempotent.
+### FR5 Push to Stripe [SHIPPED]
+- The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key` `tera_<id>`, coupons with id `TERA_<code>`, tax rates by display name `tera_<id>`. Re-running never duplicates objects.
 
 ### FR6 Shareable link [SHIPPED]
 - A "Copy share link" button on `/` encodes the current timeline into the URL (`/?t=<base64url JSON>`), shows the link in a read-only field and copies it to the clipboard.
@@ -161,7 +167,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`).
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-17, 22/22 replayable scenarios are verified; S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

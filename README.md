@@ -13,6 +13,7 @@
 
 | Feature | Where |
 |---|---|
+| **Stripe parity: 22/22 golden scenarios replayed in Stripe test mode (test clocks) and matched line by line** | `/parity`, `scripts/verify-golden.mts`, evidence in `golden/parity/` |
 | Customer timeline simulator | `/` |
 | Price migration planner (MRR impact, grandfathering) | `/migrate` |
 | Public API: `POST /api/simulate`, `POST /api/migrate`, `GET /api/scenarios[/:id]` | `src/app/api` |

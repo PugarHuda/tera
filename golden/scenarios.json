@@ -93,7 +93,7 @@
   "scenarios": [
     {
       "id": "S01",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R2"
       ],
@@ -113,11 +113,12 @@
           ],
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S01.json"
     },
     {
       "id": "S02",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R2"
       ],
@@ -138,11 +139,12 @@
           ],
           "total": 29000
         }
-      ]
+      ],
+      "parity": "golden/parity/S02.json"
     },
     {
       "id": "S03",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R2"
       ],
@@ -163,11 +165,12 @@
           ],
           "total": 6000
         }
-      ]
+      ],
+      "parity": "golden/parity/S03.json"
     },
     {
       "id": "S04",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R4"
       ],
@@ -200,11 +203,12 @@
           ],
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S04.json"
     },
     {
       "id": "S05",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R3"
       ],
@@ -243,11 +247,12 @@
           ],
           "total": 10320
         }
-      ]
+      ],
+      "parity": "golden/parity/S05.json"
     },
     {
       "id": "S06",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R3"
       ],
@@ -285,11 +290,12 @@
           ],
           "total": 480
         }
-      ]
+      ],
+      "parity": "golden/parity/S06.json"
     },
     {
       "id": "S07",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R2",
         "R3"
@@ -329,11 +335,12 @@
           ],
           "total": 10400
         }
-      ]
+      ],
+      "parity": "golden/parity/S07.json"
     },
     {
       "id": "S08",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R2",
         "R3"
@@ -373,11 +380,12 @@
           ],
           "total": 10486
         }
-      ]
+      ],
+      "parity": "golden/parity/S08.json"
     },
     {
       "id": "S09",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R3"
       ],
@@ -417,11 +425,12 @@
           ],
           "total": 11342
         }
-      ]
+      ],
+      "parity": "golden/parity/S09.json"
     },
     {
       "id": "S10",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5"
       ],
@@ -455,11 +464,12 @@
           "discount": 0,
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S10.json"
     },
     {
       "id": "S11",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5"
       ],
@@ -506,11 +516,12 @@
           "total": 2320
         }
       ],
-      "math": "Stripe finalizes the first invoice when the subscription is created, so a coupon applied at the same instant (twice: a reload) discounts the next invoice exactly once. Corrected after the Stripe test-clock replay contradicted the hand derivation."
+      "math": "Stripe finalizes the first invoice when the subscription is created, so a coupon applied at the same instant (twice: a reload) discounts the next invoice exactly once. Corrected after the Stripe test-clock replay contradicted the hand derivation.",
+      "parity": "golden/parity/S11.json"
     },
     {
       "id": "S12",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5"
       ],
@@ -552,11 +563,12 @@
           "discount": 1975,
           "total": 5925
         }
-      ]
+      ],
+      "parity": "golden/parity/S12.json"
     },
     {
       "id": "S13",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5"
       ],
@@ -590,11 +602,12 @@
           "date": "2027-04-01",
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S13.json"
     },
     {
       "id": "S14",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5"
       ],
@@ -628,11 +641,12 @@
           "discount": 0,
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S14.json"
     },
     {
       "id": "S15",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R6"
       ],
@@ -654,11 +668,12 @@
           "tax": 290,
           "total": 3190
         }
-      ]
+      ],
+      "parity": "golden/parity/S15.json"
     },
     {
       "id": "S16",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R6"
       ],
@@ -681,11 +696,12 @@
           "tax": 483,
           "total": 2900
         }
-      ]
+      ],
+      "parity": "golden/parity/S16.json"
     },
     {
       "id": "S17",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R5",
         "R6"
@@ -711,11 +727,12 @@
           "tax": 632,
           "total": 6952
         }
-      ]
+      ],
+      "parity": "golden/parity/S17.json"
     },
     {
       "id": "S18",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R1",
         "R3"
@@ -760,11 +777,12 @@
           "total": 10419,
           "display_en": "¥10,419"
         }
-      ]
+      ],
+      "parity": "golden/parity/S18.json"
     },
     {
       "id": "S19",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R1"
       ],
@@ -785,11 +803,12 @@
           "total": 2900,
           "display_de": "29,00 €"
         }
-      ]
+      ],
+      "parity": "golden/parity/S19.json"
     },
     {
       "id": "S20",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R3"
       ],
@@ -834,11 +853,12 @@
           ],
           "total": 7900
         }
-      ]
+      ],
+      "parity": "golden/parity/S20.json"
     },
     {
       "id": "S21",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R3"
       ],
@@ -872,11 +892,12 @@
           ],
           "total": 27597
         }
-      ]
+      ],
+      "parity": "golden/parity/S21.json"
     },
     {
       "id": "S22",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R8"
       ],
@@ -907,7 +928,8 @@
       ],
       "expect_status": {
         "2027-02-01": "canceled"
-      }
+      },
+      "parity": "golden/parity/S22.json"
     },
     {
       "id": "S23",
