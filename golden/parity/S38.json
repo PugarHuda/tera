@@ -1,0 +1,48 @@
+{
+  "id": "S38",
+  "title": "Changing to the same quantity or the same price is a no-op",
+  "verified_at": "2026-10-17T18:41:38.806Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URcXq2QR5nixgqNITzyzrlI",
+  "customer": "cus_VSXdxY2dbI5gZN",
+  "stripe": [
+    {
+      "id": "in_1URcXr2QR5nixgqNzgX50SzG",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "2 × Tera pro_m (at $79.00 / month)",
+          "amount": 15800,
+          "proration": false
+        }
+      ],
+      "subtotal": 15800,
+      "discount": 0,
+      "tax": 0,
+      "total": 15800,
+      "amount_due": 15800,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URcY32QR5nixgqNqNiakMOg",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "2 × Tera pro_m (at $79.00 / month)",
+          "amount": 15800,
+          "proration": false
+        }
+      ],
+      "subtotal": 15800,
+      "discount": 0,
+      "tax": 0,
+      "total": 15800,
+      "amount_due": 15800,
+      "starting_balance": 0
+    }
+  ]
+}

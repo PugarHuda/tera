@@ -98,12 +98,16 @@ type Sub = {
   status: "active" | "trialing" | "canceled";
   cancelAtPeriodEnd: boolean;
   coupon: { code: string; remaining: number } | null;
-  /** R5: share of list price the current amount was last charged at (period invoice or proration debit). */
-  paidRate: number;
+  /** R5: discount the current amount was last charged at (period invoice or proration charge). */
+  paid: Paid;
   taxRate: TaxRate | null;
   pending: InvoiceLine[];
   usage: number;
 };
+
+/** A price paid as `amount × rate − off` per period: rate from percent_off, off from amount_off (minor units). */
+type Paid = { rate: number; off: number };
+const FULL: Paid = { rate: 1, off: 0 };
 
 type Draft = { at: number; periodStart: number; periodEnd: number; lines: InvoiceLine[] };
 
@@ -143,13 +147,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     }
     if (discountable > 0) {
       const c = discount > 0 ? catalog.coupons![sub.coupon!.code] : null;
-      sub.paidRate = c?.percent_off != null ? 1 - c.percent_off / 100 : 1;
+      sub.paid = !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: discount };
     }
     const taxable = subtotal - discount;
     let tax = 0;
     let total = taxable;
     const r = sub.taxRate;
-    if (r && taxable > 0) {
+    // R6: a negative (credit) invoice carries negative tax too.
+    if (r && taxable !== 0) {
       if (r.behavior === "exclusive") {
         tax = roundMinor((taxable * r.percentage) / 100);
         total = taxable + tax;
@@ -180,8 +185,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // Renewal invoices stay drafts until time moves on; invoices Stripe creates during an API call
   // (subscription creation, always_invoice, interval change) are finalized immediately.
   const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false) => {
+    const pending = draft;
     draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines };
-    if (immediate) finalize();
+    if (!immediate) return;
+    finalize();
+    // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
+    // amount due can use the credit this invoice creates.
+    draft = pending;
   };
 
   // R7: one line per tier, each rounded once.
@@ -202,6 +212,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       const s: Sub = sub;
       const at = s.periodEnd;
       if (s.cancelAtPeriodEnd) {
+        // R8: no renewal, but prorations still pending (and metered usage) are billed on a final invoice.
+        const final = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : [])];
+        if (final.length) openInvoice(s, at, final, true);
+        s.pending = [];
         s.status = "canceled";
         canceledAt = at;
         break;
@@ -215,23 +229,33 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.status = "active";
       s.periodStart = at;
       s.periodEnd = addInterval(at, p.interval, s.anchorDay);
+      s.paid = activeDiscount(s, licensedAmount(s)); // what this period is charged, before the draft finalizes
       openInvoice(s, at, lines);
     }
   };
 
-  // R3: credit unused time on the old amount, charge remaining time on the new one.
-  // R5: the credit refunds the rate the current amount was actually charged at (its percent_off coupon, even a
-  // used-up "once"); the remaining time is priced at the percent_off coupon still active, and becomes the new paid rate.
-  const prorate = (s: Sub, at: number, oldAmount: number, newAmount: number): InvoiceLine[] => {
-    const remaining = s.periodEnd - at;
-    const period = s.periodEnd - s.periodStart;
+  /** The discount an active coupon gives an amount (percent → rate, amount_off → off, capped at the amount). */
+  const activeDiscount = (s: Sub, amount: number): Paid => {
     const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
-    const rate = c?.percent_off != null ? 1 - c.percent_off / 100 : 1;
+    return !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: Math.min(c.amount_off ?? 0, amount) };
+  };
+
+  // R3: credit unused time on the old amount, charge remaining time on the new one.
+  // R5: the credit refunds the net amount the current amount was actually charged (its coupon, even a used-up
+  // "once"): round((amount × rate − off) × f). The remaining time is priced with the coupon still active, as
+  // list minus discount, each rounded: round(amount × f) − round(discount × f); it becomes what the next credit
+  // refunds. f = remaining / period. (Seed-312 fuzz case: the one-step rounding was a cent off.)
+  // A "once" coupon that prices that charge is used up by it (the next invoice is not discounted).
+  const prorate = (s: Sub, at: number, oldAmount: number, newAmount: number): InvoiceLine[] => {
+    const f = (s.periodEnd - at) / (s.periodEnd - s.periodStart);
+    const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
+    const now = activeDiscount(s, newAmount);
     const lines = [
-      { description: "Unused time", amount: -roundMinor((oldAmount * s.paidRate * remaining) / period), proration: true },
-      { description: "Remaining time", amount: roundMinor((newAmount * rate * remaining) / period), proration: true },
+      { description: "Unused time", amount: 0 - roundMinor((oldAmount * s.paid.rate - s.paid.off) * f), proration: true }, // 0 - x: never -0 ("-$0.00")
+      { description: "Remaining time", amount: roundMinor(newAmount * f) - roundMinor((newAmount * (1 - now.rate) + now.off) * f), proration: true },
     ];
-    s.paidRate = rate;
+    if (c?.duration === "once" && newAmount > 0) s.coupon!.remaining = 0;
+    s.paid = now;
     return lines;
   };
 
@@ -259,7 +283,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           status: trial ? "trialing" : "active",
           cancelAtPeriodEnd: false,
           coupon: null,
-          paidRate: 1,
+          paid: FULL,
           taxRate: e.tax_rate ? taxRate(e.tax_rate) : null,
           pending: [],
           usage: 0,
@@ -273,16 +297,21 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const s = active(e.type);
         if (e.type === "change_price" && price(e.price!).currency !== price(s.priceId).currency)
           throw new Error(`Cannot switch currency (${price(s.priceId).currency} -> ${price(e.price!).currency}) on a subscription`);
+        // A change to the same price and quantity is a no-op in Stripe: no prorations, nothing reset.
+        if (e.type === "change_price" ? e.price === s.priceId && (e.quantity ?? s.quantity) === s.quantity : e.quantity === s.quantity) break;
         if (s.status === "trialing") {
           // R4: nothing was paid during the trial, so there is nothing to prorate; the new terms bill at trial end.
-          if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.quantity ?? 1];
+          const trialInterval = price(s.priceId).interval;
+          if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.price === s.priceId ? (e.quantity ?? s.quantity) : (e.quantity ?? 1)];
           else s.quantity = e.quantity!;
+          // Switching the interval mid-trial makes Stripe issue a fresh $0 trial invoice right away.
+          if (price(s.priceId).interval !== trialInterval) openInvoice(s, at, [{ description: "Trial", amount: 0, proration: false }], true);
           break;
         }
         const oldAmount = licensedAmount(s);
         const oldInterval = price(s.priceId).interval;
-        // R13: like Stripe, a new price without a quantity resets the item to quantity 1.
-        if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.quantity ?? 1];
+        // R13: like Stripe, a *different* price without a quantity resets the item to quantity 1.
+        if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.price === s.priceId ? (e.quantity ?? s.quantity) : (e.quantity ?? 1)];
         else s.quantity = e.quantity!;
         const p = price(s.priceId);
         const newAmount = licensedAmount(s);
@@ -331,7 +360,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const currency = price(s.priceId).currency;
     if (c.amount_off != null && c.currency && c.currency.toLowerCase() !== currency.toLowerCase())
       throw new Error(`Coupon ${code} is in ${c.currency.toUpperCase()} but the subscription bills in ${currency.toUpperCase()} (currency mismatch)`);
-    if (s.coupon?.code === code) return; // R5/I3: idempotent
+    // R5/I3: idempotent while the coupon is still active; a used-up coupon applied again starts afresh (as in Stripe).
+    if (s.coupon?.code === code && s.coupon.remaining > 0) return;
     const remaining = c.duration === "once" ? 1 : c.duration === "repeating" ? (c.duration_in_months ?? 1) : Infinity;
     s.coupon = { code, remaining };
   }

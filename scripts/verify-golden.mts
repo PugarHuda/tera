@@ -1,11 +1,11 @@
 // Replays golden scenarios in Stripe test mode (test clocks) and records the evidence.
 // Usage: node scripts/verify-golden.mts [--mark] [S05 S10 ...]   (needs STRIPE_SECRET_KEY in .env.local)
 // --mark flips matching scenarios to status "verified" in golden/scenarios.json (and back to "draft" on a diff).
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { simulate, type Catalog, type TimelineEvent } from "../src/lib/billing.ts";
 import { diffInvoices, replayInStripe, stripeClient, STRIPE_API_VERSION } from "../src/lib/stripe-parity.ts";
 
-for (const line of readFileSync(".env.local", "utf8").split(/\r?\n/)) {
+for (const line of (existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "").split(/\r?\n/)) {
   const m = line.match(/^([A-Z_]+)=(.*)$/);
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^"|"$/g, "");
 }
@@ -30,6 +30,7 @@ async function run(s: { id: string; title: string; timeline: TimelineEvent[] }) 
     console.log(`${s.id} ${diffs.length === 0 ? "MATCH" : "DIFF"} ${s.title}`);
     for (const d of diffs) console.log(`   invoice ${d.invoice} ${d.field}: tera=${JSON.stringify(d.tera)} stripe=${JSON.stringify(d.stripe)}`);
   } catch (e) {
+    results[s.id] = false;
     console.log(`${s.id} SKIP ${(e as Error).message}`);
   }
 }
@@ -53,3 +54,6 @@ const records = readdirSync("golden/parity")
   .filter((f) => /^S\d+\.json$/.test(f))
   .map((f) => JSON.parse(readFileSync(`golden/parity/${f}`, "utf8")));
 writeFileSync("golden/parity/index.json", JSON.stringify(records, null, 2) + "\n");
+
+// Non-zero exit when any replayed scenario differs from (or failed in) Stripe, so CI can gate on it.
+process.exitCode = Object.values(results).every(Boolean) ? 0 : 1;

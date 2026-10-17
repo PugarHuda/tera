@@ -58,6 +58,9 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 Two lines are generated, each rounded separately:
 - **Unused time credit:** `−round(old_amount × remaining / period)`
 - **Remaining time charge:** `+round(new_amount × remaining / period)`
+- With a coupon (R5) the credit refunds the net amount paid in **one** rounding, `−round((paid amount) × f)`, while the charge is list minus discount rounded **separately**, `round(new × f) − round(discount × f)` (golden S42; the one-step version is a cent off).
+- A change to the same quantity, or to the same price without a new quantity, is a no-op: no prorations (S38).
+- A change made at the exact instant a period renews is invoiced separately from the renewal; with `always_invoice` that invoice is finalized first and its credit pays the renewal (S40).
 
 where `old_amount`/`new_amount` = unit_amount × quantity.
 - `proration_behavior = create_prorations` (default): lines are added to the **next** invoice.
@@ -66,11 +69,15 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### R4 — Trials
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
+- Switching to a price with another interval during the trial issues another $0 trial invoice at once (S41).
 
 ### R5 — Coupons
 - `percent_off` applies only to **non-proration** lines. Proration lines are priced already discounted and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
 - The **unused-time credit** refunds the rate the current amount was actually charged at: the period invoice's `percent_off` (even a `once` coupon that is now used up, S30), or the rate of the latest proration charge (S33). A coupon applied mid-period does not reduce the credit for time already paid in full (S34).
-- The **remaining-time charge** is priced at the `percent_off` coupon still active at the change, and becomes the rate later credits refund.
+- The **remaining-time charge** is priced at the coupon still active at the change, and becomes what later credits refund.
+- `amount_off` coupons count too: a period made free by `amount_off` refunds 0 when changed (S35), and a repeating `amount_off` is netted out of both proration lines (S36).
+- A `once` coupon that prices a proration charge is used up by it, so the next invoice is not discounted (S37). A used-up coupon applied again starts afresh.
+- Discounts apply even when prorations make the invoice negative (the remainder becomes credit, R10).
 - `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
@@ -80,12 +87,13 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Tax is computed **after** discounts.
 - Exclusive: `tax = round(taxable × rate)`, `total = taxable + tax`.
 - Inclusive: `tax = round(taxable × rate / (1 + rate))`, `total = taxable`.
+- A negative (credit) invoice carries negative tax (S39).
 
 ### R7 — Metered, graduated tiers
 - Each tier charges its own units at its own rate: `Σ units_in_tier × tier_rate`, rounded once per line.
 
 ### R8 — Cancellation
-- `cancel_at_period_end`: no proration and no further invoices; the status becomes `canceled` at period end.
+- `cancel_at_period_end`: no renewal; the status becomes `canceled` at period end. Prorations still pending (and metered usage) are billed on a **final invoice** at that moment instead of being dropped (S39).
 
 ### R9 — Price migration
 - Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
@@ -106,7 +114,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
 
 ### R13 — Changing the price of an item
-- Like a Stripe subscription item update, `change_price` without a `quantity` resets the quantity to **1** (S31); pass `quantity` to keep seats (S32). Found by a live "Verify in Stripe" replay of a custom timeline.
+- Like a Stripe subscription item update, `change_price` to a **different** price without a `quantity` resets the quantity to **1** (S31); pass `quantity` to keep seats (S32). The same price without a quantity keeps it (S38). Found by a live "Verify in Stripe" replay and by differential fuzzing.
 
 ## 5. Invariants (must hold for every simulation)
 

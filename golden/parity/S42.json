@@ -1,0 +1,58 @@
+{
+  "id": "S42",
+  "title": "Proration charge under a percent coupon is rounded in two steps",
+  "verified_at": "2026-10-17T18:41:54.863Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URcYC2QR5nixgqNG2MGUqGm",
+  "customer": "cus_VSXdFNW6ZnTMBP",
+  "stripe": [
+    {
+      "id": "in_1URcYD2QR5nixgqNrtnUG08I",
+      "date": "2027-03-17",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "2 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 2400,
+          "proration": false
+        }
+      ],
+      "subtotal": 2400,
+      "discount": 600,
+      "tax": 0,
+      "total": 1800,
+      "amount_due": 1800,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URcYK2QR5nixgqNDHR45jvk",
+      "date": "2027-04-17",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 2 × Tera team_seat_m (with 25.0% off) after 21 Mar 2027",
+          "amount": -1568,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 3 × Tera team_seat_m (with 25.0% off) after 21 Mar 2027",
+          "amount": 2351,
+          "proration": true
+        },
+        {
+          "description": "3 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 3600,
+          "proration": false
+        }
+      ],
+      "subtotal": 4383,
+      "discount": 900,
+      "tax": 0,
+      "total": 3483,
+      "amount_due": 3483,
+      "starting_balance": 0
+    }
+  ]
+}

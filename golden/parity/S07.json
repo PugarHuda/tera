@@ -1,15 +1,15 @@
 {
   "id": "S07",
   "title": "February: mid-month upgrade is exactly half",
-  "verified_at": "2026-10-17T11:41:10.647Z",
+  "verified_at": "2026-10-17T18:28:21.356Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URVyu2QR5nixgqNpTFuz01m",
-  "customer": "cus_VSQqiiLmBuMLmV",
+  "test_clock": "clock_1URcL32QR5nixgqNhwZXyJYT",
+  "customer": "cus_VSXPKpFvsoAQKV",
   "stripe": [
     {
-      "id": "in_1URVyw2QR5nixgqNmGTmjnH5",
+      "id": "in_1URcL42QR5nixgqNjH7MU8oC",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URVz82QR5nixgqNY8OapJ0e",
+      "id": "in_1URcLC2QR5nixgqNMESB5ihD",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [

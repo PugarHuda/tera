@@ -1,0 +1,55 @@
+# Stripe is the oracle. Two jobs against a real Stripe test-mode account (test clocks, never live money):
+# - golden: every pull request that touches the engine or the golden scenarios replays all of them in
+#   Stripe and fails on any diff, so a billing change cannot merge unless Stripe still agrees to the cent.
+# - fuzz: nightly differential fuzzing; fresh random timelines each night, any Tera/Stripe diff fails the
+#   run and prints a reproducible seed (turn it into a hand-derived golden scenario).
+name: Stripe parity
+
+on:
+  pull_request:
+    paths: ["src/lib/billing.ts", "src/lib/stripe-parity.ts", "golden/scenarios.json", "scripts/verify-golden.mts"]
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Test clocks are rate-limited per account; never run two replays at once.
+concurrency:
+  group: stripe-parity
+  cancel-in-progress: false
+
+jobs:
+  golden:
+    if: github.event_name != 'schedule'
+    name: Golden scenarios match Stripe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --no-warnings scripts/verify-golden.mts
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+
+  fuzz:
+    if: github.event_name != 'pull_request'
+    name: Differential fuzzing vs Stripe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # New seeds every run: 24 timelines starting at run_number × 1000.
+      - run: node --no-warnings scripts/fuzz-parity.mts 24 $(( ${{ github.run_number }} * 1000 ))
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

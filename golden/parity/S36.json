@@ -1,0 +1,58 @@
+{
+  "id": "S36",
+  "title": "Seat increase under a repeating amount_off coupon: both proration lines are net of the $10",
+  "verified_at": "2026-10-17T18:41:23.833Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URcXd2QR5nixgqNI80Jd9A1",
+  "customer": "cus_VSXcWy3mjknixY",
+  "stripe": [
+    {
+      "id": "in_1URcXf2QR5nixgqNM7zcX2fv",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera starter_m (at $29.00 / month)",
+          "amount": 8700,
+          "proration": false
+        }
+      ],
+      "subtotal": 8700,
+      "discount": 1000,
+      "tax": 0,
+      "total": 7700,
+      "amount_due": 7700,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URcXo2QR5nixgqNUKZHtJUZ",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 3 × Tera starter_m (with $10.00 off) after 11 Mar 2027",
+          "amount": -5216,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 4 × Tera starter_m (with $10.00 off) after 11 Mar 2027",
+          "amount": 7181,
+          "proration": true
+        },
+        {
+          "description": "4 × Tera starter_m (at $29.00 / month)",
+          "amount": 11600,
+          "proration": false
+        }
+      ],
+      "subtotal": 13565,
+      "discount": 1000,
+      "tax": 0,
+      "total": 12565,
+      "amount_due": 12565,
+      "starting_balance": 0
+    }
+  ]
+}

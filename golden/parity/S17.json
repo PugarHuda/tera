@@ -1,15 +1,15 @@
 {
   "id": "S17",
   "title": "Coupon then exclusive tax",
-  "verified_at": "2026-10-17T11:41:40.523Z",
+  "verified_at": "2026-10-17T18:28:56.412Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URVzc2QR5nixgqNG8Vbj2x5",
-  "customer": "cus_VSQr6bN7QuoEqo",
+  "test_clock": "clock_1URcLk2QR5nixgqNexQiKh6t",
+  "customer": "cus_VSXQOPwjlRv4da",
   "stripe": [
     {
-      "id": "in_1URVzd2QR5nixgqNcwGy5hBU",
+      "id": "in_1URcLl2QR5nixgqNATFBDNZP",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [

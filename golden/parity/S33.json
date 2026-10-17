@@ -1,15 +1,15 @@
 {
   "id": "S33",
   "title": "Two seat changes in one period after a used-up 'once' coupon: each credit refunds the rate it was charged at",
-  "verified_at": "2026-10-17T11:42:57.629Z",
+  "verified_at": "2026-10-17T18:30:07.565Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URW0g2QR5nixgqNUtugrfgc",
-  "customer": "cus_VSQsVDIohJ3YjL",
+  "test_clock": "clock_1URcMj2QR5nixgqNlwIxwP3F",
+  "customer": "cus_VSXRbakWpinUBm",
   "stripe": [
     {
-      "id": "in_1URW0h2QR5nixgqNT2iDlYAw",
+      "id": "in_1URcMk2QR5nixgqNvojkDa5Z",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URW0r2QR5nixgqNBYMuW0Sg",
+      "id": "in_1URcMu2QR5nixgqNdVzOliIy",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
