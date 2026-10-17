@@ -171,8 +171,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     draft = null;
   };
 
-  const openInvoice = (s: Sub, at: number, lines: InvoiceLine[]) => {
+  // Renewal invoices stay drafts until time moves on; invoices Stripe creates during an API call
+  // (subscription creation, always_invoice, interval change) are finalized immediately.
+  const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false) => {
     draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines };
+    if (immediate) finalize();
   };
 
   // R7: one line per tier, each rounded once.
@@ -252,7 +255,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           usage: 0,
         };
         if (e.coupon) applyCoupon(sub, e.coupon);
-        openInvoice(sub, at, [{ description: trial ? "Trial" : `${e.price} × ${sub.quantity}`, amount: trial ? 0 : licensedAmount(sub), proration: false }]);
+        openInvoice(sub, at, [{ description: trial ? "Trial" : `${e.price} × ${sub.quantity}`, amount: trial ? 0 : licensedAmount(sub), proration: false }], true);
         break;
       }
       case "change_price":
@@ -278,11 +281,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           s.periodStart = at;
           s.anchorDay = new Date(at).getUTCDate();
           s.periodEnd = addInterval(at, p.interval, s.anchorDay);
-          openInvoice(s, at, [...s.pending, credit, { description: `${s.priceId} × ${s.quantity}`, amount: newAmount, proration: false }]);
+          openInvoice(s, at, [...s.pending, credit, { description: `${s.priceId} × ${s.quantity}`, amount: newAmount, proration: false }], true);
           s.pending = [];
         } else {
           const lines = prorate(s, at, oldAmount, newAmount);
-          if (e.proration_behavior === "always_invoice") openInvoice(s, at, lines);
+          if (e.proration_behavior === "always_invoice") openInvoice(s, at, lines, true);
           else s.pending.push(...lines);
         }
         break;

@@ -47,3 +47,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# TestSprite CLI run bundles (contain presigned recording URLs)
+.testsprite/

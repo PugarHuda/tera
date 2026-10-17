@@ -1,0 +1,58 @@
+{
+  "id": "S08",
+  "title": "Leap-year February",
+  "verified_at": "2026-10-17T09:26:49.721Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTt02QR5nixgqNH8IVALZr",
+  "customer": "cus_VSOgw4lKJWL9x5",
+  "stripe": [
+    {
+      "id": "in_1URTt12QR5nixgqNHjc4rcXS",
+      "date": "2028-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTt82QR5nixgqNfZUfHgu1",
+      "date": "2028-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera starter_m after 15 Feb 2028",
+          "amount": -1500,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on Tera pro_m after 15 Feb 2028",
+          "amount": 4086,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 10486,
+      "discount": 0,
+      "tax": 0,
+      "total": 10486,
+      "amount_due": 10486,
+      "starting_balance": 0
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "S18",
+  "title": "JPY zero-decimal upgrade",
+  "verified_at": "2026-10-17T09:27:33.944Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTtf2QR5nixgqNeLU4itRg",
+  "customer": "cus_VSOhXQA7LV0ym4",
+  "stripe": [
+    {
+      "id": "in_1URTtg2QR5nixgqN15sTNOv5",
+      "date": "2027-01-01",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "1 × Tera basic_m_jpy (at ¥3,000 / month)",
+          "amount": 3000,
+          "proration": false
+        }
+      ],
+      "subtotal": 3000,
+      "discount": 0,
+      "tax": 0,
+      "total": 3000,
+      "amount_due": 3000,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTtq2QR5nixgqNByanBL5x",
+      "date": "2027-02-01",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "Unused time on Tera basic_m_jpy after 17 Jan 2027",
+          "amount": -1452,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on Tera premium_m_jpy after 17 Jan 2027",
+          "amount": 3871,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera premium_m_jpy (at ¥8,000 / month)",
+          "amount": 8000,
+          "proration": false
+        }
+      ],
+      "subtotal": 10419,
+      "discount": 0,
+      "tax": 0,
+      "total": 10419,
+      "amount_due": 10419,
+      "starting_balance": 0
+    }
+  ]
+}

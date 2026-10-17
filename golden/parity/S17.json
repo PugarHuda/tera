@@ -1,0 +1,30 @@
+{
+  "id": "S17",
+  "title": "Coupon then exclusive tax",
+  "verified_at": "2026-10-17T09:27:21.031Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTtc2QR5nixgqNFTaTIWDF",
+  "customer": "cus_VSOhbskNtCMwgK",
+  "stripe": [
+    {
+      "id": "in_1URTtd2QR5nixgqNKbpNJuSB",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1580,
+      "tax": 632,
+      "total": 6952,
+      "amount_due": 6952,
+      "starting_balance": 0
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "S03",
+  "title": "Per-seat x5",
+  "verified_at": "2026-10-17T09:26:29.037Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTsm2QR5nixgqNKz4JBna8",
+  "customer": "cus_VSOgvc8ZhjQdQI",
+  "stripe": [
+    {
+      "id": "in_1URTso2QR5nixgqNGMdgXxnG",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 6000,
+          "proration": false
+        }
+      ],
+      "subtotal": 6000,
+      "discount": 0,
+      "tax": 0,
+      "total": 6000,
+      "amount_due": 6000,
+      "starting_balance": 0
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "S01",
+  "title": "Flat monthly subscription",
+  "verified_at": "2026-10-17T09:26:29.064Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTsm2QR5nixgqNXiuMl20F",
+  "customer": "cus_VSOgH70Kv3rFhK",
+  "stripe": [
+    {
+      "id": "in_1URTsn2QR5nixgqNYdiksXHf",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    }
+  ]
+}

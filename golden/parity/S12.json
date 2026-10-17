@@ -1,0 +1,66 @@
+{
+  "id": "S12",
+  "title": "FOREVER25 on Pro",
+  "verified_at": "2026-10-17T09:27:14.083Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTtE2QR5nixgqNVw96ASaQ",
+  "customer": "cus_VSOglw4DpZQJwS",
+  "stripe": [
+    {
+      "id": "in_1URTtF2QR5nixgqNa3MVlYdR",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1975,
+      "tax": 0,
+      "total": 5925,
+      "amount_due": 5925,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTtL2QR5nixgqN25Ppi2j7",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1975,
+      "tax": 0,
+      "total": 5925,
+      "amount_due": 5925,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTtW2QR5nixgqNjtLVVEch",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1975,
+      "tax": 0,
+      "total": 5925,
+      "amount_due": 5925,
+      "starting_balance": 0
+    }
+  ]
+}

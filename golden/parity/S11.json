@@ -1,0 +1,48 @@
+{
+  "id": "S11",
+  "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
+  "verified_at": "2026-10-17T09:27:03.171Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTtA2QR5nixgqNkmql9cZo",
+  "customer": "cus_VSOguojmnU804M",
+  "stripe": [
+    {
+      "id": "in_1URTtC2QR5nixgqNGQg9RCFC",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTtL2QR5nixgqNj3ada3CW",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 580,
+      "tax": 0,
+      "total": 2320,
+      "amount_due": 2320,
+      "starting_balance": 0
+    }
+  ]
+}
