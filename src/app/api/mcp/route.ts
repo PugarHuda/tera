@@ -46,7 +46,7 @@ const handler = createMcpHandler(
       guard(({ timeline, locale }) => {
         const result = simulate(defaultCatalog, parseTimeline(timeline));
         const summary = result.invoices
-          .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}`)
+          .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}, due ${formatMoney(i.amount_due, i.currency, locale)}${i.starting_balance < 0 ? ` (credit applied ${formatMoney(-i.starting_balance, i.currency, locale)})` : ""}`)
           .join("\n");
         return text(`Status: ${result.status}\n${summary}`, result);
       }),
