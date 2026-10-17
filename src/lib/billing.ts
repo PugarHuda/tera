@@ -60,6 +60,10 @@ export type Invoice = {
   discount: number;
   tax: number;
   total: number;
+  /** R10: customer balance before this invoice (negative = credit, Stripe convention). */
+  starting_balance: number;
+  /** What the card is charged: total minus available credit, never below zero. */
+  amount_due: number;
 };
 
 export type SimulationResult = {
@@ -106,6 +110,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   let sub: Sub | null = null;
   let draft: Draft | null = null;
   let canceledAt: number | null = null;
+  let balance = 0; // R10: customer credit balance carried between invoices
 
   const price = (id: string) => {
     const p = catalog.prices[id];
@@ -144,6 +149,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         tax = roundMinor((taxable * r.percentage) / (100 + r.percentage));
       }
     }
+    // R10: a negative invoice becomes credit; credit is consumed by later invoices.
+    const starting_balance = balance;
+    const amount_due = Math.max(0, total + starting_balance);
+    balance = Math.min(0, total + starting_balance);
     invoices.push({
       date: isoDay(draft.at),
       currency: price(sub.priceId).currency,
@@ -154,6 +163,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       discount,
       tax,
       total,
+      starting_balance,
+      amount_due,
     });
     draft = null;
   };
@@ -218,6 +229,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     switch (e.type) {
       case "subscribe":
       case "start_trial": {
+        if (sub && (sub as Sub).status !== "canceled") throw new Error("Customer already has an active subscription (one subscription per customer)");
         const p = price(e.price!);
         const trial = e.type === "start_trial";
         const periodEnd = trial ? at + (e.trial_days ?? 0) * DAY : addInterval(at, p.interval, new Date(at).getUTCDate());
@@ -240,8 +252,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       }
       case "change_price":
       case "change_quantity": {
-        if (!sub) throw new Error(`${e.type} before subscribe`);
-        const s: Sub = sub;
+        const s = active(e.type);
+        if (e.type === "change_price" && price(e.price!).currency !== price(s.priceId).currency)
+          throw new Error(`Cannot switch currency (${price(s.priceId).currency} -> ${price(e.price!).currency}) on a subscription`);
+        if (s.status === "trialing") {
+          // R4: nothing was paid during the trial, so there is nothing to prorate; the new terms bill at trial end.
+          if (e.type === "change_price") s.priceId = e.price!;
+          else s.quantity = e.quantity!;
+          break;
+        }
         const oldAmount = licensedAmount(s);
         const oldInterval = price(s.priceId).interval;
         if (e.type === "change_price") s.priceId = e.price!;
@@ -264,16 +283,16 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         break;
       }
       case "apply_coupon":
-        if (!sub) throw new Error("apply_coupon before subscribe");
-        applyCoupon(sub, e.coupon!);
+        applyCoupon(active(e.type), e.coupon!);
         break;
-      case "report_usage":
-        if (!sub) throw new Error("report_usage before subscribe");
-        sub.usage += e.quantity ?? 0;
+      case "report_usage": {
+        const s = active(e.type);
+        if (price(s.priceId).usage_type !== "metered") throw new Error(`report_usage needs a metered price; ${s.priceId} is licensed`);
+        s.usage += e.quantity ?? 0;
         break;
+      }
       case "cancel_at_period_end":
-        if (!sub) throw new Error("cancel before subscribe");
-        sub.cancelAtPeriodEnd = true;
+        active(e.type).cancelAtPeriodEnd = true;
         break;
       case "advance_to":
         break;
@@ -281,9 +300,18 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
   finalize();
 
+  function active(type: string): Sub {
+    if (!sub) throw new Error(`${type} before subscribe`);
+    if (sub.status === "canceled") throw new Error(`${type} after the subscription was canceled on ${isoDay(canceledAt!)}`);
+    return sub;
+  }
+
   function applyCoupon(s: Sub, code: string) {
     const c = catalog.coupons?.[code];
     if (!c) throw new Error(`Unknown coupon: ${code}`);
+    const currency = price(s.priceId).currency;
+    if (c.amount_off != null && c.currency && c.currency.toLowerCase() !== currency.toLowerCase())
+      throw new Error(`Coupon ${code} is in ${c.currency.toUpperCase()} but the subscription bills in ${currency.toUpperCase()} (currency mismatch)`);
     if (s.coupon?.code === code) return; // R5/I3: idempotent
     const remaining = c.duration === "once" ? 1 : c.duration === "repeating" ? (c.duration_in_months ?? 1) : Infinity;
     s.coupon = { code, remaining };
