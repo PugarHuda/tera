@@ -19,12 +19,12 @@ Founders are afraid to touch pricing. A mid-cycle upgrade, a coupon or a tax rul
 | | Feature | Where |
 |---|---|---|
 | FR1 | **Pricing builder**: prices in USD/EUR/GBP/JPY, coupons, tax rates, with JPY-aware validation | `/builder` |
-| FR2 | **Timeline simulator**: every invoice to the cent, proration badges, credit balance, 4 locales | `/` |
+| FR2 | **Timeline simulator**: every invoice to the cent, proration badges, credit balance, 4 locales, CSV export, **Verify in Stripe** for your own timeline | `/` |
 | FR3 | **Migration planner**: MRR impact, grandfathering, annual prices, "who pays more", CSV import/export | `/migrate` |
 | FR4 | **Stripe parity**: golden scenarios replayed with Stripe test clocks, with Tera and Stripe shown side by side and a live re-run | `/parity` |
 | FR5 | **Push to Stripe**: create the catalog's products, prices, coupons and tax rates in test mode, idempotently | `/builder` |
 | FR6 | **Shareable links**: the timeline (and custom catalog) travel in the URL | "Copy share link" |
-| FR7 | **Public REST API** with 400/422/404 semantics | `/api/simulate`, `/api/migrate`, `/api/scenarios`, `/api/parity`, `/api/stripe/push` |
+| FR7 | **Public REST API** with 400/422/404 semantics, CORS-enabled for browser apps | `/api/simulate`, `/api/migrate`, `/api/scenarios`, `/api/parity`, `/api/stripe/push` |
 | FR8 | **MCP server**: `simulate_timeline`, `verify_timeline_in_stripe` (live Stripe test clock), `plan_price_migration`, golden scenario tools | `/api/mcp`, `/mcp-setup` |
 | FR9 | **Interactive API reference** | `/reference` |
 

@@ -130,7 +130,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S23).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S34).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -138,6 +138,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Each invoice shows its date, period, lines (proration lines carry a "proration" badge), subtotal, discount (if any), tax (if any) and a bold total.
 - While a loaded scenario is unedited, a badge shows "✅ Matches golden expected" when every invoice total equals the golden expected total.
 - A locale dropdown (en-US, de-DE, ja-JP, en-GB) reformats amounts: `$103.20` in en-US, `103,20 $` in de-DE; JPY never shows decimals (`¥10,419`).
+- "Verify in Stripe" replays the current timeline in a fresh Stripe test clock and shows "✅ Matches Stripe" with the test clock id, or each differing field (Tera vs Stripe).
+- "Export CSV (minor units)" downloads one row per invoice (date, currency, lines, subtotal, discount, tax, total, starting balance, amount due); text cells are neutralised against spreadsheet formula injection.
 - Reference values: S05 → invoice 1 `$29.00`, invoice 2 `$103.20` (lines −$14.03, $38.23, $79.00). S10 (SAVE20 once) → first invoice discounted by 20 %, second not. S22 → status `canceled`.
 
 ### FR3 Migration Planner [SHIPPED]
@@ -172,6 +174,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
+- `POST /api/parity` — `{ scenario }` or `{ timeline, catalog? }` (≤ 15 events, ≤ 2 years): live replay in a Stripe test clock, returns `{ match, diffs, tera, stripe, test_clock }`; 429 with `retry-after` during the 30 s cooldown.
+- The API is cookie-less and sends `Access-Control-Allow-Origin: *`, so browser apps on any origin can call it. Pages send a Content-Security-Policy, `nosniff`, Referrer-Policy and Permissions-Policy; `/robots.txt` keeps crawlers off `/api/`, `/sitemap.xml` and `/llms.txt` describe the site.
 
 ### FR8 MCP server [SHIPPED]
 - `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
