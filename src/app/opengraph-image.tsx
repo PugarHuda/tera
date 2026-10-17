@@ -19,7 +19,7 @@ export default function Image() {
             Verified: {matched} / {evidence.length} billing scenarios match Stripe test mode line by line
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.7, fontSize: 26 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, opacity: 0.7, fontSize: 26 }}>
           <span>Prorations · coupons · trials · tax · metered tiers · credit balance</span>
           <span>Tested on every PR by TestSprite</span>
         </div>
