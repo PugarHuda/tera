@@ -1,15 +1,15 @@
 {
   "id": "S20",
   "title": "Upgrade with always_invoice",
-  "verified_at": "2026-10-17T09:14:55.297Z",
+  "verified_at": "2026-10-17T09:23:59.393Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URThR2QR5nixgqNUDSJ8N02",
-  "customer": "cus_VSOUGN24n1mpyg",
+  "test_clock": "clock_1URTqE2QR5nixgqNSh2Q1Zxx",
+  "customer": "cus_VSOdSYB2mYe1jf",
   "stripe": [
     {
-      "id": "in_1URThS2QR5nixgqNgcu7O9fm",
+      "id": "in_1URTqF2QR5nixgqNoxr4I4To",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThX2QR5nixgqNnvsF9n0S",
+      "id": "in_1URTqI2QR5nixgqNIIBpdGCr",
       "date": "2027-01-17",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThb2QR5nixgqNwYobymbh",
+      "id": "in_1URTqN2QR5nixgqNIHYQG3zm",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

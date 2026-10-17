@@ -1,0 +1,58 @@
+{
+  "id": "S23",
+  "title": "Graduated metered usage 12,346 calls",
+  "verified_at": "2026-10-17T09:25:04.739Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URTqR2QR5nixgqNJYjhv8Jo",
+  "customer": "cus_VSOd9jl9j66Id7",
+  "stripe": [
+    {
+      "id": "in_1URTqS2QR5nixgqNWG4HKVrd",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "0 × Tera api_metered_m (at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URTrQ2QR5nixgqNZnYL6Ssk",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        },
+        {
+          "description": "9000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+          "amount": 9000,
+          "proration": false
+        },
+        {
+          "description": "2346 × Tera api_metered_m (Tier 3 at $0.005 / month)",
+          "amount": 1173,
+          "proration": false
+        }
+      ],
+      "subtotal": 10173,
+      "discount": 0,
+      "tax": 0,
+      "total": 10173,
+      "amount_due": 10173,
+      "starting_balance": 0
+    }
+  ]
+}

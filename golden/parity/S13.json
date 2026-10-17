@@ -1,15 +1,15 @@
 {
   "id": "S13",
   "title": "$10 off for 3 months",
-  "verified_at": "2026-10-17T09:14:53.407Z",
+  "verified_at": "2026-10-17T09:23:48.825Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTgx2QR5nixgqNof67ZsuH",
-  "customer": "cus_VSOT5qnTY2fNMI",
+  "test_clock": "clock_1URTpk2QR5nixgqNEF197Ld5",
+  "customer": "cus_VSOdBIn6bvn4Pa",
   "stripe": [
     {
-      "id": "in_1URTgy2QR5nixgqND5xRRpDV",
+      "id": "in_1URTpl2QR5nixgqNyczA6HGI",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTh52QR5nixgqNafsjEzzP",
+      "id": "in_1URTpr2QR5nixgqNlHAAmbP7",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThO2QR5nixgqNOsQycQPe",
+      "id": "in_1URTq12QR5nixgqNZzSNFVhm",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThY2QR5nixgqNp2xX3xM1",
+      "id": "in_1URTqC2QR5nixgqNseO81a1s",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [

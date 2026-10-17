@@ -1,15 +1,15 @@
 {
   "id": "S04",
   "title": "14-day trial moves the anchor",
-  "verified_at": "2026-10-17T09:13:47.634Z",
+  "verified_at": "2026-10-17T09:22:48.454Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTgQ2QR5nixgqNZ9y6LFig",
-  "customer": "cus_VSOTBTRJ6oUILq",
+  "test_clock": "clock_1URTp92QR5nixgqN8qXmX1MC",
+  "customer": "cus_VSOcKChdFJkX7X",
   "stripe": [
     {
-      "id": "in_1URTgR2QR5nixgqNvWO1bsfX",
+      "id": "in_1URTpA2QR5nixgqNgoGe3Qnd",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTgV2QR5nixgqNUgRqPdtA",
+      "id": "in_1URTpE2QR5nixgqNNCaKGdpJ",
       "date": "2027-01-15",
       "currency": "usd",
       "lines": [

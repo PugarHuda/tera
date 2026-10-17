@@ -933,7 +933,7 @@
     },
     {
       "id": "S23",
-      "status": "draft",
+      "status": "verified",
       "rules": [
         "R7"
       ],
@@ -972,7 +972,8 @@
           ],
           "total": 10173
         }
-      ]
+      ],
+      "parity": "golden/parity/S23.json"
     },
     {
       "id": "S26",

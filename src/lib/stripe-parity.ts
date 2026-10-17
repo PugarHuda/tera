@@ -20,18 +20,31 @@ const MONTH = 28 * 86_400; // advances are capped at 2 intervals of the shortest
 /** FR5: create Tera's catalog in Stripe once (lookup keys / ids make it idempotent). */
 export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   const prices: Record<string, string> = {};
-  const wanted = Object.entries(catalog.prices).filter(([, p]) => p.usage_type !== "metered");
+  const wanted = Object.entries(catalog.prices);
   const existing = await stripe.prices.list({ lookup_keys: wanted.map(([id]) => `tera_${id}`), limit: 100 });
   for (const p of existing.data) prices[p.lookup_key!.slice(5)] = p.id;
+  let meterId: string | null = null;
   for (const [id, p] of wanted) {
+    if (p.usage_type === "metered") meterId ??= await ensureMeter(stripe);
     if (prices[id]) continue;
-    const created = await stripe.prices.create({
-      lookup_key: `tera_${id}`,
-      currency: p.currency,
-      unit_amount: p.unit_amount!,
-      recurring: { interval: p.interval },
-      product_data: { name: `Tera ${id}` },
-    });
+    const created =
+      p.usage_type === "metered"
+        ? await stripe.prices.create({
+            lookup_key: `tera_${id}`,
+            currency: p.currency,
+            recurring: { interval: p.interval, usage_type: "metered", meter: meterId! },
+            billing_scheme: "tiered",
+            tiers_mode: "graduated",
+            tiers: (p.tiers ?? []).map((t) => ({ up_to: t.up_to ?? "inf", unit_amount_decimal: Stripe.Decimal.from(t.unit_amount_decimal) })),
+            product_data: { name: `Tera ${id}` },
+          })
+        : await stripe.prices.create({
+            lookup_key: `tera_${id}`,
+            currency: p.currency,
+            unit_amount: p.unit_amount!,
+            recurring: { interval: p.interval },
+            product_data: { name: `Tera ${id}` },
+          });
     prices[id] = created.id;
   }
 
@@ -61,7 +74,35 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
       ? found.id
       : (await stripe.taxRates.create({ display_name: name, percentage: r.percentage, inclusive: r.behavior === "inclusive" })).id;
   }
-  return { prices, coupons, taxRates };
+  return { prices, coupons, taxRates, meterId };
+}
+
+export const METER_EVENT = "tera_api_calls";
+
+// R7: usage-based prices bill from a Stripe Meter (sum of reported values per period).
+async function ensureMeter(stripe: Stripe) {
+  const meters = await stripe.billing.meters.list({ status: "active", limit: 100 });
+  const found = meters.data.find((m) => m.event_name === METER_EVENT);
+  if (found) return found.id;
+  const m = await stripe.billing.meters.create({
+    display_name: "Tera API calls",
+    event_name: METER_EVENT,
+    default_aggregation: { formula: "sum" },
+    customer_mapping: { type: "by_id", event_payload_key: "stripe_customer_id" },
+    value_settings: { event_payload_key: "value" },
+  });
+  return m.id;
+}
+
+// Meter events aggregate asynchronously; wait until Stripe has counted them before the period closes.
+async function waitForUsage(stripe: Stripe, meterId: string, customer: string, from: number, to: number, expected: number) {
+  for (let i = 0; i < 90; i++) {
+    const s = await stripe.billing.meters.listEventSummaries(meterId, { customer, start_time: from, end_time: to });
+    const total = s.data.reduce((a, x) => a + x.aggregated_value, 0);
+    if (total >= expected) return;
+    await sleep(2000);
+  }
+  throw new Error(`Stripe did not aggregate ${expected} metered units in time`);
 }
 
 async function advance(stripe: Stripe, clockId: string, from: number, to: number) {
@@ -86,7 +127,6 @@ export type ParityInvoice = Pick<Invoice, "date" | "currency" | "subtotal" | "di
 
 /** Replay a timeline against Stripe and return the invoices Stripe produced. */
 export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[]) {
-  if (timeline.some((e) => e.type === "report_usage")) throw new Error("Metered usage cannot be replayed: Stripe meter events cannot be backdated onto a test clock");
   const ids = await pushCatalog(stripe, catalog);
   const events = [...timeline].sort((a, b) => sec(a.at) - sec(b.at));
   const start = sec(events[0].at);
@@ -95,8 +135,15 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
 
   let now = start;
   let sub: Stripe.Subscription | null = null;
+  let usage = { from: start, total: 0 };
   for (const e of events) {
     const at = sec(e.at);
+    const periodEnd = sub?.items.data[0].current_period_end;
+    if (usage.total > 0 && periodEnd && at >= periodEnd) {
+      // Summaries are minute-aligned windows; the closing period's window ends exactly at period end.
+      await waitForUsage(stripe, ids.meterId!, customer.id, usage.from, periodEnd, usage.total);
+      usage = { from: periodEnd, total: 0 };
+    }
     if (at > now) {
       await advance(stripe, clock.id, now, at);
       now = at;
@@ -108,7 +155,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           // R12: Tera models Stripe's classic billing mode (new subscriptions default to flexible since 2025).
           billing_mode: { type: "classic" },
           customer: customer.id,
-          items: [{ price: ids.prices[e.price!], quantity: e.quantity ?? 1 }],
+          items: [{ price: ids.prices[e.price!], ...(catalog.prices[e.price!].usage_type === "metered" ? {} : { quantity: e.quantity ?? 1 }) }],
           ...(e.coupon ? { discounts: [{ coupon: ids.coupons[e.coupon] }] } : {}),
           ...(e.tax_rate ? { default_tax_rates: [ids.taxRates[e.tax_rate]] } : {}),
           ...(e.type === "start_trial" ? { trial_end: at + (e.trial_days ?? 0) * 86_400 } : {}),
@@ -128,6 +175,15 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
         break;
       case "cancel_at_period_end":
         sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
+        break;
+      case "report_usage":
+        // The meter event carries the test clock's time, so it lands in the simulated period.
+        await stripe.billing.meterEvents.create({
+          event_name: METER_EVENT,
+          timestamp: at,
+          payload: { stripe_customer_id: customer.id, value: String(e.quantity ?? 0) },
+        });
+        usage.total += e.quantity ?? 0;
         break;
       case "advance_to":
         break;

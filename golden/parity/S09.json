@@ -1,15 +1,15 @@
 {
   "id": "S09",
   "title": "Add 3 seats mid-cycle",
-  "verified_at": "2026-10-17T09:14:03.147Z",
+  "verified_at": "2026-10-17T09:23:05.635Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTgd2QR5nixgqNRcK1iNWv",
-  "customer": "cus_VSOTwjh9jvdRpQ",
+  "test_clock": "clock_1URTpM2QR5nixgqN24wif0ja",
+  "customer": "cus_VSOcoBBDDWmuYM",
   "stripe": [
     {
-      "id": "in_1URTgf2QR5nixgqNuvnmiKpl",
+      "id": "in_1URTpN2QR5nixgqN798MNz8H",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTgl2QR5nixgqNNrKos4fq",
+      "id": "in_1URTpV2QR5nixgqN5Ho4abID",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

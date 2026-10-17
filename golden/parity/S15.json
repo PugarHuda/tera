@@ -1,15 +1,15 @@
 {
   "id": "S15",
   "title": "10% exclusive tax",
-  "verified_at": "2026-10-17T09:14:29.318Z",
+  "verified_at": "2026-10-17T09:23:34.003Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URThB2QR5nixgqNYGxnPWTb",
-  "customer": "cus_VSOUhXAB7m1JPM",
+  "test_clock": "clock_1URTpx2QR5nixgqNWnw3g10s",
+  "customer": "cus_VSOdWu826vSsjq",
   "stripe": [
     {
-      "id": "in_1URThC2QR5nixgqNRIRT31UU",
+      "id": "in_1URTpz2QR5nixgqNP6ALRWTq",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [

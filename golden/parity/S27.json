@@ -1,15 +1,15 @@
 {
   "id": "S27",
   "title": "Downgrade with always_invoice creates a credit balance",
-  "verified_at": "2026-10-17T09:15:12.055Z",
+  "verified_at": "2026-10-17T09:24:16.942Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URThi2QR5nixgqNnKh6suuF",
-  "customer": "cus_VSOUa6GkOi0dlO",
+  "test_clock": "clock_1URTqW2QR5nixgqNxqOONSVy",
+  "customer": "cus_VSOdPCzqDo9ean",
   "stripe": [
     {
-      "id": "in_1URThj2QR5nixgqNHkzSGuAz",
+      "id": "in_1URTqY2QR5nixgqNval04ytl",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThp2QR5nixgqN4Qb6wmqj",
+      "id": "in_1URTqc2QR5nixgqNPbYNUsFH",
       "date": "2027-01-17",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URThs2QR5nixgqN3JXzO4IM",
+      "id": "in_1URTqf2QR5nixgqNCXjtFK4p",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

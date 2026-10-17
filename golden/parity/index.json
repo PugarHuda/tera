@@ -2,15 +2,15 @@
   {
     "id": "S01",
     "title": "Flat monthly subscription",
-    "verified_at": "2026-10-17T09:13:39.083Z",
+    "verified_at": "2026-10-17T09:22:39.077Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgL2QR5nixgqN3SsEzLVc",
-    "customer": "cus_VSOT9sTBfueOyb",
+    "test_clock": "clock_1URTp42QR5nixgqNOPV9LNoR",
+    "customer": "cus_VSOc7kFTipoAwn",
     "stripe": [
       {
-        "id": "in_1URTgN2QR5nixgqNzamlJyqr",
+        "id": "in_1URTp52QR5nixgqNcDlvwrRS",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -32,15 +32,15 @@
   {
     "id": "S02",
     "title": "Annual plan",
-    "verified_at": "2026-10-17T09:13:38.220Z",
+    "verified_at": "2026-10-17T09:22:38.731Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgL2QR5nixgqN6tICSjvy",
-    "customer": "cus_VSOTyALRHgf4ko",
+    "test_clock": "clock_1URTp42QR5nixgqNsUlzIV3N",
+    "customer": "cus_VSOcZgB940WhwH",
     "stripe": [
       {
-        "id": "in_1URTgN2QR5nixgqNUkCnQeaO",
+        "id": "in_1URTp52QR5nixgqNlk1CkLZK",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -62,15 +62,15 @@
   {
     "id": "S03",
     "title": "Per-seat x5",
-    "verified_at": "2026-10-17T09:13:38.386Z",
+    "verified_at": "2026-10-17T09:22:38.540Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgL2QR5nixgqNfDu9fvTQ",
-    "customer": "cus_VSOTaYrTGC1Ra5",
+    "test_clock": "clock_1URTp42QR5nixgqNHuPcpSwc",
+    "customer": "cus_VSOcTuzivlHPgN",
     "stripe": [
       {
-        "id": "in_1URTgM2QR5nixgqNy3RKttWM",
+        "id": "in_1URTp52QR5nixgqNy3ztMNiA",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -92,15 +92,15 @@
   {
     "id": "S04",
     "title": "14-day trial moves the anchor",
-    "verified_at": "2026-10-17T09:13:47.634Z",
+    "verified_at": "2026-10-17T09:22:48.454Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgQ2QR5nixgqNZ9y6LFig",
-    "customer": "cus_VSOTBTRJ6oUILq",
+    "test_clock": "clock_1URTp92QR5nixgqN8qXmX1MC",
+    "customer": "cus_VSOcKChdFJkX7X",
     "stripe": [
       {
-        "id": "in_1URTgR2QR5nixgqNvWO1bsfX",
+        "id": "in_1URTpA2QR5nixgqNgoGe3Qnd",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -118,7 +118,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgV2QR5nixgqNUgRqPdtA",
+        "id": "in_1URTpE2QR5nixgqNNCaKGdpJ",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -140,15 +140,15 @@
   {
     "id": "S05",
     "title": "Upgrade day 17 of 31, prorations on next invoice",
-    "verified_at": "2026-10-17T09:13:50.153Z",
+    "verified_at": "2026-10-17T09:22:50.712Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgQ2QR5nixgqNu6jiRivZ",
-    "customer": "cus_VSOT8stnB3Gql8",
+    "test_clock": "clock_1URTp92QR5nixgqN3zATzOoO",
+    "customer": "cus_VSOcy9nuYR0ovd",
     "stripe": [
       {
-        "id": "in_1URTgS2QR5nixgqNRy1DYdcU",
+        "id": "in_1URTpA2QR5nixgqN0CQsWgKc",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -166,7 +166,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgY2QR5nixgqNbAD26dqC",
+        "id": "in_1URTpH2QR5nixgqNdmp2SXdo",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -198,15 +198,15 @@
   {
     "id": "S06",
     "title": "Downgrade day 17 of 31",
-    "verified_at": "2026-10-17T09:13:51.465Z",
+    "verified_at": "2026-10-17T09:22:51.812Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgR2QR5nixgqNeewfsuHE",
-    "customer": "cus_VSOT3pKS0PTtlN",
+    "test_clock": "clock_1URTp92QR5nixgqNX9dEkkFc",
+    "customer": "cus_VSOciCg2GTGrlc",
     "stripe": [
       {
-        "id": "in_1URTgS2QR5nixgqNsXsojcG3",
+        "id": "in_1URTpB2QR5nixgqN21j4tJ0l",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -224,7 +224,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgZ2QR5nixgqNGNccSEan",
+        "id": "in_1URTpI2QR5nixgqN5dRjw7I1",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -256,15 +256,15 @@
   {
     "id": "S07",
     "title": "February: mid-month upgrade is exactly half",
-    "verified_at": "2026-10-17T09:13:58.802Z",
+    "verified_at": "2026-10-17T09:23:01.717Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTga2QR5nixgqNQjbv0p9k",
-    "customer": "cus_VSOTowh1EFq6Do",
+    "test_clock": "clock_1URTpJ2QR5nixgqN8nUaIhq2",
+    "customer": "cus_VSOciLtkIKWVTw",
     "stripe": [
       {
-        "id": "in_1URTgb2QR5nixgqNw7JrgYvc",
+        "id": "in_1URTpK2QR5nixgqNAYcSytWA",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -282,7 +282,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgh2QR5nixgqNhpbfgaFA",
+        "id": "in_1URTpR2QR5nixgqN7sWU0ZIw",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -314,15 +314,15 @@
   {
     "id": "S08",
     "title": "Leap-year February",
-    "verified_at": "2026-10-17T09:14:02.293Z",
+    "verified_at": "2026-10-17T09:23:02.878Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgd2QR5nixgqNUFkbkkFQ",
-    "customer": "cus_VSOTQtTnj6gv7q",
+    "test_clock": "clock_1URTpL2QR5nixgqN6IigH0w8",
+    "customer": "cus_VSOcohvC41dIDV",
     "stripe": [
       {
-        "id": "in_1URTge2QR5nixgqNE3tWL7vh",
+        "id": "in_1URTpM2QR5nixgqNlqvi3Bus",
         "date": "2028-02-01",
         "currency": "usd",
         "lines": [
@@ -340,7 +340,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgk2QR5nixgqNsHKnEzYh",
+        "id": "in_1URTpT2QR5nixgqNUbQHKRqc",
         "date": "2028-03-01",
         "currency": "usd",
         "lines": [
@@ -372,15 +372,15 @@
   {
     "id": "S09",
     "title": "Add 3 seats mid-cycle",
-    "verified_at": "2026-10-17T09:14:03.147Z",
+    "verified_at": "2026-10-17T09:23:05.635Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgd2QR5nixgqNRcK1iNWv",
-    "customer": "cus_VSOTwjh9jvdRpQ",
+    "test_clock": "clock_1URTpM2QR5nixgqN24wif0ja",
+    "customer": "cus_VSOcoBBDDWmuYM",
     "stripe": [
       {
-        "id": "in_1URTgf2QR5nixgqNuvnmiKpl",
+        "id": "in_1URTpN2QR5nixgqN798MNz8H",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -398,7 +398,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgl2QR5nixgqNNrKos4fq",
+        "id": "in_1URTpV2QR5nixgqN5Ho4abID",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -430,15 +430,15 @@
   {
     "id": "S10",
     "title": "SAVE20 once",
-    "verified_at": "2026-10-17T09:14:11.040Z",
+    "verified_at": "2026-10-17T09:23:14.993Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgl2QR5nixgqNiNrqvFkM",
-    "customer": "cus_VSOTdMsEZIDUzB",
+    "test_clock": "clock_1URTpW2QR5nixgqNenJqtrm4",
+    "customer": "cus_VSOcUJq1umfC2B",
     "stripe": [
       {
-        "id": "in_1URTgm2QR5nixgqN60MLXYrd",
+        "id": "in_1URTpX2QR5nixgqN4wPruCPo",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -456,7 +456,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgt2QR5nixgqNrlohS6LM",
+        "id": "in_1URTpe2QR5nixgqNLZEOq3ha",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -478,15 +478,15 @@
   {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
-    "verified_at": "2026-10-17T09:14:17.333Z",
+    "verified_at": "2026-10-17T09:23:17.051Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgo2QR5nixgqN68hqGTJo",
-    "customer": "cus_VSOTIGB0zZqYA5",
+    "test_clock": "clock_1URTpX2QR5nixgqNLiVau7nj",
+    "customer": "cus_VSOcWnnjfS4JWr",
     "stripe": [
       {
-        "id": "in_1URTgq2QR5nixgqNVLNnYpwP",
+        "id": "in_1URTpY2QR5nixgqNIR7TNO2X",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -504,7 +504,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgy2QR5nixgqNVPAbof5w",
+        "id": "in_1URTpg2QR5nixgqNQUD7qfzx",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -526,15 +526,15 @@
   {
     "id": "S12",
     "title": "FOREVER25 on Pro",
-    "verified_at": "2026-10-17T09:14:24.273Z",
+    "verified_at": "2026-10-17T09:23:32.200Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgp2QR5nixgqNUTJejJcC",
-    "customer": "cus_VSOTUO2basq6i4",
+    "test_clock": "clock_1URTpa2QR5nixgqNVjbgnUzR",
+    "customer": "cus_VSOcZGnPXxqXNX",
     "stripe": [
       {
-        "id": "in_1URTgq2QR5nixgqNIjsyT8JN",
+        "id": "in_1URTpb2QR5nixgqNLp7sjtFS",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -552,7 +552,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTgw2QR5nixgqNvNynUOVs",
+        "id": "in_1URTpj2QR5nixgqNKQeXu0Eg",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -570,7 +570,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTh62QR5nixgqNiOaL42Y2",
+        "id": "in_1URTpv2QR5nixgqN1WCr8YM0",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -592,15 +592,15 @@
   {
     "id": "S13",
     "title": "$10 off for 3 months",
-    "verified_at": "2026-10-17T09:14:53.407Z",
+    "verified_at": "2026-10-17T09:23:48.825Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTgx2QR5nixgqNof67ZsuH",
-    "customer": "cus_VSOT5qnTY2fNMI",
+    "test_clock": "clock_1URTpk2QR5nixgqNEF197Ld5",
+    "customer": "cus_VSOdBIn6bvn4Pa",
     "stripe": [
       {
-        "id": "in_1URTgy2QR5nixgqND5xRRpDV",
+        "id": "in_1URTpl2QR5nixgqNyczA6HGI",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -618,7 +618,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTh52QR5nixgqNafsjEzzP",
+        "id": "in_1URTpr2QR5nixgqNlHAAmbP7",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -636,7 +636,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThO2QR5nixgqNOsQycQPe",
+        "id": "in_1URTq12QR5nixgqNZzSNFVhm",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -654,7 +654,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThY2QR5nixgqNp2xX3xM1",
+        "id": "in_1URTqC2QR5nixgqNseO81a1s",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -676,15 +676,15 @@
   {
     "id": "S14",
     "title": "amount_off larger than invoice is capped, not carried",
-    "verified_at": "2026-10-17T09:14:29.866Z",
+    "verified_at": "2026-10-17T09:23:29.029Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URTh32QR5nixgqNYbdiLOGb",
-    "customer": "cus_VSOUIIVConfyxa",
+    "test_clock": "clock_1URTpl2QR5nixgqN0KlX7H1W",
+    "customer": "cus_VSOdlBBH0Q4S2m",
     "stripe": [
       {
-        "id": "in_1URTh52QR5nixgqNjTP02QXG",
+        "id": "in_1URTpm2QR5nixgqNcv3e1ixZ",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -702,7 +702,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThC2QR5nixgqNytep7PXE",
+        "id": "in_1URTpt2QR5nixgqNWWB8jAbm",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -724,15 +724,15 @@
   {
     "id": "S15",
     "title": "10% exclusive tax",
-    "verified_at": "2026-10-17T09:14:29.318Z",
+    "verified_at": "2026-10-17T09:23:34.003Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThB2QR5nixgqNYGxnPWTb",
-    "customer": "cus_VSOUhXAB7m1JPM",
+    "test_clock": "clock_1URTpx2QR5nixgqNWnw3g10s",
+    "customer": "cus_VSOdWu826vSsjq",
     "stripe": [
       {
-        "id": "in_1URThC2QR5nixgqNRIRT31UU",
+        "id": "in_1URTpz2QR5nixgqNP6ALRWTq",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -754,15 +754,15 @@
   {
     "id": "S16",
     "title": "20% inclusive VAT",
-    "verified_at": "2026-10-17T09:14:35.413Z",
+    "verified_at": "2026-10-17T09:23:37.217Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThG2QR5nixgqN6yQWoGW3",
-    "customer": "cus_VSOUjTwuw5JyFP",
+    "test_clock": "clock_1URTq02QR5nixgqNUxrs00q5",
+    "customer": "cus_VSOdWYHSzhmIil",
     "stripe": [
       {
-        "id": "in_1URThI2QR5nixgqN2JVDtLmH",
+        "id": "in_1URTq22QR5nixgqNi22dlbfh",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -784,15 +784,15 @@
   {
     "id": "S17",
     "title": "Coupon then exclusive tax",
-    "verified_at": "2026-10-17T09:14:35.211Z",
+    "verified_at": "2026-10-17T09:23:39.234Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThG2QR5nixgqNOPbnnR6E",
-    "customer": "cus_VSOUGf8MgGbIrN",
+    "test_clock": "clock_1URTq32QR5nixgqNiTDq8v3E",
+    "customer": "cus_VSOd7EfCyaQUuw",
     "stripe": [
       {
-        "id": "in_1URThH2QR5nixgqNk45L9WE2",
+        "id": "in_1URTq42QR5nixgqNSRpCSiuU",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -814,15 +814,15 @@
   {
     "id": "S18",
     "title": "JPY zero-decimal upgrade",
-    "verified_at": "2026-10-17T09:14:47.579Z",
+    "verified_at": "2026-10-17T09:23:50.335Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThL2QR5nixgqNx22ISKm2",
-    "customer": "cus_VSOUDGpHoNnqO0",
+    "test_clock": "clock_1URTq52QR5nixgqN6C7dewfr",
+    "customer": "cus_VSOd4DGndaJqIa",
     "stripe": [
       {
-        "id": "in_1URThN2QR5nixgqNlPuoRkqc",
+        "id": "in_1URTq72QR5nixgqN6JmbbKQx",
         "date": "2027-01-01",
         "currency": "jpy",
         "lines": [
@@ -840,7 +840,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThU2QR5nixgqNDnYj2VtZ",
+        "id": "in_1URTqD2QR5nixgqNoDGrbloo",
         "date": "2027-02-01",
         "currency": "jpy",
         "lines": [
@@ -872,15 +872,15 @@
   {
     "id": "S19",
     "title": "EUR locale display",
-    "verified_at": "2026-10-17T09:14:40.567Z",
+    "verified_at": "2026-10-17T09:23:44.589Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThM2QR5nixgqNKQmnFpuZ",
-    "customer": "cus_VSOU1JevDk9Uhy",
+    "test_clock": "clock_1URTq72QR5nixgqN78uQ2ZMx",
+    "customer": "cus_VSOduyTOXFvOvh",
     "stripe": [
       {
-        "id": "in_1URThN2QR5nixgqN65oOqHMD",
+        "id": "in_1URTq92QR5nixgqN67J8gHP0",
         "date": "2027-01-01",
         "currency": "eur",
         "lines": [
@@ -902,15 +902,15 @@
   {
     "id": "S20",
     "title": "Upgrade with always_invoice",
-    "verified_at": "2026-10-17T09:14:55.297Z",
+    "verified_at": "2026-10-17T09:23:59.393Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThR2QR5nixgqNUDSJ8N02",
-    "customer": "cus_VSOUGN24n1mpyg",
+    "test_clock": "clock_1URTqE2QR5nixgqNSh2Q1Zxx",
+    "customer": "cus_VSOdSYB2mYe1jf",
     "stripe": [
       {
-        "id": "in_1URThS2QR5nixgqNgcu7O9fm",
+        "id": "in_1URTqF2QR5nixgqNoxr4I4To",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -928,7 +928,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThX2QR5nixgqNnvsF9n0S",
+        "id": "in_1URTqI2QR5nixgqNIIBpdGCr",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -951,7 +951,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThb2QR5nixgqNwYobymbh",
+        "id": "in_1URTqN2QR5nixgqNIHYQG3zm",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -973,15 +973,15 @@
   {
     "id": "S21",
     "title": "Monthly to annual resets anchor, invoices now",
-    "verified_at": "2026-10-17T09:14:57.513Z",
+    "verified_at": "2026-10-17T09:23:58.074Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThY2QR5nixgqNIUQa62bs",
-    "customer": "cus_VSOUus6IXQNEXl",
+    "test_clock": "clock_1URTqH2QR5nixgqNEPBuYGcg",
+    "customer": "cus_VSOd8IK5voPvqf",
     "stripe": [
       {
-        "id": "in_1URThZ2QR5nixgqNtHpAPaMt",
+        "id": "in_1URTqI2QR5nixgqNgvxz3Xwq",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -999,7 +999,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThe2QR5nixgqNYXfT9RvR",
+        "id": "in_1URTqM2QR5nixgqNXVNEN3dq",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -1026,15 +1026,15 @@
   {
     "id": "S22",
     "title": "Cancel at period end: no further invoices",
-    "verified_at": "2026-10-17T09:15:05.048Z",
+    "verified_at": "2026-10-17T09:24:04.152Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThd2QR5nixgqNPw4MHixj",
-    "customer": "cus_VSOUz9gX63dGC2",
+    "test_clock": "clock_1URTqJ2QR5nixgqNAV9RuHgj",
+    "customer": "cus_VSOdygoO4ub7W6",
     "stripe": [
       {
-        "id": "in_1URThf2QR5nixgqNC59tpPBE",
+        "id": "in_1URTqK2QR5nixgqNHqFnZrMY",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1054,17 +1054,75 @@
     ]
   },
   {
-    "id": "S26",
-    "title": "Price change during a trial does not prorate",
-    "verified_at": "2026-10-17T09:15:24.087Z",
+    "id": "S23",
+    "title": "Graduated metered usage 12,346 calls",
+    "verified_at": "2026-10-17T09:25:04.739Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThf2QR5nixgqNqTs9lHzN",
-    "customer": "cus_VSOUvhtmOKSrFA",
+    "test_clock": "clock_1URTqR2QR5nixgqNJYjhv8Jo",
+    "customer": "cus_VSOd9jl9j66Id7",
     "stripe": [
       {
-        "id": "in_1URThh2QR5nixgqNWz7WBe6p",
+        "id": "in_1URTqS2QR5nixgqNWG4HKVrd",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URTrQ2QR5nixgqNZnYL6Ssk",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "9000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 9000,
+            "proration": false
+          },
+          {
+            "description": "2346 × Tera api_metered_m (Tier 3 at $0.005 / month)",
+            "amount": 1173,
+            "proration": false
+          }
+        ],
+        "subtotal": 10173,
+        "discount": 0,
+        "tax": 0,
+        "total": 10173,
+        "amount_due": 10173,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S26",
+    "title": "Price change during a trial does not prorate",
+    "verified_at": "2026-10-17T09:24:26.827Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URTqS2QR5nixgqNqZfJzGqm",
+    "customer": "cus_VSOd24QE7u6wKS",
+    "stripe": [
+      {
+        "id": "in_1URTqT2QR5nixgqN8QErV50A",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1082,7 +1140,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URTho2QR5nixgqN8QQ8QUd0",
+        "id": "in_1URTqa2QR5nixgqNUERDogDR",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -1100,7 +1158,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThy2QR5nixgqNcrFMUkXx",
+        "id": "in_1URTqk2QR5nixgqNPxcwggge",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -1122,15 +1180,15 @@
   {
     "id": "S27",
     "title": "Downgrade with always_invoice creates a credit balance",
-    "verified_at": "2026-10-17T09:15:12.055Z",
+    "verified_at": "2026-10-17T09:24:16.942Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThi2QR5nixgqNnKh6suuF",
-    "customer": "cus_VSOUa6GkOi0dlO",
+    "test_clock": "clock_1URTqW2QR5nixgqNxqOONSVy",
+    "customer": "cus_VSOdPCzqDo9ean",
     "stripe": [
       {
-        "id": "in_1URThj2QR5nixgqNHkzSGuAz",
+        "id": "in_1URTqY2QR5nixgqNval04ytl",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1148,7 +1206,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThp2QR5nixgqN4Qb6wmqj",
+        "id": "in_1URTqc2QR5nixgqNPbYNUsFH",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -1171,7 +1229,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThs2QR5nixgqN3JXzO4IM",
+        "id": "in_1URTqf2QR5nixgqNCXjtFK4p",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -1193,15 +1251,15 @@
   {
     "id": "S28",
     "title": "Upgrade under a forever 25% coupon: prorations are pre-discounted, not re-discounted",
-    "verified_at": "2026-10-17T09:15:19.702Z",
+    "verified_at": "2026-10-17T09:24:28.697Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URThp2QR5nixgqNwDfjJkY7",
-    "customer": "cus_VSOUEySFVUmUAD",
+    "test_clock": "clock_1URTqj2QR5nixgqNZYmuN2KI",
+    "customer": "cus_VSOeCclKafTNmy",
     "stripe": [
       {
-        "id": "in_1URThq2QR5nixgqNP6KUf9Hw",
+        "id": "in_1URTqk2QR5nixgqNRKeK0a9S",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1219,7 +1277,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URThz2QR5nixgqN0LX20Anv",
+        "id": "in_1URTqr2QR5nixgqNOhCTIFP9",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [

@@ -47,7 +47,7 @@ export function ParityRow({ id, title, tera, record }: { id: string; title: stri
           </button>
         )}
       </div>
-      {!record && <p className="mt-2 text-xs opacity-60">Metered usage needs Stripe meter events, which are not replayed against test clocks yet.</p>}
+      {!record && <p className="mt-2 text-xs opacity-60">No Stripe evidence recorded for this scenario yet: run scripts/verify-golden.mts.</p>}
       {error && (
         <p role="alert" className="mt-2 text-sm text-red-600">
           {error}

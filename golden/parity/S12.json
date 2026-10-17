@@ -1,15 +1,15 @@
 {
   "id": "S12",
   "title": "FOREVER25 on Pro",
-  "verified_at": "2026-10-17T09:14:24.273Z",
+  "verified_at": "2026-10-17T09:23:32.200Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTgp2QR5nixgqNUTJejJcC",
-  "customer": "cus_VSOTUO2basq6i4",
+  "test_clock": "clock_1URTpa2QR5nixgqNVjbgnUzR",
+  "customer": "cus_VSOcZGnPXxqXNX",
   "stripe": [
     {
-      "id": "in_1URTgq2QR5nixgqNIjsyT8JN",
+      "id": "in_1URTpb2QR5nixgqNLp7sjtFS",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTgw2QR5nixgqNvNynUOVs",
+      "id": "in_1URTpj2QR5nixgqNKQeXu0Eg",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTh62QR5nixgqNiOaL42Y2",
+      "id": "in_1URTpv2QR5nixgqN1WCr8YM0",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [

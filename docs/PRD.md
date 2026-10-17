@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero. **VERIFY** (no golden scenario depends on an exact .5 until verified).
+- Rounding mode: round half away from zero. Stripe does not document its rounding mode; all 26 replayed scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -144,7 +144,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Page `/parity` lists every timeline scenario with a ✅ Match / ❌ Diff / — Not replayable badge and the summary "N / M scenarios match Stripe to the cent"; expanding a row shows Tera and Stripe invoices side by side; "Re-run live in Stripe" replays it now.
 - `GET /api/parity` returns the recorded evidence; `POST /api/parity {"scenario":"S05"}` replays one golden scenario live (golden ids only; one live run per 30 s → 429).
 - The Stripe key is server-side only (`STRIPE_SECRET_KEY`, test mode enforced) and never returned to the client.
-- Metered usage (S23) is not replayed yet: Stripe usage-based billing needs meter events against the test clock.
+- Metered usage is replayed with a Stripe **Meter** (`tera_api_calls`, sum aggregation) and a graduated tiered price; meter events carry the test clock's time and the replay waits for Stripe's aggregation before the period closes (S23).
 
 ### FR5 Push to Stripe [SHIPPED]
 - The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key` `tera_<id>`, coupons with id `TERA_<code>`, tax rates by display name `tera_<id>`. Re-running never duplicates objects.
@@ -178,7 +178,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-17, 25/25 replayable scenarios are verified (including amount_due and starting_balance); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-17, **all 26 timeline scenarios are verified** (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

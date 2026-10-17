@@ -1,15 +1,15 @@
 {
   "id": "S02",
   "title": "Annual plan",
-  "verified_at": "2026-10-17T09:13:38.220Z",
+  "verified_at": "2026-10-17T09:22:38.731Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTgL2QR5nixgqN6tICSjvy",
-  "customer": "cus_VSOTyALRHgf4ko",
+  "test_clock": "clock_1URTp42QR5nixgqNsUlzIV3N",
+  "customer": "cus_VSOcZgB940WhwH",
   "stripe": [
     {
-      "id": "in_1URTgN2QR5nixgqNUkCnQeaO",
+      "id": "in_1URTp52QR5nixgqNlk1CkLZK",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
