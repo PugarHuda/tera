@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
@@ -110,6 +111,26 @@ export function Simulator({
     } catch {
       // Clipboard can be blocked; the link is still shown below for manual copy.
     }
+  };
+  const exportCsv = () => {
+    const rows = outcome.result!.invoices.map((inv, i) => ({
+      invoice: i + 1,
+      date: inv.date,
+      currency: inv.currency,
+      lines: inv.lines.map((l) => `${l.description} ${l.amount}`).join("; "),
+      subtotal: inv.subtotal,
+      discount: inv.discount,
+      tax: inv.tax,
+      total: inv.total,
+      starting_balance: inv.starting_balance,
+      amount_due: inv.amount_due,
+    }));
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([toCsv(rows)], { type: "text/csv" })),
+      download: `tera-invoices${scenarioId ? `-${scenarioId}` : ""}.csv`,
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
   const update = (i: number, patch: Partial<TimelineEvent>) => edit(timeline.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
@@ -313,9 +334,16 @@ export function Simulator({
           </p>
         ) : (
           <>
-            <p className="mb-3 text-sm opacity-70" data-testid="sub-status">
-              Status: <strong>{outcome.result!.status}</strong>
-              {outcome.result!.canceled_at && ` (canceled ${outcome.result!.canceled_at})`}
+            <p className="mb-3 flex items-center gap-2 text-sm" data-testid="sub-status">
+              <span className="opacity-70">
+                Status: <strong>{outcome.result!.status}</strong>
+                {outcome.result!.canceled_at && ` (canceled ${outcome.result!.canceled_at})`}
+              </span>
+              {outcome.result!.invoices.length > 0 && (
+                <button type="button" className="btn-ghost ml-auto border border-current/20 text-xs" data-testid="export-invoices" onClick={exportCsv}>
+                  Export CSV (minor units)
+                </button>
+              )}
             </p>
             <ol className="space-y-3">
               {outcome.result!.invoices.map((inv, i) => (

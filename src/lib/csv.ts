@@ -26,7 +26,9 @@ export function parseCustomers(text: string): { customers: CsvCustomer[]; errors
 
 export const toCsv = (rows: Array<Record<string, string | number>>) => {
   if (rows.length === 0) return "";
-  const esc = (v: string | number) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  // OWASP CSV injection: text starting with = + - @ (or tab/CR) would run as a spreadsheet formula.
+  const cell = (v: string | number) => (typeof v === "string" && /^[=+\-@\t\r]/.test(v) ? `'${v}` : String(v));
+  const esc = (v: string | number) => (/[",\n]/.test(cell(v)) ? `"${cell(v).replace(/"/g, '""')}"` : cell(v));
   const keys = Object.keys(rows[0]);
   return [keys.join(","), ...rows.map((r) => keys.map((k) => esc(r[k])).join(","))].join("\n") + "\n";
 };
