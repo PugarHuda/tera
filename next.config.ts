@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV === "development";
 
 // No nonces (they would make every page dynamic). vercel.live is the toolbar on preview deployments.
-// frame-ancestors (not X-Frame-Options: DENY) because TestSprite runs the app framed and skips undeployable hosts.
+// Framing is limited to this app and TestSprite's dashboard (clickjacking protection).
 const csp = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' https://vercel.live${isDev ? " 'unsafe-eval'" : ""};
