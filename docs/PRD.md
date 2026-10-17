@@ -99,34 +99,48 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ## 6. Functional requirements
 
-### FR1 Pricing Builder
+> **Shipped status.** Each FR below is tagged **[SHIPPED]** or **[PLANNED]**. Only test [SHIPPED] requirements; [PLANNED] ones do not exist in the app yet.
+>
+> Live app: `/` = Timeline Simulator (FR2), `/migrate` = Migration Planner (FR3), `/api/*` = Public API (FR7). There is no login.
+
+### FR1 Pricing Builder [PLANNED]
 - Create, edit and delete plans with prices in USD, EUR, GBP and JPY.
 - Validation: amount > 0, an integer in minor units; JPY rejects decimals; tiers are contiguous.
 
-### FR2 Timeline Simulator
-- Add, edit, reorder and delete events; the timeline rejects events out of chronological order.
-- Output: an invoice list. Each invoice expands to its lines, with proration lines labelled.
-- Amounts are formatted per currency and locale (`$29.00`, `29,00 €` in de-DE, `¥3,000`).
+### FR2 Timeline Simulator [SHIPPED]
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S23).
+- Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
+- Invoices recompute instantly on every change; there is no submit button.
+- If events are not in chronological order, an error alert is shown instead of invoices.
+- Unknown prices or events before a subscribe show an error alert.
+- Each invoice shows its date, period, lines (proration lines carry a "proration" badge), subtotal, discount (if any), tax (if any) and a bold total.
+- While a loaded scenario is unedited, a badge shows "✅ Matches golden expected" when every invoice total equals the golden expected total.
+- A locale dropdown (en-US, de-DE, ja-JP, en-GB) reformats amounts: `$103.20` in en-US, `103,20 $` in de-DE; JPY never shows decimals (`¥10,419`).
+- Reference values: S05 → invoice 1 `$29.00`, invoice 2 `$103.20` (lines −$14.03, $38.23, $79.00). S10 (SAVE20 once) → first invoice discounted by 20 %, second not. S22 → status `canceled`.
 
-### FR3 Migration Planner
-- Input: a price change, a grandfather toggle and a customer base (seeded or CSV).
-- Output: MRR before and after, per-customer delta, and the count of affected customers.
+### FR3 Migration Planner [SHIPPED]
+- Page `/migrate`. Inputs: current monthly price (USD), new monthly price (USD), a "Grandfather existing customers" checkbox, and seats per customer (comma separated).
+- Output, recomputed instantly: customers affected, MRR before, MRR after, MRR change (signed).
+- Default inputs $29 → $39, seats `1, 1, 3`: affected 3, MRR $145.00 → $195.00, change +$50.00. With grandfathering: affected 0, change +$0.00.
+- Non-positive prices or non-integer seat counts show an error alert.
 
-### FR4 Stripe Parity Check
+### FR4 Stripe Parity Check [PLANNED]
 - Replays a timeline in Stripe test mode using test clocks, then fetches the invoices.
 - Shows a line-by-line diff with a ✅ Match / ❌ Diff badge per invoice.
 - The Stripe key is server-side only and never returned to the client.
 
-### FR5 Push to Stripe
+### FR5 Push to Stripe [PLANNED]
 - Creates the products, prices and coupons in Stripe test mode; the operation is idempotent.
 
-### FR6 Shareable report
+### FR6 Shareable report [PLANNED]
 - A public read-only URL that shows the plan, timeline and invoices without a login.
 
-### FR7 Public API (tested directly by TestSprite's API suite)
-- `POST /api/simulate` — input `{ plans, coupons, taxRates, timeline }`, output `{ invoices[] }`.
-- `POST /api/migrate` — input a migration plan, output the impact report.
-- `GET /api/scenarios/:id` — returns a golden scenario with its expected output.
+### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
+- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, total_display`.
+- `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[] }` → `{ affected, mrr_before, mrr_after, mrr_delta }`.
+- `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
+- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate or an event before subscribe → **422** `{ error }`.
+- Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
 
 ## 7. Non-functional
