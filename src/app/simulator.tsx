@@ -148,7 +148,7 @@ export function Simulator({
             Customer timeline
           </h2>
           {playable.length > 0 && (
-            <label className="text-sm">
+            <label className="max-w-full text-sm">
               <span className="block text-xs opacity-70">Load scenario</span>
               <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
                 {!scenarioId && <option value="">Custom (shared link)</option>}
