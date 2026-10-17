@@ -1,15 +1,15 @@
 {
   "id": "S14",
   "title": "amount_off larger than invoice is capped, not carried",
-  "verified_at": "2026-10-17T09:27:17.052Z",
+  "verified_at": "2026-10-17T11:41:33.181Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTtO2QR5nixgqNESoA0eNy",
-  "customer": "cus_VSOgoyFvuy6WOK",
+  "test_clock": "clock_1URVzO2QR5nixgqNWokvWT4c",
+  "customer": "cus_VSQrIm3NU9CrEc",
   "stripe": [
     {
-      "id": "in_1URTtP2QR5nixgqNcP8XX0Dg",
+      "id": "in_1URVzP2QR5nixgqNIn7tXrN2",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTtZ2QR5nixgqNRDw7J47B",
+      "id": "in_1URVzV2QR5nixgqNpGNPkSoP",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

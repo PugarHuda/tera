@@ -1,15 +1,15 @@
 {
   "id": "S19",
   "title": "EUR locale display",
-  "verified_at": "2026-10-17T09:27:25.091Z",
+  "verified_at": "2026-10-17T11:41:44.167Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTtg2QR5nixgqNUuY9k6kh",
-  "customer": "cus_VSOhA2UXv8NIWe",
+  "test_clock": "clock_1URVzf2QR5nixgqNRyW5l30I",
+  "customer": "cus_VSQrnbuPseBV5U",
   "stripe": [
     {
-      "id": "in_1URTth2QR5nixgqN6rsqoEa3",
+      "id": "in_1URVzh2QR5nixgqNdYAP5j2p",
       "date": "2027-01-01",
       "currency": "eur",
       "lines": [

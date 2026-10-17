@@ -1,0 +1,58 @@
+{
+  "id": "S32",
+  "title": "Changing the price with quantity 5 keeps all 5 seats",
+  "verified_at": "2026-10-17T11:42:50.176Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URW0c2QR5nixgqN2usWe5Zl",
+  "customer": "cus_VSQsRZnP4yrR8v",
+  "stripe": [
+    {
+      "id": "in_1URW0d2QR5nixgqNiug4DjXO",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 6000,
+          "proration": false
+        }
+      ],
+      "subtotal": 6000,
+      "discount": 0,
+      "tax": 0,
+      "total": 6000,
+      "amount_due": 6000,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URW0l2QR5nixgqNXVC91l3d",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 5 × Tera team_seat_m after 20 Mar 2027",
+          "amount": -2323,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 5 × Tera pro_m after 20 Mar 2027",
+          "amount": 15290,
+          "proration": true
+        },
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 52467,
+      "discount": 0,
+      "tax": 0,
+      "total": 52467,
+      "amount_due": 52467,
+      "starting_balance": 0
+    }
+  ]
+}

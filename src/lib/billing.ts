@@ -98,6 +98,8 @@ type Sub = {
   status: "active" | "trialing" | "canceled";
   cancelAtPeriodEnd: boolean;
   coupon: { code: string; remaining: number } | null;
+  /** R5: share of list price the current amount was last charged at (period invoice or proration debit). */
+  paidRate: number;
   taxRate: TaxRate | null;
   pending: InvoiceLine[];
   usage: number;
@@ -138,6 +140,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       const c = catalog.coupons![sub.coupon.code];
       discount = c.percent_off != null ? roundMinor((discountable * c.percent_off) / 100) : Math.min(c.amount_off ?? 0, discountable);
       sub.coupon.remaining -= 1;
+    }
+    if (discountable > 0) {
+      const c = discount > 0 ? catalog.coupons![sub.coupon!.code] : null;
+      sub.paidRate = c?.percent_off != null ? 1 - c.percent_off / 100 : 1;
     }
     const taxable = subtotal - discount;
     let tax = 0;
@@ -214,16 +220,19 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   // R3: credit unused time on the old amount, charge remaining time on the new one.
-  // R5: while a percent_off coupon is active, Stripe prorates at the discounted price.
+  // R5: the credit refunds the rate the current amount was actually charged at (its percent_off coupon, even a
+  // used-up "once"); the remaining time is priced at the percent_off coupon still active, and becomes the new paid rate.
   const prorate = (s: Sub, at: number, oldAmount: number, newAmount: number): InvoiceLine[] => {
     const remaining = s.periodEnd - at;
     const period = s.periodEnd - s.periodStart;
     const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
     const rate = c?.percent_off != null ? 1 - c.percent_off / 100 : 1;
-    return [
-      { description: "Unused time", amount: -roundMinor((oldAmount * rate * remaining) / period), proration: true },
+    const lines = [
+      { description: "Unused time", amount: -roundMinor((oldAmount * s.paidRate * remaining) / period), proration: true },
       { description: "Remaining time", amount: roundMinor((newAmount * rate * remaining) / period), proration: true },
     ];
+    s.paidRate = rate;
+    return lines;
   };
 
   const events = [...timeline].sort((a, b) => toDate(a.at) - toDate(b.at));
@@ -250,6 +259,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           status: trial ? "trialing" : "active",
           cancelAtPeriodEnd: false,
           coupon: null,
+          paidRate: 1,
           taxRate: e.tax_rate ? taxRate(e.tax_rate) : null,
           pending: [],
           usage: 0,
@@ -265,13 +275,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           throw new Error(`Cannot switch currency (${price(s.priceId).currency} -> ${price(e.price!).currency}) on a subscription`);
         if (s.status === "trialing") {
           // R4: nothing was paid during the trial, so there is nothing to prorate; the new terms bill at trial end.
-          if (e.type === "change_price") s.priceId = e.price!;
+          if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.quantity ?? 1];
           else s.quantity = e.quantity!;
           break;
         }
         const oldAmount = licensedAmount(s);
         const oldInterval = price(s.priceId).interval;
-        if (e.type === "change_price") s.priceId = e.price!;
+        // R13: like Stripe, a new price without a quantity resets the item to quantity 1.
+        if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.quantity ?? 1];
         else s.quantity = e.quantity!;
         const p = price(s.priceId);
         const newAmount = licensedAmount(s);

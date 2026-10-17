@@ -68,7 +68,9 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
 
 ### R5 — Coupons
-- `percent_off` applies only to **non-proration** lines. While a `percent_off` coupon is active, proration lines are computed at the discounted price and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- `percent_off` applies only to **non-proration** lines. Proration lines are priced already discounted and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
+- The **unused-time credit** refunds the rate the current amount was actually charged at: the period invoice's `percent_off` (even a `once` coupon that is now used up, S30), or the rate of the latest proration charge (S33). A coupon applied mid-period does not reduce the credit for time already paid in full (S34).
+- The **remaining-time charge** is priced at the `percent_off` coupon still active at the change, and becomes the rate later credits refund.
 - `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
@@ -103,10 +105,13 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Tera models Stripe's **classic** billing mode. New Stripe subscriptions default to *flexible* mode, where a monthly → yearly change does not reset the anchor; the parity replay pins `billing_mode: classic`.
 - Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
 
+### R13 — Changing the price of an item
+- Like a Stripe subscription item update, `change_price` without a `quantity` resets the quantity to **1** (S31); pass `quantity` to keep seats (S32). Found by a live "Verify in Stripe" replay of a custom timeline.
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
-- **I2** An unused-time credit never exceeds what was paid for that period.
+- **I2** An unused-time credit never exceeds what was paid for that period (including earlier proration charges in the same period, S33).
 - **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
 - **I4** Zero-decimal currencies never display a decimal separator.
 - **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
@@ -169,7 +174,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
 
 ### FR8 MCP server [SHIPPED]
-- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
 - Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
 - `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
 

@@ -6,7 +6,7 @@
   "priority": "p1",
   "planSteps": [
     { "type": "action", "description": "Open the app home page and click 'MCP' in the top navigation bar" },
-    { "type": "assertion", "description": "Assert the tool names simulate_timeline, plan_price_migration, list_golden_scenarios and get_golden_scenario are listed" },
+    { "type": "assertion", "description": "Assert the tool names simulate_timeline, verify_timeline_in_stripe, plan_price_migration, list_golden_scenarios and get_golden_scenario are listed" },
     { "type": "assertion", "description": "Assert a 'claude mcp add --transport http tera' command is shown" }
   ]
 }

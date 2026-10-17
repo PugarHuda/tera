@@ -11,7 +11,7 @@ type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "pror
 const FIELDS: Record<EventType, Field[]> = {
   subscribe: ["price", "quantity", "coupon", "tax_rate"],
   start_trial: ["price", "trial_days", "quantity", "tax_rate"],
-  change_price: ["price", "proration_behavior"],
+  change_price: ["price", "quantity", "proration_behavior"],
   change_quantity: ["quantity", "proration_behavior"],
   apply_coupon: ["coupon"],
   report_usage: ["quantity"],

@@ -8,7 +8,7 @@ const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R12 in docs/PRD.md. 26/26 golden scenarios verified against Stripe test mode (see /parity).",
+      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R13 in docs/PRD.md. 31/31 golden scenarios verified against Stripe test mode (see /parity).",
   },
   paths: {
     "/api/simulate": {

@@ -181,7 +181,14 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "change_quantity": {
         const item = sub!.items.data[0];
         sub = await stripe.subscriptions.update(sub!.id, {
-          items: [{ id: item.id, ...(e.type === "change_price" ? { price: ids.prices[e.price!] } : { quantity: e.quantity }) }],
+          items: [
+            {
+              id: item.id,
+              ...(e.type === "change_price"
+                ? { price: ids.prices[e.price!], ...(e.quantity !== undefined && catalog.prices[e.price!].usage_type !== "metered" ? { quantity: e.quantity } : {}) }
+                : { quantity: e.quantity }),
+            },
+          ],
           proration_behavior: e.proration_behavior ?? "create_prorations",
         });
         break;
@@ -252,4 +259,33 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
     for (const [field, a, b] of checks) if (JSON.stringify(a) !== JSON.stringify(b)) diffs.push({ invoice: i + 1, field, tera: a, stripe: b });
   }
   return diffs;
+}
+
+// A live replay creates real test-mode objects and advances a test clock, so it is throttled (per instance)
+// and custom timelines are kept small enough to finish inside the route's maxDuration.
+export class Cooldown extends Error {
+  constructor(public retryAfter: number) {
+    super(`A live Stripe replay ran moments ago; retry in ${retryAfter}s`);
+  }
+}
+export const LIVE_MAX_EVENTS = 15;
+const LIVE_MAX_SPAN_MS = 2 * 366 * 86_400_000;
+const COOLDOWN_MS = 30_000;
+let lastLiveRun = 0;
+
+/** Throws a plain Error for timelines too big to replay live (callers map it to 400). */
+export function checkLiveLimits(timeline: TimelineEvent[]) {
+  if (timeline.length > LIVE_MAX_EVENTS) throw new Error(`a live Stripe replay is limited to ${LIVE_MAX_EVENTS} events`);
+  const times = timeline.map((e) => Date.parse(e.at));
+  if (Math.max(...times) - Math.min(...times) > LIVE_MAX_SPAN_MS) throw new Error("a live Stripe replay may span at most 2 years");
+}
+
+/** Replay in Stripe and diff against Tera's invoices (the caller has already simulated and validated). */
+export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], tera: Invoice[]) {
+  const wait = lastLiveRun + COOLDOWN_MS - Date.now();
+  if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000));
+  lastLiveRun = Date.now();
+  const replay = await replayInStripe(stripeClient(), catalog, timeline);
+  const diffs = diffInvoices(tera, replay.invoices);
+  return { match: diffs.length === 0, diffs, tera, stripe: replay.invoices, test_clock: replay.clockId, ran_at: new Date().toISOString() };
 }

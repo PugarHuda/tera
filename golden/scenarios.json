@@ -1223,6 +1223,260 @@
           }
         ]
       }
+    },
+    {
+      "id": "S30",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5"
+      ],
+      "title": "Seat increase after a used-up 'once' coupon: the credit refunds the discounted price actually paid",
+      "timeline": [
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 3,
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-03-11T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 5
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "March was charged 3600-20%=2880. Credit 21/31 of what was paid: -round(3600*0.8*21/31)=-1951. The coupon is used up, so the 5 seats are full price: +round(6000*21/31)=4065; renewal 6000; total 8114",
+      "expect": [
+        {
+          "date": "2027-03-01",
+          "lines": [
+            3600
+          ],
+          "discount": 720,
+          "total": 2880
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -1951,
+            4065,
+            6000
+          ],
+          "discount": 0,
+          "total": 8114
+        }
+      ],
+      "parity": "golden/parity/S30.json"
+    },
+    {
+      "id": "S31",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R13"
+      ],
+      "title": "Changing the price without a quantity resets 5 seats to quantity 1 (Stripe item semantics)",
+      "timeline": [
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 5
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "12 of 31 days left. Credit -round(6000*12/31)=-2323; pro_m x1: +round(7900*12/31)=3058; renewal 7900; total 8635",
+      "expect": [
+        {
+          "date": "2027-03-01",
+          "lines": [
+            6000
+          ],
+          "discount": 0,
+          "total": 6000
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -2323,
+            3058,
+            7900
+          ],
+          "discount": 0,
+          "total": 8635
+        }
+      ],
+      "parity": "golden/parity/S31.json"
+    },
+    {
+      "id": "S32",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R13"
+      ],
+      "title": "Changing the price with quantity 5 keeps all 5 seats",
+      "timeline": [
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 5
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 5
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Credit -round(6000*12/31)=-2323; pro_m x5: +round(39500*12/31)=15290; renewal 39500; total 52467",
+      "expect": [
+        {
+          "date": "2027-03-01",
+          "lines": [
+            6000
+          ],
+          "discount": 0,
+          "total": 6000
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -2323,
+            15290,
+            39500
+          ],
+          "discount": 0,
+          "total": 52467
+        }
+      ],
+      "parity": "golden/parity/S32.json"
+    },
+    {
+      "id": "S33",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5"
+      ],
+      "title": "Two seat changes in one period after a used-up 'once' coupon: each credit refunds the rate it was charged at",
+      "timeline": [
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 3,
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-03-11T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 5
+        },
+        {
+          "at": "2027-03-21T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 7
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "First change as S30: -1951 (March was paid at 80%), +4065 (full price, coupon used up). Second change, 11/31 left: the 5 seats were charged at full price, so -round(6000*11/31)=-2129, +round(8400*11/31)=2981; renewal 8400; total 11366. Stripe corrected our first derivation (-1703, credit at March's 80%).",
+      "expect": [
+        {
+          "date": "2027-03-01",
+          "lines": [
+            3600
+          ],
+          "discount": 720,
+          "total": 2880
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -1951,
+            4065,
+            -2129,
+            2981,
+            8400
+          ],
+          "discount": 0,
+          "total": 11366
+        }
+      ],
+      "parity": "golden/parity/S33.json"
+    },
+    {
+      "id": "S34",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5"
+      ],
+      "title": "Coupon applied mid-period, then an upgrade: January was paid in full, so its credit is full price",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Credit what January cost: -round(2900*15/31)=-1403; the coupon is active now: +round(7900*0.75*15/31)=2867; renewal 7900 less 25% = 1975; total -1403+2867+7900-1975=7389",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -1403,
+            2867,
+            7900
+          ],
+          "discount": 1975,
+          "total": 7389
+        }
+      ],
+      "parity": "golden/parity/S34.json"
     }
   ]
 }

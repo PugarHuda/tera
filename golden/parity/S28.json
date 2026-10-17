@@ -1,15 +1,15 @@
 {
   "id": "S28",
   "title": "Upgrade under a forever 25% coupon: prorations are pre-discounted, not re-discounted",
-  "verified_at": "2026-10-17T09:28:06.857Z",
+  "verified_at": "2026-10-17T11:42:32.068Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URTuE2QR5nixgqNruQBbuQQ",
-  "customer": "cus_VSOh5hSgneZcsq",
+  "test_clock": "clock_1URW0I2QR5nixgqNeCLXfOaY",
+  "customer": "cus_VSQsBq0txOUDPx",
   "stripe": [
     {
-      "id": "in_1URTuF2QR5nixgqNfdowg3hA",
+      "id": "in_1URW0J2QR5nixgqNqcVAf27r",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URTuM2QR5nixgqNLY2iRbtv",
+      "id": "in_1URW0S2QR5nixgqNNp55FIAe",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
