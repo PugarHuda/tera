@@ -1,8 +1,0 @@
-[
-  {
-    "kind": "snapshot",
-    "stepIndex": 9,
-    "summary": "Step 9 'Timeline returns to the original invoice outcome (Invoice 1 shows $29.00).' failed. Error: TEST FAILURE\n\nThe golden 'Matches golden expected' badge did not reappear after adding and deleting a timeline event, even though invoice totals returned to the expected baseline.\n\nObservations:\n- Invoice 1 displays $29.00 and Invoice 2 displays $103.20 in the UI (visible on the invoice cards).\n- A page search for the exact text 'Matches golden expected' returned no matches and no badge is visible in the UI or DOM.\n- The newly added event was removed (delete controls show events 1–5 only), indicating the timeline reverted but the golden-match indicator did not reappear.",
-    "path": "steps/09-snapshot.html"
-  }
-]
