@@ -1,15 +1,15 @@
 {
   "id": "S23",
   "title": "Graduated metered usage 12,346 calls",
-  "verified_at": "2026-10-17T11:43:11.363Z",
+  "verified_at": "2026-10-17T18:30:06.986Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URVzw2QR5nixgqNdZGSKbVU",
-  "customer": "cus_VSQrxW7ZU179EP",
+  "test_clock": "clock_1URcM42QR5nixgqNknBmNfH7",
+  "customer": "cus_VSXQGbiEKVJQds",
   "stripe": [
     {
-      "id": "in_1URVzx2QR5nixgqN9SVT3agA",
+      "id": "in_1URcM52QR5nixgqNDuNujpPV",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URW162QR5nixgqNXSqrtgXA",
+      "id": "in_1URcMu2QR5nixgqN4VJtRemD",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

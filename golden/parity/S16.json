@@ -1,15 +1,15 @@
 {
   "id": "S16",
   "title": "20% inclusive VAT",
-  "verified_at": "2026-10-17T11:41:39.943Z",
+  "verified_at": "2026-10-17T18:28:54.608Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URVzb2QR5nixgqNnwcSdaen",
-  "customer": "cus_VSQr100QVia7bh",
+  "test_clock": "clock_1URcLi2QR5nixgqNnP0Tj9Ew",
+  "customer": "cus_VSXQTQZ9WXJwox",
   "stripe": [
     {
-      "id": "in_1URVzc2QR5nixgqNGHYM8ySZ",
+      "id": "in_1URcLk2QR5nixgqNcSqMYPSI",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [

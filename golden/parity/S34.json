@@ -1,15 +1,15 @@
 {
   "id": "S34",
   "title": "Coupon applied mid-period, then an upgrade: January was paid in full, so its credit is full price",
-  "verified_at": "2026-10-17T11:43:03.801Z",
+  "verified_at": "2026-10-17T18:30:18.090Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URW0n2QR5nixgqNPBToAVG9",
-  "customer": "cus_VSQsDR9g9q8JuM",
+  "test_clock": "clock_1URcMt2QR5nixgqNtvXDE3Dv",
+  "customer": "cus_VSXR5CKcelNqzi",
   "stripe": [
     {
-      "id": "in_1URW0o2QR5nixgqNuAAnKL9r",
+      "id": "in_1URcMv2QR5nixgqNwXViuo7e",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URW0x2QR5nixgqNk2SOgyDi",
+      "id": "in_1URcN42QR5nixgqNzJkzqU0T",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [

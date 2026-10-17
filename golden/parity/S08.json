@@ -1,15 +1,15 @@
 {
   "id": "S08",
   "title": "Leap-year February",
-  "verified_at": "2026-10-17T11:41:08.998Z",
+  "verified_at": "2026-10-17T18:28:27.082Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URVyw2QR5nixgqNOUEPQs0b",
-  "customer": "cus_VSQqSFpDbCqhz2",
+  "test_clock": "clock_1URcL92QR5nixgqNhPi9BR2f",
+  "customer": "cus_VSXQ0rwcgOEYsH",
   "stripe": [
     {
-      "id": "in_1URVyx2QR5nixgqNgeCrfk6B",
+      "id": "in_1URcLA2QR5nixgqNCF7om7yK",
       "date": "2028-02-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URVz72QR5nixgqNlryySug3",
+      "id": "in_1URcLI2QR5nixgqNwoSoUIgO",
       "date": "2028-03-01",
       "currency": "usd",
       "lines": [

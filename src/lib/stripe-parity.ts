@@ -263,9 +263,12 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
 
 // A live replay creates real test-mode objects and advances a test clock, so it is throttled (per instance)
 // and custom timelines are kept small enough to finish inside the route's maxDuration.
+// No parameter properties: scripts run this file with Node's type stripping, which rejects them.
 export class Cooldown extends Error {
-  constructor(public retryAfter: number) {
+  retryAfter: number;
+  constructor(retryAfter: number) {
     super(`A live Stripe replay ran moments ago; retry in ${retryAfter}s`);
+    this.retryAfter = retryAfter;
   }
 }
 export const LIVE_MAX_EVENTS = 15;
