@@ -59,7 +59,7 @@ Two lines are generated, each rounded separately:
 - **Unused time credit:** `−round(old_amount × remaining / period)`
 - **Remaining time charge:** `+round(new_amount × remaining / period)`
 - With a coupon (R5) the credit refunds the net amount paid in **one** rounding, `−round((paid amount) × f)`, while the charge is list minus discount rounded **separately**, `round(new × f) − round(discount × f)` (golden S42; the one-step version is a cent off).
-- A change to the same quantity, or to the same price without a new quantity, is a no-op: no prorations (S38).
+- A change to the same quantity, or to the same price without a new quantity, is a no-op: no prorations (S38). With `always_invoice` it still invoices prorations pending from earlier changes at once (S43).
 - A change made at the exact instant a period renews is invoiced separately from the renewal; with `always_invoice` that invoice is finalized first and its credit pays the renewal (S40).
 
 where `old_amount`/`new_amount` = unit_amount × quantity.

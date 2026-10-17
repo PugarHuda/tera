@@ -2088,5 +2088,76 @@
         "starting_balance": 0
       }
     ]
+  },
+  {
+    "id": "S43",
+    "title": "A no-op change with always_invoice still invoices earlier pending prorations now",
+    "verified_at": "2026-10-17T18:59:41.619Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URcpF2QR5nixgqN78aXFUc3",
+    "customer": "cus_VSXvqRA5nnPMgU",
+    "stripe": [
+      {
+        "id": "in_1URcpG2QR5nixgqNqGK0fuix",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 2400,
+            "proration": false
+          }
+        ],
+        "subtotal": 2400,
+        "discount": 0,
+        "tax": 0,
+        "total": 2400,
+        "amount_due": 2400,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URcpN2QR5nixgqNG7qtJtdl",
+        "date": "2027-01-20",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 2 × Tera team_seat_m after 10 Jan 2027",
+            "amount": -1703,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 6 × Tera team_seat_m after 10 Jan 2027",
+            "amount": 5110,
+            "proration": true
+          }
+        ],
+        "subtotal": 3407,
+        "discount": 0,
+        "tax": 0,
+        "total": 3407,
+        "amount_due": 3407,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URcpS2QR5nixgqNjIG7PqNN",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "6 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 7200,
+            "proration": false
+          }
+        ],
+        "subtotal": 7200,
+        "discount": 0,
+        "tax": 0,
+        "total": 7200,
+        "amount_due": 7200,
+        "starting_balance": 0
+      }
+    ]
   }
 ]

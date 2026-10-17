@@ -298,7 +298,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         if (e.type === "change_price" && price(e.price!).currency !== price(s.priceId).currency)
           throw new Error(`Cannot switch currency (${price(s.priceId).currency} -> ${price(e.price!).currency}) on a subscription`);
         // A change to the same price and quantity is a no-op in Stripe: no prorations, nothing reset.
-        if (e.type === "change_price" ? e.price === s.priceId && (e.quantity ?? s.quantity) === s.quantity : e.quantity === s.quantity) break;
+        // With always_invoice it still sweeps prorations pending from earlier changes into an invoice now (S43).
+        if (e.type === "change_price" ? e.price === s.priceId && (e.quantity ?? s.quantity) === s.quantity : e.quantity === s.quantity) {
+          if (e.proration_behavior === "always_invoice" && s.pending.length) {
+            openInvoice(s, at, s.pending, true);
+            s.pending = [];
+          }
+          break;
+        }
         if (s.status === "trialing") {
           // R4: nothing was paid during the trial, so there is nothing to prorate; the new terms bill at trial end.
           const trialInterval = price(s.priceId).interval;
