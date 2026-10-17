@@ -1,0 +1,14 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Migration planner: default $29 -> $39 on seats 1,1,3 is +$50.00 MRR",
+  "description": "FR3/R9. Default inputs must yield 3 affected customers, MRR $145.00 -> $195.00, change +$50.00. Reaches the page through the top navigation so it works on any preview URL.",
+  "priority": "p0",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page, then click the 'Migration' link in the top navigation bar" },
+    { "type": "assertion", "description": "Assert the heading 'Price migration planner' is visible" },
+    { "type": "assertion", "description": "Assert 'Customers affected' shows exactly 3" },
+    { "type": "assertion", "description": "Assert 'MRR before' shows exactly $145.00 and 'MRR after' shows exactly $195.00" },
+    { "type": "assertion", "description": "Assert 'MRR change' shows exactly +$50.00" }
+  ]
+}
