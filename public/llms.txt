@@ -1,0 +1,24 @@
+# Tera
+
+> Stripe-parity pricing simulator. Send a catalog (prices, coupons, tax rates) and a customer timeline (subscribe, trial, upgrade, seats, usage, coupons, cancel); get every invoice to the cent, exactly as Stripe would bill it. All 26 golden timeline scenarios are verified against real Stripe test clocks. Tera never moves money.
+
+Amounts are integers in the currency's minor unit (cents; yen for JPY). Dates are ISO-8601 UTC. Billing rules R1–R12 are in the PRD.
+
+## API
+
+- [OpenAPI document](https://tera-orpin-three.vercel.app/api/openapi.json): every endpoint and schema
+- [Interactive reference](https://tera-orpin-three.vercel.app/reference)
+- POST /api/simulate: `{ catalog?, timeline }` → invoices. 400 malformed, 422 rejected the way Stripe would reject it
+- POST /api/migrate: price migration MRR impact, grandfathering, per-customer deltas
+- GET /api/scenarios, GET /api/scenarios/{id}: golden scenarios with hand-derived expected invoices
+- GET /api/parity: recorded Stripe evidence. POST /api/parity `{ scenario }` or `{ timeline, catalog? }`: live replay in a Stripe test clock (≤15 events, ≤2 years, throttled)
+
+## MCP
+
+- [Setup](https://tera-orpin-three.vercel.app/mcp-setup): `claude mcp add --transport http tera https://tera-orpin-three.vercel.app/api/mcp`
+- Tools: simulate_timeline, plan_price_migration, list_golden_scenarios, get_golden_scenario
+
+## Docs
+
+- [PRD and billing rules](https://github.com/PugarHuda/tera/blob/main/docs/PRD.md)
+- [Golden scenarios](https://github.com/PugarHuda/tera/blob/main/golden/scenarios.json)

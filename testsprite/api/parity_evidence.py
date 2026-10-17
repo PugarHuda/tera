@@ -19,11 +19,22 @@ def test_every_timeline_scenario_has_matching_stripe_evidence() -> None:
         assert r["test_clock"].startswith("clock_"), f"{sid}: not replayed on a test clock"
 
 
-def test_live_replay_only_accepts_golden_ids() -> None:
-    for body in ({"scenario": "S99"}, {"scenario": "S24"}, {}):
+def test_live_replay_rejects_bad_input_before_stripe() -> None:
+    """Unknown ids, over-limit custom timelines (400) and timelines Tera rejects (422) never reach Stripe."""
+    sub = {"at": "2027-01-01T00:00:00Z", "type": "subscribe", "price": "pro_m"}
+    too_many = [sub] + [{"at": f"2027-02-{d:02d}T00:00:00Z", "type": "advance_to"} for d in range(1, 16)]
+    too_long = [sub, {"at": "2029-02-01T00:00:00Z", "type": "advance_to"}]
+    cases = [
+        ({"scenario": "S99"}, 400), ({"scenario": "S24"}, 400), ({}, 400),
+        ({"timeline": too_many}, 400), ({"timeline": too_long}, 400),
+        ({"timeline": [{**sub, "price": "nope"}]}, 422),
+        ({"timeline": [sub, {"at": "2027-01-10T00:00:00Z", "type": "subscribe", "price": "pro_m"}]}, 422),
+    ]
+    for body, status in cases:
         res = requests.post(f"{BASE_URL}/api/parity", json=body, timeout=30)
-        assert res.status_code == 400, f"{body}: expected 400, got {res.status_code}"
+        assert res.status_code == status, f"{body}: expected {status}, got {res.status_code} {res.text[:200]}"
+        assert "error" in res.json()
 
 
 test_every_timeline_scenario_has_matching_stripe_evidence()
-test_live_replay_only_accepts_golden_ids()
+test_live_replay_rejects_bad_input_before_stripe()

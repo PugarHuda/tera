@@ -103,9 +103,26 @@ const spec = {
     "/api/parity": {
       get: { summary: "Recorded Stripe test-clock evidence for every golden scenario", responses: { "200": { description: "Evidence records" } } },
       post: {
-        summary: "Replay one golden scenario live in Stripe test mode and diff it against Tera",
-        requestBody: { required: true, content: { "application/json": { example: { scenario: "S05" } } } },
-        responses: { "200": { description: "match, diffs, tera and stripe invoices" }, "400": { description: "Not a golden scenario id" }, "429": { description: "Cooldown" } },
+        summary: "Replay a golden scenario, or your own timeline and catalog, live in a Stripe test clock and diff it against Tera",
+        description: "Custom timelines are limited to 15 events spanning at most 2 years. Timelines Tera rejects (R11) are answered with 422 and never reach Stripe.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              examples: {
+                golden: { value: { scenario: "S05" } },
+                custom: { value: { timeline: [{ at: "2027-01-01T00:00:00Z", type: "subscribe", price: "pro_m" }, { at: "2027-01-16T00:00:00Z", type: "change_quantity", quantity: 3 }, { at: "2027-02-01T00:00:00Z", type: "advance_to" }] } },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "match, diffs, tera and stripe invoices, test clock id" },
+          "400": { description: "Unknown scenario, malformed timeline or over the live limits", content: { "application/json": { schema: error } } },
+          "422": { description: "Tera (and Stripe) reject this timeline", content: { "application/json": { schema: error } } },
+          "429": { description: "Cooldown" },
+          "502": { description: "Stripe call failed" },
+        },
       },
     },
     "/api/stripe/push": {

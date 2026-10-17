@@ -1,0 +1,14 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Simulator: 'Verify in Stripe' replays an edited timeline in a Stripe test clock and matches",
+  "description": "FR4 for your own timeline: the edited timeline (not a golden id) is replayed live in Stripe test mode and must match Tera to the cent.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page and choose 'S01' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "In the first event, change the 'quantity' field from its current value to 2" },
+    { "type": "assertion", "description": "Assert the golden badge now reads '❌ Differs from golden expected' (the timeline was edited)" },
+    { "type": "action", "description": "Click the 'Verify in Stripe' button and wait up to 120 seconds until a result box appears below the buttons (the button text changes back from 'Replaying in Stripe…')" },
+    { "type": "assertion", "description": "Assert the result box shows '✅ Matches Stripe' and mentions a test clock id starting with 'clock_'" }
+  ]
+}

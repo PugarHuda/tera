@@ -70,6 +70,8 @@ export function Builder({ reference }: { reference: Catalog }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      // Loaded after hydration on purpose: reading it during render would mismatch the server HTML.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setRows(JSON.parse(saved));
     } catch {}
   }, []);
