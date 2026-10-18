@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
 import { toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
+import { parseTimeline } from "@/lib/validate";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
@@ -44,6 +45,8 @@ const LABEL: Record<EventType, string> = {
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
 
 const day = (iso: string) => iso.slice(0, 10);
+// A date input reports every keystroke: "0002-02-10" while the year is being typed. Only a whole year counts.
+const typedDate = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= "1970" ? `${v}T00:00:00Z` : null);
 
 // Edits that end up back at the scenario's timeline (add then delete, change then revert) count as unedited.
 const canonical = (t: TimelineEvent[]) =>
@@ -87,7 +90,9 @@ export function Simulator({
       if (timeline[i].at < timeline[i - 1].at) return { error: `Event ${i + 1} is before event ${i}: keep the timeline in chronological order.` };
     if (timeline.length === 0) return { error: "Add a subscribe event to start." };
     try {
-      return { result: simulate(catalog, timeline) };
+      // Same checks as the API (dates, 10-year span, …) before the engine runs: an unchecked year 0202 meant
+      // 21,901 renewals and a frozen tab (found by a keyboard-typing E2E test).
+      return { result: simulate(catalog, parseTimeline(timeline)) };
     } catch (e) {
       return { error: (e as Error).message };
     }
@@ -212,7 +217,10 @@ export function Simulator({
                   className="input"
                   aria-label={`Event ${i + 1} date`}
                   value={day(e.at)}
-                  onChange={(ev) => ev.target.value && update(i, { at: `${ev.target.value}T00:00:00Z` })}
+                  onChange={(ev) => {
+                    const at = typedDate(ev.target.value);
+                    if (at) update(i, { at });
+                  }}
                 />
               </label>
               <label className="text-sm">
@@ -239,7 +247,10 @@ export function Simulator({
                       className="input"
                       aria-label={`Event ${i + 1} ${f}`}
                       value={e[f] ? day(e[f]) : ""}
-                      onChange={(ev) => update(i, { [f]: ev.target.value ? `${ev.target.value}T00:00:00Z` : undefined })}
+                      onChange={(ev) => {
+                        const v = typedDate(ev.target.value);
+                        if (v || ev.target.value === "") update(i, { [f]: v ?? undefined });
+                      }}
                     />
                   ) : f === "quantity" || f === "trial_days" ? (
                     <input

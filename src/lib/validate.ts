@@ -27,6 +27,8 @@ const MAX_EVENTS = 100;
 const ID = /^[A-Za-z0-9_]{1,40}$/;
 const MAX_SPAN_MS = 10 * 366 * 86_400_000;
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
+// 1970 or later: a half-typed year (0002, 0202) is not a date a subscription can have.
+const isDate = (v: unknown): v is string => typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0;
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
 const isInt = (x: unknown, min = 0, max = 1e12): x is number => Number.isInteger(x) && (x as number) >= min && (x as number) <= max;
@@ -93,17 +95,15 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
   const times = x.map((e, i) => {
     const at = `timeline[${i}]`;
     if (!isObj(e)) fail(`${at} must be an object`);
-    if (typeof e.at !== "string" || !ISO.test(e.at) || Number.isNaN(Date.parse(e.at))) fail(`${at}.at must be an ISO-8601 UTC date`);
+    if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date in 1970 or later`);
     if (!EVENT_TYPES.includes(e.type as (typeof EVENT_TYPES)[number])) fail(`${at}.type must be one of ${EVENT_TYPES.join(", ")}`);
     if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a non-negative integer`);
     if (e.trial_days !== undefined && !isInt(e.trial_days, 1, 730)) fail(`${at}.trial_days must be 1-730`);
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
-    if (e.billing_cycle_anchor !== undefined && (typeof e.billing_cycle_anchor !== "string" || !ISO.test(e.billing_cycle_anchor) || Number.isNaN(Date.parse(e.billing_cycle_anchor))))
-      fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
-    if (e.cancel_at !== undefined || e.type === "cancel_at")
-      if (typeof e.cancel_at !== "string" || !ISO.test(e.cancel_at) || Number.isNaN(Date.parse(e.cancel_at))) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
+    if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
+    if ((e.cancel_at !== undefined || e.type === "cancel_at") && !isDate(e.cancel_at)) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     if (e.billing_mode !== undefined && !BILLING_MODES.includes(e.billing_mode as never)) fail(`${at}.billing_mode must be one of ${BILLING_MODES.join(", ")}`);
