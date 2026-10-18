@@ -14,6 +14,9 @@ CASES = {
         "canceled",
     ),
     "unknown price": ([{**SUB, "price": "gold"}], "unknown price"),
+    "price id that is an Object.prototype member": ([{**SUB, "price": "toString"}], "unknown price"),
+    "coupon id that is an Object.prototype member": ([{**SUB, "coupon": "constructor"}], "unknown coupon"),
+    "amount too large to stay an exact integer": ([{**SUB, "price": "pro_m", "quantity": 1000000000}], "exceeds"),
     "end_trial without a trial": ([SUB, {"at": "2027-01-10T00:00:00Z", "type": "end_trial"}], "trial"),
     "reset_anchor during a trial": (
         [{"at": "2027-01-01T00:00:00Z", "type": "start_trial", "price": "pro_m", "trial_days": 14}, {"at": "2027-01-05T00:00:00Z", "type": "reset_anchor"}],

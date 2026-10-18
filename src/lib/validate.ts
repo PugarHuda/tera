@@ -121,6 +121,9 @@ export function parseMigration(x: unknown) {
     if (!isInt(seats, 1, 1e6)) fail(`customers[${i}] needs a positive whole number of seats`);
     if (isObj(c) && (typeof c.name !== "string" || !c.name.trim() || c.name.length > 200)) fail(`customers[${i}].name must be a non-empty string`);
   });
+  // MRR sums must stay exact integers in a double (2^53 ≈ 9e15).
+  const seats = (x.customers as unknown[]).reduce((a: number, c) => a + ((isObj(c) ? c.seats : c) as number), 0);
+  if (seats * Math.max(x.unit_amount as number, x.new_unit_amount as number) > 1e15) fail("unit_amount × total seats must be at most 1e15 minor units");
   return x as unknown as Parameters<typeof migrate>[0];
 }
 
