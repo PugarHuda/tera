@@ -1,0 +1,15 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Simulator: resetting the billing anchor (S51) credits unused time and moves renewals; removing it keeps the old anchor",
+  "description": "R15 reset_anchor (Stripe billing_cycle_anchor=now): an immediate invoice with the unused-time credit plus a full new period, and later renewals on the new anchor day.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page and choose 'S51' in the 'Load scenario' dropdown" },
+    { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is shown" },
+    { "type": "assertion", "description": "Assert the timeline contains an event whose type is 'Reset billing anchor to now'" },
+    { "type": "assertion", "description": "Assert exactly 4 invoices are shown: Invoice 1 dated 2026-01-01 totals $158.00, Invoice 2 dated 2026-01-11 totals $50.97 and contains a line of -$107.03, Invoice 3 dated 2026-02-11 totals $158.00, Invoice 4 dated 2026-03-11 totals $158.00" },
+    { "type": "action", "description": "Change the type of the 'Reset billing anchor to now' event to 'Remove coupon'" },
+    { "type": "assertion", "description": "Assert exactly 3 invoices are shown, dated 2026-01-01, 2026-02-01 and 2026-03-01, each totaling $158.00, and no line of -$107.03 appears" }
+  ]
+}

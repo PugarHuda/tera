@@ -2695,5 +2695,601 @@
         "starting_balance": -6456
       }
     ]
+  },
+  {
+    "id": "S51",
+    "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
+    "verified_at": "2026-10-18T06:07:08.761Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnEr2QR5nixgqNxPmcABJw",
+    "customer": "cus_VSigp7t44VVpVL",
+    "stripe": [
+      {
+        "id": "in_1URnEs2QR5nixgqNBtV8AGgy",
+        "date": "2026-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 15800,
+        "discount": 0,
+        "tax": 0,
+        "total": 15800,
+        "amount_due": 15800,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnEy2QR5nixgqN8ENTSeQ3",
+        "date": "2026-01-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 2 × Tera pro_m after 11 Jan 2026",
+            "amount": -10703,
+            "proration": true
+          },
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 5097,
+        "discount": 0,
+        "tax": 0,
+        "total": 5097,
+        "amount_due": 5097,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnF82QR5nixgqNHLIQsibh",
+        "date": "2026-02-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 15800,
+        "discount": 0,
+        "tax": 0,
+        "total": 15800,
+        "amount_due": 15800,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFK2QR5nixgqNPzzlrLOE",
+        "date": "2026-03-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 15800,
+        "discount": 0,
+        "tax": 0,
+        "total": 15800,
+        "amount_due": 15800,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S52",
+    "title": "Anchor reset with proration none still sweeps earlier pending prorations into the invoice, without a credit",
+    "verified_at": "2026-10-18T06:07:17.513Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnEr2QR5nixgqNT5KfCjbR",
+    "customer": "cus_VSigYhtyv4szm0",
+    "stripe": [
+      {
+        "id": "in_1URnEs2QR5nixgqNrMNP3BDp",
+        "date": "2026-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 1580,
+        "tax": 0,
+        "total": 6320,
+        "amount_due": 6320,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnF42QR5nixgqNqhdbDxn4",
+        "date": "2026-01-21",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera pro_m (with 20.0% off) after 11 Jan 2026",
+            "amount": -4281,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 3 × Tera pro_m after 11 Jan 2026",
+            "amount": 16055,
+            "proration": true
+          },
+          {
+            "description": "3 × Tera pro_m (at $79.00 / month)",
+            "amount": 23700,
+            "proration": false
+          }
+        ],
+        "subtotal": 35474,
+        "discount": 0,
+        "tax": 0,
+        "total": 35474,
+        "amount_due": 35474,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFJ2QR5nixgqNkhLq9o2s",
+        "date": "2026-02-21",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera pro_m after 10 Feb 2026",
+            "amount": -8410,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on Tera pro_m after 10 Feb 2026",
+            "amount": 2803,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2293,
+        "discount": 0,
+        "tax": 0,
+        "total": 2293,
+        "amount_due": 2293,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFT2QR5nixgqN3vjCNNMh",
+        "date": "2026-03-21",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 7900,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S53",
+    "title": "Removing a forever coupon: later invoices are full price, but the next credit refunds what was paid (discounted)",
+    "verified_at": "2026-10-18T06:07:20.954Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnEr2QR5nixgqNYkhkk9vm",
+    "customer": "cus_VSig49vkSgxVBV",
+    "stripe": [
+      {
+        "id": "in_1URnEs2QR5nixgqNc23PcpZm",
+        "date": "2026-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 15800,
+        "discount": 3950,
+        "tax": 0,
+        "total": 11850,
+        "amount_due": 11850,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnF22QR5nixgqNRiQoQSM1",
+        "date": "2026-01-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 2 × Tera pro_m (with 25.0% off) after 11 Jan 2026",
+            "amount": -8027,
+            "proration": true
+          },
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 7773,
+        "discount": 3950,
+        "tax": 0,
+        "total": 3823,
+        "amount_due": 3823,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFJ2QR5nixgqNR92TqrQb",
+        "date": "2026-02-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 2 × Tera pro_m (with 25.0% off) after 01 Feb 2026",
+            "amount": -3823,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 3 × Tera pro_m after 01 Feb 2026",
+            "amount": 7645,
+            "proration": true
+          },
+          {
+            "description": "3 × Tera pro_m (at $79.00 / month)",
+            "amount": 23700,
+            "proration": false
+          }
+        ],
+        "subtotal": 27522,
+        "discount": 0,
+        "tax": 0,
+        "total": 27522,
+        "amount_due": 27522,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFT2QR5nixgqNghGk9Iuj",
+        "date": "2026-03-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera pro_m (at $79.00 / month)",
+            "amount": 23700,
+            "proration": false
+          }
+        ],
+        "subtotal": 23700,
+        "discount": 0,
+        "tax": 0,
+        "total": 23700,
+        "amount_due": 23700,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S54",
+    "title": "Two interval changes under an amount-off coupon: the second credit refunds the discounted yearly charge",
+    "verified_at": "2026-10-18T06:07:41.712Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnFR2QR5nixgqNZjeATFyw",
+    "customer": "cus_VSig4OZqpV9Wwz",
+    "stripe": [
+      {
+        "id": "in_1URnFT2QR5nixgqNoxAvu86D",
+        "date": "2026-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 1000,
+        "tax": 0,
+        "total": 6900,
+        "amount_due": 6900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFX2QR5nixgqNPwrudSnQ",
+        "date": "2026-01-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera pro_m (with $10.00 off) after 16 Jan 2026",
+            "amount": -3561,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_y (at $290.00 / year)",
+            "amount": 29000,
+            "proration": false
+          }
+        ],
+        "subtotal": 25439,
+        "discount": 1000,
+        "tax": 0,
+        "total": 24439,
+        "amount_due": 24439,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFc2QR5nixgqNtdAkO85g",
+        "date": "2026-02-10",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera pro_y (with $10.00 off) after 10 Feb 2026",
+            "amount": -26082,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": -18182,
+        "discount": 1000,
+        "tax": 0,
+        "total": -19182,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnFg2QR5nixgqNYm5oJWwk",
+        "date": "2026-03-10",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 1000,
+        "tax": 0,
+        "total": 6900,
+        "amount_due": 0,
+        "starting_balance": -19182
+      },
+      {
+        "id": "in_1URnFt2QR5nixgqNA7UBhnaP",
+        "date": "2026-04-10",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 0,
+        "starting_balance": -12282
+      }
+    ]
+  },
+  {
+    "id": "S55",
+    "title": "A half-cent tie that is not a tie: Stripe prorates the unit price to 12 decimals before multiplying by seats (found by fuzzing)",
+    "verified_at": "2026-10-18T06:19:47.960Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnRN2QR5nixgqNWC08Ru9j",
+    "customer": "cus_VSit9MHIaDXNxb",
+    "stripe": [
+      {
+        "id": "in_1URnRO2QR5nixgqNTGxSiYFE",
+        "date": "2027-04-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera pro_m (at $79.00 / month)",
+            "amount": 23700,
+            "proration": false
+          }
+        ],
+        "subtotal": 23700,
+        "discount": 5925,
+        "tax": 0,
+        "total": 17775,
+        "amount_due": 17775,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnRY2QR5nixgqNillmZWtN",
+        "date": "2027-05-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera pro_m (with 25.0% off) after 27 Apr 2027",
+            "amount": -11257,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 8 × Tera pro_m (with 25.0% off) after 27 Apr 2027",
+            "amount": 30020,
+            "proration": true
+          },
+          {
+            "description": "8 × Tera pro_m (at $79.00 / month)",
+            "amount": 63200,
+            "proration": false
+          }
+        ],
+        "subtotal": 81963,
+        "discount": 15800,
+        "tax": 0,
+        "total": 66163,
+        "amount_due": 66163,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S56",
+    "title": "The same 12-decimal unit proration on a single seat: 7900 x 19/30 x 75% credits 3752, not 3753",
+    "verified_at": "2026-10-18T06:19:48.367Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnRN2QR5nixgqNIX0A70L2",
+    "customer": "cus_VSitVkgW8MbQ58",
+    "stripe": [
+      {
+        "id": "in_1URnRO2QR5nixgqNd0lot9yU",
+        "date": "2027-04-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 1975,
+        "tax": 0,
+        "total": 5925,
+        "amount_due": 5925,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnRY2QR5nixgqNYNYYXphW",
+        "date": "2027-05-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera pro_m (with 25.0% off) after 27 Apr 2027",
+            "amount": -3752,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 2 × Tera pro_m (with 25.0% off) after 27 Apr 2027",
+            "amount": 7505,
+            "proration": true
+          },
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 19553,
+        "discount": 3950,
+        "tax": 0,
+        "total": 15603,
+        "amount_due": 15603,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S57",
+    "title": "A coupon applied at the exact renewal instant discounts the next invoice, not that renewal (found by fuzzing)",
+    "verified_at": "2026-10-18T06:27:49.924Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URnYt2QR5nixgqN3axvgHmY",
+    "customer": "cus_VSj0gzPG6oXjaI",
+    "stripe": [
+      {
+        "id": "in_1URnYv2QR5nixgqNLguKkEbm",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 3600,
+            "proration": false
+          }
+        ],
+        "subtotal": 3600,
+        "discount": 0,
+        "tax": 0,
+        "total": 3600,
+        "amount_due": 3600,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnZ42QR5nixgqNBCvjwYXr",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 3600,
+            "proration": false
+          }
+        ],
+        "subtotal": 3600,
+        "discount": 0,
+        "tax": 0,
+        "total": 3600,
+        "amount_due": 3600,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URnZK2QR5nixgqN9QrJzVZi",
+        "date": "2027-03-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera team_seat_m after 15 Feb 2027",
+            "amount": -1800,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 2 × Tera team_seat_m (with $10.00 off) after 15 Feb 2027",
+            "amount": 700,
+            "proration": true
+          },
+          {
+            "description": "2 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 2400,
+            "proration": false
+          }
+        ],
+        "subtotal": 1300,
+        "discount": 1000,
+        "tax": 0,
+        "total": 300,
+        "amount_due": 300,
+        "starting_balance": 0
+      }
+    ]
   }
 ]

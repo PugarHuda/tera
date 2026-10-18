@@ -205,6 +205,12 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "end_trial":
         sub = await stripe.subscriptions.update(sub!.id, { trial_end: "now" });
         break;
+      case "reset_anchor":
+        sub = await stripe.subscriptions.update(sub!.id, { billing_cycle_anchor: { type: "now" }, proration_behavior: e.proration_behavior ?? "create_prorations" });
+        break;
+      case "remove_coupon":
+        sub = await stripe.subscriptions.update(sub!.id, { discounts: "" });
+        break;
       case "cancel_now":
         sub = await stripe.subscriptions.cancel(sub!.id);
         break;

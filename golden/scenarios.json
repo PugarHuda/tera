@@ -2401,6 +2401,469 @@
         }
       ],
       "parity": "golden/parity/S50.json"
+    },
+    {
+      "id": "S51",
+      "status": "verified",
+      "rules": [
+        "R15",
+        "R3"
+      ],
+      "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2
+        },
+        {
+          "at": "2026-01-11T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2026-03-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 2 x 7900 = 15800. 01-11 anchor reset, 21/31 of January left: credit -round(15800*21/31) = -10703, plus a full period 15800: total 5097. The anchor is now the 11th: 02-11 and 03-11 renew at 15800.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            15800
+          ],
+          "discount": 0,
+          "total": 15800
+        },
+        {
+          "date": "2026-01-11",
+          "lines": [
+            -10703,
+            15800
+          ],
+          "discount": 0,
+          "total": 5097
+        },
+        {
+          "date": "2026-02-11",
+          "lines": [
+            15800
+          ],
+          "discount": 0,
+          "total": 15800
+        },
+        {
+          "date": "2026-03-11",
+          "lines": [
+            15800
+          ],
+          "discount": 0,
+          "total": 15800
+        }
+      ],
+      "parity": "golden/parity/S51.json"
+    },
+    {
+      "id": "S52",
+      "status": "verified",
+      "rules": [
+        "R15",
+        "R14",
+        "R5",
+        "R13"
+      ],
+      "title": "Anchor reset with proration none still sweeps earlier pending prorations into the invoice, without a credit",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2026-01-11T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2026-01-21T00:00:00Z",
+          "type": "reset_anchor",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2026-02-05T00:00:00Z",
+          "type": "remove_coupon"
+        },
+        {
+          "at": "2026-02-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 1
+        },
+        {
+          "at": "2026-03-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900 - 20% once = 6320. 01-11 qty 3, 21/31 left: credit -round(6320*21/31) = -4281, charge round(23700*21/31) = 16055 (SAVE20 used up), pending. 01-21 reset with none: no credit, pending lines + full 23700 = 35474. 02-05 remove_coupon (nothing left to remove). 02-10 qty 1, 11/31 of 01-21..02-21 left: -round(23700*11/31) = -8410, +round(7900*11/31) = 2803. 02-21: 7900 - 8410 + 2803 = 2293. 03-21: 7900.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1580,
+          "total": 6320
+        },
+        {
+          "date": "2026-01-21",
+          "lines": [
+            -4281,
+            16055,
+            23700
+          ],
+          "discount": 0,
+          "total": 35474
+        },
+        {
+          "date": "2026-02-21",
+          "lines": [
+            -8410,
+            2803,
+            7900
+          ],
+          "discount": 0,
+          "total": 2293
+        },
+        {
+          "date": "2026-03-21",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S52.json"
+    },
+    {
+      "id": "S53",
+      "status": "verified",
+      "rules": [
+        "R15",
+        "R5",
+        "R3"
+      ],
+      "title": "Removing a forever coupon: later invoices are full price, but the next credit refunds what was paid (discounted)",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2,
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2026-01-11T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2026-01-25T00:00:00Z",
+          "type": "remove_coupon"
+        },
+        {
+          "at": "2026-02-01T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2026-03-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 15800 - 25% = 11850. 01-11 reset, 21/31 left: credit -round(11850*21/31) = -8027, full period 15800 - 3950 = 11850: total 3823. 01-25 coupon removed. 02-01 qty 3, 10/31 of 01-11..02-11 left: credit the paid -round(11850*10/31) = -3823, charge round(23700*10/31) = 7645 undiscounted. 02-11: 23700 + 7645 - 3823 = 27522, no discount. 03-11: 23700.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            15800
+          ],
+          "discount": 3950,
+          "total": 11850
+        },
+        {
+          "date": "2026-01-11",
+          "lines": [
+            -8027,
+            15800
+          ],
+          "discount": 3950,
+          "total": 3823
+        },
+        {
+          "date": "2026-02-11",
+          "lines": [
+            -3823,
+            7645,
+            23700
+          ],
+          "discount": 0,
+          "total": 27522
+        },
+        {
+          "date": "2026-03-11",
+          "lines": [
+            23700
+          ],
+          "discount": 0,
+          "total": 23700
+        }
+      ],
+      "parity": "golden/parity/S53.json"
+    },
+    {
+      "id": "S54",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R3",
+        "R10"
+      ],
+      "title": "Two interval changes under an amount-off coupon: the second credit refunds the discounted yearly charge",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "TENOFF3"
+        },
+        {
+          "at": "2026-01-16T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y"
+        },
+        {
+          "at": "2026-02-10T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2026-04-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "TENOFF3 ($10 off) applied 01-01 ends 04-01. 01-01: 7900-1000 = 6900. 01-16 yearly, 16/31 left: -round(6900*16/31) = -3561, +29000 -1000: total 24439. 02-10 monthly, 340/365 of the year left: credit the paid 28000, -round(28000*340/365) = -26082 (not 29000: -27014), +7900 -1000: total -19182 (credit). 03-10: 6900, due 0, balance -12282. 04-10 after 04-01: 7900, due 0, balance -4382.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1000,
+          "total": 6900
+        },
+        {
+          "date": "2026-01-16",
+          "lines": [
+            -3561,
+            29000
+          ],
+          "discount": 1000,
+          "total": 24439
+        },
+        {
+          "date": "2026-02-10",
+          "lines": [
+            -26082,
+            7900
+          ],
+          "discount": 1000,
+          "total": -19182,
+          "amount_due": 0
+        },
+        {
+          "date": "2026-03-10",
+          "lines": [
+            7900
+          ],
+          "discount": 1000,
+          "total": 6900,
+          "starting_balance": -19182,
+          "amount_due": 0
+        },
+        {
+          "date": "2026-04-10",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900,
+          "starting_balance": -12282,
+          "amount_due": 0
+        }
+      ],
+      "parity": "golden/parity/S54.json"
+    },
+    {
+      "id": "S55",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5",
+        "R1"
+      ],
+      "title": "A half-cent tie that is not a tie: Stripe prorates the unit price to 12 decimals before multiplying by seats (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-04-16T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-04-27T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 8
+        },
+        {
+          "at": "2027-05-17T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-16: 3 x 7900 = 23700 - 25% = 17775. 04-27 qty 8, 19/30 of the period left. Credit: as a fraction 17775*19/30 = 11257.5 would round to 11258, but Stripe prorates the unit first: 7900*19/30 = 5003.333333333333 (12 decimals), x3 = 15009.999999999999, x0.75 = 11257.4999... -> -11257. Charge: round(63200*19/30) = 40027 - round(15800*19/30) = 10007 -> 30020. 05-16: 63200 - 15800 + 30020 - 11257 = 66163.",
+      "expect": [
+        {
+          "date": "2027-04-16",
+          "lines": [
+            23700
+          ],
+          "discount": 5925,
+          "total": 17775
+        },
+        {
+          "date": "2027-05-16",
+          "lines": [
+            -11257,
+            30020,
+            63200
+          ],
+          "discount": 15800,
+          "total": 66163
+        }
+      ],
+      "parity": "golden/parity/S55.json"
+    },
+    {
+      "id": "S56",
+      "status": "verified",
+      "rules": [
+        "R3",
+        "R5",
+        "R1"
+      ],
+      "title": "The same 12-decimal unit proration on a single seat: 7900 x 19/30 x 75% credits 3752, not 3753",
+      "timeline": [
+        {
+          "at": "2027-04-16T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-04-27T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 2
+        },
+        {
+          "at": "2027-05-17T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-16: 7900 - 25% = 5925. 04-27 qty 2, 19/30 left. Credit: 5003.333333333333 x 0.75 = 3752.49999... -> -3752 (5925*19/30 = 3752.5 exactly would give 3753). Charge: round(15800*19/30) = 10007 - round(3950*19/30) = 2502 -> 7505. 05-16: 15800 - 3950 + 7505 - 3752 = 15603. Contrast: on 04-28 (3/30 left) 7900*3/30 = 790 exactly, and 790 x 0.75 = 592.5 is a real tie -> -593 (Stripe probe).",
+      "expect": [
+        {
+          "date": "2027-04-16",
+          "lines": [
+            7900
+          ],
+          "discount": 1975,
+          "total": 5925
+        },
+        {
+          "date": "2027-05-16",
+          "lines": [
+            -3752,
+            7505,
+            15800
+          ],
+          "discount": 3950,
+          "total": 15603
+        }
+      ],
+      "parity": "golden/parity/S56.json"
+    },
+    {
+      "id": "S57",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R12",
+        "R3"
+      ],
+      "title": "A coupon applied at the exact renewal instant discounts the next invoice, not that renewal (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 3
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "TENOFF3"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 2
+        },
+        {
+          "at": "2027-03-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 3 x 1200 = 3600. 02-01: the renewal draft is created at 00:00 with no discount; TENOFF3 applied in that same second only reaches later invoices: 3600. 02-15 qty 2, 14/28 left: credit what was paid, -round(3600*14/28) = -1800 (not -1300); charge round(2400*14/28) = 1200 - round(1000*14/28) = 500 -> 700. 03-01: 2400 - 1000 + 700 - 1800 = 300.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            -1800,
+            700,
+            2400
+          ],
+          "discount": 1000,
+          "total": 300
+        }
+      ],
+      "parity": "golden/parity/S57.json"
     }
   ]
 }

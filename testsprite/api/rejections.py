@@ -15,6 +15,10 @@ CASES = {
     ),
     "unknown price": ([{**SUB, "price": "gold"}], "unknown price"),
     "end_trial without a trial": ([SUB, {"at": "2027-01-10T00:00:00Z", "type": "end_trial"}], "trial"),
+    "reset_anchor during a trial": (
+        [{"at": "2027-01-01T00:00:00Z", "type": "start_trial", "price": "pro_m", "trial_days": 14}, {"at": "2027-01-05T00:00:00Z", "type": "reset_anchor"}],
+        "trial",
+    ),
     "change after cancel_now": (
         [SUB, {"at": "2027-01-10T00:00:00Z", "type": "cancel_now"}, {"at": "2027-01-12T00:00:00Z", "type": "change_quantity", "quantity": 2}],
         "canceled",
