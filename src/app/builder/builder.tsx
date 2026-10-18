@@ -33,16 +33,18 @@ function toRows(c: Catalog): Rows {
 
 // Major units in the form, minor units in the catalog. Returns the first problem in plain words.
 function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalog; error?: string } {
-  const prices: Record<string, Price> = { ...fixed };
+  // Rows first, in the order shown (the simulator starts on the first price); kept metered prices after them.
+  const prices: Record<string, Price> = {};
   for (const r of rows.prices) {
     const d = digits(r.currency);
     if (d === 0 && /[.,]/.test(r.amount)) return { error: `${r.id}: ${r.currency.toUpperCase()} has no minor unit, so the amount cannot have decimals` };
     const minor = Math.round(Number(r.amount) * 10 ** d);
     if (!r.amount.trim() || !Number.isFinite(minor) || Math.abs(Number(r.amount) * 10 ** d - minor) > 1e-6)
       return { error: `${r.id}: "${r.amount}" is not a valid ${r.currency.toUpperCase()} amount` };
-    if (prices[r.id]) return { error: `Price id ${r.id} is used twice` };
+    if (prices[r.id] || fixed[r.id]) return { error: `Price id ${r.id} is used twice` };
     prices[r.id] = { currency: r.currency, unit_amount: minor, interval: r.interval };
   }
+  Object.assign(prices, fixed);
   const coupons: Record<string, Coupon> = {};
   for (const r of rows.coupons) {
     const v = Number(r.value);

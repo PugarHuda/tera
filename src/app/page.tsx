@@ -30,8 +30,9 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
   const custom = typeof c === "string" ? decodeCatalog(c) : null;
   const shared = typeof t === "string" ? decodeTimeline(t) : null;
   const scenarioId = typeof s === "string" ? scenarios.find((x) => x.timeline && x.id.toLowerCase() === s.toLowerCase())?.id : undefined;
-  // A custom catalog has its own price ids, so golden scenarios do not apply; start with its first price.
-  const firstPrice = custom ? Object.keys(custom.prices)[0] : null;
+  // A custom catalog has its own price ids, so golden scenarios do not apply; start with its first licensed
+  // price (a metered one would bill $0 until usage is reported).
+  const firstPrice = custom ? (Object.entries(custom.prices).find(([, p]) => p.usage_type !== "metered") ?? Object.entries(custom.prices)[0])[0] : null;
   const starter: TimelineEvent[] | null = firstPrice
     ? [
         { at: "2027-01-01T00:00:00Z", type: "subscribe", price: firstPrice },

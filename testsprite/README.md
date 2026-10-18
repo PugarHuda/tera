@@ -20,7 +20,7 @@ TERA_BASE_URL=https://tera-git-<branch>-hudas-projects-a8e7f558.vercel.app pytho
 
 ## Hand-written test code (`code/*.py`)
 
-TestSprite's generated code for a run can end with a single `assert current_url` (the outcome was judged by its AI agent during that run), so a replay of it proves little. For the tests listed here the stored code is replaced with hand-written Playwright that asserts exact values on `data-testid`s:
+PR checks run TestSprite's agent against each plan, and its judge checks every plan assertion. The code TestSprite stores from a run is what `test rerun` and `test flaky` replay, and it can end with a single `assert current_url` (or a `select_option("")` that selects nothing), so a replay of it proves little. For the tests listed here the stored code is replaced with hand-written Playwright that asserts exact values on `data-testid`s:
 
 ```bash
 testsprite test code put <test-id> --code-file testsprite/code/ui-cancel-now.py --expected-version <v>
