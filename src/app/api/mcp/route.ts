@@ -19,6 +19,7 @@ const event = z.object({
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
   trial_days: z.number().int().optional(),
   proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14). On cancel_now, always_invoice refunds the unused time on a final invoice (Stripe prorate + invoice_now, R17)"),
+  cancel_at: z.string().optional().describe("cancel_at only: ISO-8601 UTC date the subscription ends (Stripe cancel_at, R19)"),
   billing_mode: z
     .enum(BILLING_MODES)
     .optional()

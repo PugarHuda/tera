@@ -9,7 +9,7 @@ const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R18 in docs/PRD.md (billing_mode classic or flexible). 67/67 golden scenarios verified against Stripe test mode (see /parity).",
+      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R19 in docs/PRD.md (billing_mode classic or flexible). 70/70 golden scenarios verified against Stripe test mode (see /parity).",
   },
   paths: {
     "/api/simulate": {
@@ -168,6 +168,7 @@ const spec = {
                 tax_rate: { type: "string" },
                 trial_days: { type: "integer", minimum: 1, maximum: 730 },
                 proration_behavior: { type: "string", enum: [...PRORATION_BEHAVIORS] },
+                cancel_at: { type: "string", format: "date-time", description: "cancel_at events: when the subscription ends (Stripe cancel_at, R19)." },
                 billing_mode: {
                   type: "string",
                   enum: [...BILLING_MODES],

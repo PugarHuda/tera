@@ -54,6 +54,12 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
     events.push({ at: at(), type: r() < 0.3 ? "cancel_now" : "cancel_at_period_end" });
     // R17: half the immediate cancellations refund the unused time (prorate + invoice_now).
     if (events.at(-1)!.type === "cancel_now" && r() < 0.5) events.at(-1)!.proration_behavior = "always_invoice";
+    // R19: some scheduled cancellations are on a date (this period or a later one) instead of the period end.
+    else if (events.at(-1)!.type === "cancel_at_period_end" && r() < 0.4) {
+      const c = events.at(-1)!;
+      [c.type, c.cancel_at] = ["cancel_at", new Date(t + step(2, 70)).toISOString().replace(".000", "")];
+      if (r() < 0.3) c.proration_behavior = "none";
+    }
     if (events.at(-1)!.type === "cancel_at_period_end" && r() < 0.4) {
       t += step(1, 5);
       events.push({ at: at(), type: "resume" });

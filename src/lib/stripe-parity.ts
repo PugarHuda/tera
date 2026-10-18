@@ -208,6 +208,9 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "reset_anchor":
         sub = await stripe.subscriptions.update(sub!.id, { billing_cycle_anchor: { type: "now" }, proration_behavior: e.proration_behavior ?? "create_prorations" });
         break;
+      case "cancel_at":
+        sub = await stripe.subscriptions.update(sub!.id, { cancel_at: sec(e.cancel_at!), proration_behavior: e.proration_behavior ?? "create_prorations" });
+        break;
       case "remove_coupon":
         sub = await stripe.subscriptions.update(sub!.id, { discounts: "" });
         break;

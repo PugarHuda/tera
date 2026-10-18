@@ -7,7 +7,7 @@ import { encodeTimeline } from "@/lib/share";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
-type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode";
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at";
 
 const FIELDS: Record<EventType, Field[]> = {
   subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode"],
@@ -22,6 +22,7 @@ const FIELDS: Record<EventType, Field[]> = {
   cancel_now: ["proration_behavior"],
   reset_anchor: ["proration_behavior"],
   remove_coupon: [],
+  cancel_at: ["cancel_at", "proration_behavior"],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -37,6 +38,7 @@ const LABEL: Record<EventType, string> = {
   cancel_now: "Cancel immediately",
   reset_anchor: "Reset billing anchor to now",
   remove_coupon: "Remove coupon",
+  cancel_at: "Cancel on a date",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
@@ -231,7 +233,15 @@ export function Simulator({
               {FIELDS[e.type].map((f) => (
                 <label key={f} className="text-sm">
                   <span className="block text-xs opacity-70">{f.replace("_", " ")}</span>
-                  {f === "quantity" || f === "trial_days" ? (
+                  {f === "cancel_at" ? (
+                    <input
+                      type="date"
+                      className="input"
+                      aria-label={`Event ${i + 1} ${f}`}
+                      value={e.cancel_at ? day(e.cancel_at) : ""}
+                      onChange={(ev) => update(i, { cancel_at: ev.target.value ? `${ev.target.value}T00:00:00Z` : undefined })}
+                    />
+                  ) : f === "quantity" || f === "trial_days" ? (
                     <input
                       type="number"
                       min={0}

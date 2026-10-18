@@ -3656,6 +3656,158 @@
         }
       ],
       "parity": "golden/parity/S70.json"
+    },
+    {
+      "id": "S71",
+      "status": "verified",
+      "rules": [
+        "R19",
+        "R5",
+        "R10"
+      ],
+      "title": "cancel_at inside the current period: a final invoice on that date credits the unused time at the discounted rate",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2,
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "cancel_at",
+          "cancel_at": "2027-01-20T00:00:00Z"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 15800 - 25% = 11850. 01-05 sets cancel_at 01-20 (create_prorations). 01-20: the subscription ends; 12/31 of January is unused: -round(11850*12/31) = -4587 on a final invoice, which becomes credit balance (amount due 0). No later invoices.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            15800
+          ],
+          "discount": 3950,
+          "total": 11850
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            -4587
+          ],
+          "discount": 0,
+          "total": -4587,
+          "amount_due": 0
+        }
+      ],
+      "expect_status": "canceled",
+      "parity": "golden/parity/S71.json"
+    },
+    {
+      "id": "S72",
+      "status": "verified",
+      "rules": [
+        "R19",
+        "R16",
+        "R5"
+      ],
+      "title": "Flexible: cancel_at in a later period cuts the last renewal short, priced as gross minus discount each rounded",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "cancel_at",
+          "cancel_at": "2027-02-15T00:00:00Z"
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900 - 1975 = 5925. 01-05 sets cancel_at 02-15. 02-01 renewal covers only 02-01 -> 02-15, 14 of February's 28 days: round(7900*14/28) = 3950 - round(1975*14/28) = 988 (987.5 rounds up) = 2962 (one step on 5925 would give 2963); it is a proration line, so no invoice discount. Ends 02-15, nothing after.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1975,
+          "total": 5925
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2962
+          ],
+          "discount": 0,
+          "total": 2962
+        }
+      ],
+      "expect_status": "canceled",
+      "parity": "golden/parity/S72.json"
+    },
+    {
+      "id": "S73",
+      "status": "verified",
+      "rules": [
+        "R19",
+        "R3",
+        "R8"
+      ],
+      "title": "cancel_at sweeps pending prorations onto the final invoice with the credit for the seats as they are",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 2
+        },
+        {
+          "at": "2027-01-08T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 6
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "cancel_at",
+          "cancel_at": "2027-01-25T00:00:00Z"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 2400. 01-08 x6, 24/31 left: credit -round(2400*24/31) = -1858, debit round(7200*24/31) = 5574, pending. 01-25 the subscription ends: 7/31 left, credit the 6 seats -round(7200*7/31) = -1626. Final invoice: -1858 + 5574 - 1626 = 2090.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2400
+          ],
+          "total": 2400
+        },
+        {
+          "date": "2027-01-25",
+          "lines": [
+            -1858,
+            5574,
+            -1626
+          ],
+          "total": 2090
+        }
+      ],
+      "expect_status": "canceled",
+      "parity": "golden/parity/S73.json"
     }
   ]
 }

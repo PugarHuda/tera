@@ -48,6 +48,7 @@ export type TimelineEvent = {
     | "cancel_now"
     | "reset_anchor"
     | "remove_coupon"
+    | "cancel_at"
     | "advance_to";
   price?: string;
   quantity?: number;
@@ -55,6 +56,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
+  /** cancel_at: when the subscription ends (Stripe `cancel_at`), ISO-8601 UTC. */
+  cancel_at?: string;
   /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
   billing_mode?: BillingMode;
 };
@@ -133,6 +136,9 @@ type Sub = {
   periodEnd: number;
   status: "active" | "trialing" | "canceled";
   cancelAtPeriodEnd: boolean;
+  /** R19: Stripe `cancel_at`, and the proration behavior it was set with. */
+  cancelAt: number | null;
+  cancelBehavior?: ProrationBehavior;
   /** remaining: invoices a once coupon still discounts; end: when a repeating coupon expires (R5, S50). */
   coupon: { code: string; remaining: number; end: number } | null;
   /** R5: discount the current amount was last charged at (period invoice or proration charge). */
@@ -267,9 +273,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   const renewUntil = (t: number) => {
-    while (sub && sub.status !== "canceled" && sub.periodEnd <= t) {
+    while (sub && sub.status !== "canceled" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
       finalize();
       const s: Sub = sub;
+      if (s.cancelAt !== null && s.cancelAt <= s.periodEnd) {
+        cancelOn(s, s.cancelAt);
+        break;
+      }
       const at = s.periodEnd;
       if (s.cancelAtPeriodEnd) {
         // R8: no renewal, but prorations still pending (and metered usage) are billed on a final invoice.
@@ -291,7 +301,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.periodEnd = addInterval(at, p.interval, s.anchorDay);
       s.paid = activeDiscount(s, licensedAmount(s), at); // what this period is charged, before the draft finalizes
       s.debits = [];
-      debit(s, at);
+      if (s.cancelAt !== null && s.cancelAt < s.periodEnd && p.usage_type !== "metered") {
+        // R19: the period that contains cancel_at is billed only up to it, as a proration priced like a
+        // "Remaining time" charge (gross and discount rounded apart: 3950 - 988 = 2962), with or without "none".
+        const part = chargeParts(s, at, at, s.cancelAt);
+        lines.pop();
+        lines.push({ description: "Time until cancellation", amount: part.item.unit - part.paid.off, proration: true });
+        s.debits.push(part);
+        s.periodEnd = s.cancelAt;
+      } else debit(s, at);
       openInvoice(s, at, lines);
     }
   };
@@ -347,6 +365,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           periodEnd,
           status: trial ? "trialing" : "active",
           cancelAtPeriodEnd: false,
+          cancelAt: null,
           coupon: null,
           paid: FULL,
           taxRate: e.tax_rate ? taxRate(e.tax_rate) : null,
@@ -419,13 +438,27 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         s.usage += e.quantity ?? 0;
         break;
       }
-      case "cancel_at_period_end":
-        active(e.type).cancelAtPeriodEnd = true;
+      case "cancel_at_period_end": {
+        const s = active(e.type);
+        [s.cancelAtPeriodEnd, s.cancelAt] = [true, null];
         break;
-      case "resume":
-        // R8: undoing a scheduled cancellation; the subscription renews as before.
-        active(e.type).cancelAtPeriodEnd = false;
+      }
+      case "cancel_at": {
+        // R19: cancel on a future date. Inside the current period: a final invoice at that date credits the time
+        // after it (unless "none"); in a later period: renewals continue and the last one is cut short.
+        const s = active(e.type);
+        if (s.status === "trialing") throw new Error("cancel_at during a trial is not modelled: use cancel_now or end_trial first");
+        const when = toDate(e.cancel_at ?? "");
+        if (!(when > at)) throw new Error("cancel_at must be a date after the request");
+        [s.cancelAt, s.cancelBehavior, s.cancelAtPeriodEnd] = [when, e.proration_behavior, false];
         break;
+      }
+      case "resume": {
+        // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
+        const r = active(e.type);
+        [r.cancelAtPeriodEnd, r.cancelAt] = [false, null];
+        break;
+      }
       case "end_trial": {
         // R4: ending a trial early (trial_end=now) starts the first paid period now and resets the anchor.
         const s = active(e.type);
@@ -485,6 +518,17 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     debit(s, at);
     openInvoice(s, at, [...s.pending, ...credit, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
     s.pending = [];
+  }
+
+  // R19: the subscription ends at `when` (its cancel_at). Pending prorations, unbilled usage and (unless "none")
+  // the credit for the time after it go on a final invoice dated then (S71).
+  function cancelOn(s: Sub, when: number) {
+    const credit = s.cancelBehavior !== "none" && when < s.periodEnd ? (s.mode === "flexible" ? creditDebits(s, when) : [prorate(s, when, item(s), false)[0]]) : [];
+    const lines = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : []), ...credit];
+    if (lines.length) openInvoice(s, when, lines, true);
+    s.pending = [];
+    s.status = "canceled";
+    canceledAt = when;
   }
 
   // Record [start, periodEnd) as debited at the current price and discount (gross and discount apart).
