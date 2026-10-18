@@ -4,6 +4,7 @@ import golden from "../../golden/scenarios.json";
 import type { Catalog } from "@/lib/billing";
 import type { TimelineEvent } from "@/lib/billing";
 import { decodeCatalog, decodeTimeline } from "@/lib/share";
+import { Hero } from "./hero";
 import { Simulator, type Scenario } from "./simulator";
 
 const scenarios = golden.scenarios as unknown as Scenario[];
@@ -12,7 +13,10 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
-      <h1 className="mb-1 text-2xl font-semibold">Customer timeline simulator</h1>
+      <Hero />
+      <h2 id="simulator" className="mb-1 scroll-mt-6 text-2xl font-semibold">
+        Customer timeline simulator
+      </h2>
       <p className="mb-6 max-w-2xl opacity-70">
         Run a virtual customer through upgrades, coupons, trials and taxes and see every invoice to the cent — computed with
         Stripe&apos;s billing rules, before any real customer sees it.

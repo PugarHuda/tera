@@ -22,9 +22,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <header className="border-b border-current/10">
-          <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 text-sm">
-            <Link href="/" className="text-base font-bold tracking-tight">
+        <header>
+          <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4 text-sm">
+            <Link href="/" className="flex items-center gap-2 text-base font-bold tracking-tight">
+              <span className="logo-mark" aria-hidden />
               Tera
             </Link>
             <Link href="/">Simulator</Link>
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/parity">Stripe parity</Link>
             <a href="/reference">API</a>
             <a href="/mcp-setup">MCP</a>
-            <a href="https://github.com/PugarHuda/tera" className="ml-auto opacity-70">
+            <a href="https://github.com/PugarHuda/tera" className="btn-dark ml-auto">
               GitHub
             </a>
           </nav>
