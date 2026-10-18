@@ -42,7 +42,7 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
   return (
     <>
       {((t !== undefined && !shared) || (c !== undefined && !custom)) && (
-        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-600">
+        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-600 dark:text-red-400">
           This shared link is invalid or corrupted, so the default scenario was loaded instead.
         </p>
       )}

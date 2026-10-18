@@ -345,7 +345,7 @@ export function Simulator({
         </div>
 
         {outcome.error ? (
-          <p role="alert" data-testid="sim-error" className="card border-red-500 text-red-600">
+          <p role="alert" data-testid="sim-error" className="card border-red-500 text-red-600 dark:text-red-400">
             {outcome.error}
           </p>
         ) : (

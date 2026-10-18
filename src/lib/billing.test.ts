@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import golden from "../../golden/scenarios.json";
 import { formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
+import { generate } from "./timeline-gen";
 
 type Expected = {
   date: string;
@@ -107,4 +108,41 @@ describe("rejects timelines Stripe would reject", () => {
     ["changes after cancel_now", [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_now" }, { at: "2027-01-12T00:00:00Z", type: "change_quantity", quantity: 2 }], /canceled/i],
   ];
   for (const [name, timeline, msg] of cases) it(name, () => expect(() => simulate(catalog, timeline)).toThrow(msg));
+});
+
+// Property test: the invariants must hold on thousands of random timelines, not only on the goldens.
+// A rejected timeline must fail with a reason (R11), never with a crash.
+describe("invariants on 5000 random timelines", () => {
+  const runs = Array.from({ length: 5000 }, (_, seed) => {
+    const timeline = generate(seed);
+    try {
+      return { seed, timeline, invoices: simulate(catalog, timeline).invoices };
+    } catch (e) {
+      return { seed, timeline, error: e as Error };
+    }
+  });
+
+  it("rejections are Stripe rules with a reason, not crashes", () => {
+    for (const r of runs) if (r.error) expect(r.error.constructor, `seed ${r.seed}: ${r.error.message}`).toBe(Error);
+  });
+
+  it("I1 totals add up, I6 amount due and credit carry over between invoices", () => {
+    for (const r of runs) {
+      let balance = 0;
+      for (const inv of r.invoices ?? []) {
+        const msg = `seed ${r.seed} ${inv.date}`;
+        expect(inv.subtotal, msg).toBe(inv.lines.reduce((a, l) => a + l.amount, 0));
+        for (const n of [inv.subtotal, inv.discount, inv.tax, inv.total, inv.amount_due]) expect(Number.isInteger(n), msg).toBe(true);
+        expect(inv.discount, msg).toBeGreaterThanOrEqual(0);
+        expect(inv.starting_balance, msg).toBe(balance);
+        expect(inv.amount_due, msg).toBe(Math.max(0, inv.total + balance));
+        expect(inv.period_start <= inv.period_end, msg).toBe(true);
+        balance = Math.min(0, inv.total + balance);
+      }
+    }
+  });
+
+  it("I5 deterministic", () => {
+    for (const r of runs.slice(0, 500)) if (r.invoices) expect(simulate(catalog, r.timeline).invoices).toEqual(r.invoices);
+  });
 });

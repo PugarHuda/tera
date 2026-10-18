@@ -247,11 +247,11 @@ export function Builder({ reference }: { reference: Catalog }) {
 
       <section className="card space-y-3">
         {error ? (
-          <p role="alert" className="text-red-600" data-testid="builder-error">
+          <p role="alert" className="text-red-600 dark:text-red-400" data-testid="builder-error">
             {error}
           </p>
         ) : (
-          <p className="text-sm text-green-700" data-testid="builder-valid">
+          <p className="text-sm text-green-700 dark:text-green-400" data-testid="builder-valid">
             Catalog is valid: {Object.keys(catalog!.prices).length} prices, {Object.keys(catalog!.coupons ?? {}).length} coupons,{" "}
             {Object.keys(catalog!.tax_rates ?? {}).length} tax rates.
           </p>
@@ -273,7 +273,7 @@ export function Builder({ reference }: { reference: Catalog }) {
           </button>
         </div>
         {push.error && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
             {push.error}
           </p>
         )}
