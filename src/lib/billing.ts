@@ -39,14 +39,20 @@ export type TimelineEvent = {
     | "apply_coupon"
     | "report_usage"
     | "cancel_at_period_end"
+    | "resume"
+    | "end_trial"
+    | "cancel_now"
     | "advance_to";
   price?: string;
   quantity?: number;
   coupon?: string;
   tax_rate?: string;
   trial_days?: number;
-  proration_behavior?: "create_prorations" | "always_invoice";
+  proration_behavior?: ProrationBehavior;
 };
+
+export const PRORATION_BEHAVIORS = ["create_prorations", "always_invoice", "none"] as const;
+export type ProrationBehavior = (typeof PRORATION_BEHAVIORS)[number];
 
 export type InvoiceLine = { description: string; amount: number; proration: boolean };
 
@@ -81,10 +87,10 @@ const toDate = (iso: string) => new Date(iso).getTime();
 const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
 
 // R2: same day next interval, clamped to month length but keeping the anchor day.
-export function addInterval(t: number, interval: Interval, anchorDay: number): number {
+export function addInterval(t: number, interval: Interval, anchorDay: number, count = 1): number {
   const d = new Date(t);
-  const y = d.getUTCFullYear() + (interval === "year" ? 1 : 0);
-  const m = d.getUTCMonth() + (interval === "month" ? 1 : 0);
+  const y = d.getUTCFullYear() + (interval === "year" ? count : 0);
+  const m = d.getUTCMonth() + (interval === "month" ? count : 0);
   const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
   return Date.UTC(y, m, Math.min(anchorDay, last), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds());
 }
@@ -97,7 +103,8 @@ type Sub = {
   periodEnd: number;
   status: "active" | "trialing" | "canceled";
   cancelAtPeriodEnd: boolean;
-  coupon: { code: string; remaining: number } | null;
+  /** remaining: invoices a once coupon still discounts; end: when a repeating coupon expires (R5, S50). */
+  coupon: { code: string; remaining: number; end: number } | null;
   /** R5: discount the current amount was last charged at (period invoice or proration charge). */
   paid: Paid;
   taxRate: TaxRate | null;
@@ -140,10 +147,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     // R5: proration lines are not discountable (they were already priced at the discounted rate).
     const discountable = draft.lines.filter((l) => !l.proration).reduce((a, l) => a + l.amount, 0);
     let discount = 0;
-    if (sub.coupon && sub.coupon.remaining > 0 && discountable > 0) {
-      const c = catalog.coupons![sub.coupon.code];
+    const live = liveCoupon(sub, draft.at);
+    if (live && discountable > 0) {
+      const c = live;
       discount = c.percent_off != null ? roundMinor((discountable * c.percent_off) / 100) : Math.min(c.amount_off ?? 0, discountable);
-      sub.coupon.remaining -= 1;
+      sub.coupon!.remaining -= 1;
     }
     if (discountable > 0) {
       const c = discount > 0 ? catalog.coupons![sub.coupon!.code] : null;
@@ -229,14 +237,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.status = "active";
       s.periodStart = at;
       s.periodEnd = addInterval(at, p.interval, s.anchorDay);
-      s.paid = activeDiscount(s, licensedAmount(s)); // what this period is charged, before the draft finalizes
+      s.paid = activeDiscount(s, licensedAmount(s), at); // what this period is charged, before the draft finalizes
       openInvoice(s, at, lines);
     }
   };
 
   /** The discount an active coupon gives an amount (percent → rate, amount_off → off, capped at the amount). */
-  const activeDiscount = (s: Sub, amount: number): Paid => {
-    const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
+  const activeDiscount = (s: Sub, amount: number, at: number): Paid => {
+    const c = liveCoupon(s, at);
     return !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: Math.min(c.amount_off ?? 0, amount) };
   };
 
@@ -248,8 +256,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // A "once" coupon that prices that charge is used up by it (the next invoice is not discounted).
   const prorate = (s: Sub, at: number, oldAmount: number, newAmount: number): InvoiceLine[] => {
     const f = (s.periodEnd - at) / (s.periodEnd - s.periodStart);
-    const c = s.coupon && s.coupon.remaining > 0 ? catalog.coupons![s.coupon.code] : null;
-    const now = activeDiscount(s, newAmount);
+    const c = liveCoupon(s, at);
+    const now = activeDiscount(s, newAmount, at);
     const lines = [
       { description: "Unused time", amount: 0 - roundMinor((oldAmount * s.paid.rate - s.paid.off) * f), proration: true }, // 0 - x: never -0 ("-$0.00")
       { description: "Remaining time", amount: roundMinor(newAmount * f) - roundMinor((newAmount * (1 - now.rate) + now.off) * f), proration: true },
@@ -288,7 +296,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           pending: [],
           usage: 0,
         };
-        if (e.coupon) applyCoupon(sub, e.coupon);
+        if (e.coupon) applyCoupon(sub, e.coupon, at);
         openInvoice(sub, at, [{ description: trial ? "Trial" : `${e.price} × ${sub.quantity}`, amount: trial ? 0 : licensedAmount(sub), proration: false }], true);
         break;
       }
@@ -323,14 +331,16 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const p = price(s.priceId);
         const newAmount = licensedAmount(s);
         if (p.interval !== oldInterval) {
-          // R3: interval change resets the anchor and invoices now.
-          const credit = prorate(s, at, oldAmount, 0)[0];
+          // R3: interval change resets the anchor and invoices now (R14: with "none", without the credit).
+          const credit = e.proration_behavior === "none" ? [] : [prorate(s, at, oldAmount, 0)[0]];
           s.periodStart = at;
           s.anchorDay = new Date(at).getUTCDate();
           s.periodEnd = addInterval(at, p.interval, s.anchorDay);
-          openInvoice(s, at, [...s.pending, credit, { description: `${s.priceId} × ${s.quantity}`, amount: newAmount, proration: false }], true);
+          openInvoice(s, at, [...s.pending, ...credit, { description: `${s.priceId} × ${s.quantity}`, amount: newAmount, proration: false }], true);
           s.pending = [];
-        } else {
+        } else if (e.proration_behavior !== "none") {
+          // R14: with "none" nothing is prorated; the new amount bills from the next renewal, and a later
+          // proration credits the item as it is then, not what was paid (Stripe probe, S44).
           const lines = prorate(s, at, oldAmount, newAmount);
           if (e.proration_behavior === "always_invoice") openInvoice(s, at, lines, true);
           else s.pending.push(...lines);
@@ -338,7 +348,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         break;
       }
       case "apply_coupon":
-        applyCoupon(active(e.type), e.coupon!);
+        applyCoupon(active(e.type), e.coupon!, at);
         break;
       case "report_usage": {
         const s = active(e.type);
@@ -349,11 +359,40 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       case "cancel_at_period_end":
         active(e.type).cancelAtPeriodEnd = true;
         break;
+      case "resume":
+        // R8: undoing a scheduled cancellation; the subscription renews as before.
+        active(e.type).cancelAtPeriodEnd = false;
+        break;
+      case "end_trial": {
+        // R4: ending a trial early (trial_end=now) starts the first paid period now and resets the anchor.
+        const s = active(e.type);
+        if (s.status !== "trialing") throw new Error("end_trial needs a subscription in trial");
+        s.status = "active";
+        s.periodStart = at;
+        s.anchorDay = new Date(at).getUTCDate();
+        s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
+        s.paid = activeDiscount(s, licensedAmount(s), at);
+        openInvoice(s, at, [{ description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+        break;
+      }
+      case "cancel_now": {
+        // R8: immediate cancellation (Stripe's default: no final invoice, no proration credit).
+        const s = active(e.type);
+        s.status = "canceled";
+        s.pending = [];
+        canceledAt = at;
+        break;
+      }
       case "advance_to":
         break;
     }
   }
   finalize();
+
+  // An invoice exactly at a repeating coupon's end is no longer discounted (3 months = 3 monthly invoices).
+  function liveCoupon(s: Sub, at: number): Coupon | null {
+    return s.coupon && s.coupon.remaining > 0 && at < s.coupon.end ? catalog.coupons![s.coupon.code] : null;
+  }
 
   function active(type: string): Sub {
     if (!sub) throw new Error(`${type} before subscribe`);
@@ -361,16 +400,18 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     return sub;
   }
 
-  function applyCoupon(s: Sub, code: string) {
+  function applyCoupon(s: Sub, code: string, at: number) {
     const c = catalog.coupons?.[code];
     if (!c) throw new Error(`Unknown coupon: ${code}`);
     const currency = price(s.priceId).currency;
     if (c.amount_off != null && c.currency && c.currency.toLowerCase() !== currency.toLowerCase())
       throw new Error(`Coupon ${code} is in ${c.currency.toUpperCase()} but the subscription bills in ${currency.toUpperCase()} (currency mismatch)`);
     // R5/I3: idempotent while the coupon is still active; a used-up coupon applied again starts afresh (as in Stripe).
-    if (s.coupon?.code === code && s.coupon.remaining > 0) return;
-    const remaining = c.duration === "once" ? 1 : c.duration === "repeating" ? (c.duration_in_months ?? 1) : Infinity;
-    s.coupon = { code, remaining };
+    if (s.coupon?.code === code && liveCoupon(s, at)) return;
+    // A repeating coupon lasts duration_in_months of calendar time from when it is applied, not that many
+    // invoices: a yearly -> monthly switch inside the window gets discounted renewals until it ends (S50).
+    const end = c.duration === "repeating" ? addInterval(at, "month", new Date(at).getUTCDate(), c.duration_in_months ?? 1) : Infinity;
+    s.coupon = { code, remaining: c.duration === "once" ? 1 : Infinity, end };
   }
 
   const finalSub = sub as Sub | null;

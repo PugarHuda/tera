@@ -1,0 +1,48 @@
+{
+  "id": "S48",
+  "title": "Interval change with proration_behavior none: invoices the new interval now without a credit",
+  "verified_at": "2026-10-18T00:24:02.983Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URhtB2QR5nixgqNUY8d4Cs9",
+  "customer": "cus_VSd9Kh8X4n3nHz",
+  "stripe": [
+    {
+      "id": "in_1URhtD2QR5nixgqNNMMe9TDl",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtI2QR5nixgqNPyeezSnD",
+      "date": "2027-01-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_y (at $290.00 / year)",
+          "amount": 29000,
+          "proration": false
+        }
+      ],
+      "subtotal": 29000,
+      "discount": 0,
+      "tax": 0,
+      "total": 29000,
+      "amount_due": 29000,
+      "starting_balance": 0
+    }
+  ]
+}

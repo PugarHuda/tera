@@ -1,0 +1,66 @@
+{
+  "id": "S47",
+  "title": "Undoing a scheduled cancel keeps renewing",
+  "verified_at": "2026-10-18T00:24:15.748Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URht82QR5nixgqNBAi0vyB8",
+  "customer": "cus_VSd9P1mItA2Pex",
+  "stripe": [
+    {
+      "id": "in_1URhtA2QR5nixgqNSHuodf7C",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1580,
+      "tax": 0,
+      "total": 6320,
+      "amount_due": 6320,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtK2QR5nixgqNw1UWd3bn",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtU2QR5nixgqNqtqAkOV9",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}

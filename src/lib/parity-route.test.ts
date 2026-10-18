@@ -9,6 +9,8 @@ describe("POST /api/parity validation", () => {
   it("rejects malformed JSON and unknown golden ids with 400", async () => {
     expect((await post("{")).status).toBe(400);
     expect((await post({ scenario: "S999" })).status).toBe(400);
+    const odd = { at: "2027-01-10T00:00:00Z", type: "change_quantity", quantity: 2, proration_behavior: "sometimes" };
+    expect((await post({ timeline: [sub, odd] })).status).toBe(400);
   });
   it("caps custom live replays at 15 events and 2 years", async () => {
     const many = Array.from({ length: 16 }, (_, i) => (i === 0 ? sub : { at: `2027-02-${String(i).padStart(2, "0")}T00:00:00Z`, type: "advance_to" }));
