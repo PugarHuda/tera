@@ -1,0 +1,71 @@
+{
+  "id": "S78",
+  "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
+  "verified_at": "2026-10-18T16:47:00.151Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URxEI2QR5nixgqNd2c3fb2I",
+  "customer": "cus_VSt0nPvKYXo7Vx",
+  "stripe": [
+    {
+      "id": "in_1URxEJ2QR5nixgqNoaJtdD4I",
+      "date": "2027-06-05",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 4800,
+          "proration": false
+        }
+      ],
+      "subtotal": 4800,
+      "discount": 4800,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxET2QR5nixgqNNpZUDbl1",
+      "date": "2027-06-28",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 4 × Tera team_seat_m (with $50.00 off) after 28 Jun 2027",
+          "amount": 0,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 5 × Tera pro_m after 28 Jun 2027",
+          "amount": 9217,
+          "proration": true
+        }
+      ],
+      "subtotal": 9217,
+      "discount": 0,
+      "tax": 1536,
+      "total": 9217,
+      "amount_due": 9217,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxEX2QR5nixgqNbCkopxHW",
+      "date": "2027-07-05",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 39500,
+      "discount": 0,
+      "tax": 6583,
+      "total": 39500,
+      "amount_due": 39500,
+      "starting_balance": 0
+    }
+  ]
+}

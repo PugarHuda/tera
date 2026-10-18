@@ -1,15 +1,15 @@
 {
   "id": "S42",
   "title": "Proration charge under a percent coupon is rounded in two steps",
-  "verified_at": "2026-10-17T18:41:54.863Z",
+  "verified_at": "2026-10-18T16:50:52.984Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcYC2QR5nixgqNG2MGUqGm",
-  "customer": "cus_VSXdFNW6ZnTMBP",
+  "test_clock": "clock_1URxIF2QR5nixgqNhiHvJoH1",
+  "customer": "cus_VSt4QvXLCl589X",
   "stripe": [
     {
-      "id": "in_1URcYD2QR5nixgqNrtnUG08I",
+      "id": "in_1URxIH2QR5nixgqNvmDOAdzJ",
       "date": "2027-03-17",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcYK2QR5nixgqNDHR45jvk",
+      "id": "in_1URxIO2QR5nixgqNNJyDAQpZ",
       "date": "2027-04-17",
       "currency": "usd",
       "lines": [

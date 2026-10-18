@@ -1,6 +1,6 @@
 # Tera
 
-> Stripe-parity pricing simulator. Send a catalog (prices, coupons, tax rates) and a customer timeline (subscribe, trial, upgrade, seats, usage, coupons, cancel, end trial, resume, cancel now, reset billing anchor, remove coupon, cancel on a date); get every invoice to the cent, exactly as Stripe would bill it. All 73 golden timeline scenarios are verified against real Stripe test clocks, in classic and flexible billing mode (set `billing_mode` on subscribe). Tera never moves money.
+> Stripe-parity pricing simulator. Send a catalog (prices, coupons, tax rates) and a customer timeline (subscribe, trial, upgrade, seats, usage, coupons, cancel, end trial, resume, cancel now, reset billing anchor, remove coupon, cancel on a date); get every invoice to the cent, exactly as Stripe would bill it. All 76 golden timeline scenarios are verified against real Stripe test clocks, in classic and flexible billing mode (set `billing_mode` on subscribe). Tera never moves money.
 
 Amounts are integers in the currency's minor unit (cents; yen for JPY). Dates are ISO-8601 UTC. Billing rules R1–R20 are in the PRD.
 

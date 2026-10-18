@@ -1,15 +1,15 @@
 {
   "id": "S76",
   "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
-  "verified_at": "2026-10-18T16:25:49.023Z",
+  "verified_at": "2026-10-18T16:46:36.307Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwte2QR5nixgqN5ybLHKvk",
-  "customer": "cus_VSseAjQdMDN5sZ",
+  "test_clock": "clock_1URxDa2QR5nixgqNbv60jaRf",
+  "customer": "cus_VSsznqULis5L3n",
   "stripe": [
     {
-      "id": "in_1URwtf2QR5nixgqNGDXmhgYM",
+      "id": "in_1URxDb2QR5nixgqNSotmonyx",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwtq2QR5nixgqNKNEW2JGL",
+      "id": "in_1URxDn2QR5nixgqNdMBOhZ2S",
       "date": "2027-01-31",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwu02QR5nixgqNIkmwV0QZ",
+      "id": "in_1URxEB2QR5nixgqNdC7ixcRj",
       "date": "2027-02-28",
       "currency": "usd",
       "lines": [

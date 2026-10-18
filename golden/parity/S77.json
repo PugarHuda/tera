@@ -1,0 +1,66 @@
+{
+  "id": "S77",
+  "title": "First-billing-date stub is prorated over one interval counted from the start (05-31 -> 06-30), not the period ending on the anchor (found by fuzzing)",
+  "verified_at": "2026-10-18T16:46:38.637Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URxDm2QR5nixgqNQLcOkVwn",
+  "customer": "cus_VSszDqzInzSX86",
+  "stripe": [
+    {
+      "id": "in_1URxDn2QR5nixgqNyCELm0yL",
+      "date": "2028-05-31",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on 3 × Tera pro_m after 31 May 2028",
+          "amount": 10270,
+          "proration": true
+        }
+      ],
+      "subtotal": 10270,
+      "discount": 0,
+      "tax": 1712,
+      "total": 10270,
+      "amount_due": 10270,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxE02QR5nixgqNIyIBLRCY",
+      "date": "2028-06-13",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 23700,
+      "discount": 0,
+      "tax": 3950,
+      "total": 23700,
+      "amount_due": 23700,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxEB2QR5nixgqNABl47EEz",
+      "date": "2028-07-13",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 23700,
+      "discount": 0,
+      "tax": 3950,
+      "total": 23700,
+      "amount_due": 23700,
+      "starting_balance": 0
+    }
+  ]
+}
