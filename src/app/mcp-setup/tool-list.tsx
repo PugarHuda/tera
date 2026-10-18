@@ -29,13 +29,13 @@ export function ToolList() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  if (error) return <p role="alert" className="text-red-600">{error}</p>;
+  if (error) return <p role="alert" className="text-red-600 dark:text-red-400">{error}</p>;
   if (!tools) return <p className="opacity-60">Loading tools…</p>;
   return (
     <ul className="space-y-2" data-testid="mcp-tools">
       {tools.map((t) => (
-        <li key={t.name}>
-          <code className="font-semibold">{t.name}</code>
+        <li key={t.name} className="break-words">
+          <code className="font-semibold break-all">{t.name}</code>
           {t.title && <span className="ml-2">{t.title}</span>}
           {t.description && <p className="text-xs opacity-70">{t.description}</p>}
         </li>

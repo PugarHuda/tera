@@ -90,7 +90,7 @@ export function Planner() {
 
       <section aria-label="Impact report" className="card space-y-4">
         {error || !report ? (
-          <p role="alert" className="text-red-600" data-testid="migrate-error">
+          <p role="alert" className="text-red-600 dark:text-red-400" data-testid="migrate-error">
             {error}
           </p>
         ) : (
@@ -127,7 +127,7 @@ export function Planner() {
                       <td className="py-0.5">{c.name}</td>
                       <td className="text-right font-mono">{c.seats}</td>
                       <td className="text-right font-mono">{usd(c.mrr_before)}</td>
-                      <td className={`text-right font-mono ${c.mrr_delta > 0 ? "text-red-600" : ""}`}>{signed(c.mrr_delta)}</td>
+                      <td className={`text-right font-mono ${c.mrr_delta > 0 ? "text-red-600 dark:text-red-400" : ""}`}>{signed(c.mrr_delta)}</td>
                     </tr>
                   ))}
                 </tbody>
