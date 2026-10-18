@@ -421,9 +421,24 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
               </td>
             </tr>
           )}
+          {inv.starting_balance > 0 && (
+            <tr>
+              <td className="opacity-70">Carried from a previous invoice (below the minimum charge)</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-carried`}>
+                +{m(inv.starting_balance)}
+              </td>
+            </tr>
+          )}
           {inv.amount_due !== inv.total && (
             <tr className="font-semibold">
-              <td>Amount due{inv.total < 0 ? ` (${m(-inv.total)} added to credit balance)` : ""}</td>
+              <td>
+                Amount due
+                {inv.total < 0
+                  ? ` (${m(-inv.total)} added to credit balance)`
+                  : inv.amount_due === 0 && inv.total + inv.starting_balance > 0
+                    ? ` (${m(inv.total + inv.starting_balance)} is below Stripe's minimum charge, carried to the next invoice)`
+                    : ""}
+              </td>
               <td className="text-right font-mono" data-testid={`invoice-${n}-amount-due`}>
                 {m(inv.amount_due)}
               </td>
