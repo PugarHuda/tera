@@ -102,6 +102,8 @@ describe("rejects timelines Stripe would reject", () => {
       [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_at_period_end" }, { at: "2027-03-01T00:00:00Z", type: "change_price", price: "pro_m" }],
       /canceled/i,
     ],
+    ["end_trial without a trial", [sub(), { at: "2027-01-10T00:00:00Z", type: "end_trial" }], /trial/i],
+    ["changes after cancel_now", [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_now" }, { at: "2027-01-12T00:00:00Z", type: "change_quantity", quantity: 2 }], /canceled/i],
   ];
   for (const [name, timeline, msg] of cases) it(name, () => expect(() => simulate(catalog, timeline)).toThrow(msg));
 });

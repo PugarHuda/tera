@@ -14,6 +14,11 @@ CASES = {
         "canceled",
     ),
     "unknown price": ([{**SUB, "price": "gold"}], "unknown price"),
+    "end_trial without a trial": ([SUB, {"at": "2027-01-10T00:00:00Z", "type": "end_trial"}], "trial"),
+    "change after cancel_now": (
+        [SUB, {"at": "2027-01-10T00:00:00Z", "type": "cancel_now"}, {"at": "2027-01-12T00:00:00Z", "type": "change_quantity", "quantity": 2}],
+        "canceled",
+    ),
 }
 
 
@@ -31,6 +36,9 @@ def test_malformed_input_returns_400() -> None:
         "bad date": {"timeline": [{**SUB, "at": "next tuesday"}]},
         "negative quantity": {"timeline": [{**SUB, "quantity": -1}]},
         "first event not subscribe": {"timeline": [{"at": "2027-01-01T00:00:00Z", "type": "advance_to"}]},
+        "unknown proration_behavior": {
+            "timeline": [SUB, {"at": "2027-01-10T00:00:00Z", "type": "change_quantity", "quantity": 2, "proration_behavior": "sometimes"}]
+        },
     }
     for name, body in bad.items():
         res = requests.post(f"{BASE_URL}/api/simulate", json=body, timeout=30)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
 import { toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 
@@ -17,6 +17,9 @@ const FIELDS: Record<EventType, Field[]> = {
   apply_coupon: ["coupon"],
   report_usage: ["quantity"],
   cancel_at_period_end: [],
+  resume: [],
+  end_trial: [],
+  cancel_now: [],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -27,6 +30,9 @@ const LABEL: Record<EventType, string> = {
   apply_coupon: "Apply coupon",
   report_usage: "Report usage",
   cancel_at_period_end: "Cancel at period end",
+  resume: "Undo scheduled cancel",
+  end_trial: "End trial now",
+  cancel_now: "Cancel immediately",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
@@ -232,7 +238,7 @@ export function Simulator({
                       onChange={(ev) => update(i, { [f]: ev.target.value || undefined })}
                     >
                       <option value="">—</option>
-                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : ["create_prorations", "always_invoice"]).map((o) => (
+                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : PRORATION_BEHAVIORS).map((o) => (
                         <option key={o} value={o}>
                           {optionLabel(f, o)}
                         </option>

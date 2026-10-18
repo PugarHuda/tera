@@ -199,6 +199,15 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "cancel_at_period_end":
         sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
         break;
+      case "resume":
+        sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+        break;
+      case "end_trial":
+        sub = await stripe.subscriptions.update(sub!.id, { trial_end: "now" });
+        break;
+      case "cancel_now":
+        sub = await stripe.subscriptions.cancel(sub!.id);
+        break;
       case "report_usage":
         // The meter event carries the test clock's time, so it lands in the simulated period.
         await stripe.billing.meterEvents.create({

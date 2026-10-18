@@ -1,0 +1,89 @@
+{
+  "id": "S49",
+  "title": "After a none change, an always_invoice change credits the current quantity at the coupon rate",
+  "verified_at": "2026-10-18T00:24:25.818Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URhtF2QR5nixgqN4ncQR1PL",
+  "customer": "cus_VSd98y2Yp4gpe4",
+  "stripe": [
+    {
+      "id": "in_1URhtG2QR5nixgqNuwVs2m8t",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "2 × Tera pro_m (at $79.00 / month)",
+          "amount": 15800,
+          "proration": false
+        }
+      ],
+      "subtotal": 15800,
+      "discount": 3950,
+      "tax": 0,
+      "total": 11850,
+      "amount_due": 11850,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtP2QR5nixgqNOUVPPKO9",
+      "date": "2027-01-20",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera pro_m (with 25.0% off) after 20 Jan 2027",
+          "amount": -2294,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 4 × Tera pro_m (with 25.0% off) after 20 Jan 2027",
+          "amount": 9174,
+          "proration": true
+        }
+      ],
+      "subtotal": 6880,
+      "discount": 0,
+      "tax": 0,
+      "total": 6880,
+      "amount_due": 6880,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtT2QR5nixgqNVtjfpF0X",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera pro_m (at $79.00 / month)",
+          "amount": 31600,
+          "proration": false
+        }
+      ],
+      "subtotal": 31600,
+      "discount": 7900,
+      "tax": 0,
+      "total": 23700,
+      "amount_due": 23700,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhtd2QR5nixgqNHQsChQoU",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera pro_m (at $79.00 / month)",
+          "amount": 31600,
+          "proration": false
+        }
+      ],
+      "subtotal": 31600,
+      "discount": 7900,
+      "tax": 0,
+      "total": 23700,
+      "amount_due": 23700,
+      "starting_balance": 0
+    }
+  ]
+}

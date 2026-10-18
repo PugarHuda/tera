@@ -1,6 +1,6 @@
 // Input validation for the public API (trust boundary). Throws BadRequest with a human message.
 import golden from "../../golden/scenarios.json";
-import type { Catalog, TimelineEvent, migrate } from "./billing";
+import { PRORATION_BEHAVIORS, type Catalog, type TimelineEvent, type migrate } from "./billing";
 
 export class BadRequest extends Error {}
 
@@ -14,6 +14,9 @@ export const EVENT_TYPES = [
   "apply_coupon",
   "report_usage",
   "cancel_at_period_end",
+  "resume",
+  "end_trial",
+  "cancel_now",
   "advance_to",
 ] as const;
 
@@ -94,6 +97,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
+    if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
+      fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     return Date.parse(e.at);
   });
   if (Math.max(...times) - Math.min(...times) > MAX_SPAN_MS) fail("timeline may span at most 10 years");

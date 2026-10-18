@@ -2,7 +2,7 @@
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import golden from "../../../../golden/scenarios.json";
-import { formatMoney, migrate, simulate } from "@/lib/billing";
+import { PRORATION_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { Cooldown, checkLiveLimits, liveParity } from "@/lib/stripe-parity";
 import { BadRequest, EVENT_TYPES, defaultCatalog, parseMigration, parseTimeline } from "@/lib/validate";
 
@@ -18,7 +18,7 @@ const event = z.object({
   coupon: z.string().optional().describe(`Coupon code: ${Object.keys(defaultCatalog.coupons ?? {}).join(", ")}`),
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
   trial_days: z.number().int().optional(),
-  proration_behavior: z.enum(["create_prorations", "always_invoice"]).optional(),
+  proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14)"),
 });
 
 const text = (t: string, data?: unknown, isError = false) => ({

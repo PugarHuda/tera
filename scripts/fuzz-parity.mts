@@ -38,6 +38,10 @@ function generate(seed: number): TimelineEvent[] {
   else if (r() < 0.5) first.coupon = pick(g.coupons);
   if (r() < 0.4) first.tax_rate = pick(["tax10_ex", "vat20_in"]);
   const events = [first];
+  if (first.type === "start_trial" && r() < 0.5) {
+    t += int(1, first.trial_days! - 1) * 86_400_000;
+    events.push({ at: at(), type: "end_trial" });
+  }
   for (let i = int(1, 3); i > 0; i--) {
     t += int(3, 40) * 86_400_000;
     const kind = pick(["change_quantity", "change_price", "change_price", "apply_coupon"] as const);
@@ -48,12 +52,16 @@ function generate(seed: number): TimelineEvent[] {
       if (r() < 0.6) e.quantity = int(1, 5);
     }
     if (kind === "apply_coupon") e.coupon = pick(g.coupons);
-    if (kind !== "apply_coupon" && r() < 0.25) e.proration_behavior = "always_invoice";
+    if (kind !== "apply_coupon") e.proration_behavior = pick([undefined, undefined, "always_invoice", "none"]);
     events.push(e);
   }
-  if (r() < 0.15) {
+  if (r() < 0.25) {
     t += int(1, 20) * 86_400_000;
-    events.push({ at: at(), type: "cancel_at_period_end" });
+    events.push({ at: at(), type: r() < 0.3 ? "cancel_now" : "cancel_at_period_end" });
+    if (events.at(-1)!.type === "cancel_at_period_end" && r() < 0.4) {
+      t += int(1, 5) * 86_400_000;
+      events.push({ at: at(), type: "resume" });
+    }
   }
   t += int(35, 70) * 86_400_000;
   events.push({ at: at(), type: "advance_to" });

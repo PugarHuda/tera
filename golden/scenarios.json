@@ -1961,6 +1961,446 @@
         }
       ],
       "parity": "golden/parity/S43.json"
+    },
+    {
+      "id": "S44",
+      "status": "verified",
+      "rules": [
+        "R14",
+        "R3"
+      ],
+      "title": "proration_behavior none: no lines now; a later proration credits the item as it is then, not what was paid",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10 switches pro_m -> starter_m without prorating (the $79 paid is not credited). 01-20, 12/31 left: credit the current item -round(2900*12/31)=-1123, charge +round(8700*12/31)=3368, pending. 02-01: -1123+3368+8700=10945. 03-01: 8700",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -1123,
+            3368,
+            8700
+          ],
+          "discount": 0,
+          "total": 10945
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            8700
+          ],
+          "discount": 0,
+          "total": 8700
+        }
+      ],
+      "parity": "golden/parity/S44.json"
+    },
+    {
+      "id": "S45",
+      "status": "verified",
+      "rules": [
+        "R4",
+        "R5",
+        "R6"
+      ],
+      "title": "Ending a trial early bills the first period now, resets the anchor, and the once coupon applies to it",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "pro_m",
+          "trial_days": 10,
+          "coupon": "SAVE20",
+          "tax_rate": "tax10_ex"
+        },
+        {
+          "at": "2027-01-03T00:00:00Z",
+          "type": "end_trial"
+        },
+        {
+          "at": "2027-03-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Trial invoice $0 (the once coupon is not used on $0). 01-03 trial_end=now: 7900-20%=6320 +10% tax 632 = 6952, anchor day 3. 02-03 and 03-03: 7900+790=8690",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "discount": 0,
+          "total": 0
+        },
+        {
+          "date": "2027-01-03",
+          "lines": [
+            7900
+          ],
+          "discount": 1580,
+          "total": 6952
+        },
+        {
+          "date": "2027-02-03",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 8690
+        },
+        {
+          "date": "2027-03-03",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 8690
+        }
+      ],
+      "parity": "golden/parity/S45.json"
+    },
+    {
+      "id": "S46",
+      "status": "verified",
+      "rules": [
+        "R8"
+      ],
+      "title": "Immediate cancel: no final invoice and pending prorations are dropped; a new subscription starts clean",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "cancel_now"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10 prorations (-5606, +16819) stay pending; 01-20 cancel now (Stripe default invoice_now=false, prorate=false) never invoices them. 02-01 new subscription 2900; 03-01 2900",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        }
+      ],
+      "parity": "golden/parity/S46.json"
+    },
+    {
+      "id": "S47",
+      "status": "verified",
+      "rules": [
+        "R8"
+      ],
+      "title": "Undoing a scheduled cancel keeps renewing",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900-1580=6320. Cancel scheduled 01-05, undone 01-10, so 02-01 and 03-01 renew at 7900 (the once coupon is spent)",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1580,
+          "total": 6320
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S47.json"
+    },
+    {
+      "id": "S48",
+      "status": "verified",
+      "rules": [
+        "R14",
+        "R3"
+      ],
+      "title": "Interval change with proration_behavior none: invoices the new interval now without a credit",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-15T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Month -> year still resets the anchor and invoices now, but with none there is no unused-time credit: 29000. Next renewal 2028-01-15",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-01-15",
+          "lines": [
+            29000
+          ],
+          "discount": 0,
+          "total": 29000
+        }
+      ],
+      "parity": "golden/parity/S48.json"
+    },
+    {
+      "id": "S49",
+      "status": "verified",
+      "rules": [
+        "R14",
+        "R5"
+      ],
+      "title": "After a none change, an always_invoice change credits the current quantity at the coupon rate",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2,
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 1,
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 4,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 15800-25%=11850. 01-10 seats 2->1, no proration. 01-20, 12/31 left: credit 1 seat at 75%: -round(5925*12/31)=-2294; charge round(31600*12/31)-round(7900*12/31)=12232-3058=9174; invoiced now: 6880. 02-01: 31600-7900=23700",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            15800
+          ],
+          "discount": 3950,
+          "total": 11850
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            -2294,
+            9174
+          ],
+          "discount": 0,
+          "total": 6880
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            31600
+          ],
+          "discount": 7900,
+          "total": 23700
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            31600
+          ],
+          "discount": 7900,
+          "total": 23700
+        }
+      ],
+      "parity": "golden/parity/S49.json"
+    },
+    {
+      "id": "S50",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R3",
+        "R10"
+      ],
+      "title": "A repeating coupon lasts its months in calendar time, not a count of invoices (yearly -> monthly)",
+      "timeline": [
+        {
+          "at": "2027-01-25T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y",
+          "coupon": "TENOFF3"
+        },
+        {
+          "at": "2027-02-05T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 1
+        },
+        {
+          "at": "2027-05-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "TENOFF3 ($10 off, 3 months) applied 01-25 ends 04-25. 01-25: 29000-1000=28000. 02-05 month interval, 354/365 of the year left: credit -round(28000*354/365)=-27156, +7900 discounted 1000: total -20256 (credit). 03-05: 6900, balance -20256 -> due 0. 04-05 is before 04-25, still discounted: 6900, due 0, balance -6456. 05-05: coupon over, 7900, due 7900-6456=1444. Counting invoices would have stopped the discount after 03-05.",
+      "expect": [
+        {
+          "date": "2027-01-25",
+          "lines": [
+            29000
+          ],
+          "discount": 1000,
+          "total": 28000
+        },
+        {
+          "date": "2027-02-05",
+          "lines": [
+            -27156,
+            7900
+          ],
+          "discount": 1000,
+          "total": -20256,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-03-05",
+          "lines": [
+            7900
+          ],
+          "discount": 1000,
+          "total": 6900,
+          "starting_balance": -20256,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-04-05",
+          "lines": [
+            7900
+          ],
+          "discount": 1000,
+          "total": 6900,
+          "starting_balance": -13356,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-05-05",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900,
+          "starting_balance": -6456,
+          "amount_due": 1444
+        }
+      ],
+      "parity": "golden/parity/S50.json"
     }
   ]
 }

@@ -39,7 +39,7 @@ Tera is a pricing simulator that sits **on top of Stripe** (it never moves money
 | Invoice | period_start, period_end, lines[], subtotal, discount, tax, total |
 | InvoiceLine | description, amount (minor units), proration (bool), period |
 
-Event types: `subscribe`, `start_trial`, `change_price`, `change_quantity`, `apply_coupon`, `report_usage`, `cancel_at_period_end`, `advance_to`.
+Event types: `subscribe`, `start_trial`, `change_price`, `change_quantity`, `apply_coupon`, `report_usage`, `cancel_at_period_end`, `resume`, `end_trial`, `cancel_now`, `advance_to`.
 
 ## 4. Billing rules (the source of truth for the engine and the tests)
 
@@ -65,11 +65,13 @@ Two lines are generated, each rounded separately:
 where `old_amount`/`new_amount` = unit_amount × quantity.
 - `proration_behavior = create_prorations` (default): lines are added to the **next** invoice.
 - `proration_behavior = always_invoice`: lines are invoiced **immediately**.
+- `proration_behavior = none`: see R14.
 - Changing the **interval** (month → year) resets the billing anchor to the change time and invoices immediately: unused-time credit + full new-period charge.
 
 ### R4 — Trials
 - A trial produces a $0 invoice at start. The first paid period starts when the trial ends and becomes the new billing anchor.
 - Switching to a price with another interval during the trial issues another $0 trial invoice at once (S41).
+- `end_trial` (Stripe `trial_end=now`) ends the trial early: the first paid period starts and is invoiced at that moment, which becomes the new anchor. A `once` coupon is not used up by the $0 trial invoice, so it discounts this one (S45).
 
 ### R5 — Coupons
 - `percent_off` applies only to **non-proration** lines. Proration lines are priced already discounted and are not discounted again (Stripe marks them `discountable=false`; docs.stripe.com/billing/subscriptions/prorations). Golden S28.
@@ -80,7 +82,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Discounts apply even when prorations make the invoice negative (the remainder becomes credit, R10).
 - `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
-- `once` = first invoice only; `repeating` = first *N* monthly invoices; `forever` = all invoices.
+- `once` = first invoice only; `forever` = all invoices; `repeating` = *N* months of **calendar time** from when it is applied: every invoice before that end is discounted, the one at the end is not. On a monthly plan that is the first *N* invoices; after a yearly → monthly switch it is not (S50, found by fuzzing).
 - A coupon code applied to the same subscription more than once has **no additional effect** (idempotent, including page reloads and double submits).
 
 ### R6 — Tax
@@ -94,6 +96,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### R8 — Cancellation
 - `cancel_at_period_end`: no renewal; the status becomes `canceled` at period end. Prorations still pending (and metered usage) are billed on a **final invoice** at that moment instead of being dropped (S39).
+- `resume` (Stripe `cancel_at_period_end=false`) undoes a scheduled cancellation; renewals continue (S47).
+- `cancel_now` cancels immediately with Stripe's defaults (`invoice_now=false`, `prorate=false`): no final invoice, no unused-time credit, and prorations still pending are never invoiced. A later `subscribe` starts a clean subscription (S46).
 
 ### R9 — Price migration
 - Changing a price with `grandfather = true` leaves existing subscribers on the old price; MRR delta = 0 for them.
@@ -115,6 +119,11 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### R13 — Changing the price of an item
 - Like a Stripe subscription item update, `change_price` to a **different** price without a `quantity` resets the quantity to **1** (S31); pass `quantity` to keep seats (S32). The same price without a quantity keeps it (S38). Found by a live "Verify in Stripe" replay and by differential fuzzing.
+
+### R14 — Changes without proration
+- `proration_behavior = none` changes the price or quantity with no proration lines; the new amount bills from the next renewal (S44).
+- A later prorated change credits the item **as it is then** (the unprorated new amount at the rate it was last charged), not what was actually paid for the period (S44, S49). Stripe does not remember the old amount.
+- An interval change with `none` still resets the anchor and invoices the new interval at once, but without the unused-time credit (S48).
 
 ## 5. Invariants (must hold for every simulation)
 

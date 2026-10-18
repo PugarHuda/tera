@@ -1,0 +1,84 @@
+{
+  "id": "S45",
+  "title": "Ending a trial early bills the first period now, resets the anchor, and the once coupon applies to it",
+  "verified_at": "2026-10-18T00:23:49.221Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URhsg2QR5nixgqNKfF8ZHxP",
+  "customer": "cus_VSd8H8I0aKBjHN",
+  "stripe": [
+    {
+      "id": "in_1URhsh2QR5nixgqNODvOR06j",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera pro_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhsl2QR5nixgqN1Ejdowd6",
+      "date": "2027-01-03",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1580,
+      "tax": 632,
+      "total": 6952,
+      "amount_due": 6952,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URhsr2QR5nixgqNTyTp5KqM",
+      "date": "2027-02-03",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 790,
+      "total": 8690,
+      "amount_due": 8690,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URht22QR5nixgqNb9E9gnr6",
+      "date": "2027-03-03",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 790,
+      "total": 8690,
+      "amount_due": 8690,
+      "starting_balance": 0
+    }
+  ]
+}
