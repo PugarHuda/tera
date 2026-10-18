@@ -88,6 +88,7 @@ export const roundMinor = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
 // R3: Stripe prorates the unit price to a 12-place decimal first, then multiplies by quantity and the paid rate,
 // so `(qty × unit × rate − off) × num/den` is rounded once but from that decimal: 7900 × 19/30 = 5003.333333333333,
 // and 3 seats at 75% credit 11257.4999… → 11257, not 11258 (fuzz seed 21001, S55). Exact BigInt arithmetic.
+const MAX_AMOUNT = 1e12;
 const E12 = 10n ** 12n;
 const divRound = (a: bigint, b: bigint) => (a < 0n ? -1n : 1n) * ((2n * (a < 0n ? -a : a) + b) / (2n * b));
 export function prorated(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number): number {
@@ -144,18 +145,22 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   let balance = 0; // R10: customer credit balance carried between invoices
 
   const price = (id: string) => {
-    const p = catalog.prices[id];
+    // Own keys only: "toString" or "constructor" must be unknown, not Object.prototype members.
+    const p = Object.hasOwn(catalog.prices, id) ? catalog.prices[id] : null;
     if (!p) throw new Error(`Unknown price: ${id}`);
     return p;
   };
   const taxRate = (id: string) => {
-    const r = catalog.tax_rates?.[id];
+    const r = catalog.tax_rates && Object.hasOwn(catalog.tax_rates, id) ? catalog.tax_rates[id] : null;
     if (!r) throw new Error(`Unknown tax rate: ${id}`);
     return r;
   };
   const item = (s: Sub): Item => {
     const p = price(s.priceId);
-    return { unit: p.usage_type === "metered" ? 0 : (p.unit_amount ?? 0), qty: s.quantity };
+    const unit = p.usage_type === "metered" ? 0 : (p.unit_amount ?? 0);
+    // Keeps every sum, tax and proration an exact integer in a double (sums of 100 events stay < 2^53).
+    if (unit * s.quantity > MAX_AMOUNT) throw new Error(`${s.priceId} × ${s.quantity} exceeds ${MAX_AMOUNT.toLocaleString("en-US")} minor units per period`);
+    return { unit, qty: s.quantity };
   };
   const licensedAmount = (s: Sub) => item(s).unit * item(s).qty;
 
@@ -441,7 +446,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
 
   function applyCoupon(s: Sub, code: string, at: number) {
-    const c = catalog.coupons?.[code];
+    const c = catalog.coupons && Object.hasOwn(catalog.coupons, code) ? catalog.coupons[code] : null;
     if (!c) throw new Error(`Unknown coupon: ${code}`);
     const currency = price(s.priceId).currency;
     if (c.amount_off != null && c.currency && c.currency.toLowerCase() !== currency.toLowerCase())

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import golden from "../../golden/scenarios.json";
 import { formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
 import { generate } from "./timeline-gen";
+import { BadRequest, parseMigration } from "./validate";
 
 type Expected = {
   date: string;
@@ -104,6 +105,9 @@ describe("rejects timelines Stripe would reject", () => {
       /canceled/i,
     ],
     ["end_trial without a trial", [sub(), { at: "2027-01-10T00:00:00Z", type: "end_trial" }], /trial/i],
+    ["a price id that is an Object.prototype member", [sub("toString")], /unknown price/i],
+    ["a coupon id that is an Object.prototype member", [sub("pro_m", { coupon: "constructor" })], /unknown coupon/i],
+    ["an amount too large to stay an exact integer", [sub("pro_m", { quantity: 1e9 })], /exceeds/i],
     ["reset_anchor during a trial", [{ at: "2027-01-01T00:00:00Z", type: "start_trial", price: "pro_m", trial_days: 14 }, { at: "2027-01-05T00:00:00Z", type: "reset_anchor" }], /trial/i],
     ["changes after cancel_now", [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_now" }, { at: "2027-01-12T00:00:00Z", type: "change_quantity", quantity: 2 }], /canceled/i],
   ];
@@ -144,5 +148,13 @@ describe("invariants on 5000 random timelines", () => {
 
   it("I5 deterministic", () => {
     for (const r of runs.slice(0, 500)) if (r.invoices) expect(simulate(catalog, r.timeline).invoices).toEqual(r.invoices);
+  });
+});
+
+describe("migration input limits", () => {
+  it("rejects totals that would lose integer precision (-999936 instead of -1000000)", () => {
+    const body = { unit_amount: 1e12, new_unit_amount: 1e12 - 1, grandfather: false, customers: [{ name: "a", seats: 1e6 }] };
+    expect(() => parseMigration(body)).toThrow(BadRequest);
+    expect(() => parseMigration({ ...body, unit_amount: 1e8, new_unit_amount: 1e8 - 1 })).not.toThrow();
   });
 });
