@@ -1,0 +1,76 @@
+{
+  "id": "S76",
+  "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
+  "verified_at": "2026-10-18T16:25:49.023Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URwte2QR5nixgqN5ybLHKvk",
+  "customer": "cus_VSseAjQdMDN5sZ",
+  "stripe": [
+    {
+      "id": "in_1URwtf2QR5nixgqNGDXmhgYM",
+      "date": "2027-01-20",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera starter_m after 20 Jan 2027",
+          "amount": 1029,
+          "proration": true
+        }
+      ],
+      "subtotal": 1029,
+      "discount": 0,
+      "tax": 0,
+      "total": 1029,
+      "amount_due": 1029,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URwtq2QR5nixgqNKNEW2JGL",
+      "date": "2027-01-31",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera starter_m after 25 Jan 2027",
+          "amount": -561,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on Tera pro_m after 25 Jan 2027",
+          "amount": 1529,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 8868,
+      "discount": 0,
+      "tax": 0,
+      "total": 8868,
+      "amount_due": 8868,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URwu02QR5nixgqNIkmwV0QZ",
+      "date": "2027-02-28",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}

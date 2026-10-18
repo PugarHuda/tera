@@ -3808,6 +3808,147 @@
       ],
       "expect_status": "canceled",
       "parity": "golden/parity/S73.json"
+    },
+    {
+      "id": "S74",
+      "status": "verified",
+      "rules": [
+        "R20"
+      ],
+      "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over the period ending on it",
+      "timeline": [
+        {
+          "at": "2027-02-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_cycle_anchor": "2027-03-05T00:00:00Z"
+        },
+        {
+          "at": "2027-04-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 03-05: the period ending on it is 02-05 -> 03-05 (28 days, not 31). Now, 02-10: 23 of those days remain: round(7900*23/28) = 6489, a proration. Then the anchor day: 03-05 and 04-05 at 7900.",
+      "expect": [
+        {
+          "date": "2027-02-10",
+          "lines": [
+            6489
+          ],
+          "total": 6489
+        },
+        {
+          "date": "2027-03-05",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-04-05",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S74.json"
+    },
+    {
+      "id": "S75",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R5"
+      ],
+      "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y",
+          "coupon": "SAVE20",
+          "billing_cycle_anchor": "2027-07-01T00:00:00Z"
+        },
+        {
+          "at": "2027-08-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 07-01: yearly period 2026-07-01 -> 2027-07-01 (365 d), 172 days left on 01-10. Prorate with the coupon: round(29000*172/365) = 13666 - round(5800*172/365) = 2733 = 10933. SAVE20 (once) prices that charge, so it is used up: 07-01 bills 29000 with no discount.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            10933
+          ],
+          "discount": 0,
+          "total": 10933
+        },
+        {
+          "date": "2027-07-01",
+          "lines": [
+            29000
+          ],
+          "discount": 0,
+          "total": 29000
+        }
+      ],
+      "parity": "golden/parity/S75.json"
+    },
+    {
+      "id": "S76",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R16"
+      ],
+      "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
+      "timeline": [
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "billing_cycle_anchor": "2027-01-31T00:00:00Z",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-25T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 01-31: period 12-31 -> 01-31 (31 d). 01-20 stub: round(2900*11/31) = 1029. 01-25 pro_m: credit the 1029 debit over 6 of its 11 days, -round(1029*6/11) = -561; debit round(7900*6/31) = 1529, pending. 01-31: -561 + 1529 + 7900 = 8868. The anchor day 31 clamps to 02-28: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-20",
+          "lines": [
+            1029
+          ],
+          "total": 1029
+        },
+        {
+          "date": "2027-01-31",
+          "lines": [
+            -561,
+            1529,
+            7900
+          ],
+          "total": 8868
+        },
+        {
+          "date": "2027-02-28",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S76.json"
     }
   ]
 }

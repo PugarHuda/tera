@@ -7,10 +7,10 @@ import { encodeTimeline } from "@/lib/share";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
-type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at";
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at" | "billing_cycle_anchor";
 
 const FIELDS: Record<EventType, Field[]> = {
-  subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode"],
+  subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode", "billing_cycle_anchor", "proration_behavior"],
   start_trial: ["price", "trial_days", "quantity", "tax_rate", "billing_mode"],
   change_price: ["price", "quantity", "proration_behavior"],
   change_quantity: ["quantity", "proration_behavior"],
@@ -232,14 +232,14 @@ export function Simulator({
               </label>
               {FIELDS[e.type].map((f) => (
                 <label key={f} className="text-sm">
-                  <span className="block text-xs opacity-70">{f.replace("_", " ")}</span>
-                  {f === "cancel_at" ? (
+                  <span className="block text-xs opacity-70">{f.replaceAll("_", " ")}</span>
+                  {f === "cancel_at" || f === "billing_cycle_anchor" ? (
                     <input
                       type="date"
                       className="input"
                       aria-label={`Event ${i + 1} ${f}`}
-                      value={e.cancel_at ? day(e.cancel_at) : ""}
-                      onChange={(ev) => update(i, { cancel_at: ev.target.value ? `${ev.target.value}T00:00:00Z` : undefined })}
+                      value={e[f] ? day(e[f]) : ""}
+                      onChange={(ev) => update(i, { [f]: ev.target.value ? `${ev.target.value}T00:00:00Z` : undefined })}
                     />
                   ) : f === "quantity" || f === "trial_days" ? (
                     <input

@@ -31,6 +31,11 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   if (first.type === "start_trial") first.trial_days = int(7, 30);
   else if (r() < 0.5) first.coupon = pick(g.coupons);
   if (r() < 0.4) first.tax_rate = pick(["tax10_ex", "vat20_in"]);
+  // R20: some subscriptions bill on a fixed day within the first period (prorated now, or not with "none").
+  if (first.type === "subscribe" && !first.price!.includes("metered") && r() < 0.2) {
+    first.billing_cycle_anchor = new Date(t + int(1, 27) * 86_400_000).toISOString().replace(".000", "");
+    if (r() < 0.3) first.proration_behavior = "none";
+  }
   const events = [first];
   if (first.type === "start_trial" && r() < 0.5) {
     t += step(1, first.trial_days! - 1);

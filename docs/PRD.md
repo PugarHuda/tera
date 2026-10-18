@@ -155,6 +155,10 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - Inside the current period: on that date a final invoice carries the pending prorations and the credit for the time after it, priced as any credit in the mode (S71, S73); with `none` there is no credit and no invoice.
 - In a later period: renewals continue, and the renewal whose period contains the date bills only up to it, as a proration priced like a remaining-time charge, gross and discount rounded apart (S72: 3950 − 988 = 2962); `none` does not change this. `resume` clears it. Not modelled during a trial (rejected).
 
+### R20 — First billing date
+- `subscribe` with `billing_cycle_anchor` (Stripe's anchor at creation) bills on a fixed day. The current period is the one ending on that date (start 02-10, anchor 03-05: 02-05 → 03-05, 28 days), and the time from the start is billed now as a proration priced like a remaining-time charge (S74: 7900 × 23/28 = 6489). A `once` coupon is used up by it (S75). With `proration_behavior = none` nothing is billed until the anchor. Same in both modes; in flexible the stub is a debit that a later change credits over its own days (S76).
+- The anchor must be after the start and at most one billing period ahead (Stripe rejects more). Not modelled for metered prices or trials.
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.

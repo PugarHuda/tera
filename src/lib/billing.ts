@@ -56,6 +56,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
+  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20). */
+  billing_cycle_anchor?: string;
   /** cancel_at: when the subscription ends (Stripe `cancel_at`), ISO-8601 UTC. */
   cancel_at?: string;
   /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
@@ -376,6 +378,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           debits: [],
         };
         if (e.coupon) applyCoupon(sub, e.coupon, at);
+        if (e.billing_cycle_anchor !== undefined) {
+          anchorAt(sub, at, toDate(e.billing_cycle_anchor), e);
+          break;
+        }
         if (!trial) debit(sub, at);
         // R16: flexible does not invoice a $0 metered item at creation (S59).
         if (sub.mode === "flexible" && !trial && p.usage_type === "metered") break;
@@ -518,6 +524,30 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     debit(s, at);
     openInvoice(s, at, [...s.pending, ...credit, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
     s.pending = [];
+  }
+
+  // R20: a first billing date after the start (Stripe billing_cycle_anchor at creation). The period is the one
+  // ending on that date (start 02-10, anchor 03-05: 02-05 -> 03-05, 28 days), and the time from the start is billed
+  // now as a proration priced like a remaining-time charge (7900 x 23/28 = 6489, S74); a "once" coupon is used up by
+  // it. With "none" nothing is billed until the anchor. Stripe rejects an anchor more than one period ahead.
+  function anchorAt(s: Sub, at: number, when: number, e: TimelineEvent) {
+    const p = price(s.priceId);
+    if (e.type !== "subscribe") throw new Error("billing_cycle_anchor is only modelled on subscribe");
+    if (p.usage_type === "metered") throw new Error("billing_cycle_anchor with a metered price is not modelled");
+    if (!(when > at) || when > addInterval(at, p.interval, new Date(at).getUTCDate()))
+      throw new Error("billing_cycle_anchor must be after the start and at most one billing period ahead");
+    s.anchor = when;
+    s.anchorDay = new Date(when).getUTCDate();
+    s.periodEnd = when;
+    s.periodStart = addInterval(when, p.interval, s.anchorDay, -1);
+    if (e.proration_behavior === "none") return;
+    const part = chargeParts(s, at, at, when);
+    const amount = part.item.unit - part.paid.off;
+    if (amount === 0) return;
+    if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
+    s.paid = activeDiscount(s, licensedAmount(s), at);
+    s.debits.push(part);
+    openInvoice(s, at, [{ description: "Time until the first billing date", amount, proration: true }], true);
   }
 
   // R19: the subscription ends at `when` (its cancel_at). Pending prorations, unbilled usage and (unless "none")

@@ -100,6 +100,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
+    if (e.billing_cycle_anchor !== undefined && (typeof e.billing_cycle_anchor !== "string" || !ISO.test(e.billing_cycle_anchor) || Number.isNaN(Date.parse(e.billing_cycle_anchor))))
+      fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
     if (e.cancel_at !== undefined || e.type === "cancel_at")
       if (typeof e.cancel_at !== "string" || !ISO.test(e.cancel_at) || Number.isNaN(Date.parse(e.cancel_at))) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))

@@ -175,6 +175,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           ...(e.coupon ? { discounts: [{ coupon: ids.coupons[e.coupon] }] } : {}),
           ...(e.tax_rate ? { default_tax_rates: [ids.taxRates[e.tax_rate]] } : {}),
           ...(e.type === "start_trial" ? { trial_end: at + (e.trial_days ?? 0) * 86_400 } : {}),
+          ...(e.billing_cycle_anchor ? { billing_cycle_anchor: sec(e.billing_cycle_anchor), proration_behavior: e.proration_behavior ?? "create_prorations" } : {}),
         });
         break;
       case "change_price":
