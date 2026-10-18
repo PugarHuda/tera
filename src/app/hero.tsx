@@ -15,10 +15,10 @@ const longest = timelines
 const peak = Math.max(...longest.invoices.map((i) => Math.abs(i.total)), 1);
 
 const chips = [
-  { icon: "%", label: "Prorations to the cent", pos: "left-0 top-10" },
-  { icon: "✓", label: `${matched}/${timelines.length} match Stripe`, pos: "right-0 top-24" },
-  { icon: "⏱", label: "Trials & anchors", pos: "-left-4 bottom-24" },
-  { icon: "€", label: "Coupons, tax, credit", pos: "right-2 bottom-6" },
+  { icon: "%", label: "Prorations to the cent", pos: "left-0 top-3" },
+  { icon: "✓", label: `${matched}/${timelines.length} match Stripe`, pos: "right-0 top-3" },
+  { icon: "⏱", label: "Trials & anchors", pos: "left-0 bottom-3" },
+  { icon: "€", label: "Coupons, tax, credit", pos: "right-0 bottom-3" },
 ];
 
 export function Hero() {
@@ -42,7 +42,7 @@ export function Hero() {
         </div>
       </div>
       <div className="relative mx-auto w-full max-w-md py-6 sm:px-10">
-        <figure className="device" aria-label={`Tera engine output for ${longest.id}`}>
+        <figure className="device sm:py-16" aria-label={`Tera engine output for ${longest.id}`}>
           <figcaption className="text-xs opacity-60">Invoice preview · S05</figcaption>
           <p className="mt-1 text-lg font-semibold">Upgrade on day 17</p>
           <ul className="mt-3 space-y-1 font-mono text-sm">
