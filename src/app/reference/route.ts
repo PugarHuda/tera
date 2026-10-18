@@ -10,7 +10,9 @@ const html = `<!doctype html>
     <div id="app"></div>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.75.0/dist/browser/standalone.js"></script>
     <script>
-      Scalar.createApiReference("#app", { url: "/api/openapi.json", theme: "default", hideClientButton: false });
+      // Brand green, and muted text / method badges darkened to WCAG AA contrast (axe flagged Scalar's defaults).
+      const customCss = ".light-mode{--scalar-color-accent:#15803d;--scalar-color-3:#6b6b6b;--scalar-color-green:#047857}.dark-mode{--scalar-color-accent:#4ade80;--scalar-color-3:#9a9a9a}";
+      Scalar.createApiReference("#app", { url: "/api/openapi.json", theme: "default", hideClientButton: false, customCss });
     </script>
   </body>
 </html>`;
