@@ -20,6 +20,8 @@ const FIELDS: Record<EventType, Field[]> = {
   resume: [],
   end_trial: [],
   cancel_now: [],
+  reset_anchor: ["proration_behavior"],
+  remove_coupon: [],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -33,6 +35,8 @@ const LABEL: Record<EventType, string> = {
   resume: "Undo scheduled cancel",
   end_trial: "End trial now",
   cancel_now: "Cancel immediately",
+  reset_anchor: "Reset billing anchor to now",
+  remove_coupon: "Remove coupon",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];

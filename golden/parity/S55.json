@@ -1,0 +1,58 @@
+{
+  "id": "S55",
+  "title": "A half-cent tie that is not a tie: Stripe prorates the unit price to 12 decimals before multiplying by seats (found by fuzzing)",
+  "verified_at": "2026-10-18T06:19:47.960Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URnRN2QR5nixgqNWC08Ru9j",
+  "customer": "cus_VSit9MHIaDXNxb",
+  "stripe": [
+    {
+      "id": "in_1URnRO2QR5nixgqNTGxSiYFE",
+      "date": "2027-04-16",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 23700,
+      "discount": 5925,
+      "tax": 0,
+      "total": 17775,
+      "amount_due": 17775,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URnRY2QR5nixgqNillmZWtN",
+      "date": "2027-05-16",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 3 × Tera pro_m (with 25.0% off) after 27 Apr 2027",
+          "amount": -11257,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 8 × Tera pro_m (with 25.0% off) after 27 Apr 2027",
+          "amount": 30020,
+          "proration": true
+        },
+        {
+          "description": "8 × Tera pro_m (at $79.00 / month)",
+          "amount": 63200,
+          "proration": false
+        }
+      ],
+      "subtotal": 81963,
+      "discount": 15800,
+      "tax": 0,
+      "total": 66163,
+      "amount_due": 66163,
+      "starting_balance": 0
+    }
+  ]
+}

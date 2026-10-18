@@ -17,6 +17,8 @@ export const EVENT_TYPES = [
   "resume",
   "end_trial",
   "cancel_now",
+  "reset_anchor",
+  "remove_coupon",
   "advance_to",
 ] as const;
 

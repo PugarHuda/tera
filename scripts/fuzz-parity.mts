@@ -44,7 +44,7 @@ function generate(seed: number): TimelineEvent[] {
   }
   for (let i = int(1, 3); i > 0; i--) {
     t += int(3, 40) * 86_400_000;
-    const kind = pick(["change_quantity", "change_price", "change_price", "apply_coupon"] as const);
+    const kind = pick(["change_quantity", "change_price", "change_price", "apply_coupon", "reset_anchor", "remove_coupon"] as const);
     const e: TimelineEvent = { at: at(), type: kind };
     if (kind === "change_quantity") e.quantity = int(1, 8);
     if (kind === "change_price") {
@@ -52,7 +52,7 @@ function generate(seed: number): TimelineEvent[] {
       if (r() < 0.6) e.quantity = int(1, 5);
     }
     if (kind === "apply_coupon") e.coupon = pick(g.coupons);
-    if (kind !== "apply_coupon") e.proration_behavior = pick([undefined, undefined, "always_invoice", "none"]);
+    if (kind !== "apply_coupon" && kind !== "remove_coupon") e.proration_behavior = pick([undefined, undefined, "always_invoice", "none"]);
     events.push(e);
   }
   if (r() < 0.25) {

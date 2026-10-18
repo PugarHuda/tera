@@ -58,6 +58,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 Two lines are generated, each rounded separately:
 - **Unused time credit:** `−round(old_amount × remaining / period)`
 - **Remaining time charge:** `+round(new_amount × remaining / period)`
+- Stripe prorates the **unit** price first, to 12 decimal places, then multiplies by quantity and the paid rate, rounding once. So `7900 × 19/30 = 5003.333333333333`, and 3 seats at 75% credit `11257.4999… → 11257`, not the 11258 a fraction-exact `17775 × 19/30 = 11257.5` gives (S55, S56; found by fuzz seed 21001, confirmed by four Stripe probes). A real tie (`790 × 0.75 = 592.5`) still rounds away from zero.
 - With a coupon (R5) the credit refunds the net amount paid in **one** rounding, `−round((paid amount) × f)`, while the charge is list minus discount rounded **separately**, `round(new × f) − round(discount × f)` (golden S42; the one-step version is a cent off).
 - A change to the same quantity, or to the same price without a new quantity, is a no-op: no prorations (S38). With `always_invoice` it still invoices prorations pending from earlier changes at once (S43).
 - A change made at the exact instant a period renews is invoiced separately from the renewal; with `always_invoice` that invoice is finalized first and its credit pays the renewal (S40).
@@ -83,6 +84,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - `amount_off` is capped at the discountable (non-proration) subtotal.
 - `amount_off` is capped at the subtotal; any remainder is lost (not carried over).
 - `once` = first invoice only; `forever` = all invoices; `repeating` = *N* months of **calendar time** from when it is applied: every invoice before that end is discounted, the one at the end is not. On a monthly plan that is the first *N* invoices; after a yearly → monthly switch it is not (S50, found by fuzzing).
+- A renewal invoice keeps the discount it was created with: a coupon applied at the exact renewal instant discounts the **next** invoice, and one removed at that instant still discounts the renewal (S57, found by fuzz seed 24019; removal confirmed by a Stripe probe). The renewal's credit later refunds what it actually charged.
 - A coupon code applied to the same subscription more than once has **no additional effect** (idempotent, including page reloads and double submits).
 
 ### R6 — Tax
@@ -97,6 +99,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 ### R8 — Cancellation
 - `cancel_at_period_end`: no renewal; the status becomes `canceled` at period end. Prorations still pending (and metered usage) are billed on a **final invoice** at that moment instead of being dropped (S39).
 - `resume` (Stripe `cancel_at_period_end=false`) undoes a scheduled cancellation; renewals continue (S47).
+- `remove_coupon` and `reset_anchor`: see R15.
 - `cancel_now` cancels immediately with Stripe's defaults (`invoice_now=false`, `prorate=false`): no final invoice, no unused-time credit, and prorations still pending are never invoiced. A later `subscribe` starts a clean subscription (S46).
 
 ### R9 — Price migration
@@ -124,6 +127,13 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - `proration_behavior = none` changes the price or quantity with no proration lines; the new amount bills from the next renewal (S44).
 - A later prorated change credits the item **as it is then** (the unprorated new amount at the rate it was last charged), not what was actually paid for the period (S44, S49). Stripe does not remember the old amount.
 - An interval change with `none` still resets the anchor and invoices the new interval at once, but without the unused-time credit (S48).
+
+### R15 — Resetting the billing anchor
+- `reset_anchor` (Stripe `billing_cycle_anchor: now`) starts a full new period at once, like an interval change: unused-time credit plus the full period, invoiced immediately; the change time becomes the anchor (S51).
+- With `proration_behavior = none` there is no credit, but prorations pending from earlier changes are still swept into that invoice (S52).
+- Not allowed during a trial (use `end_trial`).
+- `remove_coupon` (Stripe `discounts: ""`) makes later invoices full price; the next unused-time credit still refunds what was actually paid, discount included (S53).
+- A credit after an interval change refunds the discounted new-interval charge, `amount_off` included (S54: −26082, not −27014).
 
 ## 5. Invariants (must hold for every simulation)
 
