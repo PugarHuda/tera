@@ -1,5 +1,5 @@
 import { EVENT_TYPES } from "@/lib/validate";
-import { PRORATION_BEHAVIORS } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS } from "@/lib/billing";
 
 const error = { type: "object", properties: { error: { type: "string" } }, required: ["error"] };
 
@@ -9,7 +9,7 @@ const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R15 in docs/PRD.md. 54/54 golden scenarios verified against Stripe test mode (see /parity).",
+      "Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R16 in docs/PRD.md (billing_mode classic or flexible). 62/62 golden scenarios verified against Stripe test mode (see /parity).",
   },
   paths: {
     "/api/simulate": {
@@ -168,6 +168,11 @@ const spec = {
                 tax_rate: { type: "string" },
                 trial_days: { type: "integer", minimum: 1, maximum: 730 },
                 proration_behavior: { type: "string", enum: [...PRORATION_BEHAVIORS] },
+                billing_mode: {
+                  type: "string",
+                  enum: [...BILLING_MODES],
+                  description: "subscribe/start_trial: Stripe billing mode (default classic). Flexible credits original debits and keeps the anchor (R16).",
+                },
               },
             },
           },

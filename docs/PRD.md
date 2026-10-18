@@ -117,7 +117,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - A price or quantity change during a trial does not prorate (R4): the new terms bill when the trial ends.
 
 ### R12 — Billing mode
-- Tera models Stripe's **classic** billing mode. New Stripe subscriptions default to *flexible* mode, where a monthly → yearly change does not reset the anchor; the parity replay pins `billing_mode: classic`.
+- Each subscription has a `billing_mode` (set on `subscribe` / `start_trial`, like Stripe). Tera's default is **classic**, which every rule above describes; **flexible**, Stripe's default for new subscriptions since API `2025-09-30.clover`, is R16. The parity replay sends the mode explicitly.
 - Invoices created during an API call (subscription creation, `always_invoice`, interval change) are finalized immediately, so a coupon applied in the same instant affects the **next** invoice (golden S11, corrected after the Stripe replay contradicted the hand derivation).
 
 ### R13 — Changing the price of an item
@@ -134,6 +134,14 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Not allowed during a trial (use `end_trial`).
 - `remove_coupon` (Stripe `discounts: ""`) makes later invoices full price; the next unused-time credit still refunds what was actually paid, discount included (S53).
 - A credit after an interval change refunds the discounted new-interval charge, `amount_off` included (S54: −26082, not −27014).
+
+### R16 — Flexible billing mode
+Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexible` (16 differed), then confirmed by hand-derived goldens S58–S65 and differential fuzzing in flexible mode.
+- **Credits refund original debits.** Every span already debited (a period charge or a proration charge) is remembered with its unit price, quantity and discount. A change credits each debit still covering time after it, over that debit's own span, with gross and discount rounded **apart**, each from the 12-decimal prorated unit price: `round(unit·f·qty) − round(unit·f·qty·pct)` (S62: −4282 where one step gives −4281; S63: −11258 where classic gives −11257). After `proration_behavior = none` the old debit is what a later change credits, not the item as it is (S64, S65; the opposite of R14).
+- **The anchor never moves on its own.** An interval change keeps the anchor: the new interval's period is the one containing the change, aligned to the anchor (monthly → yearly on Jan 16 under a Jan 1 anchor debits Jan 1 → Jan 1 of the next year, S58). Nothing is invoiced at the change unless `always_invoice`; the prorations wait for the next renewal of the new interval.
+- **Anchor reset nets out.** `reset_anchor` debits only the time past the old period end, as a proration on the next invoice (S61); `none` bills nothing, so that time is never debited (and never credited later, S62); `always_invoice` invoices it now.
+- **No forced invoices.** A no-op change with `always_invoice` does not invoice pending items; a metered subscription gets no $0 invoice at creation (S59).
+- **Trials.** Any price or quantity change during a trial issues its own $0 trial invoice at once (S60).
 
 ## 5. Invariants (must hold for every simulation)
 

@@ -1,0 +1,81 @@
+{
+  "id": "S62",
+  "title": "Flexible: credits round gross and discount apart; an anchor reset with none debits nothing, so nothing is credited later",
+  "verified_at": "2026-10-18T15:31:56.063Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URw322QR5nixgqNv01DLFfQ",
+  "customer": "cus_VSrmCQIncShRGF",
+  "stripe": [
+    {
+      "id": "in_1URw332QR5nixgqNXhKteGVo",
+      "date": "2026-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 1580,
+      "tax": 0,
+      "total": 6320,
+      "amount_due": 6320,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URw3Y2QR5nixgqN18qzXaT8",
+      "date": "2026-02-21",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Remaining time on Tera pro_m after 10 Feb 2026",
+          "amount": 2803,
+          "proration": true
+        },
+        {
+          "description": "Unused time on Tera pro_m (with 20.0% off) after 11 Jan 2026",
+          "amount": -4282,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 3 × Tera pro_m after 11 Jan 2026",
+          "amount": 16055,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 22476,
+      "discount": 0,
+      "tax": 0,
+      "total": 22476,
+      "amount_due": 22476,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URw3u2QR5nixgqNRmbY45jS",
+      "date": "2026-03-21",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}

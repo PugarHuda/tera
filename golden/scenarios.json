@@ -2864,6 +2864,477 @@
         }
       ],
       "parity": "golden/parity/S57.json"
+    },
+    {
+      "id": "S58",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R5",
+        "R3"
+      ],
+      "title": "Flexible: two interval changes keep the anchor and credit each original debit (no invoice until the monthly renewal)",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "TENOFF3",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2026-01-16T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y"
+        },
+        {
+          "at": "2026-02-10T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2026-04-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Flexible keeps the 01-01 anchor. 01-01: 7900-1000 = 6900. 01-16 yearly: the yearly period aligned to the anchor is 2026-01-01 -> 2027-01-01 (365 d, 350 left). Credit the January debit, gross and discount apart over 16/31: -(round(7900*16/31)=4077 - round(1000*16/31)=516) = -3561. Debit round(29000*350/365)=27808 - round(1000*350/365)=959 = 26849. Pending, and no 02-01 invoice (the item is yearly now). 02-10 monthly: period 02-01 -> 03-01 (28 d, 19 left). Credit the 26849 debit over its own span 01-16 -> 2027-01-01 (350 d, 325 left): -round(26849*325/350) = -24931. Debit round(7900*19/28)=5361 - round(1000*19/28)=679 = 4682. 03-01: pending + 7900, TENOFF3 live until 04-01: subtotal 10939, discount 1000, total 9939. 04-01: 7900.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1000,
+          "total": 6900
+        },
+        {
+          "date": "2026-03-01",
+          "lines": [
+            -3561,
+            26849,
+            -24931,
+            4682,
+            7900
+          ],
+          "discount": 1000,
+          "total": 9939
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S58.json"
+    },
+    {
+      "id": "S59",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R7"
+      ],
+      "title": "Flexible: a metered subscription gets no $0 invoice at creation",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 12346
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Flexible suppresses the zero-amount metered line at creation, and an empty invoice is not created. 02-01: tiers 1000 x 0 = 0, 9000 x 1 = 9000, 2346 x 0.5 = 1173: total 10173.",
+      "expect": [
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            9000,
+            1173
+          ],
+          "total": 10173
+        }
+      ],
+      "parity": "golden/parity/S59.json"
+    },
+    {
+      "id": "S60",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R4"
+      ],
+      "title": "Flexible: a price change during a trial issues a new $0 trial invoice right away",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Trial 01-01 -> 01-15: $0. Flexible bills a change during a trial like any change, so 01-05 gets its own $0 trial invoice. 01-15: 7900. 02-15: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-05",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-15",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-15",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S60.json"
+    },
+    {
+      "id": "S61",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R15"
+      ],
+      "title": "Flexible: billing_cycle_anchor=now nets the overlap and debits only the time past the old period end",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2026-01-11T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2026-03-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 15800. 01-11 reset: new period 01-11 -> 02-11 (31 d). 01-11 -> 02-01 was already paid, so its credit and debit cancel; only 02-01 -> 02-11 is debited: round(15800*10/31) = 5097, pending (no invoice now). 02-11: 5097 + 15800 = 20897. 03-11: 15800.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            15800
+          ],
+          "total": 15800
+        },
+        {
+          "date": "2026-02-11",
+          "lines": [
+            5097,
+            15800
+          ],
+          "total": 20897
+        },
+        {
+          "date": "2026-03-11",
+          "lines": [
+            15800
+          ],
+          "total": 15800
+        }
+      ],
+      "parity": "golden/parity/S61.json"
+    },
+    {
+      "id": "S62",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R5",
+        "R14"
+      ],
+      "title": "Flexible: credits round gross and discount apart; an anchor reset with none debits nothing, so nothing is credited later",
+      "timeline": [
+        {
+          "at": "2026-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "SAVE20",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2026-01-11T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2026-01-21T00:00:00Z",
+          "type": "reset_anchor",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2026-02-05T00:00:00Z",
+          "type": "remove_coupon"
+        },
+        {
+          "at": "2026-02-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 1
+        },
+        {
+          "at": "2026-03-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900 - 1580 = 6320. 01-11 x3 (21/31 left): credit -(round(7900*21/31)=5352 - round(1580*21/31)=1070) = -4282 (one-step on 6320 would be -4281); debit round(23700*21/31) = 16055 (SAVE20 used up), pending. 01-21 reset with none: anchor moves to the 21st, nothing is billed, so 02-01 -> 02-21 is never debited. 02-10 x1 (period 01-21 -> 02-21, 11 left): no debit covers it, so no credit; debit round(7900*11/31) = 2803. 02-21: -4282 + 16055 + 2803 + 7900 = 22476. 03-21: 7900.",
+      "expect": [
+        {
+          "date": "2026-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 1580,
+          "total": 6320
+        },
+        {
+          "date": "2026-02-21",
+          "lines": [
+            -4282,
+            16055,
+            2803,
+            7900
+          ],
+          "discount": 0,
+          "total": 22476
+        },
+        {
+          "date": "2026-03-21",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S62.json"
+    },
+    {
+      "id": "S63",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R3",
+        "R5"
+      ],
+      "title": "Flexible: the credit's gross and discount are each rounded from the 12-decimal prorated unit price",
+      "timeline": [
+        {
+          "at": "2027-04-16T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-04-27T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 8
+        },
+        {
+          "at": "2027-05-17T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-16: 23700 - 5925 = 17775. 04-27 x8, 19 of 30 days left. Unit 7900*19/30 = 5003.333333333333 (12 places). Credit: gross 3 x that = 15009.999999999999 -> 15010, discount 25% of it = 3752.4999999999998 -> 3752: -11258 (classic, one step, gives -11257). Debit round(63200*19/30)=40027 - round(15800*19/30)=10007 = 30020. 05-16: -11258 + 30020 + 63200 = 81962, discount 15800, total 66162.",
+      "expect": [
+        {
+          "date": "2027-04-16",
+          "lines": [
+            23700
+          ],
+          "discount": 5925,
+          "total": 17775
+        },
+        {
+          "date": "2027-05-16",
+          "lines": [
+            -11258,
+            30020,
+            63200
+          ],
+          "discount": 15800,
+          "total": 66162
+        }
+      ],
+      "parity": "golden/parity/S63.json"
+    },
+    {
+      "id": "S64",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R14"
+      ],
+      "title": "Flexible: after a none change, the next proration credits what was originally debited, not the item as it is",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-10 starter_m with none: nothing billed; the pro_m debit still covers January. 01-20 x3 (12/31 left): credit the pro_m debit -round(7900*12/31) = -3058 (classic credits starter_m: -1123); debit round(8700*12/31) = 3368. 02-01: -3058 + 3368 + 8700 = 9010. 03-01: 8700.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -3058,
+            3368,
+            8700
+          ],
+          "total": 9010
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            8700
+          ],
+          "total": 8700
+        }
+      ],
+      "parity": "golden/parity/S64.json"
+    },
+    {
+      "id": "S65",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R14",
+        "R5"
+      ],
+      "title": "Flexible: always_invoice after a none change credits the original 2-seat debit at its coupon",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 2,
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 1,
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 4,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 15800 - 3950 = 11850. 01-10 x1 with none: nothing billed. 01-20 x4 always_invoice (12/31 left): credit the 2-seat debit -(round(15800*12/31)=6116 - round(3950*12/31)=1529) = -4587 (classic credits 1 seat: -2294); debit round(31600*12/31)=12232 - round(7900*12/31)=3058 = 9174. Invoiced now: 4587 (prorations are not discounted again). 02-01 and 03-01: 31600 - 7900 = 23700.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            15800
+          ],
+          "discount": 3950,
+          "total": 11850
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            -4587,
+            9174
+          ],
+          "discount": 0,
+          "total": 4587
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            31600
+          ],
+          "discount": 7900,
+          "total": 23700
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            31600
+          ],
+          "discount": 7900,
+          "total": 23700
+        }
+      ],
+      "parity": "golden/parity/S65.json"
     }
   ]
 }

@@ -29,6 +29,10 @@ export type Catalog = {
   tax_rates?: Record<string, TaxRate>;
 };
 
+// R16: Stripe defaults new subscriptions to flexible (API 2025-09-30.clover+); classic stays the engine default.
+export const BILLING_MODES = ["classic", "flexible"] as const;
+export type BillingMode = (typeof BILLING_MODES)[number];
+
 export type TimelineEvent = {
   at: string;
   type:
@@ -51,6 +55,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
+  /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
+  billing_mode?: BillingMode;
 };
 
 export const PRORATION_BEHAVIORS = ["create_prorations", "always_invoice", "none"] as const;
@@ -126,7 +132,16 @@ type Sub = {
   taxRate: TaxRate | null;
   pending: InvoiceLine[];
   usage: number;
+  /** R16: flexible billing mode credits original debits and never resets the anchor on its own. */
+  mode: BillingMode;
+  /** Billing cycle anchor; flexible aligns a new interval's period to it. */
+  anchor: number;
+  /** Flexible: what each still-unexpired span was debited (gross and its discount), credited back on a change. */
+  debits: Debit[];
 };
+
+/** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
+type Debit = { start: number; end: number; item: Item; paid: Paid };
 
 type Item = { unit: number; qty: number };
 
@@ -264,6 +279,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.periodStart = at;
       s.periodEnd = addInterval(at, p.interval, s.anchorDay);
       s.paid = activeDiscount(s, licensedAmount(s), at); // what this period is charged, before the draft finalizes
+      s.debits = [];
+      debit(s, at);
       openInvoice(s, at, lines);
     }
   };
@@ -324,8 +341,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           taxRate: e.tax_rate ? taxRate(e.tax_rate) : null,
           pending: [],
           usage: 0,
+          mode: e.billing_mode ?? "classic",
+          anchor: trial ? periodEnd : at,
+          debits: [],
         };
         if (e.coupon) applyCoupon(sub, e.coupon, at);
+        if (!trial) debit(sub, at);
+        // R16: flexible does not invoice a $0 metered item at creation (S59).
+        if (sub.mode === "flexible" && !trial && p.usage_type === "metered") break;
         openInvoice(sub, at, [{ description: trial ? "Trial" : `${e.price} × ${sub.quantity}`, amount: trial ? 0 : licensedAmount(sub), proration: false }], true);
         break;
       }
@@ -337,7 +360,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         // A change to the same price and quantity is a no-op in Stripe: no prorations, nothing reset.
         // With always_invoice it still sweeps prorations pending from earlier changes into an invoice now (S43).
         if (e.type === "change_price" ? e.price === s.priceId && (e.quantity ?? s.quantity) === s.quantity : e.quantity === s.quantity) {
-          if (e.proration_behavior === "always_invoice" && s.pending.length) {
+          // R16: flexible leaves pending items for the next invoice.
+          if (s.mode === "classic" && e.proration_behavior === "always_invoice" && s.pending.length) {
             openInvoice(s, at, s.pending, true);
             s.pending = [];
           }
@@ -348,8 +372,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           const trialInterval = price(s.priceId).interval;
           if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.price === s.priceId ? (e.quantity ?? s.quantity) : (e.quantity ?? 1)];
           else s.quantity = e.quantity!;
-          // Switching the interval mid-trial makes Stripe issue a fresh $0 trial invoice right away.
-          if (price(s.priceId).interval !== trialInterval) openInvoice(s, at, [{ description: "Trial", amount: 0, proration: false }], true);
+          // Switching the interval mid-trial makes Stripe issue a fresh $0 trial invoice right away; flexible does
+          // that for any change, as a change outside a trial gets its own line (R16).
+          if (s.mode === "flexible" || price(s.priceId).interval !== trialInterval) openInvoice(s, at, [{ description: "Trial", amount: 0, proration: false }], true);
           break;
         }
         const old = item(s);
@@ -358,6 +383,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.price === s.priceId ? (e.quantity ?? s.quantity) : (e.quantity ?? 1)];
         else s.quantity = e.quantity!;
         const p = price(s.priceId);
+        if (s.mode === "flexible") {
+          flexibleChange(s, at, p.interval !== oldInterval, e.proration_behavior);
+          break;
+        }
         if (p.interval !== oldInterval) {
           // R3: interval change resets the anchor and invoices now (R14: with "none", without the credit).
           restartPeriod(s, at, old, e.proration_behavior);
@@ -395,6 +424,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         s.anchorDay = new Date(at).getUTCDate();
         s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
         s.paid = activeDiscount(s, licensedAmount(s), at);
+        s.anchor = at;
+        debit(s, at);
         openInvoice(s, at, [{ description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
         break;
       }
@@ -402,7 +433,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         // R15: billing_cycle_anchor=now starts a full new period today, like an interval change (S51).
         const s = active(e.type);
         if (s.status === "trialing") throw new Error("reset_anchor during a trial: use end_trial");
-        restartPeriod(s, at, item(s), e.proration_behavior);
+        if (s.mode === "flexible") flexibleReset(s, at, e.proration_behavior);
+        else restartPeriod(s, at, item(s), e.proration_behavior);
         break;
       }
       case "remove_coupon":
@@ -430,8 +462,76 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchorDay = new Date(at).getUTCDate();
     s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
     s.paid = activeDiscount(s, licensedAmount(s), at);
+    s.anchor = at;
+    s.debits = [];
+    debit(s, at);
     openInvoice(s, at, [...s.pending, ...credit, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
     s.pending = [];
+  }
+
+  // Record [start, periodEnd) as debited at the current price and discount (gross and discount apart).
+  function debit(s: Sub, start: number) {
+    if (licensedAmount(s) === 0) return;
+    s.debits.push({ start, end: s.periodEnd, item: item(s), paid: activeDiscount(s, licensedAmount(s), start) });
+  }
+
+  // R16: one credit per original debit still covering time after `at` (Stripe: "credit prorations use the original
+  // debited amount", S52/S54): gross and discount are rounded apart, each from the 12-decimal prorated unit price,
+  // over that debit's own span: 3 × 7900 × 19/30 = 15010 less 25% of it = 3752.4999… → 3752 gives 11258 (S55).
+  function creditDebits(s: Sub, at: number): InvoiceLine[] {
+    const lines = s.debits
+      .filter((d) => d.end > at)
+      .map((d) => {
+        const [num, den] = [d.end - Math.max(at, d.start), d.end - d.start];
+        const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
+        return { description: "Unused time", amount: 0 - amount, proration: true };
+      })
+      .filter((l) => l.amount !== 0);
+    s.debits = [];
+    return lines;
+  }
+
+  // R16 flexible change: the anchor stays; a new interval takes that interval's period containing `at`, aligned to
+  // the anchor (monthly -> yearly on Jan 16 under a Jan 1 anchor bills Jan 1 -> Jan 1, S54). Nothing is invoiced
+  // unless always_invoice; with "none" nothing is credited or debited, so the old debit is what a later change credits.
+  function flexibleChange(s: Sub, at: number, intervalChanged: boolean, behavior: ProrationBehavior | undefined) {
+    if (intervalChanged) {
+      const interval = price(s.priceId).interval;
+      let k = 0;
+      while (addInterval(s.anchor, interval, s.anchorDay, k + 1) <= at) k++;
+      s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
+      s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
+    }
+    if (behavior === "none") return;
+    const credits = creditDebits(s, at);
+    const charge = prorate(s, at, { unit: 0, qty: 0 })[1];
+    if (charge.amount !== 0) s.debits.push({ start: at, end: s.periodEnd, item: { unit: charge.amount, qty: 1 }, paid: FULL });
+    bill(s, at, [...credits, ...(charge.amount !== 0 ? [charge] : [])], behavior);
+  }
+
+  // R16 flexible billing_cycle_anchor=now: the credit and debit for the overlap cancel out, so only the time past
+  // the old period end is debited, as a proration (S51); "none" bills nothing at all (S52).
+  function flexibleReset(s: Sub, at: number, behavior: ProrationBehavior | undefined) {
+    const oldEnd = s.periodEnd;
+    s.periodStart = at;
+    s.anchor = at;
+    s.anchorDay = new Date(at).getUTCDate();
+    s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
+    if (behavior === "none" || s.periodEnd <= oldEnd) return;
+    const [num, den] = [s.periodEnd - oldEnd, s.periodEnd - at];
+    const amount = licensedAmount(s);
+    const now = activeDiscount(s, amount, at);
+    const charge = { description: "Remaining time", amount: prorated(item(s), FULL, num, den) - roundMinor(((amount * (1 - now.rate) + now.off) * num) / den), proration: true };
+    s.debits.push({ start: oldEnd, end: s.periodEnd, item: { unit: charge.amount, qty: 1 }, paid: FULL });
+    bill(s, at, [charge], behavior);
+  }
+
+  // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.
+  function bill(s: Sub, at: number, lines: InvoiceLine[], behavior: ProrationBehavior | undefined) {
+    if (behavior === "always_invoice") {
+      openInvoice(s, at, [...s.pending, ...lines], true);
+      s.pending = [];
+    } else s.pending.push(...lines);
   }
 
   // An invoice exactly at a repeating coupon's end is no longer discounted (3 months = 3 monthly invoices).
