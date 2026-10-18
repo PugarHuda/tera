@@ -3335,6 +3335,69 @@
         }
       ],
       "parity": "golden/parity/S65.json"
+    },
+    {
+      "id": "S66",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R15",
+        "R5"
+      ],
+      "title": "Flexible: a proration debit is credited from its rounded gross and rounded discount, not its net (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-02-29T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2028-03-27T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2028-04-17T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 3
+        },
+        {
+          "at": "2028-04-23T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "quantity": 1,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2028-06-03T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "02-29: 2900 - 725 = 2175, period 02-29 -> 03-29. 03-27 reset: new period 03-27 -> 04-27 (31 d); only 03-29 -> 04-27 (29 d) is debited: round(2900*29/31)=2713 - round(725*29/31)=678 = 2035, pending. 04-17 x3, 10 of 31 days left: credit the 2035 debit over 10 of its 29 days, -(round(2713*10/29)=936 - round(678*10/29)=234) = -702; debit round(8700*10/31)=2806 - round(2175*10/31)=702 = 2104. 04-23 pro_y always_invoice: the yearly period aligned to the 03-27 anchor is 2028-03-27 -> 2029-03-27 (365 d, 338 left). Credit the 2104 debit over 4 of its 10 days from its parts: -(round(2806*0.4)=1122 - round(702*0.4)=281) = -841 (round(2104*0.4) would be -842). Debit round(29000*338/365)=26855 - round(7250*338/365)=6714 = 20141. Invoiced now with the pending lines: 2035 - 702 + 2104 - 841 + 20141 = 22737. No renewal before 2029.",
+      "expect": [
+        {
+          "date": "2028-02-29",
+          "lines": [
+            2900
+          ],
+          "discount": 725,
+          "total": 2175
+        },
+        {
+          "date": "2028-04-23",
+          "lines": [
+            2035,
+            -702,
+            2104,
+            -841,
+            20141
+          ],
+          "discount": 0,
+          "total": 22737
+        }
+      ],
+      "parity": "golden/parity/S66.json"
     }
   ]
 }

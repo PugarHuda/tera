@@ -3876,5 +3876,73 @@
         "starting_balance": 0
       }
     ]
+  },
+  {
+    "id": "S66",
+    "title": "Flexible: a proration debit is credited from its rounded gross and rounded discount, not its net (found by fuzzing)",
+    "verified_at": "2026-10-18T15:39:32.168Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1URwB02QR5nixgqNenteu2nT",
+    "customer": "cus_VSruuxG6QAlAbT",
+    "stripe": [
+      {
+        "id": "in_1URwB12QR5nixgqNejxrrFth",
+        "date": "2028-02-29",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 725,
+        "tax": 0,
+        "total": 2175,
+        "amount_due": 2175,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1URwBI2QR5nixgqNuKoOnGv4",
+        "date": "2028-04-23",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera starter_m (with 25.0% off) after 23 Apr 2028",
+            "amount": -841,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on Tera pro_y (with 25.0% off) after 23 Apr 2028",
+            "amount": 20141,
+            "proration": true
+          },
+          {
+            "description": "Unused time on Tera starter_m (with 25.0% off) after 17 Apr 2028",
+            "amount": -702,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 3 × Tera starter_m (with 25.0% off) after 17 Apr 2028",
+            "amount": 2104,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on Tera starter_m (with 25.0% off) after 29 Mar 2028",
+            "amount": 2035,
+            "proration": true
+          }
+        ],
+        "subtotal": 22737,
+        "discount": 0,
+        "tax": 0,
+        "total": 22737,
+        "amount_due": 22737,
+        "starting_balance": 0
+      }
+    ]
   }
 ]

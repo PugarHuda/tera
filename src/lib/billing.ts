@@ -504,8 +504,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     }
     if (behavior === "none") return;
     const credits = creditDebits(s, at);
+    const parts = chargeParts(s, at, at, s.periodEnd);
     const charge = prorate(s, at, { unit: 0, qty: 0 })[1];
-    if (charge.amount !== 0) s.debits.push({ start: at, end: s.periodEnd, item: { unit: charge.amount, qty: 1 }, paid: FULL });
+    if (charge.amount !== 0) s.debits.push(parts);
     bill(s, at, [...credits, ...(charge.amount !== 0 ? [charge] : [])], behavior);
   }
 
@@ -518,12 +519,21 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchorDay = new Date(at).getUTCDate();
     s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
     if (behavior === "none" || s.periodEnd <= oldEnd) return;
-    const [num, den] = [s.periodEnd - oldEnd, s.periodEnd - at];
+    const parts = chargeParts(s, at, oldEnd, s.periodEnd);
+    const charge = { description: "Remaining time", amount: parts.item.unit - parts.paid.off, proration: true };
+    s.debits.push(parts);
+    bill(s, at, [charge], behavior);
+  }
+
+  // A proration charge at `at` for [from, to) of the current period, kept as its rounded gross and rounded
+  // discount: a later credit rounds each of them again (2806 − 702 = 2104; 4/10 of it is 1122 − 281 = 841, not
+  // round(841.6), fuzz seed 40005).
+  function chargeParts(s: Sub, at: number, from: number, to: number): Debit {
+    const [num, den] = [to - from, s.periodEnd - s.periodStart];
     const amount = licensedAmount(s);
     const now = activeDiscount(s, amount, at);
-    const charge = { description: "Remaining time", amount: prorated(item(s), FULL, num, den) - roundMinor(((amount * (1 - now.rate) + now.off) * num) / den), proration: true };
-    s.debits.push({ start: oldEnd, end: s.periodEnd, item: { unit: charge.amount, qty: 1 }, paid: FULL });
-    bill(s, at, [charge], behavior);
+    const off = roundMinor((amount * (1 - now.rate) + now.off) * (num / den)); // same expression as prorate()
+    return { start: from, end: to, item: { unit: prorated(item(s), FULL, num, den), qty: 1 }, paid: { rate: 1, off } };
   }
 
   // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.
