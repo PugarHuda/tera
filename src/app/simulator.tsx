@@ -105,7 +105,13 @@ export function Simulator({
   const verifyInStripe = async () => {
     setStripeCheck({ state: "running" });
     try {
-      const res = await fetch("/api/parity", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ timeline, catalog }) });
+      const post = () => fetch("/api/parity", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ timeline, catalog }) });
+      let res = await post();
+      // Another visitor's live replay holds the Stripe cooldown: wait it out once instead of reporting a failure.
+      if (res.status === 429) {
+        await new Promise((r) => setTimeout(r, Math.min(Number(res.headers.get("retry-after")) || 10, 60) * 1000));
+        res = await post();
+      }
       const body = await res.json();
       if (!res.ok) return setStripeCheck({ state: "error", error: body.error ?? `HTTP ${res.status}` });
       setStripeCheck({ state: "done", match: body.match, diffs: body.diffs, clock: body.test_clock, count: body.stripe.length });
