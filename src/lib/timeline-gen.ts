@@ -52,6 +52,8 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   if (r() < 0.25) {
     t += step(1, 20);
     events.push({ at: at(), type: r() < 0.3 ? "cancel_now" : "cancel_at_period_end" });
+    // R17: half the immediate cancellations refund the unused time (prorate + invoice_now).
+    if (events.at(-1)!.type === "cancel_now" && r() < 0.5) events.at(-1)!.proration_behavior = "always_invoice";
     if (events.at(-1)!.type === "cancel_at_period_end" && r() < 0.4) {
       t += step(1, 5);
       events.push({ at: at(), type: "resume" });

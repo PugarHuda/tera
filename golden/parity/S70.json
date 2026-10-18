@@ -1,0 +1,63 @@
+{
+  "id": "S70",
+  "title": "Flexible: after a none yearly -> monthly change, a later change credits the yearly debit only to the monthly period end (found by fuzzing)",
+  "verified_at": "2026-10-18T15:56:53.950Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URwRf2QR5nixgqNDiSmk2Lg",
+  "customer": "cus_VSsCAbjLnX8G30",
+  "stripe": [
+    {
+      "id": "in_1URwRg2QR5nixgqN3WEiyBEt",
+      "date": "2027-01-10",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_y (at $290.00 / year)",
+          "amount": 29000,
+          "proration": false
+        }
+      ],
+      "subtotal": 29000,
+      "discount": 5800,
+      "tax": 2320,
+      "total": 25520,
+      "amount_due": 25520,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URwRt2QR5nixgqNiMFI1M8K",
+      "date": "2027-03-25",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 8 × Tera pro_y after 25 Mar 2027",
+          "amount": -9680,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 2 × Tera pro_y after 25 Mar 2027",
+          "amount": 46119,
+          "proration": true
+        },
+        {
+          "description": "Unused time on Tera pro_y (with 20.0% off) after 06 Feb 2027",
+          "amount": -21469,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 8 × Tera pro_y after 06 Feb 2027",
+          "amount": 214687,
+          "proration": true
+        }
+      ],
+      "subtotal": 229657,
+      "discount": 0,
+      "tax": 22966,
+      "total": 252623,
+      "amount_due": 252623,
+      "starting_balance": 0
+    }
+  ]
+}

@@ -3398,6 +3398,264 @@
         }
       ],
       "parity": "golden/parity/S66.json"
+    },
+    {
+      "id": "S67",
+      "status": "verified",
+      "rules": [
+        "R17",
+        "R8",
+        "R3"
+      ],
+      "title": "Cancel now with a refund (prorate + invoice_now): the final invoice carries pending prorations and the unused-time credit",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 2
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 5
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "cancel_now",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 2 x 1200 = 2400. 01-05 x5, 27/31 left: credit -round(2400*27/31) = -2090, debit round(6000*27/31) = 5226, pending. 01-20 cancel with prorate + invoice_now, 12/31 left: classic credits the item as it is at the rate last charged, -round(6000*12/31) = -2323. Final invoice now with the pending lines: -2090 + 5226 - 2323 = 813. No later invoices.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2400
+          ],
+          "total": 2400
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            -2090,
+            5226,
+            -2323
+          ],
+          "total": 813
+        }
+      ],
+      "expect_status": "canceled",
+      "parity": "golden/parity/S67.json"
+    },
+    {
+      "id": "S68",
+      "status": "verified",
+      "rules": [
+        "R17",
+        "R16",
+        "R6",
+        "R10"
+      ],
+      "title": "Flexible: cancelling a taxed yearly plan with a refund creates a credit balance that pays the next subscription",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y",
+          "tax_rate": "tax10_ex",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-04-10T00:00:00Z",
+          "type": "cancel_now",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-05-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-06-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 29000 + 10% = 31900. 04-10 cancel with prorate + invoice_now: 266 of 365 days left; credit the original debit -round(29000*266/365) = -21134, tax -round(2113.4) = -2113 (R6): total -23247, which becomes credit balance (R10). 05-01 new pro_m subscription, no tax: 7900, starting balance -23247, amount due 0, balance -15347. 06-01: 7900, starting balance -15347, due 0.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            29000
+          ],
+          "tax": 2900,
+          "total": 31900
+        },
+        {
+          "date": "2027-04-10",
+          "lines": [
+            -21134
+          ],
+          "tax": -2113,
+          "total": -23247,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-05-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "starting_balance": -23247,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-06-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "starting_balance": -15347,
+          "amount_due": 0
+        }
+      ],
+      "parity": "golden/parity/S68.json"
+    },
+    {
+      "id": "S69",
+      "status": "verified",
+      "rules": [
+        "R18",
+        "R3",
+        "R10"
+      ],
+      "title": "An amount due below Stripe's $0.50 minimum is not charged; it is carried onto the next invoice (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-04-30T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "quantity": 3
+        },
+        {
+          "at": "2027-05-09T00:00:00Z",
+          "type": "change_price",
+          "price": "team_seat_m",
+          "quantity": 3
+        },
+        {
+          "at": "2027-07-11T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-30: 3 x 2900 = 8700, period 04-30 -> 05-30 (30 d). 05-09 team_seat_m x3, 21/30 left: credit -round(8700*21/30) = -6090, debit round(3600*21/30) = 2520, pending. 05-30: -6090 + 2520 + 3600 = 30, below Stripe's 50-cent minimum charge: amount due 0 and +30 is carried as a debit balance. 06-30: 3600, starting balance +30, amount due 3630.",
+      "expect": [
+        {
+          "date": "2027-04-30",
+          "lines": [
+            8700
+          ],
+          "total": 8700
+        },
+        {
+          "date": "2027-05-30",
+          "lines": [
+            -6090,
+            2520,
+            3600
+          ],
+          "total": 30,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-06-30",
+          "lines": [
+            3600
+          ],
+          "total": 3600,
+          "starting_balance": 30,
+          "amount_due": 3630
+        }
+      ],
+      "parity": "golden/parity/S69.json"
+    },
+    {
+      "id": "S70",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R14",
+        "R6"
+      ],
+      "title": "Flexible: after a none yearly -> monthly change, a later change credits the yearly debit only to the monthly period end (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y",
+          "quantity": 1,
+          "billing_mode": "flexible",
+          "coupon": "SAVE20",
+          "tax_rate": "tax10_ex"
+        },
+        {
+          "at": "2027-02-06T05:43:31Z",
+          "type": "change_quantity",
+          "quantity": 8
+        },
+        {
+          "at": "2027-03-10T05:47:21Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 4,
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-03-25T18:30:17Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "quantity": 2,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-04-04T17:31:36Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-06-09T17:31:36Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Yearly period 2027-01-10 -> 2028-01-10 (31536000 s). 01-10: 29000 - 5800 (SAVE20, once) = 23200 + 10% tax = 25520. 02-06 05:43:31 x8, f = 29182589/31536000: credit the original debit apart, -(round(29000f)=26836 - round(5800f)=5367) = -21469; debit 8 x 26835.840975393201 (12 places) = 214687, pending. 03-10 pro_m x4 with none: the monthly period aligned to the anchor is 03-10 -> 04-10; nothing billed. 03-25 18:30:17 pro_y x2 always_invoice: credit the 214687 debit only from now to the monthly period end 04-10, over its own span 02-06 05:43:31 -> 2028-01-10: -round(214687 * (04-10 - now)/(2028-01-10 - 02-06 05:43:31)) = -9680; debit 2 x pro_y to 2028-01-10 = 46119. Invoiced now with the pending lines: 229657, tax 22966, total 252623. Canceled at the 2028 period end, so no more invoices.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            29000
+          ],
+          "discount": 5800,
+          "tax": 2320,
+          "total": 25520
+        },
+        {
+          "date": "2027-03-25",
+          "lines": [
+            -21469,
+            214687,
+            -9680,
+            46119
+          ],
+          "discount": 0,
+          "tax": 22966,
+          "total": 252623
+        }
+      ],
+      "parity": "golden/parity/S70.json"
     }
   ]
 }

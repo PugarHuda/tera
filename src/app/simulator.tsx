@@ -19,7 +19,7 @@ const FIELDS: Record<EventType, Field[]> = {
   cancel_at_period_end: [],
   resume: [],
   end_trial: [],
-  cancel_now: [],
+  cancel_now: ["proration_behavior"],
   reset_anchor: ["proration_behavior"],
   remove_coupon: [],
   advance_to: [],

@@ -212,7 +212,12 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
         sub = await stripe.subscriptions.update(sub!.id, { discounts: "" });
         break;
       case "cancel_now":
-        sub = await stripe.subscriptions.cancel(sub!.id);
+        // proration_behavior maps to Stripe's cancel params: always_invoice = prorate + invoice_now (final invoice
+        // with the unused-time credit), create_prorations = prorate only; omitted/none = Stripe's default.
+        sub = await stripe.subscriptions.cancel(
+          sub!.id,
+          e.proration_behavior === "always_invoice" ? { prorate: true, invoice_now: true } : e.proration_behavior === "create_prorations" ? { prorate: true } : {},
+        );
         break;
       case "report_usage":
         // The meter event carries the test clock's time, so it lands in the simulated period.

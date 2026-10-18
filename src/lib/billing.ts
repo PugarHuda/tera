@@ -88,6 +88,14 @@ export type SimulationResult = {
 
 const DAY = 86_400_000;
 
+// R18: Stripe's minimum charge per currency, in minor units (docs.stripe.com/currencies). ponytail: keyed by the
+// invoice currency; Stripe applies the settlement currency's minimum after conversion, exact when they match.
+const MIN_CHARGE: Record<string, number> = {
+  usd: 50, aed: 200, aud: 50, brl: 50, cad: 50, chf: 50, czk: 1500, dkk: 250, eur: 50, gbp: 30, hkd: 400, huf: 17500,
+  inr: 50, jpy: 50, krw: 50, mxn: 1000, myr: 200, nok: 300, nzd: 50, pln: 200, ron: 200, sek: 300, sgd: 50, thb: 1000, zar: 50,
+};
+export const minimumCharge = (currency: string) => MIN_CHARGE[currency.toLowerCase()] ?? 50;
+
 // R1: round half away from zero (Math.round rounds -0.5 toward +inf).
 export const roundMinor = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
 
@@ -211,10 +219,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         tax = roundMinor((taxable * r.percentage) / (100 + r.percentage));
       }
     }
-    // R10: a negative invoice becomes credit; credit is consumed by later invoices.
+    // R10: a negative invoice becomes credit; credit is consumed by later invoices. R18: an amount due below
+    // Stripe's minimum charge is not collected; it is carried as a debit balance onto the next invoice (fuzz 41031).
     const starting_balance = balance;
-    const amount_due = Math.max(0, total + starting_balance);
-    balance = Math.min(0, total + starting_balance);
+    const owed = Math.max(0, total + starting_balance);
+    const carried = owed > 0 && owed < minimumCharge(price(sub.priceId).currency);
+    const amount_due = carried ? 0 : owed;
+    balance = carried ? owed : Math.min(0, total + starting_balance);
     invoices.push({
       date: isoDay(draft.at),
       currency: price(sub.priceId).currency,
@@ -442,8 +453,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         active(e.type).coupon = null;
         break;
       case "cancel_now": {
-        // R8: immediate cancellation (Stripe's default: no final invoice, no proration credit).
+        // R8: immediate cancellation (Stripe's default: no final invoice, no proration credit). R17: with
+        // always_invoice (Stripe prorate + invoice_now) a final invoice now carries the pending prorations and
+        // the unused-time credit, priced like any other credit in the mode (classic: what was paid; flexible:
+        // each original debit). create_prorations leaves the credit pending on a canceled subscription, unbilled.
         const s = active(e.type);
+        if (e.proration_behavior === "always_invoice" && s.status === "active") {
+          const lines = [...s.pending, ...(s.mode === "flexible" ? creditDebits(s, at) : [prorate(s, at, item(s), false)[0]])];
+          if (lines.length) openInvoice(s, at, lines, true);
+        }
         s.status = "canceled";
         s.pending = [];
         canceledAt = at;
@@ -478,11 +496,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // R16: one credit per original debit still covering time after `at` (Stripe: "credit prorations use the original
   // debited amount", S52/S54): gross and discount are rounded apart, each from the 12-decimal prorated unit price,
   // over that debit's own span: 3 × 7900 × 19/30 = 15010 less 25% of it = 3752.4999… → 3752 gives 11258 (S55).
-  function creditDebits(s: Sub, at: number): InvoiceLine[] {
+  // Only time up to the item's current period end is credited: after a `none` yearly -> monthly change, a later
+  // change credits the yearly debit up to the monthly period end, not to its own end (fuzz 41027).
+  function creditDebits(s: Sub, at: number, until = s.periodEnd): InvoiceLine[] {
     const lines = s.debits
-      .filter((d) => d.end > at)
+      .filter((d) => Math.min(d.end, until) > Math.max(at, d.start))
       .map((d) => {
-        const [num, den] = [d.end - Math.max(at, d.start), d.end - d.start];
+        const [num, den] = [Math.min(d.end, until) - Math.max(at, d.start), d.end - d.start];
         const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
         return { description: "Unused time", amount: 0 - amount, proration: true };
       })
@@ -495,6 +515,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // the anchor (monthly -> yearly on Jan 16 under a Jan 1 anchor bills Jan 1 -> Jan 1, S54). Nothing is invoiced
   // unless always_invoice; with "none" nothing is credited or debited, so the old debit is what a later change credits.
   function flexibleChange(s: Sub, at: number, intervalChanged: boolean, behavior: ProrationBehavior | undefined) {
+    const oldEnd = s.periodEnd;
     if (intervalChanged) {
       const interval = price(s.priceId).interval;
       let k = 0;
@@ -503,7 +524,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
     }
     if (behavior === "none") return;
-    const credits = creditDebits(s, at);
+    const credits = creditDebits(s, at, oldEnd);
     const parts = chargeParts(s, at, at, s.periodEnd);
     const charge = prorate(s, at, { unit: 0, qty: 0 })[1];
     if (charge.amount !== 0) s.debits.push(parts);

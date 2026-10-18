@@ -18,7 +18,7 @@ const event = z.object({
   coupon: z.string().optional().describe(`Coupon code: ${Object.keys(defaultCatalog.coupons ?? {}).join(", ")}`),
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
   trial_days: z.number().int().optional(),
-  proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14)"),
+  proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14). On cancel_now, always_invoice refunds the unused time on a final invoice (Stripe prorate + invoice_now, R17)"),
   billing_mode: z
     .enum(BILLING_MODES)
     .optional()
