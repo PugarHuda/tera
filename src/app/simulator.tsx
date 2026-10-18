@@ -45,8 +45,32 @@ const LABEL: Record<EventType, string> = {
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
 
 const day = (iso: string) => iso.slice(0, 10);
-// A date input reports every keystroke: "0002-02-10" while the year is being typed. Only a whole year counts.
+// A date input reports every keystroke: "0002-02-10" while the year is being typed. The field keeps what is typed
+// and only a whole date from 1970 on is committed; a controlled input would snap back and eat the keystrokes.
 const typedDate = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= "1970" ? `${v}T00:00:00Z` : null);
+
+function DateField({ label, value, onCommit }: { label: string; value: string | undefined; onCommit: (iso: string | null) => void }) {
+  const [draft, setDraft] = useState(value ? day(value) : "");
+  const [shown, setShown] = useState(value);
+  if (value !== shown) {
+    // The timeline changed from outside (scenario load, share link): show it.
+    setShown(value);
+    setDraft(value ? day(value) : "");
+  }
+  return (
+    <input
+      type="date"
+      className="input"
+      aria-label={label}
+      value={draft}
+      onChange={(ev) => {
+        setDraft(ev.target.value);
+        const iso = typedDate(ev.target.value);
+        if (iso || ev.target.value === "") onCommit(iso);
+      }}
+    />
+  );
+}
 
 // Edits that end up back at the scenario's timeline (add then delete, change then revert) count as unedited.
 const canonical = (t: TimelineEvent[]) =>
@@ -212,16 +236,7 @@ export function Simulator({
               <span className="w-6 self-center text-xs opacity-50">{i + 1}</span>
               <label className="text-sm">
                 <span className="block text-xs opacity-70">Date</span>
-                <input
-                  type="date"
-                  className="input"
-                  aria-label={`Event ${i + 1} date`}
-                  value={day(e.at)}
-                  onChange={(ev) => {
-                    const at = typedDate(ev.target.value);
-                    if (at) update(i, { at });
-                  }}
-                />
+                <DateField label={`Event ${i + 1} date`} value={e.at} onCommit={(at) => at && update(i, { at })} />
               </label>
               <label className="text-sm">
                 <span className="block text-xs opacity-70">Event</span>
@@ -242,16 +257,7 @@ export function Simulator({
                 <label key={f} className="text-sm">
                   <span className="block text-xs opacity-70">{f.replaceAll("_", " ")}</span>
                   {f === "cancel_at" || f === "billing_cycle_anchor" ? (
-                    <input
-                      type="date"
-                      className="input"
-                      aria-label={`Event ${i + 1} ${f}`}
-                      value={e[f] ? day(e[f]) : ""}
-                      onChange={(ev) => {
-                        const v = typedDate(ev.target.value);
-                        if (v || ev.target.value === "") update(i, { [f]: v ?? undefined });
-                      }}
-                    />
+                    <DateField label={`Event ${i + 1} ${f}`} value={e[f]} onCommit={(v) => update(i, { [f]: v ?? undefined })} />
                   ) : f === "quantity" || f === "trial_days" ? (
                     <input
                       type="number"
