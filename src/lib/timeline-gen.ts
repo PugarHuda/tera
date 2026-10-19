@@ -83,6 +83,12 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   }
   t += int(35, 70) * 86_400_000;
   events.push({ at: at(), type: "advance_to" });
+  // R23: a customer balance credit or debit somewhere in the timeline. Drawn last, so earlier draws (and the
+  // timelines of seeds from before R23) are unchanged apart from this event.
+  if (r() < 0.3) {
+    const i = int(1, events.length - 1);
+    events.splice(i, 0, { at: events[i - 1].at, type: "adjust_balance", amount: pick([-1, 1]) * int(1, 200) * 100 });
+  }
   return events;
 }
 

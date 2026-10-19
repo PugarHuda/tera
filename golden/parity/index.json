@@ -694,6 +694,138 @@
     ]
   },
   {
+    "id": "S103",
+    "title": "A customer balance credit is applied to the next invoice",
+    "verified_at": "2026-10-19T17:11:07.381Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USK572QR5nixgqNeoiD6hRd",
+    "customer": "cus_VTGcFXz5wRIQUA",
+    "stripe": [
+      {
+        "id": "in_1USK592QR5nixgqN5nEHzG0J",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 0,
+        "tax": 0,
+        "total": 2900,
+        "amount_due": 2900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USK5G2QR5nixgqNNjEGX4GJ",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 0,
+        "tax": 0,
+        "total": 2900,
+        "amount_due": 1900,
+        "starting_balance": -1000
+      },
+      {
+        "id": "in_1USK5R2QR5nixgqNqvjo7ZZM",
+        "date": "2027-03-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 0,
+        "tax": 0,
+        "total": 2900,
+        "amount_due": 2900,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S104",
+    "title": "Balance debits and credits net out; a credit larger than an invoice carries to the next one",
+    "verified_at": "2026-10-19T17:11:25.129Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USK582QR5nixgqN1RmKWmUb",
+    "customer": "cus_VTGccvM85dd2Xa",
+    "stripe": [
+      {
+        "id": "in_1USK592QR5nixgqNsZmIMmOa",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 7900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USK5Z2QR5nixgqN7ztNjz7Z",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 0,
+        "starting_balance": -9500
+      },
+      {
+        "id": "in_1USK5i2QR5nixgqNJ9YhYPUO",
+        "date": "2027-03-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 6300,
+        "starting_balance": -1600
+      }
+    ]
+  },
+  {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
     "verified_at": "2026-10-17T18:28:38.241Z",

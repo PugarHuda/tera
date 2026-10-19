@@ -16,7 +16,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R22 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R23 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   paths: {
     "/api/simulate": {
@@ -257,6 +257,7 @@ export const spec = {
                   enum: [...BILLING_MODES],
                   description: "subscribe/start_trial: Stripe billing mode (default classic). Flexible credits original debits and keeps the anchor (R16).",
                 },
+                amount: { type: "integer", description: "adjust_balance: customer balance transaction in minor units; negative = credit applied to the next invoice, positive = debit (R23)." },
                 trial_end_behavior: {
                   type: "string",
                   enum: [...TRIAL_END_BEHAVIORS],

@@ -253,6 +253,13 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           e.proration_behavior === "always_invoice" ? { prorate: true, invoice_now: true } : e.proration_behavior === "create_prorations" ? { prorate: true } : {},
         );
         break;
+      case "adjust_balance":
+        // R23: a customer balance transaction, in the subscription's currency.
+        await stripe.customers.createBalanceTransaction(customer.id, {
+          amount: e.amount!,
+          currency: catalog.prices[events.find((x) => x.price)!.price!].currency,
+        });
+        break;
       case "report_usage":
         // The meter event carries the test clock's time, so it lands in the simulated period.
         await stripe.billing.meterEvents.create({

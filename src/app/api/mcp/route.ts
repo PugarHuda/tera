@@ -41,6 +41,11 @@ const event = z.object({
     .enum(BILLING_MODES)
     .optional()
     .describe("subscribe/start_trial only. Stripe's default for new subscriptions is flexible; omitted means classic (R16)"),
+  amount: z
+    .number()
+    .int()
+    .optional()
+    .describe("adjust_balance only: customer balance transaction in minor units; negative is a credit applied to the next invoice, positive a debit (R23)"),
   trial_end_behavior: z
     .enum(TRIAL_END_BEHAVIORS)
     .optional()

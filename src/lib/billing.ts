@@ -50,6 +50,7 @@ export type TimelineEvent = {
     | "remove_coupon"
     | "cancel_at"
     | "pause"
+    | "adjust_balance"
     | "advance_to";
   price?: string;
   quantity?: number;
@@ -64,6 +65,8 @@ export type TimelineEvent = {
   cancel_at?: string;
   /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
   billing_mode?: BillingMode;
+  /** adjust_balance: a customer balance transaction in minor units; negative is a credit, positive a debit (R23). */
+  amount?: number;
   /** start_trial: the customer has no card, and Stripe's trial_settings.end_behavior.missing_payment_method decides
    *  what happens when the trial ends: "cancel" or "pause" (R22). Omitted, the trial ends into a paid period. */
   trial_end_behavior?: TrialEndBehavior;
@@ -111,7 +114,7 @@ export const minimumCharge = (currency: string) => MIN_CHARGE[currency.toLowerCa
 
 // R1: round half away from zero (Math.round rounds -0.5 toward +inf).
 export const roundMinor = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
-// R6: the tax in one amount, rounded once (half away from zero, S90: 64.5 -> 65).
+// R6: the tax in one amount, rounded once (half away from zero).
 const taxOf = (amount: number, r: TaxRate) => roundMinor((amount * r.percentage) / (r.behavior === "exclusive" ? 100 : 100 + r.percentage));
 // R3: Stripe prorates the unit price to a 12-place decimal first, then multiplies by quantity and the paid rate,
 // so `(qty × unit × rate − off) × num/den` is rounded once but from that decimal: 7900 × 19/30 = 5003.333333333333,
@@ -119,6 +122,19 @@ const taxOf = (amount: number, r: TaxRate) => roundMinor((amount * r.percentage)
 const MAX_AMOUNT = 1e12;
 const E12 = 10n ** 12n;
 const divRound = (a: bigint, b: bigint) => (a < 0n ? -1n : 1n) * ((2n * (a < 0n ? -a : a) + b) / (2n * b));
+const divFloor = (a: bigint, b: bigint) => (a < 0n ? -((-a + b - 1n) / b) : a / b);
+
+// R6 inclusive tax, Stripe's "invoice level" tax rounding (docs.stripe.com/billing/taxes/tax-rates#rounding): each
+// line's taxable amount, amount / (1 + rate), is kept to 12 decimals (rounded down), the taxable amounts are summed,
+// the rate is applied to that sum, and the result is rounded once, half away from zero. The 12-decimal floor decides
+// ties: 1019 + 7900 -> 849.1666… + 6583.3333… = 7432.4999…, tax 1486 (fuzz seed 70012), while 387 = -322.5 + 645
+// is a true tie, 65 (S90); -32258 + 51613 + 64000 JPY sums to 69462.4999…, tax 13892 (S93), in either billing mode.
+function inclusiveTax(amounts: number[], percentage: number): number {
+  const p = BigInt(Math.round(percentage * 1e4)); // ponytail: Stripe allows 4 decimals on a percentage
+  const base = 100n * 10_000n;
+  const taxable = amounts.reduce((sum, a) => sum + divFloor(BigInt(a) * E12 * base, base + p), 0n);
+  return Number(divRound(taxable * p, base * E12));
+}
 export function prorated(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number): number {
   const [n, d] = [BigInt(num), BigInt(den)];
   const unit = divRound(BigInt(item.unit) * n * E12, d); // unit × f, 12 decimals
@@ -228,8 +244,6 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   // Draft invoices finalize once time moves past them, with the discount they were created with: a coupon
   // applied or removed at the renewal instant changes the next invoice, not this one (S57).
-  // Flexible credits: the tax their original debit was charged, prorated (set by creditDebits, read by finalize).
-  const creditTax = new WeakMap<InvoiceLine, number>();
 
   const finalize = () => {
     if (!draft || !sub) return;
@@ -249,22 +263,16 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       sub.paid = !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: discount };
     }
     const taxable = subtotal - discount;
-    // The invoice discount spread over its discountable lines (one, in practice), for per-line tax.
+    // The invoice discount spread over its discountable lines (one, in practice), for per-line taxable amounts.
     const share = (l: InvoiceLine) => (discountable === 0 ? 0 : roundMinor((discount * l.amount) / discountable));
     let tax = 0;
     let total = taxable;
     const r = sub.taxRate;
     // R6: a negative (credit) invoice carries negative tax too.
     if (r && taxable !== 0) {
-      // R16/R6 flexible inclusive tax is per line, and a credit refunds the tax its original debit was charged,
-      // prorated: -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
-      // Exclusive tax stays one computation on the total (757.7 -> 758, seeds 61019 and 61030, S94).
-      // Open question (classic inclusive): at an exact tie Stripe's invoice tax is sometimes a cent under this
-      // (8919 -> 1486, fuzz seeds 70012, 72005, 75012); no rounding rule tried fits those and S79/S90 together (R6).
-      tax =
-        sub.mode === "flexible" && r.behavior === "inclusive"
-          ? draft.lines.reduce((a, l) => a + (creditTax.get(l) ?? taxOf(l.proration ? l.amount : l.amount - share(l), r)), 0)
-          : taxOf(taxable, r);
+      // Exclusive: one computation on the total (757.7 -> 758, S94); the same invoice-level rule, as every taxable
+      // amount is already a whole number.
+      tax = r.behavior === "inclusive" ? inclusiveTax(draft.lines.map((l) => (l.proration ? l.amount : l.amount - share(l))), r.percentage) : taxOf(taxable, r);
       if (r.behavior === "exclusive") total = taxable + tax;
     }
     // R10: a negative invoice becomes credit; credit is consumed by later invoices. R18: an amount due below
@@ -583,6 +591,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         canceledAt = at;
         break;
       }
+      case "adjust_balance":
+        // R23: Stripe customer balance transaction. It changes the balance the next finalized invoice starts from
+        // (R10): a credit lowers what is due, a debit is added to it (S103, S104).
+        balance += e.amount!;
+        break;
       case "advance_to":
         break;
     }
@@ -719,9 +732,6 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
         // Kept at 0 too: a debit made free by a coupon is still credited, as a $0 line (fuzz seed 44012).
         const line = { description: "Unused time", amount: 0 - amount, proration: true };
-        // Open question: in 22 replayed timelines where this differs from refunding the debit's net amount prorated
-        // (tax = the rest), this matched Stripe 12 times, that 8, neither 2 (fuzz seeds 40053-77058, R16).
-        if (s.taxRate) creditTax.set(line, 0 - roundMinor((taxOf(prorated(d.item, d.paid, den, den), s.taxRate) * num) / den));
         return line;
       });
     s.debits = [];

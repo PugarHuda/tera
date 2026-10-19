@@ -4915,7 +4915,7 @@
         "R16",
         "R6"
       ],
-      "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
+      "title": "Flexible: inclusive tax is rounded at the invoice level from 12-decimal taxable amounts, 13892 where round(83355/6) = 13893 (found by fuzzing)",
       "timeline": [
         {
           "at": "2028-07-06T00:00:00Z",
@@ -4935,7 +4935,7 @@
           "type": "advance_to"
         }
       ],
-      "math": "07-06: 5 x 8000 = 40000 JPY incl. 20% VAT, tax round(40000*20/120) = round(6666.67) = 6667. 07-12 x8, 25 of 31 days left: credit -round(40000*25/31) = -32258, debit round(64000*25/31) = 51613, pending. 08-06: -32258 + 51613 + 64000 = 83355. Tax per line: the credit refunds 25/31 of the 6667 its debit was charged, -round(5376.61) = -5377; 51613 -> round(8602.17) = 8602; 64000 -> round(10666.67) = 10667; total 13892 (one computation on 83355 gives round(13892.5) = 13893, as classic does).",
+      "math": "07-06: 5 x 8000 = 40000 JPY incl. 20% VAT, tax round(40000/6) = 6667. 07-12 x8, 25 of 31 days left: credit -round(40000*25/31) = -32258, debit round(64000*25/31) = 51613, pending. 08-06: -32258 + 51613 + 64000 = 83355. Invoice-level rounding (R6): taxable amounts to 12 decimals, rounded down: -26881.666666666667 + 43010.833333333333 + 53333.333333333333 = 69462.499999999999; x 20% = 13892.4999...: 13892 (one computation on 83355 gives round(13892.5) = 13893).",
       "expect": [
         {
           "date": "2028-07-06",
@@ -5463,6 +5463,123 @@
         }
       ],
       "parity": "golden/parity/S102.json"
+    },
+    {
+      "id": "S103",
+      "status": "verified",
+      "rules": [
+        "R23",
+        "R10"
+      ],
+      "title": "A customer balance credit is applied to the next invoice",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-01-15T00:00:00Z",
+          "type": "adjust_balance",
+          "amount": -1000
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 2900 due. 01-15 balance transaction -1000 (a $10 credit). 02-01 renewal 2900 starts from -1000: 1900 due, balance 0. 03-01: 2900 due.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": 0,
+          "amount_due": 2900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": -1000,
+          "amount_due": 1900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": 0,
+          "amount_due": 2900
+        }
+      ],
+      "parity": "golden/parity/S103.json"
+    },
+    {
+      "id": "S104",
+      "status": "verified",
+      "rules": [
+        "R23",
+        "R10"
+      ],
+      "title": "Balance debits and credits net out; a credit larger than an invoice carries to the next one",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "adjust_balance",
+          "amount": 500
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "adjust_balance",
+          "amount": -10000
+        },
+        {
+          "at": "2027-03-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900 due. 01-10 debit +500, 01-20 credit -10000: balance -9500. 02-01: 7900 against -9500: 0 due, balance -1600. 03-01: 7900 - 1600 = 6300 due.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "starting_balance": 0,
+          "amount_due": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "starting_balance": -9500,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900,
+          "starting_balance": -1600,
+          "amount_due": 6300
+        }
+      ],
+      "parity": "golden/parity/S104.json"
     }
   ]
 }

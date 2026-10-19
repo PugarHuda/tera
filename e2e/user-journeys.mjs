@@ -98,6 +98,15 @@ await page.getByLabel("Delete event 2").click();
 await page.getByLabel("Event 1 trial_end_behavior").selectOption("cancel");
 ok((await invoices()) === 1 && (await total(1)).includes("$0.00"), `trial without a card, cancel: only the $0 trial invoice (${await invoices()})`);
 
+// J1d — a customer balance credit (R23) lowers the next invoice's amount due.
+await page.getByLabel("Event 1 trial_end_behavior").selectOption(""); // the trial now ends into a paid period on 01-24
+await page.getByLabel("Event 2 type").selectOption("adjust_balance");
+await typeDate(page.getByLabel("Event 2 date"), "02012027");
+await type(page.getByLabel("Event 2 amount"), "-1000");
+await page.getByRole("button", { name: "+ Add event" }).click(); // advance to 03-03
+// 01-24: 2900. 02-01 credit -1000. 02-24 renewal 2900 starts from -1000: $19.00 due. Verified in Stripe as S103's rule.
+ok((await page.getByTestId("invoice-3-amount-due").innerText()).includes("$19.00"), `balance credit: 02-24 amount due $19.00 (${await page.getByTestId("invoice-3-amount-due").innerText()})`);
+
 // J2 — Pricing builder: add a price by typing, simulate with it.
 await page.getByRole("link", { name: "Builder" }).click();
 await page.getByRole("button", { name: "+ Add price" }).click();

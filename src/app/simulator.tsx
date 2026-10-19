@@ -8,7 +8,7 @@ import { parseTimeline } from "@/lib/validate";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
-type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at" | "billing_cycle_anchor" | "trial_end_behavior";
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at" | "billing_cycle_anchor" | "trial_end_behavior" | "amount";
 
 const FIELDS: Record<EventType, Field[]> = {
   subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode", "billing_cycle_anchor", "proration_behavior"],
@@ -25,6 +25,7 @@ const FIELDS: Record<EventType, Field[]> = {
   remove_coupon: [],
   cancel_at: ["cancel_at", "proration_behavior"],
   pause: ["proration_behavior"],
+  adjust_balance: ["amount"],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -42,6 +43,7 @@ const LABEL: Record<EventType, string> = {
   remove_coupon: "Remove coupon",
   cancel_at: "Cancel on a date",
   pause: "Pause (flexible mode)",
+  adjust_balance: "Adjust customer balance (minor units, negative = credit)",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
@@ -288,10 +290,10 @@ export function Simulator({
                   <span className="block text-xs opacity-70">{f.replaceAll("_", " ")}</span>
                   {f === "cancel_at" || (f === "billing_cycle_anchor" && e.type !== "resume") ? (
                     <DateField label={`Event ${i + 1} ${f}`} value={e[f]} onCommit={(v) => update(i, { [f]: v ?? undefined })} />
-                  ) : f === "quantity" || f === "trial_days" ? (
+                  ) : f === "quantity" || f === "trial_days" || f === "amount" ? (
                     <input
                       type="number"
-                      min={0}
+                      min={f === "amount" ? undefined : 0}
                       className="input w-24"
                       aria-label={`Event ${i + 1} ${f}`}
                       value={e[f] ?? ""}
@@ -496,7 +498,7 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
           )}
           {inv.starting_balance > 0 && (
             <tr>
-              <td className="opacity-70">Carried from a previous invoice (below the minimum charge)</td>
+              <td className="opacity-70">Customer balance owed (a debit, or an amount below the minimum charge carried over)</td>
               <td className="text-right font-mono" data-testid={`invoice-${n}-carried`}>
                 +{m(inv.starting_balance)}
               </td>
