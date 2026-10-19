@@ -4959,6 +4959,129 @@
         }
       ],
       "parity": "golden/parity/S93.json"
+    },
+    {
+      "id": "S94",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R6"
+      ],
+      "title": "Flexible: exclusive tax is one computation on the invoice total, not per line (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "tax_rate": "tax10_ex",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-14T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 4,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10: 2900 + 10% = 3190. 01-14 x4 with always_invoice, 27 of 31 days left: credit -round(2900*27/31) = -2526, debit round(11600*27/31) = 10103, subtotal 7577. Exclusive tax on the total: round(757.7) = 758, total 8335 (per line it would be -253 + 1010 = 757; per-line credit refunds apply to inclusive tax only, S93). 02-10: 11600 + 1160 = 12760.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "tax": 290,
+          "total": 3190
+        },
+        {
+          "date": "2027-01-14",
+          "lines": [
+            -2526,
+            10103
+          ],
+          "discount": 0,
+          "tax": 758,
+          "total": 8335
+        },
+        {
+          "date": "2027-02-10",
+          "lines": [
+            11600
+          ],
+          "discount": 0,
+          "tax": 1160,
+          "total": 12760
+        }
+      ],
+      "parity": "golden/parity/S94.json"
+    },
+    {
+      "id": "S95",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R16",
+        "R13"
+      ],
+      "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-01-02T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2028-01-18T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2028-02-02T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2028-04-07T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-02: 3 x 7900 = 23700. 01-18 SAVE20 (once). 02-02 the renewal is drafted first: 23700 less 20% = 4740, and the once coupon is claimed by it. The same instant, pro_y (quantity 1, R13) with always_invoice: credit the renewal's debit for its full period, -(23700 - 4740) = -18960; the yearly period aligned to the 01-02 anchor is 2028-01-02 -> 2029-01-02 (366 d, 335 left): round(29000*335/366) = 26544, not discounted because the coupon is already claimed. That invoice is 7584 and finalizes first; then the renewal draft, 18960.",
+      "expect": [
+        {
+          "date": "2028-01-02",
+          "lines": [
+            23700
+          ],
+          "discount": 0,
+          "total": 23700
+        },
+        {
+          "date": "2028-02-02",
+          "lines": [
+            -18960,
+            26544
+          ],
+          "discount": 0,
+          "total": 7584
+        },
+        {
+          "date": "2028-02-02",
+          "lines": [
+            23700
+          ],
+          "discount": 4740,
+          "total": 18960
+        }
+      ],
+      "parity": "golden/parity/S95.json"
     }
   ]
 }

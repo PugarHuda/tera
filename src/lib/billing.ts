@@ -249,10 +249,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const r = sub.taxRate;
     // R6: a negative (credit) invoice carries negative tax too.
     if (r && taxable !== 0) {
-      // R16/R6 flexible: tax is per line, and a credit refunds the tax its original debit was charged, prorated:
-      // -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
+      // R16/R6 flexible inclusive tax is per line, and a credit refunds the tax its original debit was charged,
+      // prorated: -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
+      // Exclusive tax stays one computation on the total (757.7 -> 758, seeds 61019 and 61030, S94).
       tax =
-        sub.mode === "flexible"
+        sub.mode === "flexible" && r.behavior === "inclusive"
           ? draft.lines.reduce((a, l) => a + (creditTax.get(l) ?? taxOf(l.proration ? l.amount : l.amount - share(l), r)), 0)
           : taxOf(taxable, r);
       if (r.behavior === "exclusive") total = taxable + tax;
@@ -284,8 +285,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // (subscription creation, always_invoice, interval change) are finalized immediately.
   const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false) => {
     const pending = draft;
+    if (!immediate) {
+      // A renewal draft claims a live "once" coupon when it is created, so a change at the same instant is not
+      // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
+      const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
+      draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon } };
+      if (claims) s.coupon!.remaining -= 1;
+      return;
+    }
     draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon };
-    if (!immediate) return;
     finalize();
     // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
     // amount due can use the credit this invoice creates.
