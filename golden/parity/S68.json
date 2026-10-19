@@ -1,15 +1,15 @@
 {
   "id": "S68",
   "title": "Flexible: cancelling a taxed yearly plan with a refund creates a credit balance that pays the next subscription",
-  "verified_at": "2026-10-18T15:52:13.174Z",
+  "verified_at": "2026-10-19T06:04:46.417Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwMc2QR5nixgqNNu0q1rmh",
-  "customer": "cus_VSs6uFVJJqFXYf",
+  "test_clock": "clock_1US9g32QR5nixgqNhIkIoNrh",
+  "customer": "cus_VT5r12hcmRtLD9",
   "stripe": [
     {
-      "id": "in_1URwMd2QR5nixgqNz2pqmpP5",
+      "id": "in_1US9g42QR5nixgqNDjBGUteG",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwNK2QR5nixgqNyQiuZziv",
+      "id": "in_1US9gN2QR5nixgqNZJFbvfEg",
       "date": "2027-04-10",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwNP2QR5nixgqNrBXhr2J5",
+      "id": "in_1US9gV2QR5nixgqNbtvfE1VS",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": -23247
     },
     {
-      "id": "in_1URwNY2QR5nixgqNN1CZspcZ",
+      "id": "in_1US9ga2QR5nixgqNybMFHCUu",
       "date": "2027-06-01",
       "currency": "usd",
       "lines": [

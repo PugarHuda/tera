@@ -1,15 +1,15 @@
 {
   "id": "S78",
   "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
-  "verified_at": "2026-10-18T16:47:00.151Z",
+  "verified_at": "2026-10-19T06:04:27.964Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URxEI2QR5nixgqNd2c3fb2I",
-  "customer": "cus_VSt0nPvKYXo7Vx",
+  "test_clock": "clock_1US9g32QR5nixgqNcstpIHmI",
+  "customer": "cus_VT5rrBuJHsn8tk",
   "stripe": [
     {
-      "id": "in_1URxEJ2QR5nixgqNoaJtdD4I",
+      "id": "in_1US9g42QR5nixgqNdtlRRRhl",
       "date": "2027-06-05",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URxET2QR5nixgqNNpZUDbl1",
+      "id": "in_1US9g92QR5nixgqNQAWPt0ZO",
       "date": "2027-06-28",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URxEX2QR5nixgqNbCkopxHW",
+      "id": "in_1US9gF2QR5nixgqNUG2yZpil",
       "date": "2027-07-05",
       "currency": "usd",
       "lines": [

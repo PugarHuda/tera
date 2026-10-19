@@ -1,0 +1,71 @@
+{
+  "id": "S90",
+  "title": "Inclusive tax at an exact tie rounds half away from zero: 387 incl. 20% VAT is 64.5 -> 65",
+  "verified_at": "2026-10-19T06:04:46.868Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1US9gO2QR5nixgqNJCSfrGj0",
+  "customer": "cus_VT5saXxIXVnQGz",
+  "stripe": [
+    {
+      "id": "in_1US9gP2QR5nixgqNPuirBzqi",
+      "date": "2027-01-01",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "1 × Tera basic_m_jpy (at ¥3,000 / month)",
+          "amount": 3000,
+          "proration": false
+        }
+      ],
+      "subtotal": 3000,
+      "discount": 0,
+      "tax": 500,
+      "total": 3000,
+      "amount_due": 3000,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US9gU2QR5nixgqNtKT8MSLf",
+      "date": "2027-01-28",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "Unused time on Tera basic_m_jpy after 28 Jan 2027",
+          "amount": -387,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 2 × Tera basic_m_jpy after 28 Jan 2027",
+          "amount": 774,
+          "proration": true
+        }
+      ],
+      "subtotal": 387,
+      "discount": 0,
+      "tax": 65,
+      "total": 387,
+      "amount_due": 387,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US9gY2QR5nixgqN5PQama0C",
+      "date": "2027-02-01",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "2 × Tera basic_m_jpy (at ¥3,000 / month)",
+          "amount": 6000,
+          "proration": false
+        }
+      ],
+      "subtotal": 6000,
+      "discount": 0,
+      "tax": 1000,
+      "total": 6000,
+      "amount_due": 6000,
+      "starting_balance": 0
+    }
+  ]
+}

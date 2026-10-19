@@ -1,15 +1,15 @@
 {
   "id": "S70",
   "title": "Flexible: after a none yearly -> monthly change, a later change credits the yearly debit only to the monthly period end (found by fuzzing)",
-  "verified_at": "2026-10-18T15:56:53.950Z",
+  "verified_at": "2026-10-19T06:04:46.520Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwRf2QR5nixgqNDiSmk2Lg",
-  "customer": "cus_VSsCAbjLnX8G30",
+  "test_clock": "clock_1US9g32QR5nixgqNWsUFRYYU",
+  "customer": "cus_VT5rBMaHkKIKDU",
   "stripe": [
     {
-      "id": "in_1URwRg2QR5nixgqN3WEiyBEt",
+      "id": "in_1US9g52QR5nixgqNskkkf1qG",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwRt2QR5nixgqNiMFI1M8K",
+      "id": "in_1US9gR2QR5nixgqNiPB0vh7I",
       "date": "2027-03-25",
       "currency": "usd",
       "lines": [
