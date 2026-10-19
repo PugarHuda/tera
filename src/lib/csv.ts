@@ -24,11 +24,14 @@ export function parseCustomers(text: string): { customers: CsvCustomer[]; errors
   return { customers, errors };
 }
 
+// Excel reads a CSV as the system code page unless it starts with a UTF-8 byte order mark.
+export const csvBlob = (csv: string) => new Blob(["﻿", csv], { type: "text/csv;charset=utf-8" });
+
 export const toCsv = (rows: Array<Record<string, string | number>>) => {
   if (rows.length === 0) return "";
   // OWASP CSV injection: text starting with = + - @ (or tab/CR) would run as a spreadsheet formula.
   const cell = (v: string | number) => (typeof v === "string" && /^[=+\-@\t\r]/.test(v) ? `'${v}` : String(v));
-  const esc = (v: string | number) => (/[",\n]/.test(cell(v)) ? `"${cell(v).replace(/"/g, '""')}"` : cell(v));
+  const esc = (v: string | number) => (/[",\r\n]/.test(cell(v)) ? `"${cell(v).replace(/"/g, '""')}"` : cell(v));
   const keys = Object.keys(rows[0]);
   return [keys.join(","), ...rows.map((r) => keys.map((k) => esc(r[k])).join(","))].join("\n") + "\n";
 };

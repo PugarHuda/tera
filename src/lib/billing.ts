@@ -342,7 +342,6 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // A "once" coupon that prices that charge is used up by it (the next invoice is not discounted).
   const prorate = (s: Sub, at: number, old: Item, charge = true): InvoiceLine[] => {
     const [num, den] = [s.periodEnd - at, s.periodEnd - s.periodStart];
-    const f = num / den;
     const c = liveCoupon(s, at);
     const next = charge ? item(s) : { unit: 0, qty: 0 };
     const newAmount = next.unit * next.qty;

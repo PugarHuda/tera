@@ -25,8 +25,8 @@ export default function McpSetup() {
       </section>
 
       <section className="card space-y-3">
-        <h2 className="font-semibold">Live tools on this deployment</h2>
-        <p className="text-sm opacity-70">Fetched right now from this deployment&apos;s /api/mcp endpoint with a JSON-RPC tools/list call.</p>
+        <h2 className="font-semibold">Live tools, resources and prompts on this deployment</h2>
+        <p className="text-sm opacity-70">Fetched right now from this deployment&apos;s /api/mcp endpoint with JSON-RPC list calls.</p>
         <ToolList />
       </section>
     </div>

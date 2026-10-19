@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
-import { toCsv } from "@/lib/csv";
+import { csvBlob, toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 import { parseTimeline } from "@/lib/validate";
 
@@ -173,7 +173,7 @@ export function Simulator({
       amount_due: inv.amount_due,
     }));
     const a = Object.assign(document.createElement("a"), {
-      href: URL.createObjectURL(new Blob([toCsv(rows)], { type: "text/csv" })),
+      href: URL.createObjectURL(csvBlob(toCsv(rows))),
       download: `tera-invoices${scenarioId ? `-${scenarioId}` : ""}.csv`,
     });
     a.click();

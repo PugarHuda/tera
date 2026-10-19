@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-type Tool = { name: string; title?: string; description?: string };
+type Item = { name: string; title?: string; description?: string; uri?: string; uriTemplate?: string };
+type Lists = { tools: Item[]; resources: Item[]; prompts: Item[] };
 
 // Streamable HTTP may answer as JSON or as a single SSE "data:" frame.
 async function rpc(method: string, params: object = {}) {
@@ -20,26 +21,42 @@ async function rpc(method: string, params: object = {}) {
 }
 
 export function ToolList() {
-  const [tools, setTools] = useState<Tool[] | null>(null);
+  const [lists, setLists] = useState<Lists | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    rpc("tools/list")
-      .then((r) => setTools(r.tools))
+    Promise.all([rpc("tools/list"), rpc("resources/list"), rpc("resources/templates/list"), rpc("prompts/list")])
+      .then(([t, r, rt, p]) => setLists({ tools: t.tools, resources: [...r.resources, ...rt.resourceTemplates], prompts: p.prompts }))
       .catch((e: Error) => setError(e.message));
   }, []);
 
   if (error) return <p role="alert" className="text-red-600 dark:text-red-400">{error}</p>;
-  if (!tools) return <p className="opacity-60">Loading tools…</p>;
-  return (
-    <ul className="space-y-2" data-testid="mcp-tools">
-      {tools.map((t) => (
-        <li key={t.name} className="break-words">
-          <code className="font-semibold break-all">{t.name}</code>
+  if (!lists) return <p className="opacity-60">Loading tools…</p>;
+  const list = (items: Item[], testid: string, label: (i: Item) => string) => (
+    <ul className="space-y-2" data-testid={testid}>
+      {items.map((t) => (
+        <li key={label(t)} className="break-words">
+          <code className="font-semibold break-all">{label(t)}</code>
           {t.title && <span className="ml-2">{t.title}</span>}
           {t.description && <p className="text-xs opacity-70">{t.description}</p>}
         </li>
       ))}
     </ul>
+  );
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Tools ({lists.tools.length})</h3>
+        {list(lists.tools, "mcp-tools", (t) => t.name)}
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Resources ({lists.resources.length})</h3>
+        {list(lists.resources, "mcp-resources", (t) => t.uri ?? t.uriTemplate ?? t.name)}
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Prompts ({lists.prompts.length})</h3>
+        {list(lists.prompts, "mcp-prompts", (t) => t.name)}
+      </div>
+    </div>
   );
 }

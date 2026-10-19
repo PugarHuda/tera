@@ -62,7 +62,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
   }
 }
 
-type PushResult = { prices: Record<string, string>; coupons: Record<string, string>; taxRates: Record<string, string>; dashboard: string };
+type PushResult = { prices: Record<string, string>; coupons: Record<string, string>; taxRates: Record<string, string>; meterId: string | null };
 
 export function Builder({ reference }: { reference: Catalog }) {
   const [rows, setRows] = useState<Rows>(() => toRows(reference));
@@ -296,6 +296,7 @@ export function Builder({ reference }: { reference: Catalog }) {
                   tax {id} → {sid}
                 </li>
               ))}
+              {push.result.meterId && <li>meter tera_api_calls → {push.result.meterId}</li>}
             </ul>
           </div>
         )}

@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   lastPush = Date.now();
   try {
     const ids = await pushCatalogOnce(stripeClient(), catalog);
-    return Response.json({ prices: ids.prices, coupons: ids.coupons, taxRates: ids.taxRates });
+    return Response.json(ids);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }

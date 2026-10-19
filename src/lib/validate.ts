@@ -74,6 +74,8 @@ export function parseCatalog(x: unknown): Catalog {
       if (pct === (c.amount_off !== undefined)) fail(`${at} needs exactly one of percent_off or amount_off`);
       if (pct && !(typeof c.percent_off === "number" && c.percent_off > 0 && c.percent_off <= 100)) fail(`${at}.percent_off must be in (0, 100]`);
       if (!pct && !isInt(c.amount_off, 1)) fail(`${at}.amount_off must be a positive integer`);
+      // Stripe rejects an amount_off coupon without a currency: catch it here, not as a 502 on push.
+      if (!pct && (typeof c.currency !== "string" || !/^[a-z]{3}$/i.test(c.currency))) fail(`${at}.currency must be a 3-letter ISO code for amount_off`);
       if (!["once", "repeating", "forever"].includes(c.duration as string)) fail(`${at}.duration must be once, repeating or forever`);
       if (c.duration === "repeating" && !isInt(c.duration_in_months, 1, 120)) fail(`${at}.duration_in_months must be 1-120`);
     }

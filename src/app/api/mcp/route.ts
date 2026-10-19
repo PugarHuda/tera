@@ -1,10 +1,14 @@
-// MCP server (Streamable HTTP): lets coding agents run Tera's billing engine as tools.
+// MCP server (Streamable HTTP): lets coding agents run Tera's billing engine as tools, read its evidence as resources.
+import { ResourceTemplate } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import golden from "../../../../golden/scenarios.json";
+import evidence from "../../../../golden/parity/index.json";
 import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
-import { Cooldown, checkLiveLimits, liveParity } from "@/lib/stripe-parity";
-import { BadRequest, EVENT_TYPES, defaultCatalog, parseMigration, parseTimeline } from "@/lib/validate";
+import { spec } from "@/lib/openapi";
+import { encodeCatalog, encodeTimeline } from "@/lib/share";
+import { Cooldown, checkLiveLimits, liveParity, pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
+import { BadRequest, EVENT_TYPES, defaultCatalog, parseCatalog, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
   at: z.string().describe("ISO-8601 UTC timestamp, e.g. 2027-01-17T00:00:00Z"),
@@ -17,7 +21,7 @@ const event = z.object({
     .describe("Seats, or usage units for report_usage. On change_price it is the new quantity; omitted means 1, as in Stripe (R13)."),
   coupon: z.string().optional().describe(`Coupon code: ${Object.keys(defaultCatalog.coupons ?? {}).join(", ")}`),
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
-  trial_days: z.number().int().optional(),
+  trial_days: z.number().int().min(1).max(730).optional(),
   proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14). On cancel_now, always_invoice refunds the unused time on a final invoice (Stripe prorate + invoice_now, R17)"),
   billing_cycle_anchor: z
     .string()
@@ -29,6 +33,19 @@ const event = z.object({
     .optional()
     .describe("subscribe/start_trial only. Stripe's default for new subscriptions is flexible; omitted means classic (R16)"),
 });
+
+// A custom catalog goes through the same parser as the REST API: one trust boundary, one set of messages.
+const catalog = z
+  .record(z.string(), z.unknown())
+  .optional()
+  .describe("Optional custom catalog { prices, coupons?, tax_rates? } in the /api/openapi.json Catalog shape; omitted = the golden catalog (resource tera://catalog)");
+
+const APP = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "tera-orpin-three.vercel.app"}`;
+const scenarioById = (id: string) => golden.scenarios.find((x) => x.id.toLowerCase() === id.toLowerCase());
+const evidenceSummary = () =>
+  evidence.map(({ id, title, verified_at, stripe_api_version, match, diffs, test_clock }) => ({ id, title, verified_at, stripe_api_version, match, diffs, test_clock }));
+const json = (uri: URL, data: unknown) => ({ contents: [{ uri: uri.href, mimeType: "application/json", text: JSON.stringify(data, null, 2) }] });
+const ask = (t: string) => ({ messages: [{ role: "user" as const, content: { type: "text" as const, text: t } }] });
 
 const text = (t: string, data?: unknown, isError = false) => ({
   content: [{ type: "text" as const, text: data === undefined ? t : `${t}\n\n${JSON.stringify(data, null, 2)}` }],
@@ -47,6 +64,8 @@ function guard<A>(fn: (a: A) => ReturnType<typeof text>) {
   };
 }
 
+const readOnly = { readOnlyHint: true, openWorldHint: false };
+
 const handler = createMcpHandler(
   (server) => {
     server.registerTool(
@@ -55,10 +74,11 @@ const handler = createMcpHandler(
         title: "Simulate a customer's invoices",
         description:
           "Run a customer timeline (subscribe, trials, upgrades, coupons, tax, usage, cancellation) through Tera's Stripe-parity billing engine and return every invoice to the cent. Amounts are integers in minor units.",
-        inputSchema: z.object({ timeline: z.array(event).min(1), locale: z.string().optional() }),
+        inputSchema: z.object({ timeline: z.array(event).min(1), catalog, locale: z.string().optional() }),
+        annotations: readOnly,
       },
-      guard(({ timeline, locale }) => {
-        const result = simulate(defaultCatalog, parseTimeline(timeline));
+      guard(({ timeline, catalog, locale }) => {
+        const result = simulate(parseCatalog(catalog), parseTimeline(timeline));
         const summary = result.invoices
           .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}, due ${formatMoney(i.amount_due, i.currency, locale)}${i.starting_balance < 0 ? ` (credit applied ${formatMoney(-i.starting_balance, i.currency, locale)})` : ""}`)
           .join("\n");
@@ -72,19 +92,21 @@ const handler = createMcpHandler(
         title: "Replay a timeline in real Stripe and diff it",
         description:
           "Replay a customer timeline (max 15 events, 2 years) in a fresh Stripe test-mode test clock and compare Stripe's invoices with Tera's to the cent. Takes up to a minute; one run per 30 seconds.",
-        inputSchema: z.object({ timeline: z.array(event).min(1) }),
+        inputSchema: z.object({ timeline: z.array(event).min(1), catalog }),
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       },
-      async ({ timeline }) => {
-        let parsed, tera;
+      async ({ timeline, catalog: raw }) => {
+        let cat, parsed, tera;
         try {
+          cat = parseCatalog(raw);
           parsed = parseTimeline(timeline);
           checkLiveLimits(parsed);
-          tera = simulate(defaultCatalog, parsed).invoices;
+          tera = simulate(cat, parsed).invoices;
         } catch (e) {
           return text(`Rejected: ${(e as Error).message}`, undefined, true);
         }
         try {
-          const r = await liveParity(defaultCatalog, parsed, tera);
+          const r = await liveParity(cat, parsed, tera);
           const head = r.match
             ? `Matches Stripe: ${r.stripe.length} invoice(s) identical to the cent (test clock ${r.test_clock}).`
             : `Differs from Stripe on ${r.diffs.length} field(s) (test clock ${r.test_clock}).`;
@@ -99,17 +121,21 @@ const handler = createMcpHandler(
       "plan_price_migration",
       {
         title: "Preview the MRR impact of a price change",
-        description: "Given the current and new monthly unit price (minor units), a grandfathering flag and seats per customer, return affected customers and MRR before/after/delta.",
+        description:
+          "Given the current and new unit price per seat (minor units of `currency`), the billing interval, a grandfathering flag and seats per customer (a number or { name, seats }), return affected customers and MRR before/after/delta, per customer and in total.",
         inputSchema: z.object({
           unit_amount: z.number().int(),
           new_unit_amount: z.number().int(),
           grandfather: z.boolean(),
-          customers: z.array(z.number().int()),
+          interval: z.enum(["month", "year"]).optional().describe("Annual prices count as amount / 12 MRR per customer"),
+          currency: z.string().regex(/^[a-zA-Z]{3}$/).optional().describe("ISO code for the summary line; default usd"),
+          customers: z.array(z.union([z.number().int(), z.object({ name: z.string(), seats: z.number().int() })])),
         }),
+        annotations: readOnly,
       },
-      guard((input) => {
+      guard(({ currency = "usd", ...input }) => {
         const r = migrate(parseMigration(input));
-        return text(`MRR ${formatMoney(r.mrr_before, "usd")} -> ${formatMoney(r.mrr_after, "usd")} (${r.affected} customers affected)`, r);
+        return text(`MRR ${formatMoney(r.mrr_before, currency)} -> ${formatMoney(r.mrr_after, currency)} (${r.affected} customers affected)`, r);
       }),
     );
 
@@ -119,6 +145,7 @@ const handler = createMcpHandler(
         title: "List hand-derived golden billing scenarios",
         description: "The reference scenarios (with expected invoices derived by hand from Stripe's rules) that Tera is tested against.",
         inputSchema: z.object({}),
+        annotations: readOnly,
       },
       guard(() => text(golden.scenarios.map((s) => `${s.id} ${s.title}`).join("\n"))),
     );
@@ -129,15 +156,144 @@ const handler = createMcpHandler(
         title: "Get one golden scenario",
         description: "Timeline, expected invoices and the hand math for a golden scenario id such as S05.",
         inputSchema: z.object({ id: z.string() }),
+        annotations: readOnly,
       },
       guard(({ id }) => {
-        const s = golden.scenarios.find((x) => x.id.toLowerCase() === id.toLowerCase());
+        const s = scenarioById(id);
         if (!s) throw new BadRequest(`Scenario ${id} not found`);
         return text(`${s.id} ${s.title}`, s);
       }),
     );
+
+    server.registerTool(
+      "get_parity_evidence",
+      {
+        title: "Recorded Stripe evidence for golden scenarios",
+        description:
+          "The stored result of replaying golden scenarios in Stripe test clocks: match flag, diffs, test clock id, API version and, for one id, Stripe's own invoice ids and lines. No Stripe call.",
+        inputSchema: z.object({ id: z.string().optional().describe("Scenario id such as S05; omitted = a summary of all") }),
+        annotations: readOnly,
+      },
+      guard(({ id }) => {
+        if (id === undefined) {
+          const all = evidenceSummary();
+          return text(`${all.filter((e) => e.match).length} / ${all.length} recorded replays match Stripe to the cent`, all);
+        }
+        const e = evidence.find((x) => x.id.toLowerCase() === id.toLowerCase());
+        if (!e) throw new BadRequest(`No Stripe evidence for ${id} (scenarios without a timeline are not replayable)`);
+        return text(`${e.id} ${e.match ? "matches" : "differs from"} Stripe (verified ${e.verified_at}, test clock ${e.test_clock})`, e);
+      }),
+    );
+
+    server.registerTool(
+      "create_share_link",
+      {
+        title: "Open a timeline in the Tera simulator",
+        description:
+          "Validate a timeline (and optional custom catalog) and return a link that opens it in Tera's web simulator with the same invoices, for a human to inspect or share.",
+        inputSchema: z.object({ timeline: z.array(event).min(1), catalog }),
+        annotations: readOnly,
+      },
+      guard(({ timeline, catalog: raw }) => {
+        const parsed = parseTimeline(timeline);
+        const cat = raw === undefined ? null : parseCatalog(raw);
+        simulate(cat ?? defaultCatalog, parsed); // a link that only shows an error is not worth sharing
+        const url = `${APP}/?t=${encodeTimeline(parsed)}${cat ? `&c=${encodeCatalog(cat)}` : ""}`;
+        return text(url, { url });
+      }),
+    );
+
+    server.registerTool(
+      "push_catalog_to_stripe",
+      {
+        title: "Create a catalog in Stripe test mode",
+        description:
+          "Create (or reuse, keyed by a hash of each definition) the catalog's products, prices, coupons, tax rates and usage meter in Tera's Stripe TEST-mode account and return the Stripe ids. Never touches live mode.",
+        inputSchema: z.object({ catalog: z.record(z.string(), z.unknown()).describe("{ prices, coupons?, tax_rates? } in the /api/openapi.json Catalog shape") }),
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      },
+      async ({ catalog: raw }) => {
+        let cat;
+        try {
+          cat = parseCatalog(raw);
+        } catch (e) {
+          return text(`Rejected: ${(e as Error).message}`, undefined, true);
+        }
+        try {
+          const ids = await pushCatalogOnce(stripeClient(), cat);
+          return text(`Created or reused ${Object.keys(ids.prices).length} price(s) in Stripe test mode`, ids);
+        } catch (e) {
+          return text(`Stripe push failed: ${(e as Error).message}`, undefined, true);
+        }
+      },
+    );
+
+    server.registerResource(
+      "catalog",
+      "tera://catalog",
+      { title: "Golden catalog", description: "Prices, coupons and tax rates the golden scenarios (and tools without a catalog) use", mimeType: "application/json" },
+      (uri) => json(uri, defaultCatalog),
+    );
+    server.registerResource("openapi", "tera://openapi.json", { title: "Tera REST API (OpenAPI 3.1)", mimeType: "application/json" }, (uri) => json(uri, spec));
+    server.registerResource(
+      "parity-evidence",
+      "tera://parity",
+      { title: "Stripe parity evidence", description: "Match flag, diffs and test clock per replayed golden scenario", mimeType: "application/json" },
+      (uri) => json(uri, evidenceSummary()),
+    );
+    server.registerResource(
+      "scenario",
+      new ResourceTemplate("tera://scenarios/{id}", {
+        list: () => ({
+          resources: golden.scenarios.map((s) => ({ uri: `tera://scenarios/${s.id}`, name: s.id, title: s.title, mimeType: "application/json" })),
+        }),
+        complete: { id: (v) => golden.scenarios.map((s) => s.id).filter((id) => id.toLowerCase().startsWith(v.toLowerCase())) },
+      }),
+      { title: "Golden scenario", description: "Timeline, hand-derived expected invoices and the math", mimeType: "application/json" },
+      (uri, { id }) => {
+        const s = scenarioById(String(id));
+        if (!s) throw new Error(`Scenario ${id} not found`);
+        return json(uri, s);
+      },
+    );
+
+    server.registerPrompt(
+      "explain_invoice",
+      {
+        title: "Explain a golden scenario's invoices",
+        description: "Walk through every line of a golden scenario's invoices and the Stripe rule behind it",
+        argsSchema: z.object({ id: z.string().describe("Golden scenario id, e.g. S05") }),
+      },
+      ({ id }) =>
+        ask(
+          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R20, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
+        ),
+    );
+    server.registerPrompt(
+      "audit_price_change",
+      {
+        title: "Audit a price change before shipping it",
+        description: "Model a price change for existing customers, check the proration a mid-cycle switch causes, and verify it in Stripe",
+        argsSchema: z.object({
+          from_price: z.string().describe("Current price id in the catalog, e.g. starter_m"),
+          to_price: z.string().describe("New price id, e.g. pro_m"),
+          customers: z.string().describe("Seats per customer, comma separated, e.g. 1, 3, 10"),
+        }),
+      },
+      ({ from_price, to_price, customers }) =>
+        ask(
+          [
+            `I want to move customers from ${from_price} to ${to_price}. Seats per customer: ${customers}.`,
+            "1. Read tera://catalog for both prices' unit amounts and intervals.",
+            "2. Call plan_price_migration with grandfather false and with grandfather true, and compare MRR.",
+            `3. Call simulate_timeline for one customer who subscribes to ${from_price} on 2027-01-01 and switches to ${to_price} on 2027-01-16, once with proration_behavior create_prorations and once with none, then advance_to 2027-03-01.`,
+            "4. Call verify_timeline_in_stripe on the prorated timeline so Stripe confirms the numbers.",
+            "5. Recommend one option with the exact amounts, and include a create_share_link link to the timeline.",
+          ].join("\n"),
+        ),
+    );
   },
-  { serverInfo: { name: "tera", version: "0.1.0" } },
+  { serverInfo: { name: "tera", version: "0.2.0" } },
 );
 
 // verify_timeline_in_stripe replays in a Stripe test clock, which can take a minute.

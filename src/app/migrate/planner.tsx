@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatMoney, migrate, type Interval } from "@/lib/billing";
-import { parseCustomers, toCsv } from "@/lib/csv";
+import { csvBlob, parseCustomers, toCsv } from "@/lib/csv";
 
 const toMinor = (s: string) => Math.round(Number(s) * 100);
 const SAMPLE = "name,seats\nAcme Inc,12\nGlobex,3\nInitech,1\nUmbrella,40";
@@ -35,7 +35,7 @@ export function Planner() {
   const download = () => {
     if (!report) return;
     const csv = toCsv(report.per_customer.map((c) => ({ name: c.name, seats: c.seats, mrr_before: c.mrr_before / 100, mrr_after: c.mrr_after / 100, mrr_delta: c.mrr_delta / 100 })));
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })), download: "tera-migration-impact.csv" });
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(csvBlob(csv)), download: "tera-migration-impact.csv" });
     a.click();
     URL.revokeObjectURL(a.href);
   };
