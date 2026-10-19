@@ -18,12 +18,13 @@ const FIELDS: Record<EventType, Field[]> = {
   apply_coupon: ["coupon"],
   report_usage: ["quantity"],
   cancel_at_period_end: [],
-  resume: [],
+  resume: ["billing_cycle_anchor", "proration_behavior"],
   end_trial: [],
   cancel_now: ["proration_behavior"],
   reset_anchor: ["proration_behavior"],
   remove_coupon: [],
   cancel_at: ["cancel_at", "proration_behavior"],
+  pause: ["proration_behavior"],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -34,15 +35,18 @@ const LABEL: Record<EventType, string> = {
   apply_coupon: "Apply coupon",
   report_usage: "Report usage",
   cancel_at_period_end: "Cancel at period end",
-  resume: "Undo scheduled cancel",
+  resume: "Resume (undo cancel, or unpause)",
   end_trial: "End trial now",
   cancel_now: "Cancel immediately",
   reset_anchor: "Reset billing anchor to now",
   remove_coupon: "Remove coupon",
   cancel_at: "Cancel on a date",
+  pause: "Pause (flexible mode)",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];
+// R21: resuming a paused subscription restarts the cycle now (Stripe's default) or keeps the old anchor.
+const RESUME_ANCHORS = ["now", "unchanged"];
 
 const day = (iso: string) => iso.slice(0, 10);
 // A date input reports every keystroke: "0002-02-10" while the year is being typed. The field keeps what is typed
@@ -256,7 +260,7 @@ export function Simulator({
               {FIELDS[e.type].map((f) => (
                 <label key={f} className="text-sm">
                   <span className="block text-xs opacity-70">{f.replaceAll("_", " ")}</span>
-                  {f === "cancel_at" || f === "billing_cycle_anchor" ? (
+                  {f === "cancel_at" || (f === "billing_cycle_anchor" && e.type !== "resume") ? (
                     <DateField label={`Event ${i + 1} ${f}`} value={e[f]} onCommit={(v) => update(i, { [f]: v ?? undefined })} />
                   ) : f === "quantity" || f === "trial_days" ? (
                     <input
@@ -275,7 +279,7 @@ export function Simulator({
                       onChange={(ev) => update(i, { [f]: ev.target.value || undefined })}
                     >
                       <option value="">—</option>
-                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : f === "billing_mode" ? BILLING_MODES : PRORATION_BEHAVIORS).map((o) => (
+                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : f === "billing_mode" ? BILLING_MODES : f === "billing_cycle_anchor" ? RESUME_ANCHORS : PRORATION_BEHAVIORS).map((o) => (
                         <option key={o} value={o}>
                           {optionLabel(f, o)}
                         </option>

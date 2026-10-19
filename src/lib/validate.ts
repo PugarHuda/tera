@@ -20,6 +20,7 @@ export const EVENT_TYPES = [
   "reset_anchor",
   "remove_coupon",
   "cancel_at",
+  "pause",
   "advance_to",
 ] as const;
 
@@ -104,7 +105,10 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
-    if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
+    if (e.type === "resume") {
+      if (e.billing_cycle_anchor !== undefined && e.billing_cycle_anchor !== "now" && e.billing_cycle_anchor !== "unchanged")
+        fail(`${at}.billing_cycle_anchor on resume must be "now" or "unchanged"`);
+    } else if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
     if ((e.cancel_at !== undefined || e.type === "cancel_at") && !isDate(e.cancel_at)) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);

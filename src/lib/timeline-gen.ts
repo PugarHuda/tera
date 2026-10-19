@@ -54,7 +54,8 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
     if (kind !== "apply_coupon" && kind !== "remove_coupon") e.proration_behavior = pick([undefined, undefined, "always_invoice", "none"]);
     events.push(e);
   }
-  if (r() < 0.25) {
+  const cancels = r() < 0.25;
+  if (cancels) {
     t += step(1, 20);
     events.push({ at: at(), type: r() < 0.3 ? "cancel_now" : "cancel_at_period_end" });
     // R17: half the immediate cancellations refund the unused time (prorate + invoice_now).
@@ -69,6 +70,16 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
       t += step(1, 5);
       events.push({ at: at(), type: "resume" });
     }
+  }
+  // R21: flexible subscriptions are sometimes paused (credit pending, invoiced or none) and resumed later, with the
+  // cycle restarting or the old anchor kept. Drawn only in flexible mode, so classic seeds stay reproducible.
+  if (mode === "flexible" && first.type === "subscribe" && !cancels && r() < 0.35) {
+    t += step(1, 20);
+    events.push({ at: at(), type: "pause", proration_behavior: pick([undefined, undefined, "always_invoice", "none"] as const) });
+    t += step(1, 45);
+    const resume: TimelineEvent = { at: at(), type: "resume" };
+    if (r() < 0.5) resume.billing_cycle_anchor = "unchanged";
+    events.push(resume);
   }
   t += int(35, 70) * 86_400_000;
   events.push({ at: at(), type: "advance_to" });

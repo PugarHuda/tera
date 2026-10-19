@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { migrate } from "./billing";
+import { migrate, simulate } from "./billing";
 import { csvBlob, toCsv } from "./csv";
 import { decodeTimeline, encodeTimeline } from "./share";
 import { BadRequest, defaultCatalog, parseCatalog, parseMigration, parseTimeline } from "./validate";
@@ -64,5 +64,23 @@ describe("share links and CSV at the limits", () => {
   it("starts the download with a UTF-8 byte order mark", async () => {
     const bytes = new Uint8Array(await csvBlob("name\nZoë\n").arrayBuffer());
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+  });
+});
+
+describe("R21 pause: what Stripe rejects, Tera rejects", () => {
+  const flex = { ...sub, billing_mode: "flexible" };
+  const run = (timeline: object[]) => () => simulate(defaultCatalog, parseTimeline(timeline));
+  it.each([
+    [[sub, { at: "2027-01-10T00:00:00Z", type: "pause" }], "flexible billing mode"],
+    [[{ ...flex, type: "start_trial", trial_days: 14 }, { at: "2027-01-05T00:00:00Z", type: "pause" }], "during a trial"],
+    [[flex, { at: "2027-01-10T00:00:00Z", type: "pause" }, { at: "2027-01-11T00:00:00Z", type: "change_quantity", quantity: 2 }], "while paused"],
+    [[flex, { at: "2027-01-10T00:00:00Z", type: "pause" }, { at: "2027-02-01T00:00:00Z", type: "resume", billing_cycle_anchor: "unchanged" }], "exactly on a billing date"],
+  ])("rejects %j", (timeline, message) => expect(run(timeline)).toThrow(message));
+  it("rejects a date as a resume anchor", () =>
+    expect(() => parseTimeline([flex, { at: "2027-01-10T00:00:00Z", type: "resume", billing_cycle_anchor: "2027-02-01" }])).toThrow('"now" or "unchanged"'));
+  it("a paused subscription renews nothing and reports paused", () => {
+    const r = simulate(defaultCatalog, parseTimeline([flex, { at: "2027-01-10T00:00:00Z", type: "pause" }, { at: "2027-06-01T00:00:00Z", type: "advance_to" }]));
+    expect(r.status).toBe("paused");
+    expect(r.invoices.map((i) => i.date)).toEqual(["2027-01-01"]);
   });
 });

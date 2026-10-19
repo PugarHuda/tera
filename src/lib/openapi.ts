@@ -16,7 +16,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R20 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R21 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   paths: {
     "/api/simulate": {
@@ -250,7 +250,7 @@ export const spec = {
                 tax_rate: { type: "string" },
                 trial_days: { type: "integer", minimum: 1, maximum: 730 },
                 proration_behavior: { type: "string", enum: [...PRORATION_BEHAVIORS] },
-                billing_cycle_anchor: { type: "string", format: "date-time", description: "subscribe: first billing date (Stripe billing_cycle_anchor), at most one period ahead (R20)." },
+                billing_cycle_anchor: { type: "string", description: "subscribe: ISO-8601 first billing date (Stripe billing_cycle_anchor), at most one period ahead (R20). resume of a paused subscription: \"now\" (default) or \"unchanged\" (R21)." },
                 cancel_at: { type: "string", format: "date-time", description: "cancel_at events: when the subscription ends (Stripe cancel_at, R19)." },
                 billing_mode: {
                   type: "string",
@@ -265,7 +265,7 @@ export const spec = {
       SimulationResult: {
         type: "object",
         properties: {
-          status: { type: "string", enum: ["active", "trialing", "canceled", "none"] },
+          status: { type: "string", enum: ["active", "trialing", "paused", "canceled", "none"] },
           canceled_at: { type: ["string", "null"] },
           invoices: {
             type: "array",

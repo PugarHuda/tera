@@ -201,7 +201,23 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
         sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
         break;
       case "resume":
-        sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+        // R21: a paused subscription resumes through its own endpoint; paid at once with the customer's card.
+        sub =
+          sub!.status === "paused"
+            ? await stripe.subscriptions.resume(sub!.id, {
+                payment_behavior: "resume_on_payment_success",
+                billing_cycle_anchor: { type: e.billing_cycle_anchor === "unchanged" ? "unchanged" : "now" },
+                ...(e.proration_behavior ? { proration_behavior: e.proration_behavior } : {}),
+              })
+            : await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+        break;
+      case "pause":
+        // proration_behavior maps onto pause's billing knobs: none = no unused-time credit, always_invoice = invoice it now.
+        sub = await stripe.subscriptions.pause(sub!.id, {
+          type: "subscription",
+          bill_for: { unused_time_from: { type: e.proration_behavior === "none" ? "none" : "now" } },
+          invoicing_behavior: e.proration_behavior === "always_invoice" ? "invoice" : "pending_invoice_item",
+        });
         break;
       case "end_trial":
         sub = await stripe.subscriptions.update(sub!.id, { trial_end: "now" });

@@ -22,11 +22,18 @@ const event = z.object({
   coupon: z.string().optional().describe(`Coupon code: ${Object.keys(defaultCatalog.coupons ?? {}).join(", ")}`),
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
   trial_days: z.number().int().min(1).max(730).optional(),
-  proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14). On cancel_now, always_invoice refunds the unused time on a final invoice (Stripe prorate + invoice_now, R17)"),
+  proration_behavior: z
+    .enum(PRORATION_BEHAVIORS)
+    .optional()
+    .describe(
+      "none = no proration; the new terms bill from the next renewal (R14). On cancel_now, always_invoice refunds the unused time on a final invoice (Stripe prorate + invoice_now, R17). On pause (flexible only, R21): default credits the unused time on the next invoice, always_invoice invoices the credit now, none credits nothing",
+    ),
   billing_cycle_anchor: z
     .string()
     .optional()
-    .describe("subscribe only: ISO-8601 first billing date, at most one period ahead; the time before it is prorated now unless proration_behavior=none (R20)"),
+    .describe(
+      'subscribe: ISO-8601 first billing date, at most one period ahead; the time before it is prorated now unless proration_behavior=none (R20). resume of a paused subscription: "now" (default) or "unchanged" (R21)',
+    ),
   cancel_at: z.string().optional().describe("cancel_at only: ISO-8601 UTC date the subscription ends (Stripe cancel_at, R19)"),
   billing_mode: z
     .enum(BILLING_MODES)

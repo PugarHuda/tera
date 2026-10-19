@@ -49,6 +49,7 @@ export type TimelineEvent = {
     | "reset_anchor"
     | "remove_coupon"
     | "cancel_at"
+    | "pause"
     | "advance_to";
   price?: string;
   quantity?: number;
@@ -56,7 +57,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
-  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20). */
+  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20).
+   *  resume of a paused subscription: "now" (default, a new period starts) or "unchanged" (R21). */
   billing_cycle_anchor?: string;
   /** cancel_at: when the subscription ends (Stripe `cancel_at`), ISO-8601 UTC. */
   cancel_at?: string;
@@ -87,7 +89,7 @@ export type Invoice = {
 
 export type SimulationResult = {
   invoices: Invoice[];
-  status: "active" | "trialing" | "canceled" | "none";
+  status: "active" | "trialing" | "paused" | "canceled" | "none";
   canceled_at: string | null;
 };
 
@@ -148,7 +150,7 @@ type Sub = {
   anchorDay: number;
   periodStart: number;
   periodEnd: number;
-  status: "active" | "trialing" | "canceled";
+  status: "active" | "trialing" | "paused" | "canceled";
   cancelAtPeriodEnd: boolean;
   /** R19: Stripe `cancel_at`, and the proration behavior it was set with. */
   cancelAt: number | null;
@@ -287,7 +289,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   const renewUntil = (t: number) => {
-    while (sub && sub.status !== "canceled" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
+    // R21: a paused subscription generates no invoices until it resumes.
+    while (sub && sub.status !== "canceled" && sub.status !== "paused" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
       finalize();
       const s: Sub = sub;
       if (s.cancelAt !== null && s.cancelAt <= s.periodEnd) {
@@ -471,9 +474,29 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         break;
       }
       case "resume": {
-        // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
         const r = active(e.type);
+        if (r.status === "paused") {
+          resumePaused(r, at, e);
+          break;
+        }
+        // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
         [r.cancelAtPeriodEnd, r.cancelAt] = [false, null];
+        break;
+      }
+      case "pause": {
+        // R21: Stripe's pause (API 2026-09-30.endive) stops invoicing now. Flexible billing mode only, and not in a
+        // trial. The period ends now; unused time is credited from each original debit like any flexible credit
+        // (pending by default = invoicing_behavior pending_invoice_item; always_invoice = invoice; none =
+        // bill_for.unused_time_from none), so a coupon-priced debit refunds net of its discount (S84).
+        const s = active(e.type);
+        if (s.mode !== "flexible") throw new Error("pause needs flexible billing mode (Stripe rejects pausing a classic subscription)");
+        if (s.status === "trialing") throw new Error("pause during a trial: Stripe rejects it; use end_trial first");
+        if (price(s.priceId).usage_type === "metered") throw new Error("pause with a metered price is not modelled");
+        if (s.cancelAtPeriodEnd || s.cancelAt !== null) throw new Error("pause with a scheduled cancellation is not modelled: resume it first");
+        if (e.proration_behavior !== "none") bill(s, at, creditDebits(s, at), e.proration_behavior);
+        s.debits = [];
+        s.periodEnd = at;
+        s.status = "paused";
         break;
       }
       case "end_trial": {
@@ -522,6 +545,38 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     }
   }
   finalize();
+
+  // R21: resume a paused subscription. billing_cycle_anchor "now" (Stripe's default) starts a new period now and
+  // invoices it at once with anything pending, such as the pause credit (S80). "unchanged" keeps the old anchor: the
+  // period containing `at` is charged from now to its end as a proration, left pending for the next renewal (S81).
+  function resumePaused(s: Sub, at: number, e: TimelineEvent) {
+    const anchor = e.billing_cycle_anchor ?? "now";
+    if (anchor !== "now" && anchor !== "unchanged") throw new Error('resume of a paused subscription takes billing_cycle_anchor "now" or "unchanged"');
+    s.status = "active";
+    const interval = price(s.priceId).interval;
+    if (anchor === "now") {
+      s.periodStart = at;
+      s.anchor = at;
+      s.anchorDay = new Date(at).getUTCDate();
+      s.periodEnd = addInterval(at, interval, s.anchorDay);
+      s.paid = activeDiscount(s, licensedAmount(s), at);
+      debit(s, at);
+      openInvoice(s, at, [...s.pending, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+      s.pending = [];
+      return;
+    }
+    let k = 0;
+    while (addInterval(s.anchor, interval, s.anchorDay, k + 1) <= at) k++;
+    s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
+    s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
+    if (s.periodStart === at) throw new Error('resume with billing_cycle_anchor "unchanged" exactly on a billing date is not modelled');
+    s.paid = activeDiscount(s, licensedAmount(s), at);
+    if (e.proration_behavior === "none") return;
+    const parts = chargeParts(s, at, at, s.periodEnd);
+    const charge = { description: "Time after resuming", amount: parts.item.unit - parts.paid.off, proration: true };
+    if (charge.amount !== 0) s.debits.push(parts);
+    bill(s, at, [charge], e.proration_behavior);
+  }
 
   // Credit the unused time (unless "none"), move the anchor to now and invoice the full new period at once.
   function restartPeriod(s: Sub, at: number, old: Item, behavior: ProrationBehavior | undefined) {
@@ -658,6 +713,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   function active(type: string): Sub {
     if (!sub) throw new Error(`${type} before subscribe`);
     if (sub.status === "canceled") throw new Error(`${type} after the subscription was canceled on ${isoDay(canceledAt!)}`);
+    if (sub.status === "paused" && type !== "resume" && type !== "cancel_now") throw new Error(`${type} while paused is not modelled: resume first`);
     return sub;
   }
 

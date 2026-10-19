@@ -1,0 +1,66 @@
+{
+  "id": "S83",
+  "title": "Flexible: pause without crediting unused time (bill_for.unused_time_from none)",
+  "verified_at": "2026-10-19T05:08:37.732Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1US8nu2QR5nixgqNGRoEpzqu",
+  "customer": "cus_VT4xpEZrVdrqhN",
+  "stripe": [
+    {
+      "id": "in_1US8nv2QR5nixgqNYs3ec91u",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US8o42QR5nixgqNG6Jz07tE",
+      "date": "2027-02-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US8oA2QR5nixgqNjNd0uYQl",
+      "date": "2027-03-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}
