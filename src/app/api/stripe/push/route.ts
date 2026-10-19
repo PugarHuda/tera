@@ -1,7 +1,8 @@
-import { badRequest, parseCatalog } from "@/lib/validate";
+import { badRequest, methodNotAllowed, parseCatalog } from "@/lib/validate";
 import { pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
 
 export const maxDuration = 120;
+export const GET = methodNotAllowed("POST");
 
 // FR5: create (or reuse) the catalog's products, prices, coupons and tax rates in Stripe test mode.
 let lastPush = 0;

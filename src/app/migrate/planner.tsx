@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatMoney, migrate, type Interval } from "@/lib/billing";
+import { parseMigration } from "@/lib/validate";
 import { csvBlob, parseCustomers, toCsv } from "@/lib/csv";
 
 // Minor units per the currency (JPY has none, USD two), as Stripe and formatMoney count them.
@@ -29,9 +30,15 @@ export function Planner() {
         : parsed.customers.length === 0
           ? "Add at least one customer."
           : null;
-  const report = error
-    ? null
-    : migrate({ unit_amount: toMinor(oldPrice), new_unit_amount: toMinor(newPrice), grandfather, customers: parsed.customers, interval });
+  // Same limits as the API (Infinity, 1e20 or 20-digit seat counts would print $∞ or inexact sums).
+  let report: ReturnType<typeof migrate> | null = null;
+  let limit: string | null = null;
+  if (!error)
+    try {
+      report = migrate(parseMigration({ unit_amount: toMinor(oldPrice), new_unit_amount: toMinor(newPrice), grandfather, customers: parsed.customers, interval }));
+    } catch (e) {
+      limit = /unit_amount must be/.test((e as Error).message) ? "Prices must be positive amounts." : (e as Error).message;
+    }
   const usd = (x: number) => formatMoney(x, currency);
   const signed = (x: number) => `${x >= 0 ? "+" : ""}${usd(x)}`;
   const major = (x: number) => x / 10 ** digits(currency);
@@ -107,7 +114,7 @@ export function Planner() {
       <section aria-label="Impact report" className="card space-y-4">
         {error || !report ? (
           <p role="alert" className="text-red-600 dark:text-red-400" data-testid="migrate-error">
-            {error}
+            {error ?? limit}
           </p>
         ) : (
           <>
@@ -145,7 +152,7 @@ export function Planner() {
                       <td className="py-0.5">{c.name}</td>
                       <td className="text-right font-mono">{c.seats}</td>
                       <td className="text-right font-mono">{usd(c.mrr_before)}</td>
-                      <td className={`text-right font-mono ${c.mrr_delta > 0 ? "text-red-600 dark:text-red-400" : ""}`}>{signed(c.mrr_delta)}</td>
+                      <td className={`text-right font-mono ${c.mrr_delta > 0 ? "text-red-700 dark:text-red-400" : ""}`}>{signed(c.mrr_delta)}</td>
                     </tr>
                   ))}
                 </tbody>

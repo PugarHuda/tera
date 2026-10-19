@@ -7,7 +7,8 @@ export function parseCustomers(text: string): { customers: CsvCustomer[]; errors
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const errors: string[] = [];
   // Bare list of seat counts on one line (the original planner input).
-  if (lines.length === 1 && /^[\d\s,.]+$/.test(lines[0])) {
+  // Signs count too: "1, 2, -3" is a bad seat list, not a customer named "1" with 2 seats.
+  if (lines.length === 1 && /^[-+\d\s,.]+$/.test(lines[0])) {
     const seats = lines[0].split(/[\s,]+/).filter(Boolean).map(Number);
     seats.forEach((s, i) => !(Number.isInteger(s) && s > 0) && errors.push(`Item ${i + 1}: "${s}" is not a positive whole number of seats`));
     return { customers: seats.map((s, i) => ({ name: `customer ${i + 1}`, seats: s })), errors };

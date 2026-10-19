@@ -61,18 +61,28 @@ function DateField({ label, value, onCommit }: { label: string; value: string | 
     setShown(value);
     setDraft(value ? day(value) : "");
   }
+  // What is typed and what the invoices use must not silently differ (a blank, half-typed or pre-1970 date).
+  const stale = value !== undefined && draft !== day(value);
   return (
-    <input
-      type="date"
-      className="input"
-      aria-label={label}
-      value={draft}
-      onChange={(ev) => {
-        setDraft(ev.target.value);
-        const iso = typedDate(ev.target.value);
-        if (iso || ev.target.value === "") onCommit(iso);
-      }}
-    />
+    <span className="inline-flex flex-col">
+      <input
+        type="date"
+        className="input"
+        aria-label={label}
+        aria-invalid={stale || undefined}
+        value={draft}
+        onChange={(ev) => {
+          setDraft(ev.target.value);
+          const iso = typedDate(ev.target.value);
+          if (iso || ev.target.value === "") onCommit(iso);
+        }}
+      />
+      {stale && (
+        <span role="alert" className="mt-0.5 text-xs text-red-700 dark:text-red-400">
+          Not a date from 1970 on; still using {day(value)}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -122,7 +132,8 @@ export function Simulator({
       // 21,901 renewals and a frozen tab (found by a keyboard-typing E2E test).
       return { result: simulate(catalog, parseTimeline(timeline)) };
     } catch (e) {
-      return { error: (e as Error).message };
+      // The API counts events from 0 (timeline[1]); the page numbers them from 1.
+      return { error: (e as Error).message.replace(/timeline\[(\d+)\]\.?/g, (_, n) => `Event ${Number(n) + 1} `) };
     }
   })();
 
@@ -248,7 +259,12 @@ export function Simulator({
                   className="input"
                   aria-label={`Event ${i + 1} type`}
                   value={e.type}
-                  onChange={(ev) => update(i, { type: ev.target.value as EventType })}
+                  onChange={(ev) => {
+                    // Fields the new type does not show must not keep billing: a hidden coupon on a trial was still applied.
+                    const type = ev.target.value as EventType;
+                    const kept = FIELDS[type].filter((f) => e[f] !== undefined && !(f === "billing_cycle_anchor" && (type === "resume") !== (e.type === "resume")));
+                    edit(timeline.map((x, j) => (j === i ? { at: x.at, type, ...Object.fromEntries(kept.map((f) => [f, x[f]])) } : x)));
+                  }}
                 >
                   {(Object.keys(FIELDS) as EventType[]).map((t) => (
                     <option key={t} value={t}>
@@ -293,7 +309,11 @@ export function Simulator({
                 className="btn-ghost ml-auto"
                 aria-label={`Delete event ${i + 1}`}
                 data-testid={`delete-event-${i + 1}`}
-                onClick={() => edit(timeline.filter((_, j) => j !== i))}
+                onClick={() => {
+                  edit(timeline.filter((_, j) => j !== i));
+                  // Focus would land on the next row's delete button, so a second Enter deletes that event too.
+                  document.querySelector<HTMLElement>("[data-testid=add-event]")?.focus();
+                }}
               >
                 ✕
               </button>
@@ -304,6 +324,8 @@ export function Simulator({
           type="button"
           className="btn mt-3"
           data-testid="add-event"
+          disabled={timeline.length >= 100}
+          title={timeline.length >= 100 ? "A timeline is limited to 100 events" : undefined}
           onClick={() => {
             const last = timeline.at(-1);
             const at = last ? new Date(Date.parse(last.at) + 30 * 86_400_000).toISOString().slice(0, 10) + "T00:00:00Z" : "2027-01-01T00:00:00Z";
@@ -312,7 +334,7 @@ export function Simulator({
         >
           + Add event
         </button>
-        <button type="button" className="btn-ghost ml-2 mt-3 border border-current/20" data-testid="share-button" onClick={share}>
+        <button type="button" className="btn-ghost ml-2 mt-3 border border-current/20" data-testid="share-button" disabled={timeline.length === 0} onClick={share}>
           Copy share link
         </button>
         <button

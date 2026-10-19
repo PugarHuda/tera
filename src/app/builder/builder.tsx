@@ -31,35 +31,69 @@ function toRows(c: Catalog): Rows {
   };
 }
 
+const PLAIN = /^\d+(\.\d+)?$/; // no "0x10", "1e3", "Infinity" or blanks
+
+// A major-unit amount typed in the form -> minor units, or why not (decimals beyond the currency's minor unit).
+function minorOf(raw: string, currency: string, what: string): number | string {
+  const d = digits(currency);
+  const s = raw.trim();
+  if (d === 0 && /[.,]/.test(s)) return `${what}: ${currency.toUpperCase()} has no minor unit, so the amount cannot have decimals`;
+  const minor = Math.round(Number(s) * 10 ** d);
+  if (!PLAIN.test(s) || !Number.isFinite(minor) || Math.abs(Number(s) * 10 ** d - minor) > 1e-6) return `${what}: "${raw}" is not a valid ${currency.toUpperCase()} amount`;
+  return minor;
+}
+
 // Major units in the form, minor units in the catalog. Returns the first problem in plain words.
 function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalog; error?: string } {
   // Rows first, in the order shown (the simulator starts on the first price); kept metered prices after them.
   const prices: Record<string, Price> = {};
   for (const r of rows.prices) {
-    const d = digits(r.currency);
-    if (d === 0 && /[.,]/.test(r.amount)) return { error: `${r.id}: ${r.currency.toUpperCase()} has no minor unit, so the amount cannot have decimals` };
-    const minor = Math.round(Number(r.amount) * 10 ** d);
-    if (!r.amount.trim() || !Number.isFinite(minor) || Math.abs(Number(r.amount) * 10 ** d - minor) > 1e-6)
-      return { error: `${r.id}: "${r.amount}" is not a valid ${r.currency.toUpperCase()} amount` };
-    if (prices[r.id] || fixed[r.id]) return { error: `Price id ${r.id} is used twice` };
+    const minor = minorOf(r.amount, r.currency, r.id);
+    if (typeof minor === "string") return { error: minor };
+    if (Object.hasOwn(prices, r.id) || Object.hasOwn(fixed, r.id)) return { error: `Price id ${r.id} is used twice` };
     prices[r.id] = { currency: r.currency, unit_amount: minor, interval: r.interval };
   }
   Object.assign(prices, fixed);
   const coupons: Record<string, Coupon> = {};
   for (const r of rows.coupons) {
-    const v = Number(r.value);
+    if (Object.hasOwn(coupons, r.code)) return { error: `Coupon code ${r.code} is used twice` };
+    if (r.kind === "percent" && !PLAIN.test(r.value.trim())) return { error: `${r.code}: "${r.value}" is not a percentage` };
+    const off = r.kind === "amount" ? minorOf(r.value, r.currency, r.code) : 0;
+    if (typeof off === "string") return { error: off };
     coupons[r.code] = {
       duration: r.duration,
       ...(r.duration === "repeating" ? { duration_in_months: Number(r.months) } : {}),
-      ...(r.kind === "percent" ? { percent_off: v } : { amount_off: Math.round(v * 10 ** digits(r.currency)), currency: r.currency }),
+      ...(r.kind === "percent" ? { percent_off: Number(r.value) } : { amount_off: off, currency: r.currency }),
     };
   }
-  const tax_rates: Record<string, TaxRate> = Object.fromEntries(rows.taxes.map((r) => [r.id, { percentage: Number(r.percentage), behavior: r.behavior }]));
+  const tax_rates: Record<string, TaxRate> = {};
+  for (const r of rows.taxes) {
+    if (Object.hasOwn(tax_rates, r.id)) return { error: `Tax rate id ${r.id} is used twice` };
+    if (!PLAIN.test(r.percentage.trim())) return { error: `${r.id}: "${r.percentage}" is not a percentage` };
+    tax_rates[r.id] = { percentage: Number(r.percentage), behavior: r.behavior };
+  }
   try {
     return { catalog: parseCatalog({ prices, coupons, tax_rates }) };
   } catch (e) {
     return { error: e instanceof BadRequest ? e.message : String(e) };
   }
+}
+
+// A draft saved by an older version (or edited by hand) may lack fields; a missing currency crashed the page.
+function normalize(x: Partial<Rows>): Rows {
+  const cur = (c: unknown) => (typeof c === "string" && CURRENCIES.includes(c) ? c : "usd");
+  return {
+    prices: (Array.isArray(x.prices) ? x.prices : []).map((p) => ({ id: String(p.id ?? ""), currency: cur(p.currency), amount: String(p.amount ?? ""), interval: p.interval === "year" ? "year" : "month" })),
+    coupons: (Array.isArray(x.coupons) ? x.coupons : []).map((c) => ({
+      code: String(c.code ?? ""),
+      kind: c.kind === "amount" ? "amount" : "percent",
+      value: String(c.value ?? ""),
+      currency: cur(c.currency),
+      duration: (["once", "repeating", "forever"] as const).includes(c.duration) ? c.duration : "once",
+      months: String(c.months ?? "3"),
+    })),
+    taxes: (Array.isArray(x.taxes) ? x.taxes : []).map((t) => ({ id: String(t.id ?? ""), percentage: String(t.percentage ?? ""), behavior: t.behavior === "inclusive" ? "inclusive" : "exclusive" })),
+  };
 }
 
 type PushResult = { prices: Record<string, string>; coupons: Record<string, string>; taxRates: Record<string, string>; meterId: string | null };
@@ -74,7 +108,7 @@ export function Builder({ reference }: { reference: Catalog }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       // Loaded after hydration on purpose: reading it during render would mismatch the server HTML.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved) setRows(JSON.parse(saved));
+      if (saved) setRows(normalize(JSON.parse(saved)));
     } catch {}
   }, []);
   useEffect(() => {

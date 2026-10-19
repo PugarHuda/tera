@@ -1,12 +1,14 @@
 import { formatMoney, simulate } from "@/lib/billing";
-import { badRequest, parseCatalog, parseTimeline } from "@/lib/validate";
+import { badRequest, methodNotAllowed, parseCatalog, parseLocale, parseTimeline } from "@/lib/validate";
+
+export const GET = methodNotAllowed("POST");
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const catalog = parseCatalog(body?.catalog);
     const timeline = parseTimeline(body?.timeline);
-    const locale = typeof body?.locale === "string" ? body.locale : "en-US";
+    const locale = parseLocale(body?.locale);
     const result = simulate(catalog, timeline);
     return Response.json({
       ...result,
