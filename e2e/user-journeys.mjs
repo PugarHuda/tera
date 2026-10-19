@@ -59,6 +59,7 @@ ok(/matches stripe/i.test(v), `Verify in Stripe: ${v.slice(0, 100)}`);
 // J1b — pause and resume a flexible subscription (R21, Stripe API 2026-09-30.endive), all by picking from dropdowns.
 await page.getByRole("link", { name: "Simulator" }).click();
 for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await page.getByTestId("locale-select").selectOption("en-US");
 await page.getByLabel("Event 1 billing_cycle_anchor").fill(""); // J1 left a first billing date on it
 await typeDate(page.getByLabel("Event 1 date"), "01012027");
 await page.getByLabel("Event 1 price").selectOption("pro_m");
