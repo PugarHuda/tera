@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { formatMoney, type Catalog, type Coupon, type Interval, type Price, type TaxRate } from "@/lib/billing";
+import { digits, minorOf } from "@/lib/money";
 import { encodeCatalog } from "@/lib/share";
 import { BadRequest, parseCatalog } from "@/lib/validate";
 
 const CURRENCIES = ["usd", "eur", "gbp", "jpy"];
 const STORAGE_KEY = "tera.builder.catalog";
-const digits = (currency: string) => new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
 
 type PriceRow = { id: string; currency: string; amount: string; interval: Interval };
 type CouponRow = { code: string; kind: "percent" | "amount"; value: string; currency: string; duration: Coupon["duration"]; months: string };
@@ -33,20 +33,11 @@ function toRows(c: Catalog): Rows {
 
 const PLAIN = /^\d+(\.\d+)?$/; // no "0x10", "1e3", "Infinity" or blanks
 
-// A major-unit amount typed in the form -> minor units, or why not (decimals beyond the currency's minor unit).
-function minorOf(raw: string, currency: string, what: string): number | string {
-  const d = digits(currency);
-  const s = raw.trim();
-  if (d === 0 && /[.,]/.test(s)) return `${what}: ${currency.toUpperCase()} has no minor unit, so the amount cannot have decimals`;
-  const minor = Math.round(Number(s) * 10 ** d);
-  if (!PLAIN.test(s) || !Number.isFinite(minor) || Math.abs(Number(s) * 10 ** d - minor) > 1e-6) return `${what}: "${raw}" is not a valid ${currency.toUpperCase()} amount`;
-  return minor;
-}
-
 // Major units in the form, minor units in the catalog. Returns the first problem in plain words.
 function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalog; error?: string } {
   // Rows first, in the order shown (the simulator starts on the first price); kept metered prices after them.
-  const prices: Record<string, Price> = {};
+  // Null-prototype maps: an id "__proto__" becomes a real key the validator rejects, not a silently dropped entry.
+  const prices: Record<string, Price> = Object.create(null);
   for (const r of rows.prices) {
     const minor = minorOf(r.amount, r.currency, r.id);
     if (typeof minor === "string") return { error: minor };
@@ -54,7 +45,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
     prices[r.id] = { currency: r.currency, unit_amount: minor, interval: r.interval };
   }
   Object.assign(prices, fixed);
-  const coupons: Record<string, Coupon> = {};
+  const coupons: Record<string, Coupon> = Object.create(null);
   for (const r of rows.coupons) {
     if (Object.hasOwn(coupons, r.code)) return { error: `Coupon code ${r.code} is used twice` };
     if (r.kind === "percent" && !PLAIN.test(r.value.trim())) return { error: `${r.code}: "${r.value}" is not a percentage` };
@@ -66,7 +57,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
       ...(r.kind === "percent" ? { percent_off: Number(r.value) } : { amount_off: off, currency: r.currency }),
     };
   }
-  const tax_rates: Record<string, TaxRate> = {};
+  const tax_rates: Record<string, TaxRate> = Object.create(null);
   for (const r of rows.taxes) {
     if (Object.hasOwn(tax_rates, r.id)) return { error: `Tax rate id ${r.id} is used twice` };
     if (!PLAIN.test(r.percentage.trim())) return { error: `${r.id}: "${r.percentage}" is not a percentage` };
@@ -103,6 +94,9 @@ export function Builder({ reference }: { reference: Catalog }) {
   const [push, setPush] = useState<{ busy: boolean; result?: PushResult; error?: string }>({ busy: false });
 
   // Per-viewer convenience: keep the draft across reloads (never required for correctness).
+  // Saving waits for the load: otherwise the first save writes the reference rows over the draft before it is read
+  // (React Strict Mode runs the effects twice, found by QA).
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -110,12 +104,14 @@ export function Builder({ reference }: { reference: Catalog }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setRows(normalize(JSON.parse(saved)));
     } catch {}
+    setLoaded(true);
   }, []);
   useEffect(() => {
+    if (!loaded) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
     } catch {}
-  }, [rows]);
+  }, [rows, loaded]);
 
   // Metered (tiered) prices are not editable here; they are carried over unchanged so nothing is silently dropped.
   const metered = useMemo(() => Object.fromEntries(Object.entries(reference.prices).filter(([, p]) => p.usage_type === "metered")), [reference]);

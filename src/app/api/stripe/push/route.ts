@@ -1,4 +1,4 @@
-import { badRequest, methodNotAllowed, parseCatalog } from "@/lib/validate";
+import { BadRequest, badRequest, methodNotAllowed, parseCatalog, readJson } from "@/lib/validate";
 import { pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
 
 export const maxDuration = 120;
@@ -11,15 +11,19 @@ const COOLDOWN_MS = 10_000;
 export async function POST(req: Request) {
   let catalog;
   try {
-    catalog = parseCatalog((await req.json())?.catalog);
+    const body = await readJson(req);
+    // parseCatalog(undefined) is the golden catalog; a push must say what it creates in Stripe.
+    if (body?.catalog === undefined) throw new BadRequest("catalog is required");
+    catalog = parseCatalog(body.catalog);
   } catch (e) {
     return badRequest(e);
   }
   const wait = lastPush + COOLDOWN_MS - Date.now();
   if (wait > 0) return Response.json({ error: `Pushed moments ago; retry in ${Math.ceil(wait / 1000)}s` }, { status: 429 });
-  lastPush = Date.now();
   try {
-    const ids = await pushCatalogOnce(stripeClient(), catalog);
+    const stripe = stripeClient(); // a missing key is a config error, not a push that holds the cooldown
+    lastPush = Date.now();
+    const ids = await pushCatalogOnce(stripe, catalog);
     return Response.json(ids);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });

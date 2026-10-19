@@ -33,9 +33,12 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
   // A custom catalog has its own price ids, so golden scenarios do not apply; start with its first licensed
   // price (a metered one would bill $0 until usage is reported).
   const firstPrice = custom ? (Object.entries(custom.prices).find(([, p]) => p.usage_type !== "metered") ?? Object.entries(custom.prices)[0])[0] : null;
+  // A metered-only catalog would bill $0 forever: report some usage so its tiers show.
+  const metered = firstPrice !== null && custom!.prices[firstPrice].usage_type === "metered";
   const starter: TimelineEvent[] | null = firstPrice
     ? [
         { at: "2027-01-01T00:00:00Z", type: "subscribe", price: firstPrice },
+        ...(metered ? [{ at: "2027-01-15T00:00:00Z", type: "report_usage" as const, quantity: 1000 }] : []),
         { at: "2027-03-01T00:00:00Z", type: "advance_to" },
       ]
     : null;
@@ -67,6 +70,7 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
         scenarios={custom ? [] : scenarios}
         initialScenarioId={shared || custom ? undefined : (scenarioId ?? "S05")}
         initialTimeline={shared ?? starter ?? undefined}
+        stripeLive={!!process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")}
       />
     </>
   );

@@ -1,15 +1,15 @@
 {
   "id": "S79",
   "title": "A percent coupon on a proration charge comes off the rounded gross: 28542 x 25% = 7135.5 -> 7136 (found by fuzzing)",
-  "verified_at": "2026-10-18T16:47:07.749Z",
+  "verified_at": "2026-10-19T16:27:02.960Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URxEK2QR5nixgqNb5J61TBS",
-  "customer": "cus_VSt0M3pJVgyrTv",
+  "test_clock": "clock_1USJO02QR5nixgqNZr1Dz6ka",
+  "customer": "cus_VTFt3dpRi1FIO4",
   "stripe": [
     {
-      "id": "in_1URxEM2QR5nixgqNs2vrx2AO",
+      "id": "in_1USJO12QR5nixgqNfIEPtNip",
       "date": "2027-01-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URxER2QR5nixgqNyeiw4rt1",
+      "id": "in_1USJOG2QR5nixgqNIzGJaOhe",
       "date": "2027-01-16",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URxEX2QR5nixgqNuAR1OUGS",
+      "id": "in_1USJOg2QR5nixgqN73eOScPK",
       "date": "2027-02-16",
       "currency": "usd",
       "lines": [

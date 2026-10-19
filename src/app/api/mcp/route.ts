@@ -1,14 +1,14 @@
 // MCP server (Streamable HTTP): lets coding agents run Tera's billing engine as tools, read its evidence as resources.
-import { ResourceTemplate } from "@modelcontextprotocol/server";
+import { ResourceNotFoundError, ResourceTemplate } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import golden from "../../../../golden/scenarios.json";
 import evidence from "../../../../golden/parity/index.json";
-import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { spec } from "@/lib/openapi";
 import { encodeCatalog, encodeTimeline } from "@/lib/share";
 import { Cooldown, checkLiveLimits, liveParity, pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
-import { BadRequest, EVENT_TYPES, defaultCatalog, parseCatalog, parseMigration, parseTimeline } from "@/lib/validate";
+import { BadRequest, EVENT_TYPES, defaultCatalog, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
   at: z.string().describe("ISO-8601 UTC timestamp, e.g. 2027-01-17T00:00:00Z"),
@@ -17,6 +17,8 @@ const event = z.object({
   quantity: z
     .number()
     .int()
+    .min(0)
+    .max(1e9)
     .optional()
     .describe("Seats, or usage units for report_usage. On change_price it is the new quantity; omitted means 1, as in Stripe (R13)."),
   coupon: z.string().optional().describe(`Coupon code: ${Object.keys(defaultCatalog.coupons ?? {}).join(", ")}`),
@@ -39,6 +41,12 @@ const event = z.object({
     .enum(BILLING_MODES)
     .optional()
     .describe("subscribe/start_trial only. Stripe's default for new subscriptions is flexible; omitted means classic (R16)"),
+  trial_end_behavior: z
+    .enum(TRIAL_END_BEHAVIORS)
+    .optional()
+    .describe(
+      'start_trial only: the customer has no card, so the trial ends canceled or paused (Stripe trial_settings.end_behavior.missing_payment_method, R22). Resume a paused one later; classic needs billing_cycle_anchor "unchanged"',
+    ),
 });
 
 // A custom catalog goes through the same parser as the REST API: one trust boundary, one set of messages.
@@ -84,7 +92,8 @@ const handler = createMcpHandler(
         inputSchema: z.object({ timeline: z.array(event).min(1), catalog, locale: z.string().optional() }),
         annotations: readOnly,
       },
-      guard(({ timeline, catalog, locale }) => {
+      guard(({ timeline, catalog, locale: tag }) => {
+        const locale = parseLocale(tag); // same message as POST /api/simulate
         const result = simulate(parseCatalog(catalog), parseTimeline(timeline));
         const summary = result.invoices
           .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}, due ${formatMoney(i.amount_due, i.currency, locale)}${i.starting_balance < 0 ? ` (credit applied ${formatMoney(-i.starting_balance, i.currency, locale)})` : ""}`)
@@ -131,18 +140,19 @@ const handler = createMcpHandler(
         description:
           "Given the current and new unit price per seat (minor units of `currency`), the billing interval, a grandfathering flag and seats per customer (a number or { name, seats }), return affected customers and MRR before/after/delta, per customer and in total.",
         inputSchema: z.object({
-          unit_amount: z.number().int(),
-          new_unit_amount: z.number().int(),
+          unit_amount: z.number().int().min(1).max(1e12),
+          new_unit_amount: z.number().int().min(1).max(1e12),
           grandfather: z.boolean(),
           interval: z.enum(["month", "year"]).optional().describe("Annual prices count as amount / 12 MRR per customer"),
           currency: z.string().regex(/^[a-zA-Z]{3}$/).optional().describe("ISO code for the summary line; default usd"),
-          customers: z.array(z.union([z.number().int(), z.object({ name: z.string(), seats: z.number().int() })])),
+          customers: z.array(z.union([z.number().int().min(1).max(1e6), z.object({ name: z.string(), seats: z.number().int().min(1).max(1e6) })])),
         }),
         annotations: readOnly,
       },
-      guard(({ currency = "usd", ...input }) => {
+      guard(({ currency: code = "usd", ...input }) => {
+        const currency = parseCurrency(code);
         const r = migrate(parseMigration(input));
-        return text(`MRR ${formatMoney(r.mrr_before, currency)} -> ${formatMoney(r.mrr_after, currency)} (${r.affected} customers affected)`, r);
+        return text(`MRR ${formatMoney(r.mrr_before, currency)} -> ${formatMoney(r.mrr_after, currency)} (${r.affected} ${r.affected === 1 ? "customer" : "customers"} affected)`, r);
       }),
     );
 
@@ -259,7 +269,7 @@ const handler = createMcpHandler(
       { title: "Golden scenario", description: "Timeline, hand-derived expected invoices and the math", mimeType: "application/json" },
       (uri, { id }) => {
         const s = scenarioById(String(id));
-        if (!s) throw new Error(`Scenario ${id} not found`);
+        if (!s) throw new ResourceNotFoundError(uri.href, `Scenario ${id} not found`);
         return json(uri, s);
       },
     );
@@ -269,11 +279,17 @@ const handler = createMcpHandler(
       {
         title: "Explain a golden scenario's invoices",
         description: "Walk through every line of a golden scenario's invoices and the Stripe rule behind it",
-        argsSchema: z.object({ id: z.string().describe("Golden scenario id, e.g. S05") }),
+        // Only timeline scenarios have invoices (S24-style migration scenarios do not).
+        argsSchema: z.object({
+          id: z
+            .string()
+            .refine((id) => !!scenarioById(id)?.timeline, "not a golden timeline scenario id (see tera://scenarios)")
+            .describe("Golden scenario id, e.g. S05"),
+        }),
       },
       ({ id }) =>
         ask(
-          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R20, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
+          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R22 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
         ),
     );
     server.registerPrompt(

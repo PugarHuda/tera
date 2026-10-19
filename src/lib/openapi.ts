@@ -2,7 +2,7 @@
 import golden from "../../golden/scenarios.json";
 import evidence from "../../golden/parity/index.json";
 import { EVENT_TYPES } from "./validate";
-import { BILLING_MODES, PRORATION_BEHAVIORS } from "./billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS } from "./billing";
 
 // Counted from the recorded evidence so the description never goes stale.
 const timelines = golden.scenarios.filter((s) => "timeline" in s).length;
@@ -16,7 +16,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R21 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R22 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   paths: {
     "/api/simulate": {
@@ -161,7 +161,7 @@ export const spec = {
                 },
               },
             },
-          }, "400": { description: "Invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown" } },
+          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown", content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
       },
     },
     "/api/scenarios": {
@@ -256,6 +256,11 @@ export const spec = {
                   type: "string",
                   enum: [...BILLING_MODES],
                   description: "subscribe/start_trial: Stripe billing mode (default classic). Flexible credits original debits and keeps the anchor (R16).",
+                },
+                trial_end_behavior: {
+                  type: "string",
+                  enum: [...TRIAL_END_BEHAVIORS],
+                  description: "start_trial: the customer has no card, so the trial ends canceled or paused (Stripe trial_settings.end_behavior.missing_payment_method, R22).",
                 },
               },
             },

@@ -33,7 +33,7 @@ export default function ParityPage() {
       </div>
       <ol className="space-y-3">
         {rows.map((r) => (
-          <ParityRow key={r.id} {...r} />
+          <ParityRow key={r.id} {...r} live={!!process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")} />
         ))}
       </ol>
     </div>

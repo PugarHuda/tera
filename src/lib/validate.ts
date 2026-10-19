@@ -1,8 +1,18 @@
 // Input validation for the public API (trust boundary). Throws BadRequest with a human message.
 import golden from "../../golden/scenarios.json";
-import { BILLING_MODES, PRORATION_BEHAVIORS, type Catalog, type TimelineEvent, type migrate } from "./billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, type Catalog, type TimelineEvent, type migrate } from "./billing";
 
 export class BadRequest extends Error {}
+class TooLarge extends BadRequest {}
+
+// A timeline of 100 events or a 100,000-customer migration is well under 4 MB; anything bigger is refused before parsing.
+const MAX_BODY = 4_000_000;
+export async function readJson(req: Request): ReturnType<Request["json"]> {
+  if (Number(req.headers.get("content-length")) > MAX_BODY) throw new TooLarge("request body is limited to 4 MB");
+  const body = await req.text();
+  if (body.length > MAX_BODY) throw new TooLarge("request body is limited to 4 MB");
+  return JSON.parse(body);
+}
 
 export const defaultCatalog = golden.catalog as unknown as Catalog;
 
@@ -28,10 +38,11 @@ const MAX_EVENTS = 100;
 const ID = /^[A-Za-z0-9_]{1,40}$/;
 const MAX_SPAN_MS = 10 * 366 * 86_400_000;
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
-// 1970 or later: a half-typed year (0002, 0202) is not a date a subscription can have.
+// 1970-2099: a half-typed year (0002, 0202) is not a date a subscription can have, and year 9999 renders as
+// "+010000-01" once a period crosses into year 10000.
 // Date.parse rolls 2027-02-30 over to 03-02; a date that does not exist on the calendar is rejected instead.
 const isDate = (v: unknown): v is string =>
-  typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0 && new Date(v).toISOString().slice(0, 10) === v.slice(0, 10);
+  typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0 && Date.parse(v) < Date.UTC(2100, 0, 1) && new Date(v).toISOString().slice(0, 10) === v.slice(0, 10);
 // ISO 4217 codes this runtime knows (Stripe rejects made-up ones such as "zzz").
 const CURRENCIES = new Set(Intl.supportedValuesOf("currency").map((c) => c.toLowerCase()));
 const isCurrency = (v: unknown): v is string => typeof v === "string" && CURRENCIES.has(v.toLowerCase());
@@ -60,6 +71,7 @@ export function parseCatalog(x: unknown): Catalog {
     const at = `catalog.prices.${id}`;
     if (!isObj(p)) fail(`${at} must be an object`);
     if (!isCurrency(p.currency)) fail(`${at}.currency must be an ISO 4217 currency code such as usd`);
+    p.currency = p.currency.toLowerCase(); // Stripe's form: "USD" and "usd" are one currency
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
@@ -84,6 +96,7 @@ export function parseCatalog(x: unknown): Catalog {
       if (!pct && !isInt(c.amount_off, 1)) fail(`${at}.amount_off must be a positive integer`);
       // Stripe rejects an amount_off coupon without a currency: catch it here, not as a 502 on push.
       if (!pct && !isCurrency(c.currency)) fail(`${at}.currency must be an ISO 4217 currency code for amount_off`);
+      if (!pct) c.currency = (c.currency as string).toLowerCase();
       if (!["once", "repeating", "forever"].includes(c.duration as string)) fail(`${at}.duration must be once, repeating or forever`);
       if (c.duration === "repeating" && !isInt(c.duration_in_months, 1, 120)) fail(`${at}.duration_in_months must be 1-120`);
     }
@@ -105,7 +118,7 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
   const times = x.map((e, i) => {
     const at = `timeline[${i}]`;
     if (!isObj(e)) fail(`${at} must be an object`);
-    if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date in 1970 or later`);
+    if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date from 1970 to 2099`);
     if (!EVENT_TYPES.includes(e.type as (typeof EVENT_TYPES)[number])) fail(`${at}.type must be one of ${EVENT_TYPES.join(", ")}`);
     if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a whole number from 0 to 1,000,000,000`);
     if (e.trial_days !== undefined && !isInt(e.trial_days, 1, 730)) fail(`${at}.trial_days must be 1-730`);
@@ -120,11 +133,16 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     if (e.billing_mode !== undefined && !BILLING_MODES.includes(e.billing_mode as never)) fail(`${at}.billing_mode must be one of ${BILLING_MODES.join(", ")}`);
+    if (e.trial_end_behavior !== undefined) {
+      if (e.type !== "start_trial") fail(`${at}.trial_end_behavior is only for start_trial`);
+      if (!TRIAL_END_BEHAVIORS.includes(e.trial_end_behavior as never)) fail(`${at}.trial_end_behavior must be one of ${TRIAL_END_BEHAVIORS.join(", ")}`);
+    }
     return Date.parse(e.at);
   });
   if (Math.max(...times) - Math.min(...times) > MAX_SPAN_MS) fail("timeline may span at most 10 years");
-  const first = (x as TimelineEvent[]).reduce((a, e, i) => (times[i] < times[a] ? i : a), 0);
-  if (!["subscribe", "start_trial"].includes((x as TimelineEvent[])[first].type)) fail("the first event must be subscribe or start_trial");
+  // Same rule as the simulator page: events in date order, not silently re-sorted. An event before the subscribe is a
+  // domain error from the engine (422, FR7).
+  for (let i = 1; i < times.length; i++) if (times[i] < times[i - 1]) fail(`timeline[${i}].at is before timeline[${i - 1}].at: keep events in chronological order`);
   return x as TimelineEvent[];
 }
 
@@ -148,6 +166,11 @@ export function parseMigration(x: unknown) {
 }
 
 /** A BCP 47 locale for money formatting; "en_US" or "" would make Intl throw a RangeError (a 500). */
+export function parseCurrency(x: unknown): string {
+  if (!isCurrency(x)) fail("currency must be an ISO 4217 currency code such as usd");
+  return x.toLowerCase();
+}
+
 export function parseLocale(x: unknown): string {
   if (x === undefined) return "en-US";
   try {
@@ -162,6 +185,7 @@ export function parseLocale(x: unknown): string {
 export const methodNotAllowed = (allow: string) => () => Response.json({ error: `Method not allowed; use ${allow}` }, { status: 405, headers: { allow } });
 
 export function badRequest(e: unknown) {
+  if (e instanceof TooLarge) return Response.json({ error: e.message }, { status: 413 });
   if (e instanceof BadRequest || e instanceof SyntaxError) return Response.json({ error: e.message }, { status: 400 });
   // Engine domain errors (unknown price/coupon, event before subscribe) are the caller's fault too.
   if (e instanceof Error && e.constructor === Error) return Response.json({ error: e.message }, { status: 422 });

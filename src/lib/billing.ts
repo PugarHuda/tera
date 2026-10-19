@@ -64,7 +64,13 @@ export type TimelineEvent = {
   cancel_at?: string;
   /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
   billing_mode?: BillingMode;
+  /** start_trial: the customer has no card, and Stripe's trial_settings.end_behavior.missing_payment_method decides
+   *  what happens when the trial ends: "cancel" or "pause" (R22). Omitted, the trial ends into a paid period. */
+  trial_end_behavior?: TrialEndBehavior;
 };
+
+export const TRIAL_END_BEHAVIORS = ["cancel", "pause"] as const;
+export type TrialEndBehavior = (typeof TRIAL_END_BEHAVIORS)[number];
 
 export const PRORATION_BEHAVIORS = ["create_prorations", "always_invoice", "none"] as const;
 export type ProrationBehavior = (typeof PRORATION_BEHAVIORS)[number];
@@ -107,7 +113,6 @@ export const minimumCharge = (currency: string) => MIN_CHARGE[currency.toLowerCa
 export const roundMinor = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
 // R6: the tax in one amount, rounded once (half away from zero, S90: 64.5 -> 65).
 const taxOf = (amount: number, r: TaxRate) => roundMinor((amount * r.percentage) / (r.behavior === "exclusive" ? 100 : 100 + r.percentage));
-
 // R3: Stripe prorates the unit price to a 12-place decimal first, then multiplies by quantity and the paid rate,
 // so `(qty × unit × rate − off) × num/den` is rounded once but from that decimal: 7900 × 19/30 = 5003.333333333333,
 // and 3 seats at 75% credit 11257.4999… → 11257, not 11258 (fuzz seed 21001, S55). Exact BigInt arithmetic.
@@ -178,6 +183,8 @@ type Sub = {
   /** Flexible: time already paid for by a debit Stripe will not charge again on resume: the period an unprorated (`none`)
    *  change was made in, or the period a `none` pause did not credit (R21). */
   coveredUntil?: number;
+  /** R22: what the trial ends into when the customer has no card. */
+  trialEnd?: TrialEndBehavior;
 };
 
 /** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
@@ -252,6 +259,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       // R16/R6 flexible inclusive tax is per line, and a credit refunds the tax its original debit was charged,
       // prorated: -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
       // Exclusive tax stays one computation on the total (757.7 -> 758, seeds 61019 and 61030, S94).
+      // Open question (classic inclusive): at an exact tie Stripe's invoice tax is sometimes a cent under this
+      // (8919 -> 1486, fuzz seeds 70012 and 72005); no rounding rule tried fits those and S79/S90 together (R6).
       tax =
         sub.mode === "flexible" && r.behavior === "inclusive"
           ? draft.lines.reduce((a, l) => a + (creditTax.get(l) ?? taxOf(l.proration ? l.amount : l.amount - share(l), r)), 0)
@@ -329,6 +338,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         s.pending = [];
         s.status = "canceled";
         canceledAt = at;
+        break;
+      }
+      if (s.status === "trialing" && s.trialEnd) {
+        // R22: no card when the trial ends: Stripe cancels, or pauses with nothing invoiced (probes T1, T2, S96).
+        s.status = s.trialEnd === "cancel" ? "canceled" : "paused";
+        if (s.trialEnd === "cancel") canceledAt = at;
         break;
       }
       const p = price(s.priceId);
@@ -414,6 +429,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           mode: e.billing_mode ?? "classic",
           anchor: trial ? periodEnd : at,
           debits: [],
+          ...(trial && e.trial_end_behavior ? { trialEnd: e.trial_end_behavior } : {}),
         };
         if (e.coupon) applyCoupon(sub, e.coupon, at);
         if (e.billing_cycle_anchor !== undefined) {
@@ -529,6 +545,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         // R4: ending a trial early (trial_end=now) starts the first paid period now and resets the anchor.
         const s = active(e.type);
         if (s.status !== "trialing") throw new Error("end_trial needs a subscription in trial");
+        if (s.trialEnd) throw new Error("end_trial with a trial_end_behavior: the customer has no card to pay the first period");
         s.status = "active";
         s.periodStart = at;
         s.anchorDay = new Date(at).getUTCDate();
@@ -578,6 +595,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   function resumePaused(s: Sub, at: number, e: TimelineEvent) {
     const anchor = e.billing_cycle_anchor ?? "now";
     if (anchor !== "now" && anchor !== "unchanged") throw new Error('resume of a paused subscription takes billing_cycle_anchor "now" or "unchanged"');
+    // R22: a classic subscription is paused only by a trial ending without a card. Resuming it with anchor "now" makes
+    // Stripe void the new invoice and leave it paused (probe T2), so only "unchanged" is modelled there.
+    if (s.mode === "classic" && anchor === "now") throw new Error('resume of a classic subscription paused at trial end: Stripe voids the invoice an anchor "now" creates; use billing_cycle_anchor "unchanged"');
     s.status = "active";
     const interval = price(s.priceId).interval;
     const covered = s.coveredUntil ?? 0;
@@ -618,6 +638,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const parts = chargeParts(s, at, from, s.periodEnd);
     const line = { description: "Time after resuming", amount: parts.item.unit - parts.paid.off, proration: true };
     if (line.amount !== 0) s.debits.push(parts);
+    // Like any remaining-time charge (R3), it uses up a "once" coupon that prices it: the next renewal is not
+    // discounted (fuzz seeds 70016, 71010, 71023; S100).
+    if (liveCoupon(s, at)?.duration === "once" && line.amount > 0) s.coupon!.remaining = 0;
     bill(s, at, [line], behavior);
   }
 

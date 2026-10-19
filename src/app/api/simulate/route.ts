@@ -1,11 +1,11 @@
 import { formatMoney, simulate } from "@/lib/billing";
-import { badRequest, methodNotAllowed, parseCatalog, parseLocale, parseTimeline } from "@/lib/validate";
+import { badRequest, methodNotAllowed, parseCatalog, parseLocale, parseTimeline, readJson } from "@/lib/validate";
 
 export const GET = methodNotAllowed("POST");
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await readJson(req);
     const catalog = parseCatalog(body?.catalog);
     const timeline = parseTimeline(body?.timeline);
     const locale = parseLocale(body?.locale);

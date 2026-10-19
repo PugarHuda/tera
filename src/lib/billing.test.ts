@@ -165,7 +165,7 @@ describe("billing_mode input", () => {
 describe("date input", () => {
   it("rejects a half-typed year instead of simulating 1800 years of renewals", () => {
     const tl = (at: string) => [{ at, type: "subscribe", price: "pro_m" }];
-    expect(() => parseTimeline(tl("0202-02-10T00:00:00Z"))).toThrow(/1970 or later/);
+    expect(() => parseTimeline(tl("0202-02-10T00:00:00Z"))).toThrow(/from 1970 to 2099/);
     expect(() => parseTimeline(tl("2027-02-10T00:00:00Z"))).not.toThrow();
   });
 });

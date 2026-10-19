@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
 import { csvBlob, toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 import { parseTimeline } from "@/lib/validate";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
-type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at" | "billing_cycle_anchor";
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode" | "cancel_at" | "billing_cycle_anchor" | "trial_end_behavior";
 
 const FIELDS: Record<EventType, Field[]> = {
   subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode", "billing_cycle_anchor", "proration_behavior"],
-  start_trial: ["price", "trial_days", "quantity", "tax_rate", "billing_mode"],
+  start_trial: ["price", "trial_days", "quantity", "tax_rate", "billing_mode", "trial_end_behavior"],
   change_price: ["price", "quantity", "proration_behavior"],
   change_quantity: ["quantity", "proration_behavior"],
   apply_coupon: ["coupon"],
@@ -50,8 +50,8 @@ const RESUME_ANCHORS = ["now", "unchanged"];
 
 const day = (iso: string) => iso.slice(0, 10);
 // A date input reports every keystroke: "0002-02-10" while the year is being typed. The field keeps what is typed
-// and only a whole date from 1970 on is committed; a controlled input would snap back and eat the keystrokes.
-const typedDate = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= "1970" ? `${v}T00:00:00Z` : null);
+// and only a whole date from 1970 to 2099 is committed; a controlled input would snap back and eat the keystrokes.
+const typedDate = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= "1970" && v < "2100" ? `${v}T00:00:00Z` : null);
 
 function DateField({ label, value, onCommit }: { label: string; value: string | undefined; onCommit: (iso: string | null) => void }) {
   const [draft, setDraft] = useState(value ? day(value) : "");
@@ -79,7 +79,7 @@ function DateField({ label, value, onCommit }: { label: string; value: string | 
       />
       {stale && (
         <span role="alert" className="mt-0.5 text-xs text-red-700 dark:text-red-400">
-          Not a date from 1970 on; still using {day(value)}
+          Not a date from 1970 to 2099; still using {day(value)}
         </span>
       )}
     </span>
@@ -97,6 +97,7 @@ export function Simulator({
   initialScenarioId,
   initialTimeline,
   catalogParam,
+  stripeLive = true,
 }: {
   catalog: Catalog;
   scenarios: Scenario[];
@@ -104,6 +105,8 @@ export function Simulator({
   initialTimeline?: TimelineEvent[];
   /** Encoded custom catalog, kept in share links so they replay with the same prices. */
   catalogParam?: string;
+  /** False when the deployment has no test-mode Stripe key: a live replay cannot run. */
+  stripeLive?: boolean;
 }) {
   const playable = scenarios.filter((s) => s.timeline);
   // A shared link that replays a golden scenario exactly is recognised as that scenario.
@@ -137,16 +140,23 @@ export function Simulator({
     }
   })();
 
+  // The address bar always replays what is on screen, so a reload or Back keeps the user's edits.
+  const keepInUrl = (q: string) => history.replaceState(null, "", `/?${q}${catalogParam ? `&c=${catalogParam}` : ""}`);
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
     setShareUrl("");
     setStripeCheck(null);
+    keepInUrl(`s=${id}`);
   };
   const edit = (next: TimelineEvent[]) => {
     setTimeline(next);
     setShareUrl("");
     setStripeCheck(null);
+    // Only a timeline a reload can decode goes in the URL; a half-typed one keeps the last good link.
+    try {
+      if (parseTimeline(next).length) keepInUrl(`t=${encodeTimeline(next)}`);
+    } catch {}
   };
   const verifyInStripe = async () => {
     setStripeCheck({ state: "running" });
@@ -295,7 +305,7 @@ export function Simulator({
                       onChange={(ev) => update(i, { [f]: ev.target.value || undefined })}
                     >
                       <option value="">—</option>
-                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : f === "billing_mode" ? BILLING_MODES : f === "billing_cycle_anchor" ? RESUME_ANCHORS : PRORATION_BEHAVIORS).map((o) => (
+                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : f === "billing_mode" ? BILLING_MODES : f === "billing_cycle_anchor" ? RESUME_ANCHORS : f === "trial_end_behavior" ? TRIAL_END_BEHAVIORS : PRORATION_BEHAVIORS).map((o) => (
                         <option key={o} value={o}>
                           {optionLabel(f, o)}
                         </option>
@@ -341,7 +351,8 @@ export function Simulator({
           type="button"
           className="btn-ghost ml-2 mt-3 border border-current/20"
           data-testid="verify-stripe"
-          disabled={!!outcome.error || stripeCheck?.state === "running"}
+          disabled={!stripeLive || !!outcome.error || stripeCheck?.state === "running"}
+          title={stripeLive ? undefined : "This deployment has no Stripe test-mode key (STRIPE_SECRET_KEY)"}
           onClick={verifyInStripe}
         >
           {stripeCheck?.state === "running" ? "Replaying in Stripe…" : "Verify in Stripe"}
@@ -466,6 +477,15 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
               </td>
             </tr>
           )}
+          {/* A credit invoice carries negative tax (R6); shown before what is applied or due. */}
+          {inv.tax !== 0 && (
+            <tr>
+              <td className="opacity-70">Tax{inv.total === inv.subtotal - inv.discount ? " (included)" : ""}</td>
+              <td className="text-right font-mono" data-testid={`invoice-${n}-tax`}>
+                {m(inv.tax)}
+              </td>
+            </tr>
+          )}
           {inv.starting_balance < 0 && (
             <tr>
               <td className="opacity-70">Applied credit balance</td>
@@ -494,14 +514,6 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
               </td>
               <td className="text-right font-mono" data-testid={`invoice-${n}-amount-due`}>
                 {m(inv.amount_due)}
-              </td>
-            </tr>
-          )}
-          {inv.tax > 0 && (
-            <tr>
-              <td className="opacity-70">Tax{inv.total === inv.subtotal - inv.discount ? " (included)" : ""}</td>
-              <td className="text-right font-mono" data-testid={`invoice-${n}-tax`}>
-                {m(inv.tax)}
               </td>
             </tr>
           )}

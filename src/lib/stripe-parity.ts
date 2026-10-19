@@ -147,7 +147,13 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   const events = [...timeline].sort((a, b) => sec(a.at) - sec(b.at));
   const start = sec(events[0].at);
   const clock = await stripe.testHelpers.testClocks.create({ frozen_time: start, name: `tera ${new Date().toISOString()}` });
-  const customer = await stripe.customers.create({ test_clock: clock.id, name: "Tera parity customer", payment_method: "pm_card_visa", invoice_settings: { default_payment_method: "pm_card_visa" } });
+  // R22: a trial with an end behavior is the no-card case; the card is added when the customer resumes.
+  const noCard = events.some((e) => e.trial_end_behavior);
+  const customer = await stripe.customers.create({
+    test_clock: clock.id,
+    name: "Tera parity customer",
+    ...(noCard ? {} : { payment_method: "pm_card_visa", invoice_settings: { default_payment_method: "pm_card_visa" } }),
+  });
 
   let now = start;
   let sub: Stripe.Subscription | null = null;
@@ -175,6 +181,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           ...(e.coupon ? { discounts: [{ coupon: ids.coupons[e.coupon] }] } : {}),
           ...(e.tax_rate ? { default_tax_rates: [ids.taxRates[e.tax_rate]] } : {}),
           ...(e.type === "start_trial" ? { trial_end: at + (e.trial_days ?? 0) * 86_400 } : {}),
+          ...(e.trial_end_behavior ? { trial_settings: { end_behavior: { missing_payment_method: e.trial_end_behavior } } } : {}),
           ...(e.billing_cycle_anchor ? { billing_cycle_anchor: sec(e.billing_cycle_anchor), proration_behavior: e.proration_behavior ?? "create_prorations" } : {}),
         });
         break;
@@ -201,15 +208,22 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
         sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
         break;
       case "resume":
+        // The local copy is stale once a trial ended into a pause on the clock (R22).
+        sub = await stripe.subscriptions.retrieve(sub!.id);
+        if (sub.status === "paused" && noCard) {
+          const pm = await stripe.paymentMethods.attach("pm_card_visa", { customer: customer.id });
+          await stripe.customers.update(customer.id, { invoice_settings: { default_payment_method: pm.id } });
+        }
         // R21: a paused subscription resumes through its own endpoint; paid at once with the customer's card.
+        // Classic (paused by R22) rejects payment_behavior.
         sub =
-          sub!.status === "paused"
-            ? await stripe.subscriptions.resume(sub!.id, {
-                payment_behavior: "resume_on_payment_success",
+          sub.status === "paused"
+            ? await stripe.subscriptions.resume(sub.id, {
+                ...(sub.billing_mode?.type === "flexible" ? { payment_behavior: "resume_on_payment_success" as const } : {}),
                 billing_cycle_anchor: { type: e.billing_cycle_anchor === "unchanged" ? "unchanged" : "now" },
                 ...(e.proration_behavior ? { proration_behavior: e.proration_behavior } : {}),
               })
-            : await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+            : await stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
         break;
       case "pause":
         // proration_behavior maps onto pause's billing knobs: none = no unused-time credit, always_invoice = invoice it now.
@@ -327,8 +341,9 @@ export function checkLiveLimits(timeline: TimelineEvent[]) {
 export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], tera: Invoice[]) {
   const wait = lastLiveRun + COOLDOWN_MS - Date.now();
   if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000));
+  const stripe = stripeClient(); // a missing key is a config error, not a run that holds the cooldown
   lastLiveRun = Date.now();
-  const replay = await replayInStripe(stripeClient(), catalog, timeline);
+  const replay = await replayInStripe(stripe, catalog, timeline);
   const diffs = diffInvoices(tera, replay.invoices);
   return { match: diffs.length === 0, diffs, tera, stripe: replay.invoices, test_clock: replay.clockId, ran_at: new Date().toISOString() };
 }

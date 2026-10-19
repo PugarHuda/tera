@@ -5082,6 +5082,260 @@
         }
       ],
       "parity": "golden/parity/S95.json"
+    },
+    {
+      "id": "S96",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R4"
+      ],
+      "title": "Trial ends without a card, end behavior cancel: the subscription is canceled at trial end and nothing is invoiced",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14,
+          "trial_end_behavior": "cancel"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10: $0 trial invoice, trial ends 01-24. No card, missing_payment_method=cancel: canceled 01-24, no invoice then or after.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "expect_status": {
+        "2027-01-24": "canceled"
+      },
+      "parity": "golden/parity/S96.json"
+    },
+    {
+      "id": "S97",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R21",
+        "R3"
+      ],
+      "title": "Classic: trial ends without a card into a pause; resuming with anchor unchanged prorates the rest of the cycle onto the next renewal",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14,
+          "trial_end_behavior": "pause"
+        },
+        {
+          "at": "2027-02-03T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10: $0 trial, ends 01-24 (the anchor) into a pause, no invoice. 02-03 resume, anchor unchanged: the period containing 02-03 is 01-24 -> 02-24 (31 d); 21 days left: round(2900*21/31) = round(1964.52) = 1965, pending. 02-24: 1965 + 2900 = 4865. 03-24: 2900.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-24",
+          "lines": [
+            1965,
+            2900
+          ],
+          "discount": 0,
+          "total": 4865
+        },
+        {
+          "date": "2027-03-24",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        }
+      ],
+      "parity": "golden/parity/S97.json"
+    },
+    {
+      "id": "S98",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R21",
+        "R16"
+      ],
+      "title": "Flexible: trial ends without a card into a pause; resuming with anchor now invoices a full new period at once and moves the anchor",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "quantity": 2,
+          "trial_days": 14,
+          "trial_end_behavior": "pause",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-02-03T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-04-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10: $0 trial for 2 seats, ends 01-24 into a pause. 02-03 resume (anchor now): nothing was paid, so the new period 02-03 -> 03-03 is invoiced in full now: 2 x 2900 = 5800. 03-03: 5800.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-03",
+          "lines": [
+            5800
+          ],
+          "discount": 0,
+          "total": 5800
+        },
+        {
+          "date": "2027-03-03",
+          "lines": [
+            5800
+          ],
+          "discount": 0,
+          "total": 5800
+        }
+      ],
+      "parity": "golden/parity/S98.json"
+    },
+    {
+      "id": "S99",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R21",
+        "R3"
+      ],
+      "title": "Classic: resuming a trial pause two cycles later charges only the part of the current cycle that is left",
+      "timeline": [
+        {
+          "at": "2027-01-31T00:00:00Z",
+          "type": "start_trial",
+          "price": "starter_m",
+          "trial_days": 14,
+          "trial_end_behavior": "pause"
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-05-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-31: $0 trial, ends 02-14 (anchor day 14) into a pause. 03-20 resume, anchor unchanged: the cycles 02-14 -> 03-14 are not billed; the period containing 03-20 is 03-14 -> 04-14 (31 d), 25 days left: round(2900*25/31) = round(2338.71) = 2339, pending. 04-14: 2339 + 2900 = 5239.",
+      "expect": [
+        {
+          "date": "2027-01-31",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-04-14",
+          "lines": [
+            2339,
+            2900
+          ],
+          "discount": 0,
+          "total": 5239
+        }
+      ],
+      "parity": "golden/parity/S99.json"
+    },
+    {
+      "id": "S100",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R5",
+        "R21"
+      ],
+      "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-02-19T00:00:00Z",
+          "type": "start_trial",
+          "price": "pro_m",
+          "quantity": 5,
+          "trial_days": 11,
+          "trial_end_behavior": "pause",
+          "coupon": "FIFTYOFF"
+        },
+        {
+          "at": "2028-03-04T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2028-05-02T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "02-19: $0 trial for 5 seats (the once coupon is not used by it, S45), ends 03-01 into a pause. 03-04 resume, anchor unchanged: period 03-01 -> 04-01 (31 d), 28 days left, priced with FIFTYOFF ($50 once) off the unrounded gross (S88): round(39500*28/31 - 5000*28/31) = round(35677.42 - 4516.13) = 31161, pending; this charge uses up the once coupon. 04-01: 31161 + 39500 = 70661, no discount. 05-01: 39500.",
+      "expect": [
+        {
+          "date": "2028-02-19",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2028-04-01",
+          "lines": [
+            31161,
+            39500
+          ],
+          "discount": 0,
+          "total": 70661
+        },
+        {
+          "date": "2028-05-01",
+          "lines": [
+            39500
+          ],
+          "discount": 0,
+          "total": 39500
+        }
+      ],
+      "parity": "golden/parity/S100.json"
     }
   ]
 }

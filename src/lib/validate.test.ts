@@ -26,9 +26,12 @@ describe("parseCatalog", () => {
 describe("parseTimeline", () => {
   it.each([
     [[], "non-empty array"],
-    [[{ ...sub, at: "0202-01-01" }], "1970 or later"],
+    [[{ ...sub, at: "0202-01-01" }], "from 1970 to 2099"],
+    [[{ ...sub, at: "9999-12-01T00:00:00Z" }], "from 1970 to 2099"],
     [[{ ...sub, type: "teleport" }], "type must be one of"],
-    [[{ at: sub.at, type: "change_price", price: "pro_m" }], "first event must be subscribe or start_trial"],
+    [[sub, { at: "2026-12-01T00:00:00Z", type: "change_price", price: "pro_m" }], "chronological order"],
+    [[{ ...sub, type: "subscribe", trial_end_behavior: "cancel" }], "only for start_trial"],
+    [[{ ...sub, type: "start_trial", trial_days: 7, trial_end_behavior: "charge" }], "trial_end_behavior must be one of"],
     [[sub, { at: "2027-02-01T00:00:00Z", type: "change_quantity", quantity: 0 }], "whole number from 1"],
     [[sub, { at: "2038-01-02T00:00:00Z", type: "advance_to" }], "at most 10 years"],
     [[{ ...sub, trial_days: 731 }], "trial_days must be 1-730"],
@@ -57,7 +60,7 @@ describe("migrate (R9)", () => {
 
 describe("share links and CSV at the limits", () => {
   it("encodes a 100-event timeline without overflowing the call stack", () => {
-    const long = [sub, ...Array.from({ length: 99 }, (_, i) => ({ at: `2027-01-${String((i % 28) + 2).padStart(2, "0")}T00:00:00Z`, type: "change_quantity", quantity: i + 1, coupon: "x".repeat(40) }))];
+    const long = [sub, ...Array.from({ length: 99 }, (_, i) => ({ at: new Date(Date.UTC(2027, 0, 2 + i)).toISOString().replace(".000", ""), type: "change_quantity", quantity: i + 1, coupon: "x".repeat(40) }))];
     expect(decodeTimeline(encodeTimeline(long as never))).toEqual(long);
   });
   it("quotes a carriage return so a row cannot split in Excel", () => expect(toCsv([{ name: "a\rb" }])).toBe('name\n"a\rb"\n'));

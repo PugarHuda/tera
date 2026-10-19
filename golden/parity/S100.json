@@ -1,0 +1,71 @@
+{
+  "id": "S100",
+  "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
+  "verified_at": "2026-10-19T16:16:09.622Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USJDa2QR5nixgqNeJhSTY9e",
+  "customer": "cus_VTFj9n3wsvjw2t",
+  "stripe": [
+    {
+      "id": "in_1USJDb2QR5nixgqNOAuB1gEi",
+      "date": "2028-02-19",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera pro_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USJDs2QR5nixgqN1s0aj4AB",
+      "date": "2028-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on 5 × Tera pro_m (with $50.00 off) after 04 Mar 2028",
+          "amount": 31161,
+          "proration": true
+        },
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 70661,
+      "discount": 0,
+      "tax": 0,
+      "total": 70661,
+      "amount_due": 70661,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USJEB2QR5nixgqNscPl6KvR",
+      "date": "2028-05-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 39500,
+      "discount": 0,
+      "tax": 0,
+      "total": 39500,
+      "amount_due": 39500,
+      "starting_balance": 0
+    }
+  ]
+}

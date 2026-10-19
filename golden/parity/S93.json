@@ -1,15 +1,15 @@
 {
   "id": "S93",
   "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
-  "verified_at": "2026-10-19T06:05:07.208Z",
+  "verified_at": "2026-10-19T16:26:40.417Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9gg2QR5nixgqN2hXW2MA2",
-  "customer": "cus_VT5sAT9LPcIwl7",
+  "test_clock": "clock_1USJO02QR5nixgqNIUmYr28r",
+  "customer": "cus_VTFtpGiQ3bNhJw",
   "stripe": [
     {
-      "id": "in_1US9gi2QR5nixgqNG18wHLIC",
+      "id": "in_1USJO22QR5nixgqNQRIk41Q1",
       "date": "2028-07-06",
       "currency": "jpy",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9gq2QR5nixgqNbhiXtPLD",
+      "id": "in_1USJOK2QR5nixgqNOXrBVCpk",
       "date": "2028-08-06",
       "currency": "jpy",
       "lines": [

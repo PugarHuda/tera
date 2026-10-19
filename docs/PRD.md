@@ -39,7 +39,7 @@ Tera is a pricing simulator that sits **on top of Stripe** (it never moves money
 | Invoice | period_start, period_end, lines[], subtotal, discount, tax, total |
 | InvoiceLine | description, amount (minor units), proration (bool), period |
 
-Event types: `subscribe`, `start_trial`, `change_price`, `change_quantity`, `apply_coupon`, `report_usage`, `cancel_at_period_end`, `resume`, `end_trial`, `cancel_now`, `advance_to`.
+Event types: `subscribe`, `start_trial` (optionally with `trial_end_behavior`, R22), `change_price`, `change_quantity`, `apply_coupon`, `report_usage`, `cancel_at_period_end`, `resume`, `end_trial`, `cancel_now`, `advance_to`.
 
 ## 4. Billing rules (the source of truth for the engine and the tests)
 
@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90). Stripe does not document its rounding mode; all 92 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
+- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90). Stripe does not document its rounding mode; all 97 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -91,6 +91,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Tax is computed **after** discounts.
 - Exclusive: `tax = round(taxable × rate)`, `total = taxable + tax`.
 - Inclusive: `tax = round(taxable × rate / (1 + rate))`, `total = taxable`.
+- Open question (classic inclusive, exact ties): Stripe's invoice tax is sometimes a cent under one computation on the total (fuzz seed 70012: 1019 + 7900 = 8919 → 1486.5 → Stripe 1486; seed 72005: 2919 → 486.5 → 486), while S79 (2175 → 362.5 → 363) and S90 (387 → 64.5 → 65) round up. Stripe then spreads the invoice tax over the lines (a lone 7900 line shows 1316, not 1317). Rounding per line, per sign, on unrounded prorations or half to even each fit some of the nine invoices observed and none fit all, so Tera keeps the rule that matches every verified golden and does not guess.
 - A negative (credit) invoice carries negative tax (S39).
 
 ### R7 — Metered, graduated tiers
@@ -170,6 +171,12 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - **Time already paid for is not charged again.** After a `none` pause (no credit) or a `none` change in the same period, the original debit still pays up to its period end. Resuming with an unchanged anchor inside that period charges nothing (S86, S92); resuming with `now` restarts the cycle but invoices nothing at once, and only the part of the new period after that coverage is a pending proration (S91: −, then round(7900 × 19/31) = 4842 on the next renewal; seeds 60131, 60134).
 - Not modelled (rejected): pausing a metered price, pausing with a scheduled cancellation, other changes while paused, resuming with an unchanged anchor exactly on a billing date, and resuming with an unchanged **month-end** anchor (day 29–31). Open question for the last one: with the anchor on the 31st, Stripe charged 8 days of a 06-30 → 07-31 period as 6295 of 23700, which no period length explains (probe M1; the same timeline anchored on the 15th prorates normally, M2), so Tera rejects it instead of guessing.
 
+### R22 — Trial without a card (Stripe `trial_settings.end_behavior.missing_payment_method`)
+- `start_trial` with `trial_end_behavior` models a customer who has no card when the trial ends. `cancel`: the subscription is canceled at trial end and nothing is invoiced (S96). `pause`: it is paused at trial end, nothing is invoiced, and it stays paused until `resume` (probes T1, T2).
+- Resuming it follows R21 with nothing paid for: flexible with `billing_cycle_anchor: now` invoices a full new period at once and moves the anchor (S98); `unchanged` (either mode) keeps the trial-end anchor and charges the rest of the period containing the resume date as a pending proration for the next renewal (S97: 2900 × 21/31 = 1965; S99, two cycles later: 2900 × 25/31 = 2339).
+- That resume charge uses up a `once` coupon that prices it, like any remaining-time charge (S100: the renewal after it is not discounted; fuzz seeds 70016, 71010, 71023).
+- Rejected: a classic resume with anchor `now` (Stripe voids the invoice it creates and the subscription stays paused, probe T2), `end_trial` with an end behavior (no card to pay), and changes while paused (Stripe: "You cannot set proration_behavior while a subscription is paused", probe T8). The parity replay creates the customer without a card and attaches `pm_card_visa` when it resumes.
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.
@@ -192,7 +199,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S95).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S100).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -233,7 +240,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
 - `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[], interval? }` where a customer is a seat count or `{ name, seats }` → `{ affected, mrr_before, mrr_after, mrr_delta, per_customer[] }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
-- Errors: malformed JSON or invalid fields → **400** `{ error }`; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`.
+- Errors: malformed JSON, invalid fields or events out of date order → **400** `{ error }`; a body over 4 MB → **413**; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`. Dates run from 1970 to 2099.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
 - `POST /api/parity` — `{ scenario }` or `{ timeline, catalog? }` (≤ 15 events, ≤ 2 years): live replay in a Stripe test clock, returns `{ match, diffs, tera, stripe, test_clock }`; 429 with `retry-after` during the 30 s cooldown.
@@ -262,7 +269,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 92 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 97 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

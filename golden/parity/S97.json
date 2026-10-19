@@ -1,0 +1,71 @@
+{
+  "id": "S97",
+  "title": "Classic: trial ends without a card into a pause; resuming with anchor unchanged prorates the rest of the cycle onto the next renewal",
+  "verified_at": "2026-10-19T16:06:00.758Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USJ3z2QR5nixgqN83TsEdeE",
+  "customer": "cus_VTFZCkeYnJBwfw",
+  "stripe": [
+    {
+      "id": "in_1USJ3z2QR5nixgqNboWhUrIa",
+      "date": "2027-01-10",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera starter_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USJ4D2QR5nixgqNP9YMLXJV",
+      "date": "2027-02-24",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera starter_m after 03 Feb 2027",
+          "amount": 1965,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 4865,
+      "discount": 0,
+      "tax": 0,
+      "total": 4865,
+      "amount_due": 4865,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USJ4O2QR5nixgqNityPCQZw",
+      "date": "2027-03-24",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    }
+  ]
+}

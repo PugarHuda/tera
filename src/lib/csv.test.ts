@@ -25,3 +25,11 @@ describe("customer CSV", () => {
     expect(toCsv([{ name: "@SUM(A1)" }, { name: "-1+2" }])).toBe("name\n'@SUM(A1)\n'-1+2\n");
   });
 });
+
+describe("parseCustomers: one seat count per line", () => {
+  it("reads a column of seats, with or without a header", () => {
+    expect(parseCustomers("1\n2\n3").customers.map((c) => c.seats)).toEqual([1, 2, 3]);
+    expect(parseCustomers("seats\n3\n4")).toEqual({ customers: [{ name: "customer 1", seats: 3 }, { name: "customer 2", seats: 4 }], errors: [] });
+  });
+  it("names the bad value in the column", () => expect(parseCustomers("1\n0\n2").errors).toEqual(['Item 2: "0" is not a positive whole number of seats']));
+});

@@ -77,6 +77,27 @@ await page.getByLabel("Event 2 proration_behavior").selectOption("always_invoice
 // invoicing_behavior invoice: the credit is its own invoice on 01-16.
 ok((await invoices()) === 4 && (await total(2)).includes("-$40.77"), `pause credit invoiced now: -$40.77 (${await total(2)})`);
 
+// J1c — a trial that ends without a card (R22): paused at trial end, resumed later on the old anchor.
+for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await page.getByLabel("Event 1 type").selectOption("start_trial");
+await typeDate(page.getByLabel("Event 1 date"), "01102027");
+await page.getByLabel("Event 1 price").selectOption("starter_m");
+await type(page.getByLabel("Event 1 trial_days"), "14");
+await page.getByLabel("Event 1 billing_mode").selectOption(""); // classic
+await page.getByLabel("Event 1 trial_end_behavior").selectOption("pause");
+await page.getByRole("button", { name: "+ Add event" }).click();
+await page.getByLabel("Event 2 type").selectOption("resume");
+await typeDate(page.getByLabel("Event 2 date"), "02032027");
+await page.getByLabel("Event 2 billing_cycle_anchor").selectOption("unchanged");
+await page.getByRole("button", { name: "+ Add event" }).click();
+await typeDate(page.getByLabel("Event 3 date"), "04012027");
+// Trial ends 01-24 into a pause (no invoice). Resume 02-03, anchor 01-24 kept: 21 of 31 days, round(2900*21/31) = 1965,
+// billed with the 02-24 renewal: 4865. 03-24: 2900. Verified in Stripe as S97.
+ok((await invoices()) === 3 && (await total(2)).includes("$48.65") && (await total(3)).includes("$29.00"), `trial without a card paused, resumed: $48.65 then $29.00 (${await invoices()}: ${await total(2)}, ${await total(3)})`);
+await page.getByLabel("Delete event 2").click();
+await page.getByLabel("Event 1 trial_end_behavior").selectOption("cancel");
+ok((await invoices()) === 1 && (await total(1)).includes("$0.00"), `trial without a card, cancel: only the $0 trial invoice (${await invoices()})`);
+
 // J2 — Pricing builder: add a price by typing, simulate with it.
 await page.getByRole("link", { name: "Builder" }).click();
 await page.getByRole("button", { name: "+ Add price" }).click();
