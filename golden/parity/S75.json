@@ -1,15 +1,15 @@
 {
   "id": "S75",
   "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
-  "verified_at": "2026-10-19T06:23:30.301Z",
+  "verified_at": "2026-10-19T18:03:29.655Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9y92QR5nixgqN3u0oS9ZN",
-  "customer": "cus_VT6AVOqUm9A2jR",
+  "test_clock": "clock_1USKtc2QR5nixgqNJucW46XP",
+  "customer": "cus_VTHSLdmeSw4AD7",
   "stripe": [
     {
-      "id": "in_1US9yB2QR5nixgqNIp595EJg",
+      "id": "in_1USKtd2QR5nixgqNkrlpCcgl",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9ye2QR5nixgqN6zYczfG2",
+      "id": "in_1USKu12QR5nixgqN5aYGJhLp",
       "date": "2027-07-01",
       "currency": "usd",
       "lines": [

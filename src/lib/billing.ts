@@ -201,6 +201,8 @@ type Sub = {
   coveredUntil?: number;
   /** R22: what the trial ends into when the customer has no card. */
   trialEnd?: TrialEndBehavior;
+  /** R16: the interval a flexible `none` interval change switched to (see flexibleChange). */
+  noneInterval?: Interval;
 };
 
 /** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
@@ -704,7 +706,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     if (e.proration_behavior === "none") return;
     const part = chargeParts(s, at, at, when);
     const amount = part.item.unit - part.paid.off;
-    if (amount === 0) return;
+    // A stub an amount_off coupon makes free is still invoiced, at $0, and still uses up a "once" coupon (fuzz
+    // seed 80012, S106), like a free resume charge (S101).
+    if (part.item.unit === 0) return;
     if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
     s.paid = activeDiscount(s, licensedAmount(s), at);
     s.debits.push(part);
@@ -754,6 +758,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const oldEnd = s.periodEnd;
     if (intervalChanged) {
       const interval = price(s.priceId).interval;
+      // Not modelled (rejected): switching back, with prorations, to the interval of an earlier `none` interval change.
+      // Stripe then charged the new price only to the end of the current shorter period (yearly at 10-17 charged
+      // 10-17 -> 10-18 and nothing after), which no rule here explains (fuzz seed 81005).
+      if (behavior !== "none" && s.noneInterval === interval)
+        throw new Error(`an interval change back to ${interval} with prorations after a "none" change to ${interval} is not modelled (flexible mode)`);
+      if (behavior === "none") s.noneInterval = interval;
       let k = 0;
       // Before an R20 first billing date the anchor is still ahead: the aligned period then started before it
       // (start 06-01, anchor 06-24, yearly at 06-09: 2026-06-24 -> 2027-06-24, renewing on the anchor; fuzz 77004).

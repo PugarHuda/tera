@@ -915,6 +915,72 @@
     ]
   },
   {
+    "id": "S106",
+    "title": "A first-billing-date stub an amount_off coupon makes free is still invoiced at $0 and uses up the once coupon (found by fuzzing)",
+    "verified_at": "2026-10-19T18:03:19.103Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USKtc2QR5nixgqNa16wrhpW",
+    "customer": "cus_VTHSDsimwIgQGi",
+    "stripe": [
+      {
+        "id": "in_1USKtd2QR5nixgqNgxIe7IWS",
+        "date": "2027-03-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on 4 × Tera team_seat_m (with $50.00 off) after 03 Mar 2027",
+            "amount": 0,
+            "proration": true
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USKtj2QR5nixgqNCLBYuUyY",
+        "date": "2027-03-15",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "4 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 4800,
+            "proration": false
+          }
+        ],
+        "subtotal": 4800,
+        "discount": 0,
+        "tax": 0,
+        "total": 4800,
+        "amount_due": 4800,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USKtv2QR5nixgqNeK6kRHd8",
+        "date": "2027-04-15",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "4 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 4800,
+            "proration": false
+          }
+        ],
+        "subtotal": 4800,
+        "discount": 0,
+        "tax": 0,
+        "total": 4800,
+        "amount_due": 4800,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
     "verified_at": "2026-10-17T18:28:38.241Z",
@@ -4822,15 +4888,15 @@
   {
     "id": "S74",
     "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
-    "verified_at": "2026-10-19T05:26:58.916Z",
+    "verified_at": "2026-10-19T18:03:19.755Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US95d2QR5nixgqNrwjzRy9J",
-    "customer": "cus_VT5GtzdkbrwHqM",
+    "test_clock": "clock_1USKtc2QR5nixgqNocHakN8C",
+    "customer": "cus_VTHSGzv5EYZdKf",
     "stripe": [
       {
-        "id": "in_1US95e2QR5nixgqNxlbwNCL8",
+        "id": "in_1USKtd2QR5nixgqNMzk84GVJ",
         "date": "2027-02-10",
         "currency": "usd",
         "lines": [
@@ -4848,7 +4914,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US95j2QR5nixgqNarknB6yU",
+        "id": "in_1USKtj2QR5nixgqNp3vC6vT7",
         "date": "2027-03-05",
         "currency": "usd",
         "lines": [
@@ -4866,7 +4932,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US95w2QR5nixgqNxxbmSItp",
+        "id": "in_1USKtv2QR5nixgqN0JqTDmsq",
         "date": "2027-04-05",
         "currency": "usd",
         "lines": [
@@ -4888,15 +4954,15 @@
   {
     "id": "S75",
     "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
-    "verified_at": "2026-10-19T06:23:30.301Z",
+    "verified_at": "2026-10-19T18:03:29.655Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9y92QR5nixgqN3u0oS9ZN",
-    "customer": "cus_VT6AVOqUm9A2jR",
+    "test_clock": "clock_1USKtc2QR5nixgqNJucW46XP",
+    "customer": "cus_VTHSLdmeSw4AD7",
     "stripe": [
       {
-        "id": "in_1US9yB2QR5nixgqNIp595EJg",
+        "id": "in_1USKtd2QR5nixgqNkrlpCcgl",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -4914,7 +4980,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9ye2QR5nixgqN6zYczfG2",
+        "id": "in_1USKu12QR5nixgqN5aYGJhLp",
         "date": "2027-07-01",
         "currency": "usd",
         "lines": [

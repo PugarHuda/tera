@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 102 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
+- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 103 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -146,6 +146,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - **No forced invoices.** A no-op change with `always_invoice` does not invoice pending items; a metered subscription gets no $0 invoice at creation (S59).
 - **Trials.** Any price or quantity change during a trial issues its own $0 trial invoice at once (S60).
 
+- Not modelled (rejected): switching back, with prorations, to the interval of an earlier `none` interval change. Stripe then charged the new price only to the end of the current shorter period (yearly → monthly → yearly: 10-17 → 10-18 at the yearly rate and nothing after, fuzz seed 81005).
 - **Flexible discounts and tax.** A proration charge takes its percent discount off the *unrounded* gross (S89: 841.94 × 25 % = 210.48 → 210, where classic takes 25 % of the rounded 842, 210.5 → 211, S79). Tax follows the invoice-level rule of R6 in this mode too (S93: 13892, where round(83355 / 6) = 13893; exclusive S94: round(757.7) = 758). All found by fuzzing.
 - **A renewal claims a `once` coupon when it is drafted.** A change at the renewal instant is therefore priced without it, and the renewal keeps the discount (S95: the pro_y charge is the full 26544, the renewal 23700 − 4740). Mode-independent; found by fuzzing.
 
@@ -163,6 +164,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 
 ### R20 — First billing date
 - `subscribe` with `billing_cycle_anchor` (Stripe's anchor at creation) bills on a fixed day. The time from the start to the anchor is billed now as a proration priced like a remaining-time charge, divided by **one interval counted from the start** (S74: start 02-10, 02-10 → 03-10 is 28 days, 7900 × 23/28 = 6489; S77: start 05-31, one month is 05-31 → 06-30 = 30 days, found by fuzzing). A `once` coupon is used up by it (S75). With `proration_behavior = none` nothing is billed until the anchor. In flexible mode the stub instead divides by the **anchor-aligned period ending on the anchor** (S85: start 2028-03-05, anchor 03-22: 02-22 → 03-22 = 29 days, so round(6000 × 17/29) = 3517, not 6000 × 17/31; found by fuzzing three times, with leap-year and yearly cases), and it is a debit that a later change credits over its own days (S76).
+- A stub an `amount_off` coupon makes free is still invoiced, at $0, and still uses up a `once` coupon, so the first renewal is full price (S106, fuzz seed 80012).
 - A flexible interval change before the first billing date aligns the new period to the anchor that is still ahead: start 06-01, anchor 06-24, a `none` switch to yearly on 06-09 sits in 2026-06-24 → 2027-06-24 and renews the yearly price on 06-24 (S102, fuzz seed 77004).
 - The anchor must be after the start and at most one billing period ahead (Stripe rejects more). Not modelled for metered prices or trials.
 
@@ -208,7 +210,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S105).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S106).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -278,7 +280,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 102 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 103 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

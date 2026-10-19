@@ -5646,6 +5646,57 @@
         }
       ],
       "parity": "golden/parity/S105.json"
+    },
+    {
+      "id": "S106",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R5"
+      ],
+      "title": "A first-billing-date stub an amount_off coupon makes free is still invoiced at $0 and uses up the once coupon (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-03-03T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 4,
+          "coupon": "FIFTYOFF",
+          "billing_cycle_anchor": "2027-03-15T00:00:00Z"
+        },
+        {
+          "at": "2027-04-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "03-03, first billing date 03-15: the stub is 12 days of one interval from the start, 03-03 -> 04-03 (31 d): gross round(4800*12/31) = 1858, and FIFTYOFF ($50 once, capped at the 4800 amount) takes all of it: a $0 invoice, which uses up the coupon. 03-15: 4800, not discounted. 04-15: 4800.",
+      "expect": [
+        {
+          "date": "2027-03-03",
+          "lines": [
+            0
+          ],
+          "discount": 0,
+          "total": 0
+        },
+        {
+          "date": "2027-03-15",
+          "lines": [
+            4800
+          ],
+          "discount": 0,
+          "total": 4800
+        },
+        {
+          "date": "2027-04-15",
+          "lines": [
+            4800
+          ],
+          "discount": 0,
+          "total": 4800
+        }
+      ],
+      "parity": "golden/parity/S106.json"
     }
   ]
 }

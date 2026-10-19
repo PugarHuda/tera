@@ -1,15 +1,15 @@
 {
   "id": "S74",
   "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
-  "verified_at": "2026-10-19T05:26:58.916Z",
+  "verified_at": "2026-10-19T18:03:19.755Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US95d2QR5nixgqNrwjzRy9J",
-  "customer": "cus_VT5GtzdkbrwHqM",
+  "test_clock": "clock_1USKtc2QR5nixgqNocHakN8C",
+  "customer": "cus_VTHSGzv5EYZdKf",
   "stripe": [
     {
-      "id": "in_1US95e2QR5nixgqNxlbwNCL8",
+      "id": "in_1USKtd2QR5nixgqNMzk84GVJ",
       "date": "2027-02-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US95j2QR5nixgqNarknB6yU",
+      "id": "in_1USKtj2QR5nixgqNp3vC6vT7",
       "date": "2027-03-05",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US95w2QR5nixgqNxxbmSItp",
+      "id": "in_1USKtv2QR5nixgqN0JqTDmsq",
       "date": "2027-04-05",
       "currency": "usd",
       "lines": [
