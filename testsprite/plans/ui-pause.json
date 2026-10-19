@@ -1,0 +1,15 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Simulator: pausing a flexible subscription (S80) credits unused time on the resumption invoice; invoicing it now makes a credit invoice",
+  "description": "R21 pause and resume (Stripe API 2026-09-30.endive): no renewals while paused, the unused-time credit rides on the invoice created at resume, and proration behavior always_invoice turns that credit into its own invoice.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page and choose 'S80' in the 'Load scenario' dropdown" },
+    { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is shown" },
+    { "type": "assertion", "description": "Assert the timeline contains an event whose type is 'Pause (flexible mode)' and one whose type is 'Resume (undo cancel, or unpause)'" },
+    { "type": "assertion", "description": "Assert exactly 3 invoices are shown: Invoice 1 dated 2027-01-01 totals $79.00, Invoice 2 dated 2027-02-15 totals $38.23 and contains a line of -$40.77, Invoice 3 dated 2027-03-15 totals $79.00. No invoice is dated 2027-02-01" },
+    { "type": "action", "description": "On the 'Pause (flexible mode)' event, set its 'proration behavior' dropdown to 'always_invoice'" },
+    { "type": "assertion", "description": "Assert exactly 4 invoices are shown: 2027-01-01 totals $79.00, 2027-01-16 totals -$40.77, 2027-02-15 totals $79.00, 2027-03-15 totals $79.00" }
+  ]
+}

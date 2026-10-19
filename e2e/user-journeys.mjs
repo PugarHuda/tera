@@ -56,6 +56,26 @@ await page.getByTestId("stripe-check").waitFor({ timeout: 180000 });
 const v = (await page.getByTestId("stripe-check").innerText()).replace(/\s+/g, " ");
 ok(/matches stripe/i.test(v), `Verify in Stripe: ${v.slice(0, 100)}`);
 
+// J1b — pause and resume a flexible subscription (R21, Stripe API 2026-09-30.endive), all by picking from dropdowns.
+await page.getByRole("link", { name: "Simulator" }).click();
+for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await page.getByLabel("Event 1 billing_cycle_anchor").fill(""); // J1 left a first billing date on it
+await typeDate(page.getByLabel("Event 1 date"), "01012027");
+await page.getByLabel("Event 1 price").selectOption("pro_m");
+await type(page.getByLabel("Event 1 quantity"), "1");
+await page.getByLabel("Event 1 billing_mode").selectOption("flexible");
+await page.getByRole("button", { name: "+ Add event" }).click();
+await page.getByLabel("Event 2 type").selectOption("pause");
+await typeDate(page.getByLabel("Event 2 date"), "01162027");
+await page.getByRole("button", { name: "+ Add event" }).click(); // 30 days later: 02-15
+await page.getByLabel("Event 3 type").selectOption("resume");
+await page.getByRole("button", { name: "+ Add event" }).click(); // advance to 03-17
+// 01-16 pause: credit -round(7900*16/31) = -4077, pending; 02-15 resume restarts the cycle: 7900 - 4077 = 3823; 03-15: 7900.
+ok((await invoices()) === 3 && (await total(2)).includes("$38.23") && (await total(3)).includes("$79.00"), `paused, resumed: 3 invoices, $38.23 then $79.00 (${await invoices()}: ${await total(2)}, ${await total(3)})`);
+await page.getByLabel("Event 2 proration_behavior").selectOption("always_invoice");
+// invoicing_behavior invoice: the credit is its own invoice on 01-16.
+ok((await invoices()) === 4 && (await total(2)).includes("-$40.77"), `pause credit invoiced now: -$40.77 (${await total(2)})`);
+
 // J2 — Pricing builder: add a price by typing, simulate with it.
 await page.getByRole("link", { name: "Builder" }).click();
 await page.getByRole("button", { name: "+ Add price" }).click();

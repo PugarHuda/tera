@@ -168,6 +168,8 @@ type Sub = {
   anchor: number;
   /** Flexible: what each still-unexpired span was debited (gross and its discount), credited back on a change. */
   debits: Debit[];
+  /** Flexible: end of the period an unprorated (`none`) change was made in; resuming inside it charges nothing (R21). */
+  unproratedUntil?: number;
 };
 
 /** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
@@ -435,6 +437,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const p = price(s.priceId);
         if (s.mode === "flexible") {
           flexibleChange(s, at, p.interval !== oldInterval, e.proration_behavior);
+          if (e.proration_behavior === "none") s.unproratedUntil = s.periodEnd;
           break;
         }
         if (p.interval !== oldInterval) {
@@ -571,9 +574,17 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
     if (s.periodStart === at) throw new Error('resume with billing_cycle_anchor "unchanged" exactly on a billing date is not modelled');
     s.paid = activeDiscount(s, licensedAmount(s), at);
-    if (e.proration_behavior === "none") return;
-    const parts = chargeParts(s, at, at, s.periodEnd);
-    const charge = { description: "Time after resuming", amount: parts.item.unit - parts.paid.off, proration: true };
+    // Stripe charges nothing for the rest of a period in which the item was changed without proration (probes Q1,
+    // Q5: resumed the day after pausing; a later period is charged as usual, Q4).
+    if (e.proration_behavior === "none" || (s.unproratedUntil ?? 0) >= s.periodEnd) return;
+    // Unlike a change's "Remaining time" (S79), the discount comes off the unrounded gross: 14500 x 9/31 = 4209.68,
+    // 25% of it 1052.42 -> 1052, so 4210 - 1052 = 3158 (fuzz seed 60013).
+    const [num, den] = [s.periodEnd - at, s.periodEnd - s.periodStart];
+    const now = activeDiscount(s, licensedAmount(s), at);
+    const gross = prorated(item(s), FULL, num, den);
+    const discount = prorated(item(s), { rate: 1 - now.rate, off: -now.off }, num, den);
+    const parts: Debit = { start: at, end: s.periodEnd, item: { unit: gross, qty: 1 }, paid: { rate: 1, off: discount } };
+    const charge = { description: "Time after resuming", amount: gross - discount, proration: true };
     if (charge.amount !== 0) s.debits.push(parts);
     bill(s, at, [charge], e.proration_behavior);
   }
@@ -605,9 +616,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchor = when;
     s.anchorDay = new Date(when).getUTCDate();
     s.periodEnd = when;
-    // The stub period is as long as one interval from the start, ending on the anchor, so every proration
-    // before the anchor divides by that length.
-    s.periodStart = when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
+    // Classic: the stub period is as long as one interval from the start, ending on the anchor, so every proration
+    // before the anchor divides by that length (S77). Flexible: it is the anchor-aligned period ending on the anchor
+    // (start 03-05, anchor 03-22 in 2028: 02-22 -> 03-22 = 29 days, not 31; fuzz seeds 60008, 60015, 60035).
+    s.periodStart =
+      s.mode === "flexible"
+        ? addInterval(when, p.interval, s.anchorDay, -1)
+        : when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
     if (e.proration_behavior === "none") return;
     const part = chargeParts(s, at, at, when);
     const amount = part.item.unit - part.paid.off;

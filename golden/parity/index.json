@@ -4382,16 +4382,16 @@
   },
   {
     "id": "S74",
-    "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over the period ending on it",
-    "verified_at": "2026-10-18T16:46:03.998Z",
+    "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
+    "verified_at": "2026-10-19T05:26:58.916Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URxDC2QR5nixgqNWDxDA76x",
-    "customer": "cus_VSszTpCSIKgYjF",
+    "test_clock": "clock_1US95d2QR5nixgqNrwjzRy9J",
+    "customer": "cus_VT5GtzdkbrwHqM",
     "stripe": [
       {
-        "id": "in_1URxDD2QR5nixgqNATO5h8pZ",
+        "id": "in_1US95e2QR5nixgqNxlbwNCL8",
         "date": "2027-02-10",
         "currency": "usd",
         "lines": [
@@ -4409,7 +4409,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxDJ2QR5nixgqNyrwcfKrJ",
+        "id": "in_1US95j2QR5nixgqNarknB6yU",
         "date": "2027-03-05",
         "currency": "usd",
         "lines": [
@@ -4427,7 +4427,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxDb2QR5nixgqN47tIJPUO",
+        "id": "in_1US95w2QR5nixgqNxxbmSItp",
         "date": "2027-04-05",
         "currency": "usd",
         "lines": [
@@ -4449,15 +4449,15 @@
   {
     "id": "S75",
     "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
-    "verified_at": "2026-10-18T16:46:45.787Z",
+    "verified_at": "2026-10-19T05:27:07.367Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URxDC2QR5nixgqNVCmaghm3",
-    "customer": "cus_VSszbVbfgsudhM",
+    "test_clock": "clock_1US95d2QR5nixgqNi22ygkBT",
+    "customer": "cus_VT5GN6XB2zaTqa",
     "stripe": [
       {
-        "id": "in_1URxDD2QR5nixgqNZE2DMOYU",
+        "id": "in_1US95e2QR5nixgqNA00sBcFP",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -4475,7 +4475,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxE82QR5nixgqN1aRY6dlG",
+        "id": "in_1US9652QR5nixgqNHSEoYXhL",
         "date": "2027-07-01",
         "currency": "usd",
         "lines": [
@@ -4497,15 +4497,15 @@
   {
     "id": "S76",
     "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
-    "verified_at": "2026-10-18T16:46:36.307Z",
+    "verified_at": "2026-10-19T05:27:00.606Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URxDa2QR5nixgqNbv60jaRf",
-    "customer": "cus_VSsznqULis5L3n",
+    "test_clock": "clock_1US95d2QR5nixgqNJ3CX6qGI",
+    "customer": "cus_VT5GtVLxDJMQcr",
     "stripe": [
       {
-        "id": "in_1URxDb2QR5nixgqNSotmonyx",
+        "id": "in_1US95e2QR5nixgqNG7O4Hs3k",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -4523,7 +4523,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxDn2QR5nixgqNdMBOhZ2S",
+        "id": "in_1US95n2QR5nixgqNJOw5SgxK",
         "date": "2027-01-31",
         "currency": "usd",
         "lines": [
@@ -4551,7 +4551,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxEB2QR5nixgqNdC7ixcRj",
+        "id": "in_1US9612QR5nixgqNsDhVgD3Z",
         "date": "2027-02-28",
         "currency": "usd",
         "lines": [
@@ -4573,15 +4573,15 @@
   {
     "id": "S77",
     "title": "First-billing-date stub is prorated over one interval counted from the start (05-31 -> 06-30), not the period ending on the anchor (found by fuzzing)",
-    "verified_at": "2026-10-18T16:46:38.637Z",
+    "verified_at": "2026-10-19T05:27:20.776Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URxDm2QR5nixgqNQLcOkVwn",
-    "customer": "cus_VSszDqzInzSX86",
+    "test_clock": "clock_1US9672QR5nixgqNMJJv8Dqe",
+    "customer": "cus_VT5GuStFQObCEU",
     "stripe": [
       {
-        "id": "in_1URxDn2QR5nixgqNyCELm0yL",
+        "id": "in_1US9682QR5nixgqNKRGDJovY",
         "date": "2028-05-31",
         "currency": "usd",
         "lines": [
@@ -4599,7 +4599,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxE02QR5nixgqNIyIBLRCY",
+        "id": "in_1US96C2QR5nixgqNulfGlhSA",
         "date": "2028-06-13",
         "currency": "usd",
         "lines": [
@@ -4617,7 +4617,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URxEB2QR5nixgqNABl47EEz",
+        "id": "in_1US96L2QR5nixgqNd3Am7DSI",
         "date": "2028-07-13",
         "currency": "usd",
         "lines": [
@@ -4857,15 +4857,15 @@
   {
     "id": "S81",
     "title": "Flexible: resume with billing_cycle_anchor unchanged; nothing is invoiced at resume, the rest of the cycle is prorated onto the next renewal",
-    "verified_at": "2026-10-19T05:08:20.865Z",
+    "verified_at": "2026-10-19T05:27:31.409Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US8nI2QR5nixgqNCuK3tOsn",
-    "customer": "cus_VT4xZFsHcLxHm1",
+    "test_clock": "clock_1US9682QR5nixgqNSCihPIvA",
+    "customer": "cus_VT5GW2ke97FUdW",
     "stripe": [
       {
-        "id": "in_1US8nJ2QR5nixgqN3lTSebiW",
+        "id": "in_1US96A2QR5nixgqN0upTzF9y",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -4883,7 +4883,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8nk2QR5nixgqNIoc1AW7V",
+        "id": "in_1US96M2QR5nixgqNjN51fcts",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -4911,7 +4911,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8nw2QR5nixgqNlWdidy10",
+        "id": "in_1US96W2QR5nixgqN0ZgFygUH",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -5147,6 +5147,272 @@
         "tax": 0,
         "total": 17775,
         "amount_due": 17775,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S85",
+    "title": "Flexible: a first-billing-date stub divides by the anchor-aligned period ending on the anchor, not one interval from the start (found by fuzzing)",
+    "verified_at": "2026-10-19T05:27:32.419Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1US96F2QR5nixgqNUNd2QTxt",
+    "customer": "cus_VT5GRt3aUzGVvh",
+    "stripe": [
+      {
+        "id": "in_1US96G2QR5nixgqNA92mw9OO",
+        "date": "2028-03-05",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on 5 × Tera team_seat_m (with 25.0% off) after 05 Mar 2028",
+            "amount": 2638,
+            "proration": true
+          }
+        ],
+        "subtotal": 2638,
+        "discount": 0,
+        "tax": 0,
+        "total": 2638,
+        "amount_due": 2638,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96M2QR5nixgqNXyl7wJX1",
+        "date": "2028-03-22",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 6000,
+            "proration": false
+          }
+        ],
+        "subtotal": 6000,
+        "discount": 1500,
+        "tax": 0,
+        "total": 4500,
+        "amount_due": 4500,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96W2QR5nixgqNX0nkD53S",
+        "date": "2028-04-22",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 6000,
+            "proration": false
+          }
+        ],
+        "subtotal": 6000,
+        "discount": 1500,
+        "tax": 0,
+        "total": 4500,
+        "amount_due": 4500,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S86",
+    "title": "Flexible: after an unprorated price change, resuming in the same period charges nothing for the rest of it (found by fuzzing)",
+    "verified_at": "2026-10-19T05:27:50.721Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1US96T2QR5nixgqNxKWEhqbX",
+    "customer": "cus_VT5HFPMgPgu7hc",
+    "stripe": [
+      {
+        "id": "in_1US96U2QR5nixgqNyyj8mYDd",
+        "date": "2027-04-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 0,
+        "tax": 0,
+        "total": 2900,
+        "amount_due": 2900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96f2QR5nixgqNyoVre0VA",
+        "date": "2027-05-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera starter_m after 28 Apr 2027",
+            "amount": -483,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 1200,
+            "proration": false
+          }
+        ],
+        "subtotal": 717,
+        "discount": 0,
+        "tax": 0,
+        "total": 717,
+        "amount_due": 717,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96p2QR5nixgqNcVOrREZp",
+        "date": "2027-06-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 1200,
+            "proration": false
+          }
+        ],
+        "subtotal": 1200,
+        "discount": 0,
+        "tax": 0,
+        "total": 1200,
+        "amount_due": 1200,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S87",
+    "title": "Flexible: after an unprorated change, resuming in a later period charges the rest of that period as usual",
+    "verified_at": "2026-10-19T05:27:55.332Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1US96d2QR5nixgqNjDSSAUsA",
+    "customer": "cus_VT5HPtkGW3DuCX",
+    "stripe": [
+      {
+        "id": "in_1US96f2QR5nixgqNfRkYYC6g",
+        "date": "2027-04-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2900,
+        "discount": 0,
+        "tax": 0,
+        "total": 2900,
+        "amount_due": 2900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96s2QR5nixgqNqh5QBkWK",
+        "date": "2027-06-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on Tera pro_m after 20 May 2027",
+            "amount": 3568,
+            "proration": true
+          },
+          {
+            "description": "Unused time on Tera starter_m after 28 Apr 2027",
+            "amount": -483,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 10985,
+        "discount": 0,
+        "tax": 0,
+        "total": 10985,
+        "amount_due": 10985,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S88",
+    "title": "Flexible: the charge for resuming with an unchanged anchor takes a percent discount off the unrounded gross (found by fuzzing)",
+    "verified_at": "2026-10-19T05:28:04.339Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1US96e2QR5nixgqNSoyirGFg",
+    "customer": "cus_VT5HlIwOnHzHwB",
+    "stripe": [
+      {
+        "id": "in_1US96g2QR5nixgqNuC6wxzuS",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5 × Tera starter_m (at $29.00 / month)",
+            "amount": 14500,
+            "proration": false
+          }
+        ],
+        "subtotal": 14500,
+        "discount": 3625,
+        "tax": 0,
+        "total": 10875,
+        "amount_due": 10875,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US96s2QR5nixgqNkkcoD0mz",
+        "date": "2027-04-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on 5 × Tera starter_m (with 25.0% off) after 23 Mar 2027",
+            "amount": 3158,
+            "proration": true
+          },
+          {
+            "description": "5 × Tera starter_m (at $29.00 / month)",
+            "amount": 14500,
+            "proration": false
+          }
+        ],
+        "subtotal": 17658,
+        "discount": 3625,
+        "tax": 0,
+        "total": 14033,
+        "amount_due": 14033,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1US9732QR5nixgqNi0mTluBY",
+        "date": "2027-05-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5 × Tera starter_m (at $29.00 / month)",
+            "amount": 14500,
+            "proration": false
+          }
+        ],
+        "subtotal": 14500,
+        "discount": 3625,
+        "tax": 0,
+        "total": 10875,
+        "amount_due": 10875,
         "starting_balance": 0
       }
     ]

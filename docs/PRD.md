@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero. Stripe does not document its rounding mode; all 81 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
+- Rounding mode: round half away from zero. Stripe does not document its rounding mode; all 85 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -157,13 +157,13 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - In a later period: renewals continue, and the renewal whose period contains the date bills only up to it, as a proration priced like a remaining-time charge, gross and discount rounded apart (S72: 3950 − 988 = 2962); `none` does not change this. `resume` clears it. Not modelled during a trial (rejected).
 
 ### R20 — First billing date
-- `subscribe` with `billing_cycle_anchor` (Stripe's anchor at creation) bills on a fixed day. The time from the start to the anchor is billed now as a proration priced like a remaining-time charge, divided by **one interval counted from the start** (S74: start 02-10, 02-10 → 03-10 is 28 days, 7900 × 23/28 = 6489; S77: start 05-31, one month is 05-31 → 06-30 = 30 days, found by fuzzing). A `once` coupon is used up by it (S75). With `proration_behavior = none` nothing is billed until the anchor. Same in both modes; in flexible the stub is a debit that a later change credits over its own days (S76).
+- `subscribe` with `billing_cycle_anchor` (Stripe's anchor at creation) bills on a fixed day. The time from the start to the anchor is billed now as a proration priced like a remaining-time charge, divided by **one interval counted from the start** (S74: start 02-10, 02-10 → 03-10 is 28 days, 7900 × 23/28 = 6489; S77: start 05-31, one month is 05-31 → 06-30 = 30 days, found by fuzzing). A `once` coupon is used up by it (S75). With `proration_behavior = none` nothing is billed until the anchor. In flexible mode the stub instead divides by the **anchor-aligned period ending on the anchor** (S85: start 2028-03-05, anchor 03-22: 02-22 → 03-22 = 29 days, so round(6000 × 17/29) = 3517, not 6000 × 17/31; found by fuzzing three times, with leap-year and yearly cases), and it is a debit that a later change credits over its own days (S76).
 - The anchor must be after the start and at most one billing period ahead (Stripe rejects more). Not modelled for metered prices or trials.
 
 ### R21 — Pause and resume (Stripe API 2026-09-30.endive)
 - `pause` (Stripe `POST /v1/subscriptions/:id/pause`) stops invoice generation at once: status `paused`, the current period ends now, and no renewal happens until `resume`. Flexible billing mode only, and not during a trial (Stripe rejects both; Tera does too). Coupons keep running in calendar time while paused.
 - Unused time is credited from each original debit like any flexible credit, gross and discount rounded apart (S84: 3 seats with 25 % off, paused at 12:00 with 11.5 of 31 days left: −(8792 − 2198) = −6594). `proration_behavior` maps onto pause's billing options: default = `unused_time_from: now` + `invoicing_behavior: pending_invoice_item` (the credit waits for the next invoice, S80); `always_invoice` = `invoicing_behavior: invoice` (a credit invoice now that becomes customer balance, S82); `none` = `unused_time_from: none` (no credit, S83).
-- `resume` of a paused subscription (Stripe `POST /v1/subscriptions/:id/resume`) with `billing_cycle_anchor: now` (default) starts a full new period now and invoices it at once together with anything pending (S80: −4077 + 7900 = 3823). With `billing_cycle_anchor: unchanged` the old anchor stays: nothing is invoiced at resume; the rest of the period that contains the resume date is charged as a pending proration billed at the next renewal (S81: 7900 × 14/28 = 3950, then −4077 + 3950 + 7900 = 7773). `none` skips that charge.
+- `resume` of a paused subscription (Stripe `POST /v1/subscriptions/:id/resume`) with `billing_cycle_anchor: now` (default) starts a full new period now and invoices it at once together with anything pending (S80: −4077 + 7900 = 3823). With `billing_cycle_anchor: unchanged` the old anchor stays: nothing is invoiced at resume; the rest of the period that contains the resume date is charged as a pending proration billed at the next renewal (S81: 7900 × 14/28 = 3950, then −4077 + 3950 + 7900 = 7773). `none` skips that charge. That charge takes a percent discount off the **unrounded** gross (S88: 4209.68 × 25 % = 1052.42 → 1052, where a change's remaining-time charge would take 25 % of the rounded 4210, S79), and it is not made at all when the item was changed with `proration_behavior: none` in that same period (S86, probes Q1 and Q5); in a later period it is (S87).
 - Not modelled (rejected): pausing a metered price, pausing with a scheduled cancellation, other changes while paused, resuming with an unchanged anchor exactly on a billing date.
 
 ## 5. Invariants (must hold for every simulation)
@@ -188,7 +188,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S84).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S88).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -258,7 +258,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 81 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 85 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

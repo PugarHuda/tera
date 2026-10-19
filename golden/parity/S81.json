@@ -1,15 +1,15 @@
 {
   "id": "S81",
   "title": "Flexible: resume with billing_cycle_anchor unchanged; nothing is invoiced at resume, the rest of the cycle is prorated onto the next renewal",
-  "verified_at": "2026-10-19T05:08:20.865Z",
+  "verified_at": "2026-10-19T05:27:31.409Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US8nI2QR5nixgqNCuK3tOsn",
-  "customer": "cus_VT4xZFsHcLxHm1",
+  "test_clock": "clock_1US9682QR5nixgqNSCihPIvA",
+  "customer": "cus_VT5GW2ke97FUdW",
   "stripe": [
     {
-      "id": "in_1US8nJ2QR5nixgqN3lTSebiW",
+      "id": "in_1US96A2QR5nixgqN0upTzF9y",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8nk2QR5nixgqNIoc1AW7V",
+      "id": "in_1US96M2QR5nixgqNjN51fcts",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8nw2QR5nixgqNlWdidy10",
+      "id": "in_1US96W2QR5nixgqN0ZgFygUH",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
