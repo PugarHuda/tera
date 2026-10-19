@@ -478,15 +478,15 @@
   {
     "id": "S100",
     "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
-    "verified_at": "2026-10-19T16:16:09.622Z",
+    "verified_at": "2026-10-19T16:40:24.320Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJDa2QR5nixgqNeJhSTY9e",
-    "customer": "cus_VTFj9n3wsvjw2t",
+    "test_clock": "clock_1USJbK2QR5nixgqNgKh1Qwvo",
+    "customer": "cus_VTG7osV5EGaldF",
     "stripe": [
       {
-        "id": "in_1USJDb2QR5nixgqNOAuB1gEi",
+        "id": "in_1USJbL2QR5nixgqNvWHxEORH",
         "date": "2028-02-19",
         "currency": "usd",
         "lines": [
@@ -504,7 +504,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJDs2QR5nixgqN1s0aj4AB",
+        "id": "in_1USJbW2QR5nixgqNMWHoILPr",
         "date": "2028-04-01",
         "currency": "usd",
         "lines": [
@@ -527,7 +527,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJEB2QR5nixgqNscPl6KvR",
+        "id": "in_1USJbh2QR5nixgqNKPGOgoh2",
         "date": "2028-05-01",
         "currency": "usd",
         "lines": [
@@ -542,6 +542,153 @@
         "tax": 0,
         "total": 39500,
         "amount_due": 39500,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S101",
+    "title": "Flexible: a resume charge an amount_off coupon makes free is still a $0 debit and uses up the once coupon (found by fuzzing)",
+    "verified_at": "2026-10-19T16:56:31.761Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USJqF2QR5nixgqNC10oDBfq",
+    "customer": "cus_VTGNkfhQ9orlrb",
+    "stripe": [
+      {
+        "id": "in_1USJqG2QR5nixgqNO5gQ1Uc0",
+        "date": "2028-06-04",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Free trial for 4 × Tera team_seat_m",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USJqk2QR5nixgqNEtsQQKZq",
+        "date": "2028-08-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 4 × Tera team_seat_m (with $50.00 off) after 08 Aug 2028",
+            "amount": 0,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 7 × Tera team_seat_m after 08 Aug 2028",
+            "amount": 813,
+            "proration": true
+          },
+          {
+            "description": "Time on 4 × Tera team_seat_m (with $50.00 off) after 02 Aug 2028",
+            "amount": 0,
+            "proration": true
+          },
+          {
+            "description": "7 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 8400,
+            "proration": false
+          }
+        ],
+        "subtotal": 9213,
+        "discount": 0,
+        "tax": 0,
+        "total": 9213,
+        "amount_due": 9213,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USJr52QR5nixgqNauWmRN2U",
+        "date": "2028-09-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "7 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 8400,
+            "proration": false
+          }
+        ],
+        "subtotal": 8400,
+        "discount": 0,
+        "tax": 0,
+        "total": 8400,
+        "amount_due": 8400,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USJrI2QR5nixgqNFy50wUI1",
+        "date": "2028-10-11",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "7 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 8400,
+            "proration": false
+          }
+        ],
+        "subtotal": 8400,
+        "discount": 0,
+        "tax": 0,
+        "total": 8400,
+        "amount_due": 8400,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S102",
+    "title": "Flexible: switching to yearly with no proration before the first billing date renews the yearly price on that date (found by fuzzing)",
+    "verified_at": "2026-10-19T16:55:34.680Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USJqF2QR5nixgqN1yZeYYLS",
+    "customer": "cus_VTGNqBjZgeuMBc",
+    "stripe": [
+      {
+        "id": "in_1USJqH2QR5nixgqNmsJCiZFB",
+        "date": "2027-06-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on 3 × Tera team_seat_m (with 25.0% off) after 01 Jun 2027",
+            "amount": 2003,
+            "proration": true
+          }
+        ],
+        "subtotal": 2003,
+        "discount": 0,
+        "tax": 0,
+        "total": 2003,
+        "amount_due": 2003,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USJqO2QR5nixgqNIz99u5E0",
+        "date": "2027-06-24",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera pro_y (at $290.00 / year)",
+            "amount": 87000,
+            "proration": false
+          }
+        ],
+        "subtotal": 87000,
+        "discount": 21750,
+        "tax": 0,
+        "total": 65250,
+        "amount_due": 65250,
         "starting_balance": 0
       }
     ]
@@ -4710,15 +4857,15 @@
   {
     "id": "S78",
     "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
-    "verified_at": "2026-10-19T06:04:27.964Z",
+    "verified_at": "2026-10-19T16:40:14.734Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9g32QR5nixgqNcstpIHmI",
-    "customer": "cus_VT5rrBuJHsn8tk",
+    "test_clock": "clock_1USJbK2QR5nixgqNmZuxrESI",
+    "customer": "cus_VTG7VVgIieJi3r",
     "stripe": [
       {
-        "id": "in_1US9g42QR5nixgqNdtlRRRhl",
+        "id": "in_1USJbL2QR5nixgqNYvY3IItb",
         "date": "2027-06-05",
         "currency": "usd",
         "lines": [
@@ -4736,7 +4883,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9g92QR5nixgqNQAWPt0ZO",
+        "id": "in_1USJbS2QR5nixgqNuEy2GvaC",
         "date": "2027-06-28",
         "currency": "usd",
         "lines": [
@@ -4759,7 +4906,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9gF2QR5nixgqNUG2yZpil",
+        "id": "in_1USJbX2QR5nixgqNBbg2uTRh",
         "date": "2027-07-05",
         "currency": "usd",
         "lines": [

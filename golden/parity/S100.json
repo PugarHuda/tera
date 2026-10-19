@@ -1,15 +1,15 @@
 {
   "id": "S100",
   "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
-  "verified_at": "2026-10-19T16:16:09.622Z",
+  "verified_at": "2026-10-19T16:40:24.320Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJDa2QR5nixgqNeJhSTY9e",
-  "customer": "cus_VTFj9n3wsvjw2t",
+  "test_clock": "clock_1USJbK2QR5nixgqNgKh1Qwvo",
+  "customer": "cus_VTG7osV5EGaldF",
   "stripe": [
     {
-      "id": "in_1USJDb2QR5nixgqNOAuB1gEi",
+      "id": "in_1USJbL2QR5nixgqNvWHxEORH",
       "date": "2028-02-19",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJDs2QR5nixgqN1s0aj4AB",
+      "id": "in_1USJbW2QR5nixgqNMWHoILPr",
       "date": "2028-04-01",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJEB2QR5nixgqNscPl6KvR",
+      "id": "in_1USJbh2QR5nixgqNKPGOgoh2",
       "date": "2028-05-01",
       "currency": "usd",
       "lines": [

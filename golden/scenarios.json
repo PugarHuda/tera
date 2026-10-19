@@ -5336,6 +5336,133 @@
         }
       ],
       "parity": "golden/parity/S100.json"
+    },
+    {
+      "id": "S101",
+      "status": "verified",
+      "rules": [
+        "R22",
+        "R21",
+        "R5",
+        "R16"
+      ],
+      "title": "Flexible: a resume charge an amount_off coupon makes free is still a $0 debit and uses up the once coupon (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-06-04T00:00:00Z",
+          "type": "start_trial",
+          "price": "team_seat_m",
+          "quantity": 4,
+          "trial_days": 7,
+          "trial_end_behavior": "pause",
+          "billing_mode": "flexible",
+          "coupon": "FIFTYOFF"
+        },
+        {
+          "at": "2028-08-02T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2028-08-08T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 7
+        },
+        {
+          "at": "2028-10-14T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "06-04: $0 trial for 4 seats, ends 06-11 (the anchor) into a pause. 08-02 resume, anchor unchanged: period 07-11 -> 08-11 (31 d), 9 days left: 4 x 1200 x 9/31 = 1393.5 gross, and FIFTYOFF ($50 once, capped at the 4800 amount) takes all of it: a $0 charge, pending, which uses up the once coupon. 08-08 x7: the $0 debit is credited as a $0 line (S78); remaining 3 days at full price: round(8400 x 3/31) = round(812.9) = 813. 08-11: 0 + 0 + 813 + 8400 = 9213. 09-11, 10-11: 8400.",
+      "expect": [
+        {
+          "date": "2028-06-04",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2028-08-11",
+          "lines": [
+            0,
+            0,
+            813,
+            8400
+          ],
+          "discount": 0,
+          "total": 9213
+        },
+        {
+          "date": "2028-09-11",
+          "lines": [
+            8400
+          ],
+          "discount": 0,
+          "total": 8400
+        },
+        {
+          "date": "2028-10-11",
+          "lines": [
+            8400
+          ],
+          "discount": 0,
+          "total": 8400
+        }
+      ],
+      "parity": "golden/parity/S101.json"
+    },
+    {
+      "id": "S102",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R20",
+        "R14"
+      ],
+      "title": "Flexible: switching to yearly with no proration before the first billing date renews the yearly price on that date (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-06-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 3,
+          "billing_mode": "flexible",
+          "coupon": "FOREVER25",
+          "billing_cycle_anchor": "2027-06-24T00:00:00Z"
+        },
+        {
+          "at": "2027-06-09T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "quantity": 3,
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-07-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "06-01: first billing date 06-24; the flexible stub is the anchor-aligned period ending on it, 05-24 -> 06-24 (31 d), 23 days: gross round(3600*23/31) = round(2670.97) = 2671, FOREVER25 off the unrounded gross round(667.74) = 668: 2003. 06-09 pro_y x3 with none: nothing billed; the yearly period aligned to the 06-24 anchor that contains 06-09 is 2026-06-24 -> 2027-06-24, so it renews on 06-24: 3 x 29000 = 87000, 25% off 21750, total 65250.",
+      "expect": [
+        {
+          "date": "2027-06-01",
+          "lines": [
+            2003
+          ],
+          "discount": 0,
+          "total": 2003
+        },
+        {
+          "date": "2027-06-24",
+          "lines": [
+            87000
+          ],
+          "discount": 21750,
+          "total": 65250
+        }
+      ],
+      "parity": "golden/parity/S102.json"
     }
   ]
 }

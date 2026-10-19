@@ -260,7 +260,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       // prorated: -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
       // Exclusive tax stays one computation on the total (757.7 -> 758, seeds 61019 and 61030, S94).
       // Open question (classic inclusive): at an exact tie Stripe's invoice tax is sometimes a cent under this
-      // (8919 -> 1486, fuzz seeds 70012 and 72005); no rounding rule tried fits those and S79/S90 together (R6).
+      // (8919 -> 1486, fuzz seeds 70012, 72005, 75012); no rounding rule tried fits those and S79/S90 together (R6).
       tax =
         sub.mode === "flexible" && r.behavior === "inclusive"
           ? draft.lines.reduce((a, l) => a + (creditTax.get(l) ?? taxOf(l.proration ? l.amount : l.amount - share(l), r)), 0)
@@ -637,10 +637,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     if (behavior === "none") return;
     const parts = chargeParts(s, at, from, s.periodEnd);
     const line = { description: "Time after resuming", amount: parts.item.unit - parts.paid.off, proration: true };
-    if (line.amount !== 0) s.debits.push(parts);
-    // Like any remaining-time charge (R3), it uses up a "once" coupon that prices it: the next renewal is not
-    // discounted (fuzz seeds 70016, 71010, 71023; S100).
-    if (liveCoupon(s, at)?.duration === "once" && line.amount > 0) s.coupon!.remaining = 0;
+    // A charge a coupon makes free is still a debit, credited later as a $0 line (S78), and it still uses up a "once"
+    // coupon, like any remaining-time charge (R3): the next renewal is not discounted (fuzz seeds 70016, 71010, 71023,
+    // 74022; S100, S101).
+    if (parts.item.unit !== 0) s.debits.push(parts);
+    if (liveCoupon(s, at)?.duration === "once" && parts.item.unit > 0) s.coupon!.remaining = 0;
     bill(s, at, [line], behavior);
   }
 
@@ -718,6 +719,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
         // Kept at 0 too: a debit made free by a coupon is still credited, as a $0 line (fuzz seed 44012).
         const line = { description: "Unused time", amount: 0 - amount, proration: true };
+        // Open question: in 22 replayed timelines where this differs from refunding the debit's net amount prorated
+        // (tax = the rest), this matched Stripe 12 times, that 8, neither 2 (fuzz seeds 40053-77058, R16).
         if (s.taxRate) creditTax.set(line, 0 - roundMinor((taxOf(prorated(d.item, d.paid, den, den), s.taxRate) * num) / den));
         return line;
       });
@@ -733,6 +736,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     if (intervalChanged) {
       const interval = price(s.priceId).interval;
       let k = 0;
+      // Before an R20 first billing date the anchor is still ahead: the aligned period then started before it
+      // (start 06-01, anchor 06-24, yearly at 06-09: 2026-06-24 -> 2027-06-24, renewing on the anchor; fuzz 77004).
+      while (addInterval(s.anchor, interval, s.anchorDay, k) > at) k--;
       while (addInterval(s.anchor, interval, s.anchorDay, k + 1) <= at) k++;
       s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
       s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
