@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 101 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
+- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 102 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -92,7 +92,7 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 - Exclusive: `tax = round(taxable × rate)`, `total = taxable + tax`.
 - Inclusive: `total = taxable`, and the tax follows Stripe's **invoice-level tax rounding** ([Stripe docs](https://docs.stripe.com/billing/taxes/tax-rates#rounding); a Dashboard setting, this account's): each line's taxable amount `(amount − its share of the discount) / (1 + rate)` is kept to 12 decimals, rounded down; those are summed, the rate is applied to the sum, and the result is rounded once, half away from zero. In both billing modes.
   - The 12-decimal floor decides near-ties: 1019 + 7900 → 849.1666… + 6583.3333… = 7432.4999…, tax 1486, where round(8919 / 6) = 1487 (fuzz seeds 70012, 72005, 75012); 387 = −322.5 + 645 is a true tie, 64.5 → 65 (S90); −32258 + 51613 + 64000 JPY → 69462.4999…, 13892 (S93).
-  - Found after a run of one-cent fuzz diffs that no per-line, per-sign or half-even rule explained; replaying the 29 timelines where the rules disagreed, this one matches Stripe on 28. Open: seed 40084, a coupon-priced credit, is a cent under Stripe, which fits a taxable amount taken from the credit's unrounded gross and discount instead of its rounded amount.
+  - Found after a run of one-cent fuzz diffs that no per-line, per-sign or half-even rule explained; replaying the 29 timelines where the rules disagreed, this one matches Stripe on 28. Open: two flexible invoices with coupon-priced prorations at a near-tie are a cent under Stripe (fuzz seeds 40084, 79030). Taxing those lines from their unrounded gross less discount fixes 40084 but breaks seed 60181, which this rule matches, so neither is adopted yet.
 - A negative (credit) invoice carries negative tax (S39).
 
 ### R7 — Metered, graduated tiers
@@ -180,6 +180,9 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - Its tax follows R6: a ¥1766 resume charge next to 32000 carries 5628 (fuzz seed 74019), not the 294 + 5333 two per-line roundings give.
 - Rejected: a classic resume with anchor `now` (Stripe voids the invoice it creates and the subscription stays paused, probe T2), `end_trial` with an end behavior (no card to pay), and changes while paused (Stripe: "You cannot set proration_behavior while a subscription is paused", probe T8). The parity replay creates the customer without a card and attaches `pm_card_visa` when it resumes.
 
+### Draft finalization
+- Stripe finalizes a renewal draft about an hour after creating it. An invoice that a change creates within that hour is finalized first, so it takes (or adds to) the customer balance before the renewal does, while invoices are listed in creation order (S105: a reset 20 minutes after renewal leaves a 1-cent carry below the minimum charge, and the renewal finalized after it is 2901 due; fuzz seed 78026).
+
 ### R23 — Customer balance adjustments
 - `adjust_balance` with `amount` (minor units) is a Stripe customer balance transaction: negative is a credit, positive a debit. It changes the balance the next finalized invoice starts from (R10), so a credit lowers the amount due and carries over while it lasts, and a debit is added (S103: −1000 against a 2900 renewal leaves 1900 due; S104: +500 and −10000 net to −9500, which covers one 7900 invoice and 1600 of the next).
 
@@ -205,7 +208,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S104).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S105).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -275,7 +278,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 101 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-19, **all 102 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.

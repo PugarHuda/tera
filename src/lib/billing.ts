@@ -213,7 +213,11 @@ type Paid = { rate: number; off: number };
 const FULL: Paid = { rate: 1, off: 0 };
 
 /** coupon: the subscription discount when the draft was created; Stripe copies it then (fuzz seed 24019, S57). */
-type Draft = { at: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"] };
+type Draft = { at: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid };
+
+// Stripe finalizes a renewal draft about an hour after creating it; an invoice a change creates in that hour is
+// finalized first, so it takes (or leaves) the customer balance before the renewal does (fuzz seed 78026, S105).
+const DRAFT_MS = 3_600_000;
 
 export function simulate(catalog: Catalog, timeline: TimelineEvent[]): SimulationResult {
   const invoices: Invoice[] = [];
@@ -245,6 +249,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // Draft invoices finalize once time moves past them, with the discount they were created with: a coupon
   // applied or removed at the renewal instant changes the next invoice, not this one (S57).
 
+  // Invoices are listed in creation order (as Stripe lists them), while the balance runs in finalization order.
+  const created = new Map<number, number>();
   const finalize = () => {
     if (!draft || !sub) return;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
@@ -258,7 +264,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       discount = c.percent_off != null ? roundMinor((discountable * c.percent_off) / 100) : Math.min(c.amount_off ?? 0, discountable);
       d!.remaining -= 1;
     }
-    if (discountable > 0) {
+    // Unless a change in the draft's hour already re-priced the subscription (its own s.paid is newer).
+    if (discountable > 0 && (!draft.paid || sub.paid === draft.paid)) {
       const c = discount > 0 ? live : null;
       sub.paid = !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: discount };
     }
@@ -282,6 +289,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const carried = owed > 0 && owed < minimumCharge(price(sub.priceId).currency);
     const amount_due = carried ? 0 : owed;
     balance = carried ? owed : Math.min(0, total + starting_balance);
+    created.set(invoices.length, draft.at);
     invoices.push({
       date: isoDay(draft.at),
       currency: price(sub.priceId).currency,
@@ -306,7 +314,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       // A renewal draft claims a live "once" coupon when it is created, so a change at the same instant is not
       // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
       const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
-      draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon } };
+      s.paid = { ...s.paid }; // a fresh object, so finalize can tell whether a change re-priced it since
+      draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid };
       if (claims) s.coupon!.remaining -= 1;
       return;
     }
@@ -409,9 +418,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   for (const e of events) {
     const at = toDate(e.at);
-    if (draft && at > (draft as Draft).at) finalize();
+    if (draft && at >= (draft as Draft).at + DRAFT_MS) finalize();
     renewUntil(at);
-    if (draft && at > (draft as Draft).at) finalize();
+    if (draft && at >= (draft as Draft).at + DRAFT_MS) finalize();
 
     switch (e.type) {
       case "subscribe":
@@ -820,8 +829,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
 
   const finalSub = sub as Sub | null;
+  const order = invoices.map((_, i) => i).sort((a, b) => created.get(a)! - created.get(b)!); // stable: ties keep finalization order
   return {
-    invoices,
+    invoices: order.map((i) => invoices[i]),
     status: finalSub ? finalSub.status : "none",
     canceled_at: canceledAt ? isoDay(canceledAt) : null,
   };

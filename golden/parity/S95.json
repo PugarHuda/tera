@@ -1,15 +1,15 @@
 {
   "id": "S95",
   "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
-  "verified_at": "2026-10-19T06:24:39.168Z",
+  "verified_at": "2026-10-19T17:34:48.186Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9zQ2QR5nixgqNmyr1N9Ty",
-  "customer": "cus_VT6B2HvaNimnpK",
+  "test_clock": "clock_1USKRr2QR5nixgqNfaHBEGBs",
+  "customer": "cus_VTGzoQukc4hmDM",
   "stripe": [
     {
-      "id": "in_1US9zR2QR5nixgqN0ufLKUc1",
+      "id": "in_1USKRs2QR5nixgqN5JnKNQp2",
       "date": "2028-01-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9ze2QR5nixgqNmJpxFwYA",
+      "id": "in_1USKSA2QR5nixgqNhEr9yPoH",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9zb2QR5nixgqNp9cGnf3R",
+      "id": "in_1USKS62QR5nixgqNUn4ny1kO",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [

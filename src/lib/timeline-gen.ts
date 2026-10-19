@@ -87,7 +87,11 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   // timelines of seeds from before R23) are unchanged apart from this event.
   if (r() < 0.3) {
     const i = int(1, events.length - 1);
-    events.splice(i, 0, { at: events[i - 1].at, type: "adjust_balance", amount: pick([-1, 1]) * int(1, 200) * 100 });
+    // A day after the event before it: an adjustment in the same second as an immediate cancellation lands on its
+    // final invoice in Stripe, an ordering this generator does not aim at.
+    const when = Date.parse(events[i - 1].at) + 86_400_000;
+    const amount = pick([-1, 1]) * int(1, 200) * 100;
+    if (when < Date.parse(events[i].at)) events.splice(i, 0, { at: new Date(when).toISOString().replace(".000", ""), type: "adjust_balance", amount });
   }
   return events;
 }

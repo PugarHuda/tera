@@ -1,0 +1,89 @@
+{
+  "id": "S105",
+  "title": "An invoice created within the hour after a renewal is finalized before the renewal draft, which then takes its carried cent (found by fuzzing)",
+  "verified_at": "2026-10-19T17:48:00.953Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USKej2QR5nixgqN3KITwJw7",
+  "customer": "cus_VTHDpowO1gZ7Z5",
+  "stripe": [
+    {
+      "id": "in_1USKek2QR5nixgqNb4zWMFeB",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USKes2QR5nixgqNj3bGCEYp",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2901,
+      "starting_balance": 1
+    },
+    {
+      "id": "in_1USKev2QR5nixgqNP85AfpM5",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera starter_m after 01 Apr 2027",
+          "amount": -2899,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 1,
+      "discount": 0,
+      "tax": 0,
+      "total": 1,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USKf62QR5nixgqNJottchrX",
+      "date": "2027-05-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    }
+  ]
+}

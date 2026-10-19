@@ -5580,6 +5580,72 @@
         }
       ],
       "parity": "golden/parity/S104.json"
+    },
+    {
+      "id": "S105",
+      "status": "verified",
+      "rules": [
+        "R15",
+        "R18",
+        "R10"
+      ],
+      "title": "An invoice created within the hour after a renewal is finalized before the renewal draft, which then takes its carried cent (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-04-01T00:20:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2027-05-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "03-01: 2900. 04-01 00:00 the renewal draft, 2900; Stripe finalizes it about an hour later. 00:20 reset the anchor (classic, R15): credit the unused 2590800 of 2592000 s, -round(2900 x 0.999537) = -2899, plus a full new period 2900, invoiced now: total 1, below the 50-cent minimum, so 0 due and +1 carried (R18). The renewal draft finalizes after it: 2900 + 1 = 2901 due. Invoices are listed by creation: the renewal first. 05-01 00:20: 2900.",
+      "expect": [
+        {
+          "date": "2027-03-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": 0,
+          "amount_due": 2900
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": 1,
+          "amount_due": 2901
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -2899,
+            2900
+          ],
+          "total": 1,
+          "starting_balance": 0,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-05-01",
+          "lines": [
+            2900
+          ],
+          "total": 2900,
+          "starting_balance": 0,
+          "amount_due": 2900
+        }
+      ],
+      "parity": "golden/parity/S105.json"
     }
   ]
 }
