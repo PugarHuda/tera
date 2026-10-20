@@ -1,15 +1,15 @@
 {
   "id": "S63",
   "title": "Flexible: the credit's gross and discount are each rounded from the 12-decimal prorated unit price",
-  "verified_at": "2026-10-18T15:31:31.859Z",
+  "verified_at": "2026-10-20T15:30:55.783Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URw3H2QR5nixgqN4n639ZRU",
-  "customer": "cus_VSrmuyxt5l8FX3",
+  "test_clock": "clock_1USezh2QR5nixgqNqdnkdFfk",
+  "customer": "cus_VTcEzHsoAVJiSy",
   "stripe": [
     {
-      "id": "in_1URw3I2QR5nixgqN0TdbiSV6",
+      "id": "in_1USezj2QR5nixgqNYDvaWxX1",
       "date": "2027-04-16",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw3U2QR5nixgqNlyubWIfX",
+      "id": "in_1USezz2QR5nixgqNqeAd5fKg",
       "date": "2027-05-16",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,24 @@
       "amount_due": 66162,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
   ]
 }

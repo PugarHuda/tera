@@ -1,15 +1,15 @@
 {
   "id": "S65",
   "title": "Flexible: always_invoice after a none change credits the original 2-seat debit at its coupon",
-  "verified_at": "2026-10-18T15:32:20.936Z",
+  "verified_at": "2026-10-20T15:31:38.369Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URw3d2QR5nixgqNTUCUWkIR",
-  "customer": "cus_VSrnKZXQmdw2aH",
+  "test_clock": "clock_1USezz2QR5nixgqN8DFoXEi2",
+  "customer": "cus_VTcECS33BlzO49",
   "stripe": [
     {
-      "id": "in_1URw3f2QR5nixgqNTXx3ufWg",
+      "id": "in_1USf002QR5nixgqNGUGWzBov",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw422QR5nixgqNOFzWGC5q",
+      "id": "in_1USf0K2QR5nixgqNpoRl6QKN",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw482QR5nixgqN9RHDuOUd",
+      "id": "in_1USf0V2QR5nixgqNxiWm2YnA",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw4I2QR5nixgqNZhXURapU",
+      "id": "in_1USf0e2QR5nixgqNSSpGKED2",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -85,5 +85,34 @@
       "amount_due": 23700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
+    ]
   ]
 }

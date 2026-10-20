@@ -1,0 +1,82 @@
+{
+  "id": "S115",
+  "title": "Flexible: resuming with an unchanged anchor exactly on a billing date charges the whole period with the next renewal (Stripe probe)",
+  "verified_at": "2026-10-20T15:38:12.966Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf6J2QR5nixgqNDBef7nD6",
+  "customer": "cus_VTcLH68zbOj6OE",
+  "stripe": [
+    {
+      "id": "in_1USf6O2QR5nixgqNWlUiKqXl",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf6s2QR5nixgqNiE2Box4f",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera pro_m after 01 Mar 2027",
+          "amount": 7900,
+          "proration": true
+        },
+        {
+          "description": "Unused time on Tera pro_m after 10 Jan 2027",
+          "amount": -5606,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 10194,
+      "discount": 0,
+      "tax": 0,
+      "total": 10194,
+      "amount_due": 10194,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
+  ]
+}

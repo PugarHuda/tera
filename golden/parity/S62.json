@@ -1,15 +1,15 @@
 {
   "id": "S62",
   "title": "Flexible: credits round gross and discount apart; an anchor reset with none debits nothing, so nothing is credited later",
-  "verified_at": "2026-10-18T15:31:56.063Z",
+  "verified_at": "2026-10-20T15:31:18.184Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URw322QR5nixgqNv01DLFfQ",
-  "customer": "cus_VSrmCQIncShRGF",
+  "test_clock": "clock_1USezP2QR5nixgqN1rPslq4O",
+  "customer": "cus_VTcDQySUicXzY8",
   "stripe": [
     {
-      "id": "in_1URw332QR5nixgqNXhKteGVo",
+      "id": "in_1USezQ2QR5nixgqNJlUQEUoy",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw3Y2QR5nixgqN18qzXaT8",
+      "id": "in_1USf0A2QR5nixgqNgLGxgWod",
       "date": "2026-02-21",
       "currency": "usd",
       "lines": [
@@ -60,7 +60,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw3u2QR5nixgqNRmbY45jS",
+      "id": "in_1USf0N2QR5nixgqNjkHO88Ug",
       "date": "2026-03-21",
       "currency": "usd",
       "lines": [
@@ -77,5 +77,36 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

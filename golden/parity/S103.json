@@ -1,0 +1,85 @@
+{
+  "id": "S103",
+  "title": "A customer balance credit is applied to the next invoice",
+  "verified_at": "2026-10-20T15:35:59.215Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf4V2QR5nixgqNERwsvcI6",
+  "customer": "cus_VTcJ1KOoJCfqZC",
+  "stripe": [
+    {
+      "id": "in_1USf4X2QR5nixgqNCbg0wGGg",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf4j2QR5nixgqNx2NLSzCE",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 1900,
+      "starting_balance": -1000
+    },
+    {
+      "id": "in_1USf4s2QR5nixgqNKywcrNE5",
+      "date": "2027-03-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 0,
+      "tax": 0,
+      "total": 2900,
+      "amount_due": 2900,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
+  ]
+}

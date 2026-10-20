@@ -1,15 +1,15 @@
 {
   "id": "S45",
   "title": "Ending a trial early bills the first period now, resets the anchor, and the once coupon applies to it",
-  "verified_at": "2026-10-18T00:23:49.221Z",
+  "verified_at": "2026-10-20T15:28:34.024Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URhsg2QR5nixgqNKfF8ZHxP",
-  "customer": "cus_VSd8H8I0aKBjHN",
+  "test_clock": "clock_1USex52QR5nixgqNRODqAFtP",
+  "customer": "cus_VTcBJL8aDCVyZY",
   "stripe": [
     {
-      "id": "in_1URhsh2QR5nixgqNODvOR06j",
+      "id": "in_1USex72QR5nixgqN62A4PkgW",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhsl2QR5nixgqN1Ejdowd6",
+      "id": "in_1USexF2QR5nixgqNSuYWQ6up",
       "date": "2027-01-03",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhsr2QR5nixgqNTyTp5KqM",
+      "id": "in_1USexT2QR5nixgqNB9QfsTbE",
       "date": "2027-02-03",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URht22QR5nixgqNb9E9gnr6",
+      "id": "in_1USexb2QR5nixgqNTm7BSIL6",
       "date": "2027-03-03",
       "currency": "usd",
       "lines": [
@@ -80,5 +80,30 @@
       "amount_due": 8690,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
+    ],
+    [
+      "customer.subscription.trial_will_end trialing",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
+    ]
   ]
 }

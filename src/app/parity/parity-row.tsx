@@ -7,7 +7,7 @@ type StripeInvoice = { id: string; date: string; currency: string; lines: { desc
 type Evidence = { verified_at: string; match: boolean; test_clock: string; stripe_api_version: string; stripe: StripeInvoice[] } | null;
 type Live = { match: boolean; diffs: { invoice: number; field: string }[]; stripe: StripeInvoice[]; test_clock: string; ran_at: string };
 
-export function ParityRow({ id, title, tera, record }: { id: string; title: string; tera: Invoice[]; record: Evidence }) {
+export function ParityRow({ id, title, tera, record, live: canRun = true }: { id: string; title: string; tera: Invoice[]; record: Evidence; live?: boolean }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState<Live | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,53 +48,56 @@ export function ParityRow({ id, title, tera, record }: { id: string; title: stri
         </button>
         {record && <span className="text-xs opacity-60">verified {record.verified_at.slice(0, 10)}</span>}
         {record && (
-          <button type="button" className="btn-ghost border border-current/20 text-xs" onClick={rerun} disabled={busy} data-testid={`parity-${id}-rerun`}>
+          <button type="button" className="btn-ghost border border-current/20 text-xs" onClick={rerun} disabled={busy || !canRun} title={canRun ? undefined : "This deployment has no Stripe test-mode key"} data-testid={`parity-${id}-rerun`}>
             {busy ? "Replaying in Stripe…" : "Re-run live in Stripe"}
           </button>
         )}
       </div>
       {!record && <p className="mt-2 text-xs opacity-60">No Stripe evidence recorded for this scenario yet: run scripts/verify-golden.mts.</p>}
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-400">
           {error}
         </p>
       )}
       {live && (
-        <p className="mt-2 text-xs opacity-70" data-testid={`parity-${id}-live`}>
+        <p className="mt-2 text-xs break-all opacity-70" data-testid={`parity-${id}-live`}>
           Live replay at {live.ran_at.slice(11, 19)} UTC on test clock <code>{live.test_clock}</code>: {live.match ? "identical" : `${live.diffs.length} difference(s)`}
         </p>
       )}
       {open && stripe && (
-        <table className="mt-3 w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs opacity-60">
-              <th className="font-normal">Invoice</th>
-              <th className="font-normal">Tera lines</th>
-              <th className="font-normal">Stripe lines</th>
-              <th className="text-right font-normal">Tera total</th>
-              <th className="text-right font-normal">Stripe total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tera.map((t, i) => {
-              const s = stripe[i];
-              const m = (x: number) => formatMoney(x, t.currency);
-              return (
-                <tr key={i} className="border-t border-current/10 align-top">
-                  <td className="py-1">{t.date}</td>
-                  <td className="font-mono text-xs">{t.lines.map((l) => m(l.amount)).join(" ")}</td>
-                  <td className="font-mono text-xs">{s ? s.lines.map((l) => m(l.amount)).join(" ") : "—"}</td>
-                  <td className="text-right font-mono">{m(t.total)}</td>
-                  <td className={`text-right font-mono ${s && s.total !== t.total ? "text-red-600 dark:text-red-400" : ""}`}>{s ? m(s.total) : "—"}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        // Five columns do not fit a phone: the table scrolls inside the card, not the page.
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs opacity-60">
+                <th className="font-normal">Invoice</th>
+                <th className="font-normal">Tera lines</th>
+                <th className="font-normal">Stripe lines</th>
+                <th className="text-right font-normal">Tera total</th>
+                <th className="text-right font-normal">Stripe total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tera.map((t, i) => {
+                const s = stripe[i];
+                const m = (x: number) => formatMoney(x, t.currency);
+                return (
+                  <tr key={i} className="border-t border-current/10 align-top">
+                    <td className="py-1">{t.date}</td>
+                    <td className="font-mono text-xs">{t.lines.map((l) => m(l.amount)).join(" ")}</td>
+                    <td className="font-mono text-xs">{s ? s.lines.map((l) => m(l.amount)).join(" ") : "—"}</td>
+                    <td className="text-right font-mono">{m(t.total)}</td>
+                    <td className={`text-right font-mono ${s && s.total !== t.total ? "text-red-700 dark:text-red-400" : ""}`}>{s ? m(s.total) : "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
       {open && stripe && (
         // The Stripe objects behind the evidence, so anyone with access to the test account can look them up.
-        <p className="mt-2 text-xs opacity-70" data-testid={`parity-${id}-evidence`}>
+        <p className="mt-2 text-xs break-all opacity-70" data-testid={`parity-${id}-evidence`}>
           Stripe test clock <code>{live?.test_clock ?? record?.test_clock}</code> · invoices{" "}
           {stripe.map((s) => (
             <code key={s.id} className="mr-1">

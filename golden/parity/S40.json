@@ -1,15 +1,15 @@
 {
   "id": "S40",
   "title": "always_invoice change at the exact renewal instant: separate invoices, the credit pays the renewal",
-  "verified_at": "2026-10-17T18:41:58.880Z",
+  "verified_at": "2026-10-20T15:27:45.117Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcY62QR5nixgqNQfMENmjp",
-  "customer": "cus_VSXdglPLtgHwvW",
+  "test_clock": "clock_1USewW2QR5nixgqNPJ0YkPLM",
+  "customer": "cus_VTcAbLpqudhCJR",
   "stripe": [
     {
-      "id": "in_1URcY82QR5nixgqNkJMEEg46",
+      "id": "in_1USewY2QR5nixgqNP27HYRgl",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcYH2QR5nixgqND3oat6cE",
+      "id": "in_1USewm2QR5nixgqNPHcTzeN4",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcYE2QR5nixgqNzQAglV93",
+      "id": "in_1USewj2QR5nixgqNXs41O0KF",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,27 @@
       "amount_due": 7900,
       "starting_balance": -7900
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoiceitem.created",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

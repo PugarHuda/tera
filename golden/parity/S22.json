@@ -1,15 +1,15 @@
 {
   "id": "S22",
   "title": "Cancel at period end: no further invoices",
-  "verified_at": "2026-10-17T18:29:16.054Z",
+  "verified_at": "2026-10-20T15:26:22.617Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLx2QR5nixgqNwLT5bg8G",
-  "customer": "cus_VSXQLdDykPIURs",
+  "test_clock": "clock_1USevQ2QR5nixgqNex9yWaiA",
+  "customer": "cus_VTc9Urd1bODCAn",
   "stripe": [
     {
-      "id": "in_1URcLy2QR5nixgqNquKDMdE6",
+      "id": "in_1USevS2QR5nixgqNkZtZv4Ir",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -26,5 +26,19 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.deleted canceled"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S87",
   "title": "Flexible: after an unprorated change, resuming in a later period charges the rest of that period as usual",
-  "verified_at": "2026-10-19T05:27:55.332Z",
+  "verified_at": "2026-10-20T15:34:04.064Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US96d2QR5nixgqNjDSSAUsA",
-  "customer": "cus_VT5HPtkGW3DuCX",
+  "test_clock": "clock_1USf2c2QR5nixgqNtfduItaQ",
+  "customer": "cus_VTcH0WRVyEQF3v",
   "stripe": [
     {
-      "id": "in_1US96f2QR5nixgqNfRkYYC6g",
+      "id": "in_1USf2e2QR5nixgqNSvJkPMG5",
       "date": "2027-04-03",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US96s2QR5nixgqNqh5QBkWK",
+      "id": "in_1USf302QR5nixgqNyFb4Cezc",
       "date": "2027-06-03",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,32 @@
       "amount_due": 10985,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
   ]
 }

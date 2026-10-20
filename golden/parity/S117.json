@@ -1,0 +1,85 @@
+{
+  "id": "S117",
+  "title": "Flexible: a once coupon applied while paused prices the resume charge and is used up by it (Stripe probe)",
+  "verified_at": "2026-10-20T15:38:21.283Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf6a2QR5nixgqNHCjEwcsx",
+  "customer": "cus_VTcLUtTEhIxCnt",
+  "stripe": [
+    {
+      "id": "in_1USf6c2QR5nixgqNuLGqiLa4",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf782QR5nixgqN8vaoLntN",
+      "date": "2027-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera pro_m (with 20.0% off) after 01 Mar 2027",
+          "amount": 6320,
+          "proration": true
+        },
+        {
+          "description": "Unused time on Tera pro_m after 10 Jan 2027",
+          "amount": -5606,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 8614,
+      "discount": 0,
+      "tax": 0,
+      "total": 8614,
+      "amount_due": 8614,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
+    ],
+    [
+      "customer.subscription.updated paused"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
+  ]
+}

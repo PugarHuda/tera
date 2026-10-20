@@ -1,15 +1,15 @@
 {
   "id": "S85",
   "title": "Flexible: a first-billing-date stub divides by the anchor-aligned period ending on the anchor, not one interval from the start (found by fuzzing)",
-  "verified_at": "2026-10-19T05:27:32.419Z",
+  "verified_at": "2026-10-20T15:33:42.351Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US96F2QR5nixgqNUNd2QTxt",
-  "customer": "cus_VT5GRt3aUzGVvh",
+  "test_clock": "clock_1USf2H2QR5nixgqNStl2mvC3",
+  "customer": "cus_VTcGRbvDa6oamI",
   "stripe": [
     {
-      "id": "in_1US96G2QR5nixgqNA92mw9OO",
+      "id": "in_1USf2J2QR5nixgqNuKfiujUc",
       "date": "2028-03-05",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US96M2QR5nixgqNXyl7wJX1",
+      "id": "in_1USf2R2QR5nixgqN5SjErqLk",
       "date": "2028-03-22",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US96W2QR5nixgqNX0nkD53S",
+      "id": "in_1USf2e2QR5nixgqNPXmYS65O",
       "date": "2028-04-22",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,24 @@
       "amount_due": 4500,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

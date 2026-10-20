@@ -2,7 +2,7 @@ import golden from "../../../../golden/scenarios.json";
 import evidence from "../../../../golden/parity/index.json";
 import { simulate, type Catalog, type TimelineEvent } from "@/lib/billing";
 import { checkLiveLimits, Cooldown, liveParity } from "@/lib/stripe-parity";
-import { badRequest, BadRequest, defaultCatalog, parseCatalog, parseTimeline } from "@/lib/validate";
+import { badRequest, BadRequest, defaultCatalog, methodNotAllowed, parseCatalog, parseTimeline, readJson } from "@/lib/validate";
 
 export const maxDuration = 300;
 
@@ -32,8 +32,8 @@ function parseBody(body: unknown): { id: string; catalog: Catalog; timeline: Tim
 export async function POST(req: Request) {
   let input, tera;
   try {
-    input = parseBody(await req.json());
-    tera = simulate(input.catalog, input.timeline).invoices; // R11: what Tera rejects never reaches Stripe
+    input = parseBody(await readJson(req));
+    tera = simulate(input.catalog, input.timeline); // R11: what Tera rejects never reaches Stripe
   } catch (e) {
     return badRequest(e);
   }
@@ -44,3 +44,5 @@ export async function POST(req: Request) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 }
+export const PUT = methodNotAllowed("GET, POST");
+export { PUT as PATCH, PUT as DELETE };

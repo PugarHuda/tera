@@ -2,7 +2,7 @@
 // Server-only: needs STRIPE_SECRET_KEY (test mode). Never import from client components.
 import Stripe from "stripe";
 import { createHash } from "node:crypto";
-import type { Catalog, Invoice, TimelineEvent } from "./billing";
+import type { Catalog, Coupon, Invoice, SimulationResult, TimelineEvent, Webhook } from "./billing";
 
 // Stripe objects are keyed by id + a hash of their definition: same definition -> reused, changed definition -> new object.
 const key = (prefix: string, id: string, def: unknown) => `${prefix}_${id}_${createHash("sha256").update(JSON.stringify(def)).digest("hex").slice(0, 10)}`;
@@ -141,13 +141,48 @@ export type ParityInvoice = Pick<Invoice, "date" | "currency" | "subtotal" | "di
   id: string;
 };
 
-/** Replay a timeline against Stripe and return the invoices Stripe produced. */
-export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[]) {
+/** The webhook event types Tera predicts; others (charges, payment intents, customer.updated, customer.discount.*) are
+ * not compared. */
+export const WEBHOOK_TYPES = [
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "customer.subscription.paused",
+  "customer.subscription.resumed",
+  "customer.subscription.trial_will_end",
+  "invoice.created",
+  "invoice.finalized",
+  "invoice.paid",
+  "invoiceitem.created",
+] as const;
+
+/** Replay a timeline against Stripe and return the invoices Stripe produced; with `events`, also the webhook events each
+ * timeline event caused (the clock advance up to it included), oldest first. */
+export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[], opts: { events?: boolean } = {}) {
   const ids = await pushCatalogOnce(stripe, catalog);
   const events = [...timeline].sort((a, b) => sec(a.at) - sec(b.at));
   const start = sec(events[0].at);
   const clock = await stripe.testHelpers.testClocks.create({ frozen_time: start, name: `tera ${new Date().toISOString()}` });
-  const customer = await stripe.customers.create({ test_clock: clock.id, name: "Tera parity customer", payment_method: "pm_card_visa", invoice_settings: { default_payment_method: "pm_card_visa" } });
+  // R22: a trial with an end behavior is the no-card case; the card is added when the customer resumes.
+  const noCard = events.some((e) => e.trial_end_behavior);
+  const customer = await stripe.customers.create({
+    test_clock: clock.id,
+    name: "Tera parity customer",
+    ...(noCard ? {} : { payment_method: "pm_card_visa", invoice_settings: { default_payment_method: "pm_card_visa" } }),
+  });
+
+  // Events are read after each step from a cursor: the account's newest event before this customer existed.
+  const steps: { type: string; object: { id?: string; status?: string } }[][] = [];
+  let cursor = opts.events ? (await stripe.events.list({ limit: 1 })).data[0]?.id : undefined;
+  const mine = (o: { customer?: unknown; id?: unknown }) => o.customer === customer.id || (o.customer as { id?: string } | null)?.id === customer.id;
+  const collect = async () => {
+    await sleep(1500); // events are written just after the API call returns
+    const fresh: Stripe.Event[] = [];
+    for await (const ev of stripe.events.list({ limit: 100, ...(cursor ? { ending_before: cursor } : {}) })) fresh.push(ev);
+    fresh.sort((a, b) => a.created - b.created);
+    if (fresh.length) cursor = fresh[fresh.length - 1].id;
+    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)).map((ev) => ({ type: ev.type, object: ev.data.object as never })));
+  };
 
   let now = start;
   let sub: Stripe.Subscription | null = null;
@@ -175,6 +210,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           ...(e.coupon ? { discounts: [{ coupon: ids.coupons[e.coupon] }] } : {}),
           ...(e.tax_rate ? { default_tax_rates: [ids.taxRates[e.tax_rate]] } : {}),
           ...(e.type === "start_trial" ? { trial_end: at + (e.trial_days ?? 0) * 86_400 } : {}),
+          ...(e.trial_end_behavior ? { trial_settings: { end_behavior: { missing_payment_method: e.trial_end_behavior } } } : {}),
           ...(e.billing_cycle_anchor ? { billing_cycle_anchor: sec(e.billing_cycle_anchor), proration_behavior: e.proration_behavior ?? "create_prorations" } : {}),
         });
         break;
@@ -201,15 +237,22 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
         sub = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
         break;
       case "resume":
+        // The local copy is stale once a trial ended into a pause on the clock (R22).
+        sub = await stripe.subscriptions.retrieve(sub!.id);
+        if (sub.status === "paused" && noCard) {
+          const pm = await stripe.paymentMethods.attach("pm_card_visa", { customer: customer.id });
+          await stripe.customers.update(customer.id, { invoice_settings: { default_payment_method: pm.id } });
+        }
         // R21: a paused subscription resumes through its own endpoint; paid at once with the customer's card.
+        // Classic (paused by R22) rejects payment_behavior.
         sub =
-          sub!.status === "paused"
-            ? await stripe.subscriptions.resume(sub!.id, {
-                payment_behavior: "resume_on_payment_success",
+          sub.status === "paused"
+            ? await stripe.subscriptions.resume(sub.id, {
+                ...(sub.billing_mode?.type === "flexible" ? { payment_behavior: "resume_on_payment_success" as const } : {}),
                 billing_cycle_anchor: { type: e.billing_cycle_anchor === "unchanged" ? "unchanged" : "now" },
                 ...(e.proration_behavior ? { proration_behavior: e.proration_behavior } : {}),
               })
-            : await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+            : await stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
         break;
       case "pause":
         // proration_behavior maps onto pause's billing knobs: none = no unused-time credit, always_invoice = invoice it now.
@@ -239,6 +282,13 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           e.proration_behavior === "always_invoice" ? { prorate: true, invoice_now: true } : e.proration_behavior === "create_prorations" ? { prorate: true } : {},
         );
         break;
+      case "adjust_balance":
+        // R23: a customer balance transaction, in the subscription's currency.
+        await stripe.customers.createBalanceTransaction(customer.id, {
+          amount: e.amount!,
+          currency: catalog.prices[events.find((x) => x.price)!.price!].currency,
+        });
+        break;
       case "report_usage":
         // The meter event carries the test clock's time, so it lands in the simulated period.
         await stripe.billing.meterEvents.create({
@@ -251,6 +301,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "advance_to":
         break;
     }
+    if (opts.events) await collect();
   }
 
   const invoices = await stripe.invoices.list({ customer: customer.id, limit: 100, expand: ["data.lines"] });
@@ -272,7 +323,12 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       amount_due: inv.amount_due,
       starting_balance: inv.starting_balance,
     }));
-  return { clockId: clock.id, customerId: customer.id, invoices: out };
+  // Each event as "type #n" (its invoice, numbered as listed) or "type status" (the subscription's status in its payload).
+  const number = new Map(out.map((inv, i) => [inv.id, i + 1]));
+  const recorded = steps.map((step) =>
+    step.map(({ type, object }) => (type.startsWith("invoice.") ? `${type} #${number.get(object.id!)}` : type.startsWith("customer.subscription.") ? `${type} ${object.status}` : type)),
+  );
+  return { clockId: clock.id, customerId: customer.id, invoices: out, events: recorded };
 }
 
 export type InvoiceDiff = { invoice: number; field: string; tera: unknown; stripe: unknown };
@@ -323,12 +379,168 @@ export function checkLiveLimits(timeline: TimelineEvent[]) {
   if (Math.max(...times) - Math.min(...times) > LIVE_MAX_SPAN_MS) throw new Error("a live Stripe replay may span at most 2 years");
 }
 
-/** Replay in Stripe and diff against Tera's invoices (the caller has already simulated and validated). */
-export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], tera: Invoice[]) {
+export type WebhookDiff = { event: number; type: string; tera: number; stripe: number };
+
+/** A webhook as recorded from Stripe: "invoice.paid #2" (the invoice it is about) or "customer.subscription.updated active". */
+export const webhookKey = (w: Webhook) => (w.invoice ? `${w.type} #${w.invoice}` : w.status ? `${w.type} ${w.status}` : w.type);
+
+/** Per timeline event, how many of each webhook Tera predicts and Stripe sent, by type and the invoice or subscription
+ * status in its payload (order within a step is not compared: Stripe writes several events in the same second). */
+export function diffWebhooks(tera: Webhook[], stripe: string[][]): WebhookDiff[] {
+  const diffs: WebhookDiff[] = [];
+  stripe.forEach((all, event) => {
+    const sent = all.filter((t) => (WEBHOOK_TYPES as readonly string[]).includes(t.split(" ")[0])); // recordings may hold more types
+    const count = (xs: string[]) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>());
+    const [t, s] = [count(tera.filter((w) => w.event === event).map(webhookKey)), count(sent)];
+    for (const type of new Set([...t.keys(), ...s.keys()])) if (t.get(type) !== s.get(type)) diffs.push({ event, type, tera: t.get(type) ?? 0, stripe: s.get(type) ?? 0 });
+  });
+  return diffs;
+}
+
+/** Replay in Stripe and diff against Tera's invoices and webhook events (the caller has already simulated and validated). */
+export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], sim: SimulationResult) {
+  const tera = sim.invoices;
   const wait = lastLiveRun + COOLDOWN_MS - Date.now();
   if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000));
+  const stripe = stripeClient(); // a missing key is a config error, not a run that holds the cooldown
   lastLiveRun = Date.now();
-  const replay = await replayInStripe(stripeClient(), catalog, timeline);
+  const replay = await replayInStripe(stripe, catalog, timeline, { events: true });
   const diffs = diffInvoices(tera, replay.invoices);
-  return { match: diffs.length === 0, diffs, tera, stripe: replay.invoices, test_clock: replay.clockId, ran_at: new Date().toISOString() };
+  const hookDiffs = diffWebhooks(sim.webhooks, replay.events);
+  return {
+    match: diffs.length === 0,
+    diffs,
+    tera,
+    stripe: replay.invoices,
+    webhooks: { match: hookDiffs.length === 0, diffs: hookDiffs, stripe: replay.events },
+    test_clock: replay.clockId,
+    ran_at: new Date().toISOString(),
+  };
+}
+
+// FR3 from Stripe: the migration planner's customer base, read from the subscriptions on one price of the connected
+// (test-mode) account instead of a typed or CSV seat list.
+const PRICE_ID = /^price_[A-Za-z0-9]{1,64}$/;
+const LIVE_STATUSES = new Set<string>(["active", "trialing", "past_due", "unpaid", "paused"]);
+const MAX_SUBSCRIPTIONS = 100_000; // the planner's own limit (validate.ts)
+
+/** Per-seat recurring prices the planner models: licensed, per unit, every one month or one year. */
+function migratable(p: Stripe.Price): boolean {
+  const r = p.recurring;
+  return !!r && r.usage_type === "licensed" && r.interval_count === 1 && (r.interval === "month" || r.interval === "year") && p.billing_scheme === "per_unit" && (p.unit_amount ?? 0) > 0;
+}
+
+/** Active prices the planner can import from, newest first (Stripe's order), at most 200. */
+export async function migratablePrices(stripe: Stripe) {
+  const out: { id: string; name: string; lookup_key: string | null; unit_amount: number; currency: string; interval: "month" | "year" }[] = [];
+  for await (const p of stripe.prices.list({ active: true, type: "recurring", limit: 100, expand: ["data.product"] })) {
+    if (!migratable(p)) continue;
+    const product = p.product;
+    const name = typeof product === "object" && !product.deleted ? product.name : typeof product === "string" ? product : product.id;
+    out.push({ id: p.id, name, lookup_key: p.lookup_key, unit_amount: p.unit_amount!, currency: p.currency, interval: p.recurring!.interval as "month" | "year" });
+    if (out.length >= 200) break;
+  }
+  return out;
+}
+
+/** The planner's input from Stripe subscriptions on `price`: one customer per live subscription, its item's quantity as seats. */
+export function migrationBase(price: Stripe.Price, subscriptions: Stripe.Subscription[]) {
+  const customers: { name: string; seats: number }[] = [];
+  let skipped = 0;
+  for (const s of subscriptions) {
+    const item = s.items.data.find((i) => i.price.id === price.id);
+    // Canceled or never-paid (incomplete) subscriptions are not migrated; a quantity-0 item has no seats to reprice.
+    if (!LIVE_STATUSES.has(s.status) || !item || !(item.quantity! >= 1)) {
+      skipped++;
+      continue;
+    }
+    const c = s.customer;
+    const name = typeof c === "string" ? c : c.deleted ? c.id : c.name || c.email || c.id;
+    customers.push({ name, seats: item.quantity! });
+  }
+  return { price: price.id, unit_amount: price.unit_amount!, currency: price.currency, interval: price.recurring!.interval as "month" | "year", customers, skipped };
+}
+
+/** Thrown for a price id the planner cannot import (callers map it to 400). */
+export class NotMigratable extends Error {}
+
+export async function subscribersOf(stripe: Stripe, priceId: string) {
+  if (!PRICE_ID.test(priceId)) throw new NotMigratable("price must be a Stripe price id such as price_1Abc…");
+  const price = await stripe.prices.retrieve(priceId);
+  if (!migratable(price))
+    throw new NotMigratable(`${priceId} is not a per-seat price the planner models (licensed, per unit, every month or year)`);
+  const subscriptions: Stripe.Subscription[] = [];
+  // Every status, so the skipped count is honest; expanded customers give names instead of cus_ ids.
+  for await (const s of stripe.subscriptions.list({ price: priceId, status: "all", limit: 100, expand: ["data.customer"] })) {
+    if (subscriptions.push(s) > MAX_SUBSCRIPTIONS) throw new NotMigratable(`${priceId} has more than ${MAX_SUBSCRIPTIONS} subscriptions`);
+  }
+  return migrationBase(price, subscriptions);
+}
+
+// FR5 the other way: the connected test-mode account's catalog as a Tera catalog, so the builder (and the simulator)
+// can start from the prices, coupons and tax rates a team already has. Objects Tera pushed get their Tera id back.
+const PUSHED = /^(?:tera|TERA)_(\w+?)(?:_[0-9a-f]{10})?$/; // older pushes had no definition hash
+const slug = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 36) || "x";
+
+/** The catalog's limits (validate.ts): 50 prices, 50 coupons, 20 tax rates. */
+export function catalogFromStripe(prices: Stripe.Price[], coupons: Stripe.Coupon[], taxRates: Stripe.TaxRate[]) {
+  const skipped = { prices: 0, coupons: 0, tax_rates: 0 };
+  const catalog: Required<Catalog> = { prices: {}, coupons: {}, tax_rates: {} };
+  // First one wins (Stripe lists newest first); another object with the same name gets _2, _3…
+  const add = <T,>(into: Record<string, T>, name: string, value: T, max: number, kind: keyof typeof skipped) => {
+    if (Object.keys(into).length >= max) return skipped[kind]++;
+    const pushed = PUSHED.exec(name)?.[1];
+    const base = pushed ?? slug(name);
+    // An older push of the same Tera object is superseded by the newer one, and an exact copy is not a second object.
+    if (Object.hasOwn(into, base) && (pushed || JSON.stringify(into[base]) === JSON.stringify(value))) return skipped[kind]++;
+    let id = base;
+    for (let n = 2; Object.hasOwn(into, id); n++) id = `${base}_${n}`;
+    into[id] = value;
+  };
+  for (const p of prices) {
+    // Only what the builder edits: per-seat prices every month or year (metered prices need a Stripe Meter id).
+    if (!migratable(p)) {
+      skipped.prices++;
+      continue;
+    }
+    const product = typeof p.product === "object" && !p.product.deleted ? p.product.name : p.id;
+    const name = p.lookup_key ?? `${product}_${p.recurring!.interval === "month" ? "m" : "y"}`;
+    add(catalog.prices, name, { currency: p.currency, unit_amount: p.unit_amount!, interval: p.recurring!.interval as "month" | "year" }, 50, "prices");
+  }
+  for (const c of coupons) {
+    const months = c.duration_in_months ?? 0;
+    // ponytail: product-restricted coupons (applies_to, only returned when expanded) import as applying to every price.
+    if (!c.valid || !["once", "repeating", "forever"].includes(c.duration) || (c.duration === "repeating" && !(months >= 1 && months <= 120)) || (c.percent_off == null && !(c.amount_off && c.currency))) {
+      skipped.coupons++;
+      continue;
+    }
+    const kc: Coupon = {
+      duration: c.duration as Coupon["duration"],
+      ...(c.duration === "repeating" ? { duration_in_months: months } : {}),
+      ...(c.percent_off != null ? { percent_off: c.percent_off } : { amount_off: c.amount_off!, currency: c.currency! }),
+    };
+    add(catalog.coupons, PUSHED.test(c.id) ? c.id : (c.name ?? c.id), kc, 50, "coupons");
+  }
+  for (const t of taxRates) {
+    if (!t.active || !(t.percentage >= 0 && t.percentage < 100)) {
+      skipped.tax_rates++;
+      continue;
+    }
+    add(catalog.tax_rates, PUSHED.test(t.display_name) ? t.display_name : `${t.display_name}_${t.percentage}`, { percentage: t.percentage, behavior: t.inclusive ? "inclusive" : "exclusive" }, 20, "tax_rates");
+  }
+  return { catalog, skipped };
+}
+
+export async function stripeCatalog(stripe: Stripe) {
+  const all = async <T,>(list: AsyncIterable<T>, max = 500) => {
+    const out: T[] = [];
+    for await (const x of list) if (out.push(x) >= max) break;
+    return out;
+  };
+  const [prices, coupons, taxRates] = await Promise.all([
+    all(stripe.prices.list({ active: true, type: "recurring", limit: 100, expand: ["data.product"] })),
+    all(stripe.coupons.list({ limit: 100 })),
+    all(stripe.taxRates.list({ active: true, limit: 100 })),
+  ]);
+  return catalogFromStripe(prices, coupons, taxRates);
 }

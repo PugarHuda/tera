@@ -1,0 +1,66 @@
+{
+  "id": "S102",
+  "title": "Flexible: switching to yearly with no proration before the first billing date renews the yearly price on that date (found by fuzzing)",
+  "verified_at": "2026-10-20T15:35:41.244Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf452QR5nixgqNBEvtsLsv",
+  "customer": "cus_VTcITbceoQSLnn",
+  "stripe": [
+    {
+      "id": "in_1USf472QR5nixgqNtTf3tkz9",
+      "date": "2027-06-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on 3 × Tera team_seat_m (with 25.0% off) after 01 Jun 2027",
+          "amount": 2003,
+          "proration": true
+        }
+      ],
+      "subtotal": 2003,
+      "discount": 0,
+      "tax": 0,
+      "total": 2003,
+      "amount_due": 2003,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf4Y2QR5nixgqNGRzqUuL5",
+      "date": "2027-06-24",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_y (at $290.00 / year)",
+          "amount": 87000,
+          "proration": false
+        }
+      ],
+      "subtotal": 87000,
+      "discount": 21750,
+      "tax": 0,
+      "total": 65250,
+      "amount_due": 65250,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "S114",
+  "title": "Flexible: pausing with always_invoice when nothing is left to credit opens no invoice (found by fuzzing)",
+  "verified_at": "2026-10-20T15:37:58.827Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf672QR5nixgqNzQJR4Fzo",
+  "customer": "cus_VTcKynlIWNDhts",
+  "stripe": [
+    {
+      "id": "in_1USf6A2QR5nixgqNx084E1nk",
+      "date": "2027-06-30",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 3600,
+          "proration": false
+        }
+      ],
+      "subtotal": 3600,
+      "discount": 0,
+      "tax": 0,
+      "total": 3600,
+      "amount_due": 3600,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf6g2QR5nixgqNGuJXVAui",
+      "date": "2027-09-23",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 3600,
+          "proration": false
+        }
+      ],
+      "subtotal": 3600,
+      "discount": 0,
+      "tax": 0,
+      "total": 3600,
+      "amount_due": 3600,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf6p2QR5nixgqNIZ53JatY",
+      "date": "2027-10-23",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 3600,
+          "proration": false
+        }
+      ],
+      "subtotal": 3600,
+      "discount": 0,
+      "tax": 0,
+      "total": 3600,
+      "amount_due": 3600,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
+    ],
+    [
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
+  ]
+}

@@ -1,15 +1,15 @@
 {
   "id": "S23",
   "title": "Graduated metered usage 12,346 calls",
-  "verified_at": "2026-10-17T18:30:06.986Z",
+  "verified_at": "2026-10-20T15:27:10.218Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcM42QR5nixgqNknBmNfH7",
-  "customer": "cus_VSXQGbiEKVJQds",
+  "test_clock": "clock_1USevQ2QR5nixgqNpQVf2GOb",
+  "customer": "cus_VTc9qmK0kLXEMO",
   "stripe": [
     {
-      "id": "in_1URcM52QR5nixgqNDuNujpPV",
+      "id": "in_1USevS2QR5nixgqNvq6XUCmG",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcMu2QR5nixgqN4VJtRemD",
+      "id": "in_1USewO2QR5nixgqNDTi4lJle",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,18 @@
       "amount_due": 10173,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

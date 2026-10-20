@@ -1,15 +1,15 @@
 {
   "id": "S75",
   "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
-  "verified_at": "2026-10-19T06:23:30.301Z",
+  "verified_at": "2026-10-20T15:32:52.291Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9y92QR5nixgqN3u0oS9ZN",
-  "customer": "cus_VT6AVOqUm9A2jR",
+  "test_clock": "clock_1USf192QR5nixgqNR0ZQrLhC",
+  "customer": "cus_VTcFALVzqI9GEM",
   "stripe": [
     {
-      "id": "in_1US9yB2QR5nixgqNIp595EJg",
+      "id": "in_1USf1B2QR5nixgqNr8tcjVKt",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9ye2QR5nixgqN6zYczfG2",
+      "id": "in_1USf1p2QR5nixgqNLDPt2BQ1",
       "date": "2027-07-01",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,20 @@
       "amount_due": 29000,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
   ]
 }

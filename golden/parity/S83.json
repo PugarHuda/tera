@@ -1,15 +1,15 @@
 {
   "id": "S83",
   "title": "Flexible: pause without crediting unused time (bill_for.unused_time_from none)",
-  "verified_at": "2026-10-19T05:08:37.732Z",
+  "verified_at": "2026-10-20T15:33:47.745Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US8nu2QR5nixgqNGRoEpzqu",
-  "customer": "cus_VT4xpEZrVdrqhN",
+  "test_clock": "clock_1USf222QR5nixgqNs0JWLZez",
+  "customer": "cus_VTcGXLLAYrzFLu",
   "stripe": [
     {
-      "id": "in_1US8nv2QR5nixgqNYs3ec91u",
+      "id": "in_1USf242QR5nixgqNRhW0R7YK",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8o42QR5nixgqNG6Jz07tE",
+      "id": "in_1USf2S2QR5nixgqNOaeCLkLb",
       "date": "2027-02-15",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8oA2QR5nixgqNjNd0uYQl",
+      "id": "in_1USf2b2QR5nixgqNfqrKrKjZ",
       "date": "2027-03-15",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,30 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
+    ],
+    [
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

@@ -2,7 +2,7 @@
 import golden from "../../golden/scenarios.json";
 import evidence from "../../golden/parity/index.json";
 import { EVENT_TYPES } from "./validate";
-import { BILLING_MODES, PRORATION_BEHAVIORS } from "./billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS } from "./billing";
 
 // Counted from the recorded evidence so the description never goes stale.
 const timelines = golden.scenarios.filter((s) => "timeline" in s).length;
@@ -16,7 +16,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R21 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R23 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   paths: {
     "/api/simulate": {
@@ -125,7 +125,7 @@ export const spec = {
           },
         },
         responses: {
-          "200": { description: "match, diffs, tera and stripe invoices, test clock id" },
+          "200": { description: "match, diffs, tera and stripe invoices, webhooks ({ match, diffs, stripe: the events Stripe sent per timeline event, as `type #invoice` or `type status` }), test clock id" },
           "400": { description: "Unknown scenario, malformed timeline or over the live limits", content: { "application/json": { schema: error } } },
           "422": { description: "Tera (and Stripe) reject this timeline", content: { "application/json": { schema: error } } },
           "429": { description: "Another live replay holds the Stripe cooldown", headers: { "retry-after": { schema: { type: "integer" }, description: "Seconds to wait" } }, content: { "application/json": { schema: error } } },
@@ -161,11 +161,45 @@ export const spec = {
                 },
               },
             },
-          }, "400": { description: "Invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown" } },
+          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown", content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
+      },
+    },
+    "/api/migrate/stripe": {
+      get: {
+        summary: "Import a migration's customer base from Stripe (test mode)",
+        description:
+          "Without `price`: the connected account's per-seat recurring prices. With `price`: that price's unit_amount, currency, interval and one customer per live subscription (item quantity as seats), ready for POST /api/migrate.",
+        parameters: [{ name: "price", in: "query", schema: { type: "string", example: "price_1Abc" }, description: "A licensed, per-unit, monthly or yearly Stripe price id" }],
+        responses: {
+          "200": { description: "Prices, or { price, unit_amount, currency, interval, customers: [{ name, seats }], skipped }" },
+          "400": { description: "Malformed id, or a price the planner does not model (metered, tiered, other intervals)", content: { "application/json": { schema: error } } },
+          "404": { description: "No such price in the connected account", content: { "application/json": { schema: error } } },
+          "502": { description: "Stripe API error", content: { "application/json": { schema: error } } },
+          "503": { description: "No test-mode Stripe key configured", content: { "application/json": { schema: error } } },
+        },
+      },
+    },
+    "/api/stripe/catalog": {
+      get: {
+        summary: "Import the connected Stripe account's catalog (test mode)",
+        description:
+          "Active per-seat monthly and yearly prices, valid coupons and active tax rates as a Tera catalog, ready for POST /api/simulate. Objects Tera pushed get their Tera id back; others are named from the lookup key, product, coupon or tax rate name. `skipped` counts what Tera does not model (metered, tiered or other intervals) or what exceeds the catalog limits.",
+        responses: {
+          "200": { description: "{ catalog: { prices, coupons, tax_rates }, skipped: { prices, coupons, tax_rates } }" },
+          "502": { description: "Stripe API error", content: { "application/json": { schema: error } } },
+          "503": { description: "No test-mode Stripe key configured", content: { "application/json": { schema: error } } },
+        },
       },
     },
     "/api/scenarios": {
-      get: { summary: "List golden scenarios", responses: { "200": { description: "Scenario summaries" } } },
+      get: {
+        summary: "List golden scenarios",
+        parameters: [
+          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R23, see docs/PRD.md)" },
+          { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
+        ],
+        responses: { "200": { description: "Scenario summaries" } },
+      },
     },
     "/api/scenarios/{id}": {
       get: {
@@ -209,7 +243,7 @@ export const spec = {
               type: "object",
               required: ["duration"],
               properties: {
-                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100 },
+                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100, description: "At most two decimals (Stripe's limit)." },
                 amount_off: { type: "integer", minimum: 1 },
                 currency: { type: "string", description: "Required with amount_off" },
                 duration: { type: "string", enum: ["once", "repeating", "forever"] },
@@ -223,7 +257,7 @@ export const spec = {
             additionalProperties: {
               type: "object",
               required: ["percentage", "behavior"],
-              properties: { percentage: { type: "number", minimum: 0, exclusiveMaximum: 100 }, behavior: { type: "string", enum: ["inclusive", "exclusive"] } },
+              properties: { percentage: { type: "number", minimum: 0, exclusiveMaximum: 100, description: "At most four decimals (Stripe's limit)." }, behavior: { type: "string", enum: ["inclusive", "exclusive"] } },
             },
           },
         },
@@ -257,6 +291,12 @@ export const spec = {
                   enum: [...BILLING_MODES],
                   description: "subscribe/start_trial: Stripe billing mode (default classic). Flexible credits original debits and keeps the anchor (R16).",
                 },
+                amount: { type: "integer", description: "adjust_balance: customer balance transaction in minor units; negative = credit applied to the next invoice, positive = debit (R23)." },
+                trial_end_behavior: {
+                  type: "string",
+                  enum: [...TRIAL_END_BEHAVIORS],
+                  description: "start_trial: the customer has no card, so the trial ends canceled or paused (Stripe trial_settings.end_behavior.missing_payment_method, R22).",
+                },
               },
             },
           },
@@ -267,6 +307,22 @@ export const spec = {
         properties: {
           status: { type: "string", enum: ["active", "trialing", "paused", "canceled", "none"] },
           canceled_at: { type: ["string", "null"] },
+          webhooks: {
+            type: "array",
+            description:
+              "The webhook events Stripe sends for this timeline, verified against the events real test clocks sent for the golden scenarios. Types: customer.subscription.created/updated/deleted/paused/resumed/trial_will_end, invoice.created/finalized/paid, invoiceitem.created. Charges, payment intents, customer.updated and customer.discount.* are not modelled.",
+            items: {
+              type: "object",
+              required: ["event", "date", "type"],
+              properties: {
+                event: { type: "integer", description: "Index of the timeline event whose step (the clock advance up to it, then the call) sends it" },
+                date: { type: "string", description: "Simulated day it fires" },
+                type: { type: "string" },
+                invoice: { type: "integer", description: "invoice.* events: the invoice the payload is, 1-based in `invoices`" },
+                status: { type: "string", enum: ["active", "trialing", "paused", "canceled"], description: "customer.subscription.* events: the subscription status in the payload" },
+              },
+            },
+          },
           invoices: {
             type: "array",
             items: {

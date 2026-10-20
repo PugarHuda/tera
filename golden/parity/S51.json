@@ -1,15 +1,15 @@
 {
   "id": "S51",
   "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
-  "verified_at": "2026-10-18T06:07:08.761Z",
+  "verified_at": "2026-10-20T15:29:29.221Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URnEr2QR5nixgqNxPmcABJw",
-  "customer": "cus_VSigp7t44VVpVL",
+  "test_clock": "clock_1USexx2QR5nixgqNAKXSClzp",
+  "customer": "cus_VTcCkJMfm6GDtx",
   "stripe": [
     {
-      "id": "in_1URnEs2QR5nixgqNBtV8AGgy",
+      "id": "in_1USey02QR5nixgqNjGdCHiAt",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnEy2QR5nixgqN8ENTSeQ3",
+      "id": "in_1USeyB2QR5nixgqNaCdFQThh",
       "date": "2026-01-11",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnF82QR5nixgqNHLIQsibh",
+      "id": "in_1USeyN2QR5nixgqNSEjYur08",
       "date": "2026-02-11",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFK2QR5nixgqNPzzlrLOE",
+      "id": "in_1USeyX2QR5nixgqNtJmN3ZFh",
       "date": "2026-03-11",
       "currency": "usd",
       "lines": [
@@ -85,5 +85,30 @@
       "amount_due": 15800,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
+    ]
   ]
 }

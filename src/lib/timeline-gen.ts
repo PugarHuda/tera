@@ -83,5 +83,65 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   }
   t += int(35, 70) * 86_400_000;
   events.push({ at: at(), type: "advance_to" });
+  // R23: a customer balance credit or debit somewhere in the timeline. Drawn last, so earlier draws (and the
+  // timelines of seeds from before R23) are unchanged apart from this event.
+  if (r() < 0.3) {
+    const i = int(1, events.length - 1);
+    // A day after the event before it: an adjustment in the same second as an immediate cancellation lands on its
+    // final invoice in Stripe, an ordering this generator does not aim at.
+    const when = Date.parse(events[i - 1].at) + 86_400_000;
+    const amount = pick([-1, 1]) * int(1, 200) * 100;
+    if (when < Date.parse(events[i].at)) events.splice(i, 0, { at: new Date(when).toISOString().replace(".000", ""), type: "adjust_balance", amount });
+  }
+  // R21 (S115, S117), drawn last for the same reason: a coupon applied while paused, and an unchanged resume moved onto
+  // a billing date (the anchor's day and time in the resume's month) when nothing has moved the anchor.
+  const p = events.findIndex((e) => e.type === "pause");
+  if (p >= 0 && events[p + 1]?.type === "resume") {
+    const [pause, resume] = [Date.parse(events[p].at), Date.parse(events[p + 1].at)];
+    if (r() < 0.3 && resume - pause > 2 * 86_400_000)
+      events.splice(p + 1, 0, { at: new Date(pause + 86_400_000).toISOString().replace(".000", ""), type: "apply_coupon", coupon: pick(g.coupons) });
+    const res = events.find((e) => e.type === "resume")!;
+    const moved = events.some((e) => e.type === "reset_anchor") || first.billing_cycle_anchor;
+    if (r() < 0.4 && res.billing_cycle_anchor === "unchanged" && !moved) {
+      const a = new Date(first.at), d = new Date(res.at);
+      const on = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, a.getUTCDate(), a.getUTCHours(), a.getUTCMinutes(), a.getUTCSeconds());
+      if (new Date(on).getUTCDate() === a.getUTCDate() && on < Date.parse(events.at(-1)!.at) - 86_400_000 && !events.some((e) => e !== res && Date.parse(e.at) > Date.parse(res.at) && Date.parse(e.at) <= on && e.type !== "advance_to"))
+        res.at = new Date(on).toISOString().replace(".000", "");
+    }
+  }
+  return events;
+}
+
+// R22: a trial with no card that ends canceled or paused; a paused one is resumed later (classic only with the old
+// anchor, R22) and sometimes changed afterwards. Plan changes during the trial bill nothing until it ends.
+export function generateNoCard(seed: number, mode: BillingMode = "classic"): TimelineEvent[] {
+  const r = rng(seed);
+  const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
+  const int = (lo: number, hi: number) => lo + Math.floor(r() * (hi - lo + 1));
+  const g = r() < 0.8 ? GROUPS[0] : GROUPS[1];
+  let t = Date.UTC(pick([2027, 2028]), int(0, 5), int(1, 28));
+  const at = () => new Date(t).toISOString().replace(".000", "");
+  const days = int(7, 30);
+  const trialEnd = t + days * 86_400_000;
+  const first: TimelineEvent = { at: at(), type: "start_trial", price: pick(g.prices), quantity: int(1, 5), trial_days: days, trial_end_behavior: pick(["cancel", "pause"] as const) };
+  if (mode === "flexible") first.billing_mode = mode;
+  if (r() < 0.4) first.tax_rate = pick(["tax10_ex", "vat20_in"]);
+  if (r() < 0.3) first.coupon = pick(g.coupons);
+  const events = [first];
+  if (r() < 0.4) {
+    t += int(1, days - 1) * 86_400_000;
+    events.push(r() < 0.5 ? { at: at(), type: "change_quantity", quantity: int(1, 8) } : { at: at(), type: "change_price", price: pick(g.prices) });
+  }
+  t = trialEnd;
+  if (first.trial_end_behavior === "pause") {
+    t += int(1, 60) * 86_400_000;
+    events.push({ at: at(), type: "resume", ...(mode === "classic" || r() < 0.5 ? { billing_cycle_anchor: "unchanged" } : {}) });
+    for (let i = int(0, 2); i > 0; i--) {
+      t += int(3, 40) * 86_400_000;
+      events.push(r() < 0.5 ? { at: at(), type: "change_quantity", quantity: int(1, 8) } : { at: at(), type: "change_price", price: pick(g.prices) });
+    }
+  }
+  t += int(35, 70) * 86_400_000;
+  events.push({ at: at(), type: "advance_to" });
   return events;
 }

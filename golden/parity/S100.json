@@ -1,0 +1,97 @@
+{
+  "id": "S100",
+  "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
+  "verified_at": "2026-10-20T15:35:40.944Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf412QR5nixgqN8goQf5SU",
+  "customer": "cus_VTcIQ1DTuLSrI1",
+  "stripe": [
+    {
+      "id": "in_1USf422QR5nixgqNVOBNWzgy",
+      "date": "2028-02-19",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera pro_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf4G2QR5nixgqNTctzwoBw",
+      "date": "2028-04-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on 5 × Tera pro_m (with $50.00 off) after 04 Mar 2028",
+          "amount": 31161,
+          "proration": true
+        },
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 70661,
+      "discount": 0,
+      "tax": 0,
+      "total": 70661,
+      "amount_due": 70661,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf4Y2QR5nixgqNLMfuMQ9C",
+      "date": "2028-05-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5 × Tera pro_m (at $79.00 / month)",
+          "amount": 39500,
+          "proration": false
+        }
+      ],
+      "subtotal": 39500,
+      "discount": 0,
+      "tax": 0,
+      "total": 39500,
+      "amount_due": 39500,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
+    ],
+    [
+      "customer.subscription.trial_will_end trialing",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused",
+      "invoiceitem.created",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
+  ]
+}

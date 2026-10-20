@@ -1,15 +1,15 @@
 {
   "id": "S69",
   "title": "An amount due below Stripe's $0.50 minimum is not charged; it is carried onto the next invoice (found by fuzzing)",
-  "verified_at": "2026-10-18T15:56:53.276Z",
+  "verified_at": "2026-10-20T15:31:58.588Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwRe2QR5nixgqNMz2HR3zR",
-  "customer": "cus_VSsCZffqxD5gM0",
+  "test_clock": "clock_1USf0W2QR5nixgqN3iDm9yCL",
+  "customer": "cus_VTcFKSPMq377ek",
   "stripe": [
     {
-      "id": "in_1URwRf2QR5nixgqNrrRRZTuq",
+      "id": "in_1USf0Y2QR5nixgqNHEFZEVv9",
       "date": "2027-04-30",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwRm2QR5nixgqNZaKpu94v",
+      "id": "in_1USf0i2QR5nixgqNBW7Wt0To",
       "date": "2027-05-30",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwRu2QR5nixgqNr5j8g0sD",
+      "id": "in_1USf0q2QR5nixgqNkj5Qq8ux",
       "date": "2027-06-30",
       "currency": "usd",
       "lines": [
@@ -72,5 +72,28 @@
       "amount_due": 3630,
       "starting_balance": 30
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

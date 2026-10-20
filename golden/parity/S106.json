@@ -1,0 +1,85 @@
+{
+  "id": "S106",
+  "title": "A first-billing-date stub an amount_off coupon makes free is still invoiced at $0 and uses up the once coupon (found by fuzzing)",
+  "verified_at": "2026-10-20T15:36:29.381Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf4l2QR5nixgqNEUQNe8Wd",
+  "customer": "cus_VTcJ62oaRpnlKz",
+  "stripe": [
+    {
+      "id": "in_1USf4m2QR5nixgqNtPbMGe6f",
+      "date": "2027-03-03",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on 4 × Tera team_seat_m (with $50.00 off) after 03 Mar 2027",
+          "amount": 0,
+          "proration": true
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf502QR5nixgqNnru5kQHi",
+      "date": "2027-03-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 4800,
+          "proration": false
+        }
+      ],
+      "subtotal": 4800,
+      "discount": 0,
+      "tax": 0,
+      "total": 4800,
+      "amount_due": 4800,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf5G2QR5nixgqNntRY0beZ",
+      "date": "2027-04-15",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 4800,
+          "proration": false
+        }
+      ],
+      "subtotal": 4800,
+      "discount": 0,
+      "tax": 0,
+      "total": 4800,
+      "amount_due": 4800,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
+  ]
+}

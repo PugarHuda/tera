@@ -1,15 +1,15 @@
 {
   "id": "S19",
   "title": "EUR locale display",
-  "verified_at": "2026-10-17T18:29:00.155Z",
+  "verified_at": "2026-10-20T15:26:02.498Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLo2QR5nixgqNNsg514nQ",
-  "customer": "cus_VSXQpgETl6b4W6",
+  "test_clock": "clock_1USevJ2QR5nixgqNuxBD2icZ",
+  "customer": "cus_VTc96nTNMycq99",
   "stripe": [
     {
-      "id": "in_1URcLp2QR5nixgqNPXUaKrZB",
+      "id": "in_1USevL2QR5nixgqNfHIknL6V",
       "date": "2027-01-01",
       "currency": "eur",
       "lines": [
@@ -26,5 +26,13 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ]
   ]
 }

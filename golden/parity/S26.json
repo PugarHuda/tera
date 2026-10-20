@@ -1,15 +1,15 @@
 {
   "id": "S26",
   "title": "Price change during a trial does not prorate",
-  "verified_at": "2026-10-17T18:29:41.914Z",
+  "verified_at": "2026-10-20T15:26:52.276Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcM52QR5nixgqNheK5dK2x",
-  "customer": "cus_VSXQpoimdTgShl",
+  "test_clock": "clock_1USevY2QR5nixgqNoeC5HJCw",
+  "customer": "cus_VTc9hisCHfoI0W",
   "stripe": [
     {
-      "id": "in_1URcM62QR5nixgqNubWc9QMC",
+      "id": "in_1USeva2QR5nixgqNPdwm7ctJ",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcME2QR5nixgqNaq3BOlfR",
+      "id": "in_1USevn2QR5nixgqNJ0RsRAJd",
       "date": "2027-01-15",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcMO2QR5nixgqNO3z5dlkx",
+      "id": "in_1USew22QR5nixgqNGRu0rsd2",
       "date": "2027-02-15",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,27 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
+    ],
+    [
+      "customer.subscription.updated trialing"
+    ],
+    [
+      "customer.subscription.trial_will_end trialing",
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

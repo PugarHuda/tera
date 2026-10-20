@@ -1,0 +1,75 @@
+{
+  "id": "S99",
+  "title": "Classic: resuming a trial pause two cycles later charges only the part of the current cycle that is left",
+  "verified_at": "2026-10-20T15:35:30.249Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf402QR5nixgqNOAuKXpmC",
+  "customer": "cus_VTcI4fFoEJNCf8",
+  "stripe": [
+    {
+      "id": "in_1USf412QR5nixgqNgt4gJlwF",
+      "date": "2027-01-31",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Trial period for Tera starter_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf4K2QR5nixgqNdIXvk3BU",
+      "date": "2027-04-14",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera starter_m after 20 Mar 2027",
+          "amount": 2339,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 5239,
+      "discount": 0,
+      "tax": 0,
+      "total": 5239,
+      "amount_due": 5239,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
+    ],
+    [
+      "customer.subscription.trial_will_end trialing",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused",
+      "invoiceitem.created",
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
+  ]
+}

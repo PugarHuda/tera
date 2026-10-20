@@ -1,15 +1,15 @@
 {
   "id": "S30",
   "title": "Seat increase after a used-up 'once' coupon: the credit refunds the discounted price actually paid",
-  "verified_at": "2026-10-17T18:29:50.652Z",
+  "verified_at": "2026-10-20T15:26:48.906Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcMV2QR5nixgqNC1tu3MKn",
-  "customer": "cus_VSXRxujbWTPShT",
+  "test_clock": "clock_1USevi2QR5nixgqN8vMNBX6v",
+  "customer": "cus_VTcATQMEOFBeBD",
   "stripe": [
     {
-      "id": "in_1URcMW2QR5nixgqNb2IACWT7",
+      "id": "in_1USevl2QR5nixgqNvmBrjKAY",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcMe2QR5nixgqNWQTfuwNE",
+      "id": "in_1USew32QR5nixgqNg7KAA9OX",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 8114,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

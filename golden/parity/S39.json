@@ -1,15 +1,15 @@
 {
   "id": "S39",
   "title": "Cancel at period end bills pending prorations on a final invoice, with negative tax",
-  "verified_at": "2026-10-17T18:41:43.355Z",
+  "verified_at": "2026-10-20T15:28:00.919Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcXr2QR5nixgqN6gHAXunS",
-  "customer": "cus_VSXdGWXHDb2FPH",
+  "test_clock": "clock_1USewU2QR5nixgqNzDaMixoY",
+  "customer": "cus_VTcAH98Im0m7hp",
   "stripe": [
     {
-      "id": "in_1URcXt2QR5nixgqNWg3GQ0z6",
+      "id": "in_1USewW2QR5nixgqNhpl1s981",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcY42QR5nixgqNegqjPUz4",
+      "id": "in_1USex62QR5nixgqNfotHyhcF",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -49,5 +49,27 @@
       "amount_due": 0,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.deleted canceled",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
   ]
 }

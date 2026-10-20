@@ -1,15 +1,15 @@
 {
   "id": "S11",
   "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
-  "verified_at": "2026-10-17T18:28:38.241Z",
+  "verified_at": "2026-10-20T15:25:54.257Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLJ2QR5nixgqN8Y2s6kgc",
-  "customer": "cus_VSXQOq33pdza0o",
+  "test_clock": "clock_1USeun2QR5nixgqNVW7YSCPS",
+  "customer": "cus_VTc9n0c7kupk8J",
   "stripe": [
     {
-      "id": "in_1URcLL2QR5nixgqNvFEaYJNO",
+      "id": "in_1USeup2QR5nixgqNC5sdw5L0",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLT2QR5nixgqNT9gcN1T4",
+      "id": "in_1USevB2QR5nixgqNWPH7l95K",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,21 @@
       "amount_due": 2320,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

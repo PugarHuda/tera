@@ -1,15 +1,15 @@
 {
   "id": "S53",
   "title": "Removing a forever coupon: later invoices are full price, but the next credit refunds what was paid (discounted)",
-  "verified_at": "2026-10-18T06:07:20.954Z",
+  "verified_at": "2026-10-20T15:29:51.644Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URnEr2QR5nixgqNYkhkk9vm",
-  "customer": "cus_VSig49vkSgxVBV",
+  "test_clock": "clock_1USeyA2QR5nixgqNSNa6HHXq",
+  "customer": "cus_VTcClPvIJdmee5",
   "stripe": [
     {
-      "id": "in_1URnEs2QR5nixgqNc23PcpZm",
+      "id": "in_1USeyC2QR5nixgqN5ibyZBBa",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnF22QR5nixgqNRiQoQSM1",
+      "id": "in_1USeyP2QR5nixgqNIFgfXjSE",
       "date": "2026-01-11",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFJ2QR5nixgqNR92TqrQb",
+      "id": "in_1USeyk2QR5nixgqNsA4jICKR",
       "date": "2026-02-11",
       "currency": "usd",
       "lines": [
@@ -78,7 +78,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFT2QR5nixgqNghGk9Iuj",
+      "id": "in_1USeyw2QR5nixgqNYfX9jhsL",
       "date": "2026-03-11",
       "currency": "usd",
       "lines": [
@@ -95,5 +95,38 @@
       "amount_due": 23700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
+    ]
   ]
 }

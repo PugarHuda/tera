@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { formatMoney, type Catalog, type Coupon, type Interval, type Price, type TaxRate } from "@/lib/billing";
+import { digits, minorOf } from "@/lib/money";
 import { encodeCatalog } from "@/lib/share";
 import { BadRequest, parseCatalog } from "@/lib/validate";
 
 const CURRENCIES = ["usd", "eur", "gbp", "jpy"];
 const STORAGE_KEY = "tera.builder.catalog";
-const digits = (currency: string) => new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
+// An imported Stripe catalog may use any currency; it stays selectable next to the usual four.
+const currencyOptions = (c: string) => (CURRENCIES.includes(c) ? CURRENCIES : [...CURRENCIES, c]);
 
 type PriceRow = { id: string; currency: string; amount: string; interval: Interval };
 type CouponRow = { code: string; kind: "percent" | "amount"; value: string; currency: string; duration: Coupon["duration"]; months: string };
@@ -33,20 +35,11 @@ function toRows(c: Catalog): Rows {
 
 const PLAIN = /^\d+(\.\d+)?$/; // no "0x10", "1e3", "Infinity" or blanks
 
-// A major-unit amount typed in the form -> minor units, or why not (decimals beyond the currency's minor unit).
-function minorOf(raw: string, currency: string, what: string): number | string {
-  const d = digits(currency);
-  const s = raw.trim();
-  if (d === 0 && /[.,]/.test(s)) return `${what}: ${currency.toUpperCase()} has no minor unit, so the amount cannot have decimals`;
-  const minor = Math.round(Number(s) * 10 ** d);
-  if (!PLAIN.test(s) || !Number.isFinite(minor) || Math.abs(Number(s) * 10 ** d - minor) > 1e-6) return `${what}: "${raw}" is not a valid ${currency.toUpperCase()} amount`;
-  return minor;
-}
-
 // Major units in the form, minor units in the catalog. Returns the first problem in plain words.
 function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalog; error?: string } {
   // Rows first, in the order shown (the simulator starts on the first price); kept metered prices after them.
-  const prices: Record<string, Price> = {};
+  // Null-prototype maps: an id "__proto__" becomes a real key the validator rejects, not a silently dropped entry.
+  const prices: Record<string, Price> = Object.create(null);
   for (const r of rows.prices) {
     const minor = minorOf(r.amount, r.currency, r.id);
     if (typeof minor === "string") return { error: minor };
@@ -54,7 +47,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
     prices[r.id] = { currency: r.currency, unit_amount: minor, interval: r.interval };
   }
   Object.assign(prices, fixed);
-  const coupons: Record<string, Coupon> = {};
+  const coupons: Record<string, Coupon> = Object.create(null);
   for (const r of rows.coupons) {
     if (Object.hasOwn(coupons, r.code)) return { error: `Coupon code ${r.code} is used twice` };
     if (r.kind === "percent" && !PLAIN.test(r.value.trim())) return { error: `${r.code}: "${r.value}" is not a percentage` };
@@ -66,7 +59,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
       ...(r.kind === "percent" ? { percent_off: Number(r.value) } : { amount_off: off, currency: r.currency }),
     };
   }
-  const tax_rates: Record<string, TaxRate> = {};
+  const tax_rates: Record<string, TaxRate> = Object.create(null);
   for (const r of rows.taxes) {
     if (Object.hasOwn(tax_rates, r.id)) return { error: `Tax rate id ${r.id} is used twice` };
     if (!PLAIN.test(r.percentage.trim())) return { error: `${r.id}: "${r.percentage}" is not a percentage` };
@@ -81,7 +74,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
 
 // A draft saved by an older version (or edited by hand) may lack fields; a missing currency crashed the page.
 function normalize(x: Partial<Rows>): Rows {
-  const cur = (c: unknown) => (typeof c === "string" && CURRENCIES.includes(c) ? c : "usd");
+  const cur = (c: unknown) => (typeof c === "string" && /^[a-z]{3}$/.test(c) ? c : "usd");
   return {
     prices: (Array.isArray(x.prices) ? x.prices : []).map((p) => ({ id: String(p.id ?? ""), currency: cur(p.currency), amount: String(p.amount ?? ""), interval: p.interval === "year" ? "year" : "month" })),
     coupons: (Array.isArray(x.coupons) ? x.coupons : []).map((c) => ({
@@ -98,11 +91,15 @@ function normalize(x: Partial<Rows>): Rows {
 
 type PushResult = { prices: Record<string, string>; coupons: Record<string, string>; taxRates: Record<string, string>; meterId: string | null };
 
-export function Builder({ reference }: { reference: Catalog }) {
+export function Builder({ reference, stripeLive = false }: { reference: Catalog; stripeLive?: boolean }) {
   const [rows, setRows] = useState<Rows>(() => toRows(reference));
   const [push, setPush] = useState<{ busy: boolean; result?: PushResult; error?: string }>({ busy: false });
+  const [pull, setPull] = useState<{ busy: boolean; note?: string }>({ busy: false });
 
   // Per-viewer convenience: keep the draft across reloads (never required for correctness).
+  // Saving waits for the load: otherwise the first save writes the reference rows over the draft before it is read
+  // (React Strict Mode runs the effects twice, found by QA).
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -110,12 +107,14 @@ export function Builder({ reference }: { reference: Catalog }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setRows(normalize(JSON.parse(saved)));
     } catch {}
+    setLoaded(true);
   }, []);
   useEffect(() => {
+    if (!loaded) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
     } catch {}
-  }, [rows]);
+  }, [rows, loaded]);
 
   // Metered (tiered) prices are not editable here; they are carried over unchanged so nothing is silently dropped.
   const metered = useMemo(() => Object.fromEntries(Object.entries(reference.prices).filter(([, p]) => p.usage_type === "metered")), [reference]);
@@ -137,10 +136,36 @@ export function Builder({ reference }: { reference: Catalog }) {
     }
   };
 
+  const importFromStripe = async () => {
+    setPull({ busy: true });
+    try {
+      const res = await fetch("/api/stripe/catalog");
+      const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      const { catalog: c, skipped } = body as { catalog: Catalog; skipped: Record<"prices" | "coupons" | "tax_rates", number> };
+      // The builder keeps its metered prices next to the imported ones, so they share the 50-price limit: an account with 50
+      // importable prices made a catalog of 51 that failed validation (found by the J2b E2E journey).
+      const room = 50 - Object.keys(metered).length;
+      const all = Object.keys(c.prices).length;
+      const n = Math.min(all, room);
+      if (n === 0) throw new Error("no per-seat monthly or yearly prices in the connected account; the catalog was left as it was");
+      setRows(toRows({ ...c, prices: Object.fromEntries(Object.entries(c.prices).slice(0, n)) }));
+      skipped.prices += all - n;
+      const left = skipped.prices + skipped.coupons + skipped.tax_rates;
+      setPull({
+        busy: false,
+        note: `Imported ${n} prices, ${Object.keys(c.coupons ?? {}).length} coupons and ${Object.keys(c.tax_rates ?? {}).length} tax rates from Stripe` +
+          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates: older copies, over the catalog limits or not modelled by Tera).` : "."),
+      });
+    } catch (e) {
+      setPull({ busy: false, note: `Stripe: ${(e as Error).message}` });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <section className="card space-y-3" aria-labelledby="prices-h">
-        <h2 id="prices-h" className="font-semibold">Prices</h2>
+        <h2 id="prices-h" className="text-2xl font-medium">Prices</h2>
         {Object.keys(metered).length > 0 && (
           <p className="text-xs opacity-60">
             Metered prices with graduated tiers ({Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
@@ -155,7 +180,7 @@ export function Builder({ reference }: { reference: Catalog }) {
             <label className="text-sm">
               <span className="block text-xs opacity-70">Currency</span>
               <select className="input" aria-label={`Price ${i + 1} currency`} value={p.currency} onChange={(e) => set("prices", i, { currency: e.target.value })}>
-                {CURRENCIES.map((c) => (
+                {currencyOptions(p.currency).map((c) => (
                   <option key={c} value={c}>
                     {c.toUpperCase()}
                   </option>
@@ -191,7 +216,7 @@ export function Builder({ reference }: { reference: Catalog }) {
       </section>
 
       <section className="card space-y-3" aria-labelledby="coupons-h">
-        <h2 id="coupons-h" className="font-semibold">Coupons</h2>
+        <h2 id="coupons-h" className="text-2xl font-medium">Coupons</h2>
         {rows.coupons.map((c, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2">
             <label className="text-sm">
@@ -211,7 +236,7 @@ export function Builder({ reference }: { reference: Catalog }) {
             </label>
             {c.kind === "amount" && (
               <select className="input" aria-label={`Coupon ${i + 1} currency`} value={c.currency} onChange={(e) => set("coupons", i, { currency: e.target.value })}>
-                {CURRENCIES.map((x) => (
+                {currencyOptions(c.currency).map((x) => (
                   <option key={x} value={x}>
                     {x.toUpperCase()}
                   </option>
@@ -247,7 +272,7 @@ export function Builder({ reference }: { reference: Catalog }) {
       </section>
 
       <section className="card space-y-3" aria-labelledby="tax-h">
-        <h2 id="tax-h" className="font-semibold">Tax rates</h2>
+        <h2 id="tax-h" className="text-2xl font-medium">Tax rates</h2>
         {rows.taxes.map((t, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2">
             <label className="text-sm">
@@ -281,7 +306,7 @@ export function Builder({ reference }: { reference: Catalog }) {
 
       <section className="card space-y-3">
         {error ? (
-          <p role="alert" className="text-red-600 dark:text-red-400" data-testid="builder-error">
+          <p role="alert" className="text-red-700 dark:text-red-400" data-testid="builder-error">
             {error}
           </p>
         ) : (
@@ -302,12 +327,22 @@ export function Builder({ reference }: { reference: Catalog }) {
           <button type="button" className="btn-ghost border border-current/20" disabled={!catalog || push.busy} onClick={pushToStripe} data-testid="push-stripe">
             {push.busy ? "Pushing to Stripe…" : "Push to Stripe (test mode)"}
           </button>
+          {stripeLive && (
+            <button type="button" className="btn-ghost border border-current/20" disabled={pull.busy} onClick={importFromStripe} data-testid="pull-stripe">
+              {pull.busy ? "Importing from Stripe…" : "Import from Stripe"}
+            </button>
+          )}
           <button type="button" className="btn-ghost" onClick={() => setRows(toRows(reference))}>
             Reset to reference catalog
           </button>
         </div>
+        {pull.note && (
+          <p className="text-sm opacity-80" role="status" data-testid="pull-note">
+            {pull.note}
+          </p>
+        )}
         {push.error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          <p role="alert" className="text-sm text-red-700 dark:text-red-400">
             {push.error}
           </p>
         )}

@@ -1,15 +1,15 @@
 {
   "id": "S36",
   "title": "Seat increase under a repeating amount_off coupon: both proration lines are net of the $10",
-  "verified_at": "2026-10-19T06:22:49.475Z",
+  "verified_at": "2026-10-20T15:27:14.792Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9xo2QR5nixgqNmgipUGVm",
-  "customer": "cus_VT6ASf5ydiV4Dr",
+  "test_clock": "clock_1USewE2QR5nixgqNGluzH2Zh",
+  "customer": "cus_VTcADXFQoRTwKY",
   "stripe": [
     {
-      "id": "in_1US9xp2QR5nixgqNRLdoyyHw",
+      "id": "in_1USewG2QR5nixgqNzHtKVLoo",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9y72QR5nixgqNYwIKug6p",
+      "id": "in_1USewU2QR5nixgqNcBa3p2HO",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 12565,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

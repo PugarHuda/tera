@@ -1,15 +1,15 @@
 {
   "id": "S73",
   "title": "cancel_at sweeps pending prorations onto the final invoice with the credit for the seats as they are",
-  "verified_at": "2026-10-18T16:11:57.303Z",
+  "verified_at": "2026-10-20T15:32:14.699Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwgR2QR5nixgqNE8jmTEBt",
-  "customer": "cus_VSsRGDcVgy1C9e",
+  "test_clock": "clock_1USf0q2QR5nixgqNMuJGHKYk",
+  "customer": "cus_VTcFzFZOdJeRiX",
   "stripe": [
     {
-      "id": "in_1URwgS2QR5nixgqN3kL9w6WH",
+      "id": "in_1USf0s2QR5nixgqNDaKxxmCO",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwga2QR5nixgqNRP6dLi30",
+      "id": "in_1USf1E2QR5nixgqNQitDILBK",
       "date": "2027-01-25",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,28 @@
       "amount_due": 2090,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.deleted canceled",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2"
+    ]
   ]
 }

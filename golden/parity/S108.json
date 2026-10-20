@@ -1,0 +1,97 @@
+{
+  "id": "S108",
+  "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
+  "verified_at": "2026-10-20T15:37:17.266Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1USf532QR5nixgqN2TmEOUXT",
+  "customer": "cus_VTcJSoolgOyhpP",
+  "stripe": [
+    {
+      "id": "in_1USf552QR5nixgqN5UDlkQYp",
+      "date": "2027-06-02",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Free trial for 4 × Tera pro_m",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf5Q2QR5nixgqNdry0chFr",
+      "date": "2027-06-16",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "4 × Tera pro_m (at $79.00 / month)",
+          "amount": 31600,
+          "proration": false
+        }
+      ],
+      "subtotal": 31600,
+      "discount": 0,
+      "tax": 0,
+      "total": 31600,
+      "amount_due": 31600,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1USf5z2QR5nixgqNRbCm2AZI",
+      "date": "2027-07-26",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Remaining time on 4 × Tera pro_m (with 20.0% off) after 16 Jul 2027",
+          "amount": 8426,
+          "proration": true
+        },
+        {
+          "description": "4 × Tera pro_m (at $79.00 / month)",
+          "amount": 31600,
+          "proration": false
+        }
+      ],
+      "subtotal": 40026,
+      "discount": 0,
+      "tax": 0,
+      "total": 40026,
+      "amount_due": 40026,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
+    ],
+    [
+      "customer.subscription.trial_will_end trialing",
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
+  ]
+}

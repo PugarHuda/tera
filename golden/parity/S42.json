@@ -1,15 +1,15 @@
 {
   "id": "S42",
   "title": "Proration charge under a percent coupon is rounded in two steps",
-  "verified_at": "2026-10-19T06:22:55.508Z",
+  "verified_at": "2026-10-20T15:27:40.662Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9xo2QR5nixgqNIwrUmeor",
-  "customer": "cus_VT6A1GqLeu8kQC",
+  "test_clock": "clock_1USewb2QR5nixgqNVFadBdGC",
+  "customer": "cus_VTcAc3wd9Rjmil",
   "stripe": [
     {
-      "id": "in_1US9xp2QR5nixgqNG5NlGrlW",
+      "id": "in_1USewd2QR5nixgqNUmK9nuHX",
       "date": "2027-03-17",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9yC2QR5nixgqNs7ZBD1FP",
+      "id": "in_1USews2QR5nixgqNFBCX0wk1",
       "date": "2027-04-17",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 3483,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

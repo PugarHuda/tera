@@ -1,15 +1,15 @@
 {
   "id": "S31",
   "title": "Changing the price without a quantity resets 5 seats to quantity 1 (Stripe item semantics)",
-  "verified_at": "2026-10-17T18:29:53.266Z",
+  "verified_at": "2026-10-20T15:26:48.750Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcMY2QR5nixgqN0w9nlxZ5",
-  "customer": "cus_VSXR2JsSEmJZTM",
+  "test_clock": "clock_1USevl2QR5nixgqNlE0qAFqX",
+  "customer": "cus_VTcA9RFq5FOyNI",
   "stripe": [
     {
-      "id": "in_1URcMZ2QR5nixgqN0k3ovYz2",
+      "id": "in_1USevm2QR5nixgqNIkywE3yt",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcMg2QR5nixgqNZfoiu4Pv",
+      "id": "in_1USew32QR5nixgqNpMfB4fOZ",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 8635,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S38",
   "title": "Changing to the same quantity or the same price is a no-op",
-  "verified_at": "2026-10-17T18:41:38.806Z",
+  "verified_at": "2026-10-20T15:27:35.982Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcXq2QR5nixgqNITzyzrlI",
-  "customer": "cus_VSXdxY2dbI5gZN",
+  "test_clock": "clock_1USewU2QR5nixgqNoM0aGp6o",
+  "customer": "cus_VTcAUM9fcwuVUU",
   "stripe": [
     {
-      "id": "in_1URcXr2QR5nixgqNzgX50SzG",
+      "id": "in_1USewW2QR5nixgqN22chgX5F",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcY32QR5nixgqNqNiakMOg",
+      "id": "in_1USewp2QR5nixgqNgfLzyNt7",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,19 @@
       "amount_due": 15800,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
   ]
 }

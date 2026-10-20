@@ -1,15 +1,15 @@
 {
   "id": "S76",
   "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
-  "verified_at": "2026-10-19T05:27:00.606Z",
+  "verified_at": "2026-10-20T15:32:44.478Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US95d2QR5nixgqNJ3CX6qGI",
-  "customer": "cus_VT5GtVLxDJMQcr",
+  "test_clock": "clock_1USf1A2QR5nixgqNd5DzCKp8",
+  "customer": "cus_VTcFZ003FESuMK",
   "stripe": [
     {
-      "id": "in_1US95e2QR5nixgqNG7O4Hs3k",
+      "id": "in_1USf1C2QR5nixgqNVbyDCdHt",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US95n2QR5nixgqNJOw5SgxK",
+      "id": "in_1USf1U2QR5nixgqNnyyYQFxh",
       "date": "2027-01-31",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9612QR5nixgqNsDhVgD3Z",
+      "id": "in_1USf1g2QR5nixgqNkPtkVFkh",
       "date": "2027-02-28",
       "currency": "usd",
       "lines": [
@@ -72,5 +72,29 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

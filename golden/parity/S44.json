@@ -1,15 +1,15 @@
 {
   "id": "S44",
   "title": "proration_behavior none: no lines now; a later proration credits the item as it is then, not what was paid",
-  "verified_at": "2026-10-18T00:23:46.102Z",
+  "verified_at": "2026-10-20T15:28:38.897Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URhsg2QR5nixgqNP1dXdOCJ",
-  "customer": "cus_VSd8Q7mhs5y1yM",
+  "test_clock": "clock_1USex02QR5nixgqN02wH3PqK",
+  "customer": "cus_VTcBSxW6GQFHxP",
   "stripe": [
     {
-      "id": "in_1URhsh2QR5nixgqNVEOHdZhH",
+      "id": "in_1USex32QR5nixgqNk0yOBElx",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhsq2QR5nixgqNxpncOzKk",
+      "id": "in_1USexR2QR5nixgqNNGP3ty85",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URht02QR5nixgqNz5x3D9Pc",
+      "id": "in_1USexe2QR5nixgqNmEvEI4PG",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -72,5 +72,31 @@
       "amount_due": 8700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
+    ]
   ]
 }

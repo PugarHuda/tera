@@ -1,22 +1,41 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import golden from "../../golden/scenarios.json";
+import evidence from "../../golden/parity/index.json";
 import type { Catalog } from "@/lib/billing";
 import type { TimelineEvent } from "@/lib/billing";
 import { decodeCatalog, decodeTimeline } from "@/lib/share";
 import { Simulator, type Scenario } from "./simulator";
 
 const scenarios = golden.scenarios as unknown as Scenario[];
+// Real counts from the Stripe test-clock evidence (src/lib/webhooks.test.ts holds Tera to every recorded webhook).
+const records = evidence as { match: boolean; stripe: unknown[]; webhooks?: string[][] }[];
+const proof = [
+  [`${records.filter((r) => r.match).length} / ${records.length}`, "timelines replayed in Stripe test clocks match Tera to the cent"],
+  [records.reduce((n, r) => n + r.stripe.length, 0).toLocaleString("en-US"), "invoices compared line by line"],
+  [records.reduce((n, r) => n + (r.webhooks?.flat().length ?? 0), 0).toLocaleString("en-US"), "webhook events Stripe sent, each one predicted"],
+];
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
-      <h1 className="mb-1 text-2xl font-semibold">Customer timeline simulator</h1>
+      <p className="eyebrow">Stripe-parity billing</p>
+      <h1 className="mb-2 text-4xl leading-tight font-medium sm:text-5xl">Customer timeline simulator</h1>
       <p className="mb-6 max-w-2xl opacity-70">
         Run a virtual customer through upgrades, coupons, trials and taxes and see every invoice to the cent — computed with
         Stripe&apos;s billing rules, before any real customer sees it.
       </p>
+      <ul className="mb-8 grid gap-3 sm:grid-cols-3" data-testid="proof">
+        {proof.map(([n, label]) => (
+          <li key={label} className="card">
+            <Link href="/parity" className="block">
+              <span className="font-serif text-3xl">{n}</span>
+              <span className="mt-1 block text-xs opacity-70">{label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
       <Suspense fallback={<p className="opacity-60">Loading simulator…</p>}>
         <SimulatorFromUrl searchParams={searchParams} />
       </Suspense>
@@ -33,21 +52,24 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
   // A custom catalog has its own price ids, so golden scenarios do not apply; start with its first licensed
   // price (a metered one would bill $0 until usage is reported).
   const firstPrice = custom ? (Object.entries(custom.prices).find(([, p]) => p.usage_type !== "metered") ?? Object.entries(custom.prices)[0])[0] : null;
+  // A metered-only catalog would bill $0 forever: report some usage so its tiers show.
+  const metered = firstPrice !== null && custom!.prices[firstPrice].usage_type === "metered";
   const starter: TimelineEvent[] | null = firstPrice
     ? [
         { at: "2027-01-01T00:00:00Z", type: "subscribe", price: firstPrice },
+        ...(metered ? [{ at: "2027-01-15T00:00:00Z", type: "report_usage" as const, quantity: 1000 }] : []),
         { at: "2027-03-01T00:00:00Z", type: "advance_to" },
       ]
     : null;
   return (
     <>
       {typeof s === "string" && !scenarioId && !t && !c && (
-        <p role="alert" data-testid="scenario-error" className="card mb-6 border-red-500 text-red-600 dark:text-red-400">
+        <p role="alert" data-testid="scenario-error" className="card mb-6 border-red-500 text-red-700 dark:text-red-400">
           There is no golden scenario &ldquo;{s}&rdquo;, so S05 was loaded instead.
         </p>
       )}
       {((t !== undefined && !shared) || (c !== undefined && !custom)) && (
-        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-600 dark:text-red-400">
+        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-700 dark:text-red-400">
           This shared link is invalid or corrupted, so the default scenario was loaded instead.
         </p>
       )}
@@ -67,6 +89,7 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
         scenarios={custom ? [] : scenarios}
         initialScenarioId={shared || custom ? undefined : (scenarioId ?? "S05")}
         initialTimeline={shared ?? starter ?? undefined}
+        stripeLive={!!process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")}
       />
     </>
   );

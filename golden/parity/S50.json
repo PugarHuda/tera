@@ -1,15 +1,15 @@
 {
   "id": "S50",
   "title": "A repeating coupon lasts its months in calendar time, not a count of invoices (yearly -> monthly)",
-  "verified_at": "2026-10-18T00:34:49.979Z",
+  "verified_at": "2026-10-20T15:29:36.521Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URi3E2QR5nixgqNB2FCKJaj",
-  "customer": "cus_VSdJUexonOAquO",
+  "test_clock": "clock_1USexs2QR5nixgqNiUwRT2G5",
+  "customer": "cus_VTcCFQH1LLn3C9",
   "stripe": [
     {
-      "id": "in_1URi3G2QR5nixgqN7KjYRsIr",
+      "id": "in_1USexz2QR5nixgqNnQcBftQt",
       "date": "2027-01-25",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URi3K2QR5nixgqN3al52wB8",
+      "id": "in_1USeyC2QR5nixgqNOLjFPBBz",
       "date": "2027-02-05",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URi3N2QR5nixgqNsANJq5HD",
+      "id": "in_1USeyJ2QR5nixgqNfZuzZPZl",
       "date": "2027-03-05",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": -20256
     },
     {
-      "id": "in_1URi3X2QR5nixgqNTgzDvjGL",
+      "id": "in_1USeyU2QR5nixgqN5lmyKikB",
       "date": "2027-04-05",
       "currency": "usd",
       "lines": [
@@ -86,7 +86,7 @@
       "starting_balance": -13356
     },
     {
-      "id": "in_1URi3f2QR5nixgqNSUgBa2CJ",
+      "id": "in_1USeyd2QR5nixgqNK4PkQYCa",
       "date": "2027-05-05",
       "currency": "usd",
       "lines": [
@@ -103,5 +103,34 @@
       "amount_due": 1444,
       "starting_balance": -6456
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4",
+      "invoice.created #5",
+      "customer.subscription.updated active",
+      "invoice.finalized #5",
+      "invoice.paid #5"
+    ]
   ]
 }
