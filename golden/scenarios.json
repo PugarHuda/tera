@@ -6105,6 +6105,300 @@
         }
       ],
       "parity": "golden/parity/S112.json"
+    },
+    {
+      "id": "S113",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R16",
+        "R21"
+      ],
+      "title": "Flexible: a month-end first billing date prorates its stub in monthly segments from the shorter month (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-05-17T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "quantity": 2,
+          "billing_mode": "flexible",
+          "coupon": "FIFTYOFF",
+          "billing_cycle_anchor": "2027-05-31T00:00:00Z"
+        },
+        {
+          "at": "2027-07-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Flexible, first billing date 05-31: the stub period is the anchor-aligned one ending on it, 04-30 -> 05-31. Its start is a shorter month's last day, so, like a month-end resume (S107), it is prorated in monthly segments from day 30: 04-30 -> 05-30 (30 d) and 05-30 -> 06-30 (31 d). 05-17 -> 05-31 is 13/30 + 1/31 = 433/930 (14/31 would be 0.4516). Gross 5800*433/930 = 2700.43, FIFTYOFF ($50 once) prorated the same way 5000*433/930 = 2327.96, discount taken off the unrounded gross (R16): 2700 - 2328 = 372 (14/31 gives 2619 - 2258 = 361). The stub uses up the once coupon. 05-31: 5800. 06-30: 5800.",
+      "expect": [
+        {
+          "date": "2027-05-17",
+          "lines": [
+            372
+          ],
+          "discount": 0,
+          "total": 372
+        },
+        {
+          "date": "2027-05-31",
+          "lines": [
+            5800
+          ],
+          "discount": 0,
+          "total": 5800
+        },
+        {
+          "date": "2027-06-30",
+          "lines": [
+            5800
+          ],
+          "discount": 0,
+          "total": 5800
+        }
+      ],
+      "parity": "golden/parity/S113.json"
+    },
+    {
+      "id": "S114",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R15",
+        "R16"
+      ],
+      "title": "Flexible: pausing with always_invoice when nothing is left to credit opens no invoice (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-06-30T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 3,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-07-19T00:00:00Z",
+          "type": "reset_anchor",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-08-12T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-09-23T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-10-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "06-30: 3 x 1200 = 3600. 07-19 anchor reset with proration none (R15, R16): the period becomes 07-19 -> 08-19 and nothing is credited, debited or invoiced, so no debit covers it. 08-12 pause with invoicing_behavior invoice (always_invoice): there is no debit to credit and nothing pending, and Stripe creates no invoice (not a $0 one). 09-23 resume (anchor now): 3600 for 09-23 -> 10-23. 10-23: 3600.",
+      "expect": [
+        {
+          "date": "2027-06-30",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        },
+        {
+          "date": "2027-09-23",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        },
+        {
+          "date": "2027-10-23",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        }
+      ],
+      "parity": "golden/parity/S114.json"
+    },
+    {
+      "id": "S115",
+      "status": "verified",
+      "rules": [
+        "R21"
+      ],
+      "title": "Flexible: resuming with an unchanged anchor exactly on a billing date charges the whole period with the next renewal (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 1,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-04-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-10 pause (pending credit): 22 of 31 days unused, -round(7900*22/31 = 5606.45) = -5606, pending. 03-01 resume with the anchor unchanged, exactly on a billing date: the period containing it, 03-01 -> 04-01, starts now, so the rest of it is all of it: 7900 * 31/31 = 7900 as a pending proration, and nothing is invoiced now. 04-01: -5606 + 7900 + the 04-01 renewal 7900 = 10194.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -5606,
+            7900,
+            7900
+          ],
+          "discount": 0,
+          "total": 10194
+        }
+      ],
+      "parity": "golden/parity/S115.json"
+    },
+    {
+      "id": "S116",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R15",
+        "R16"
+      ],
+      "title": "Flexible: after an anchor reset with proration none, an unchanged resume in the new period charges nothing (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-07T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 2,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "reset_anchor",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-03-14T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-03-30T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-04-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-07 and 02-07: 2 x 1200 = 2400. 03-01 anchor reset with proration none: the period becomes 03-01 -> 04-01 and nothing is billed (R16). Like a none change (S86), that period counts as paid. 03-14 pause, always_invoice: the only debit (02-07 -> 03-07) ended before it, so nothing is credited and no invoice opens (S114). 03-30 resume with the anchor unchanged: the rest of 03-01 -> 04-01 (2/31, round(2400*2/31) = 155) is not charged, as the none reset left it paid. 04-01: 2400.",
+      "expect": [
+        {
+          "date": "2027-01-07",
+          "lines": [
+            2400
+          ],
+          "discount": 0,
+          "total": 2400
+        },
+        {
+          "date": "2027-02-07",
+          "lines": [
+            2400
+          ],
+          "discount": 0,
+          "total": 2400
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            2400
+          ],
+          "discount": 0,
+          "total": 2400
+        }
+      ],
+      "parity": "golden/parity/S116.json"
+    },
+    {
+      "id": "S117",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R5"
+      ],
+      "title": "Flexible: a once coupon applied while paused prices the resume charge and is used up by it (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 1,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-04-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "As S115, with SAVE20 (20% once) applied on 02-15 while paused, which Stripe allows. The 03-01 resume charge for 03-01 -> 04-01 takes it: 7900 less 20% = 6320, and like any remaining-time charge it uses the once coupon up (S100). 04-01: -5606 + 6320 + a full-price renewal 7900 = 8614.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            -5606,
+            6320,
+            7900
+          ],
+          "discount": 0,
+          "total": 8614
+        }
+      ],
+      "parity": "golden/parity/S117.json"
     }
   ]
 }

@@ -656,7 +656,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     while (addInterval(s.anchor, interval, s.anchorDay, k + 1) <= at) k++;
     s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
     s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
-    if (s.periodStart === at) throw new Error('resume with billing_cycle_anchor "unchanged" exactly on a billing date is not modelled');
+    // Exactly on a billing date the "rest of the period" is all of it: nothing is invoiced now, and the whole period
+    // is a pending proration billed with the next renewal (S115: 03-01 -> 04-01 is 7900, billed with the 04-01 renewal).
+    if (s.periodStart === at && s.anchorDay > 28 && new Date(at).getUTCDate() !== s.anchorDay)
+      throw new Error('resume with a month-end billing_cycle_anchor "unchanged" exactly on a shortened billing date is not modelled');
     // A month-end anchor whose period starts on a shorter month's last day (31 -> 06-30): Stripe moves the anchor to that
     // day and prorates the rest of this period in monthly segments counted from it (see span; S107, probes M1, me1-me6).
     if (s.anchorDay > 28) {
@@ -717,6 +720,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       s.mode === "flexible"
         ? addInterval(when, p.interval, s.anchorDay, -1)
         : when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
+    // A month-end anchor whose stub period starts on a shorter month's last day (anchor 05-31: 04-30 -> 05-31) is
+    // prorated in monthly segments from that day, like a month-end resume: 05-17 -> 05-31 is 13/30 + 1/31, so
+    // 5800 less FIFTYOFF is 2700.43 - 2327.96 = 372, not 14/31's 361 (fuzz seed 94028).
+    if (s.mode === "flexible" && p.interval === "month" && new Date(s.periodStart).getUTCDate() !== s.anchorDay) s.segmentedFrom = s.periodStart;
     if (e.proration_behavior === "none") return;
     const part = chargeParts(s, at, at, when);
     const amount = part.item.unit - part.paid.off;
@@ -804,6 +811,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchor = at;
     s.anchorDay = new Date(at).getUTCDate();
     s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
+    // Like a "none" change (R21), a "none" reset leaves the new period counted as paid: an unchanged resume inside
+    // it charges nothing (03-01 reset, paused 03-14, resumed 03-30: no 2/31 charge; fuzz seed 404281).
+    if (behavior === "none") s.coveredUntil = Math.max(s.coveredUntil ?? 0, s.periodEnd);
     if (behavior === "none" || s.periodEnd <= oldEnd) return;
     const parts = chargeParts(s, at, oldEnd, s.periodEnd);
     const charge = { description: "Remaining time", amount: parts.item.unit - parts.paid.off, proration: true };
@@ -840,7 +850,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.
   function bill(s: Sub, at: number, lines: InvoiceLine[], behavior: ProrationBehavior | undefined) {
     if (behavior === "always_invoice") {
-      openInvoice(s, at, [...s.pending, ...lines], true);
+      // Nothing to invoice is no invoice: a pause that credits nothing (no debit left after a "none" anchor reset)
+      // opens no $0 invoice in Stripe (fuzz seed 94027).
+      if (s.pending.length + lines.length > 0) openInvoice(s, at, [...s.pending, ...lines], true);
       s.pending = [];
     } else s.pending.push(...lines);
   }
@@ -853,7 +865,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   function active(type: string): Sub {
     if (!sub) throw new Error(`${type} before subscribe`);
     if (sub.status === "canceled") throw new Error(`${type} after the subscription was canceled on ${isoDay(canceledAt!)}`);
-    if (sub.status === "paused" && type !== "resume" && type !== "cancel_now") throw new Error(`${type} while paused is not modelled: resume first`);
+    // A coupon can be applied while paused: it prices the resume charge, and a "once" one is used up by it (S117).
+    if (sub.status === "paused" && type !== "resume" && type !== "cancel_now" && type !== "apply_coupon") throw new Error(`${type} while paused is not modelled: resume first`);
     return sub;
   }
 

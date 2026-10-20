@@ -150,7 +150,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
       setPull({
         busy: false,
         note: `Imported ${n} prices, ${Object.keys(c.coupons ?? {}).length} coupons and ${Object.keys(c.tax_rates ?? {}).length} tax rates from Stripe` +
-          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates Tera does not model).` : "."),
+          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates that are older copies or that Tera does not model).` : "."),
       });
     } catch (e) {
       setPull({ busy: false, note: `Stripe: ${(e as Error).message}` });

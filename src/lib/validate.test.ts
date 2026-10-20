@@ -89,7 +89,8 @@ describe("R21 pause: what Stripe rejects, Tera rejects", () => {
     [[sub, { at: "2027-01-10T00:00:00Z", type: "pause" }], "flexible billing mode"],
     [[{ ...flex, type: "start_trial", trial_days: 14 }, { at: "2027-01-05T00:00:00Z", type: "pause" }], "during a trial"],
     [[flex, { at: "2027-01-10T00:00:00Z", type: "pause" }, { at: "2027-01-11T00:00:00Z", type: "change_quantity", quantity: 2 }], "while paused"],
-    [[flex, { at: "2027-01-10T00:00:00Z", type: "pause" }, { at: "2027-02-01T00:00:00Z", type: "resume", billing_cycle_anchor: "unchanged" }], "exactly on a billing date"],
+    // S115 models an unchanged resume on a billing date; on a shortened month-end one (01-31 -> 02-28) it is not probed.
+    [[{ ...flex, at: "2027-01-31T00:00:00Z" }, { at: "2027-02-10T00:00:00Z", type: "pause" }, { at: "2027-02-28T00:00:00Z", type: "resume", billing_cycle_anchor: "unchanged" }], "exactly on a shortened billing date"],
   ])("rejects %j", (timeline, message) => expect(run(timeline)).toThrow(message));
   it("rejects a date as a resume anchor", () =>
     expect(() => parseTimeline([flex, { at: "2027-01-10T00:00:00Z", type: "resume", billing_cycle_anchor: "2027-02-01" }])).toThrow('"now" or "unchanged"'));
