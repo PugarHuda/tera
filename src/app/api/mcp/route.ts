@@ -210,7 +210,7 @@ const handler = createMcpHandler(
           const { catalog, skipped } = await stripeCatalog(stripeClient());
           const line = (kind: string, ids: string[]) => `${kind}: ${ids.join(", ") || "none"}`;
           return text(
-            [line("prices", Object.keys(catalog.prices)), line("coupons", Object.keys(catalog.coupons)), line("tax_rates", Object.keys(catalog.tax_rates)), `skipped (not modelled or over the limits): ${JSON.stringify(skipped)}`].join("\n"),
+            [line("prices", Object.keys(catalog.prices)), line("coupons", Object.keys(catalog.coupons)), line("tax_rates", Object.keys(catalog.tax_rates)), `skipped (older copies, not modelled, or over the limits): ${JSON.stringify(skipped)}`].join("\n"),
             { catalog, skipped },
           );
         } catch (e) {
