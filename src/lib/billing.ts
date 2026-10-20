@@ -798,6 +798,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const parts = chargeParts(s, at, oldEnd, s.periodEnd);
     const charge = { description: "Remaining time", amount: parts.item.unit - parts.paid.off, proration: true };
     s.debits.push(parts);
+    // Like any remaining-time charge (R3), it uses up a "once" coupon that prices it: the next renewal is full price
+    // (fuzz seed 87016, S108).
+    if (liveCoupon(s, at)?.duration === "once" && parts.item.unit > 0) s.coupon!.remaining = 0;
     bill(s, at, [charge], behavior);
   }
 

@@ -5770,6 +5770,67 @@
         }
       ],
       "parity": "golden/parity/S107.json"
+    },
+    {
+      "id": "S108",
+      "status": "verified",
+      "rules": [
+        "R15",
+        "R16",
+        "R5"
+      ],
+      "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-06-02T00:00:00Z",
+          "type": "start_trial",
+          "price": "pro_m",
+          "quantity": 4,
+          "billing_mode": "flexible",
+          "trial_days": 14
+        },
+        {
+          "at": "2027-06-20T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2027-06-26T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2027-08-24T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "06-02 trial, $0. 06-16 trial ends: 4 x 7900 = 31600 for 06-16 -> 07-16. 06-20 SAVE20 (20% once) applied, nothing invoiced. 06-26 reset the anchor (flexible, R15/R16): the new period is 06-26 -> 07-26 (30 d); time to 07-16 is already paid, so only 07-16 -> 07-26 is charged, 10/30: gross round(31600 x 10/30) = 10533, discount 20% of the unrounded 10533.33 = 2106.67 -> 2107: 8426, pending. That charge uses up the once coupon. 07-26: 8426 + 31600, no discount: 40026.",
+      "expect": [
+        {
+          "date": "2027-06-02",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-06-16",
+          "lines": [
+            31600
+          ],
+          "discount": 0,
+          "total": 31600
+        },
+        {
+          "date": "2027-07-26",
+          "lines": [
+            8426,
+            31600
+          ],
+          "discount": 0,
+          "total": 40026
+        }
+      ],
+      "parity": "golden/parity/S108.json"
     }
   ]
 }

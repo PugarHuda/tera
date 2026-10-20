@@ -1072,6 +1072,77 @@
     ]
   },
   {
+    "id": "S108",
+    "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
+    "verified_at": "2026-10-20T03:23:47.976Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USTdp2QR5nixgqNxzfczswz",
+    "customer": "cus_VTQUW51a9p3ZgR",
+    "stripe": [
+      {
+        "id": "in_1USTdq2QR5nixgqNQQNCBa3f",
+        "date": "2027-06-02",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Free trial for 4 × Tera pro_m",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USTdw2QR5nixgqNrdRqvbFE",
+        "date": "2027-06-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 31600,
+        "discount": 0,
+        "tax": 0,
+        "total": 31600,
+        "amount_due": 31600,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USTeG2QR5nixgqNH4p5Ove5",
+        "date": "2027-07-26",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Remaining time on 4 × Tera pro_m (with 20.0% off) after 16 Jul 2027",
+            "amount": 8426,
+            "proration": true
+          },
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 40026,
+        "discount": 0,
+        "tax": 0,
+        "total": 40026,
+        "amount_due": 40026,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
     "verified_at": "2026-10-17T18:28:38.241Z",

@@ -48,7 +48,7 @@ All rules mirror Stripe's documented behavior. Any rule marked **VERIFY** must b
 ### R1 — Money
 - All amounts are integers in the currency's **minor unit** (USD cents, EUR cents). Zero-decimal currencies (JPY, KRW) use the major unit (¥3000 → `3000`).
 - Each invoice line is rounded to an integer **independently**, then summed. Totals are never rounded again.
-- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 104 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
+- Rounding mode: round half away from zero (an inclusive tax of exactly 64.5 is 65, S90; tax rounding is invoice level, R6). Stripe does not document its rounding mode; all 105 replayed timeline scenarios (prorations, percent coupons, inclusive/exclusive tax, graduated tiers with decimal unit amounts) match it to the cent.
 
 ### R2 — Billing periods
 - The billing anchor is the subscription start. A monthly period runs from day *D* to day *D* of the next month (Jan 1 → Feb 1 = 31 days; Feb 1 → Mar 1 = 28 days, 29 in leap years).
@@ -133,7 +133,8 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 ### R15 — Resetting the billing anchor
 - `reset_anchor` (Stripe `billing_cycle_anchor: now`) starts a full new period at once, like an interval change: unused-time credit plus the full period, invoiced immediately; the change time becomes the anchor (S51).
 - With `proration_behavior = none` there is no credit, but prorations pending from earlier changes are still swept into that invoice (S52).
-- Not allowed during a trial (use `end_trial`).
+- Not allowed during a trial (use `end_trial`); Stripe rejects it too ("Trial end cannot be after billing_cycle_anchor … Consider ending the trial").
+- Flexible: the reset charges only the time past the old period end, pending ("Remaining time … after 16 Jul"); like any remaining-time charge it uses up a `once` coupon that prices it, so the next renewal is full price (S108, fuzz seed 87016).
 - `remove_coupon` (Stripe `discounts: ""`) makes later invoices full price; the next unused-time credit still refunds what was actually paid, discount included (S53).
 - A credit after an interval change refunds the discounted new-interval charge, `amount_off` included (S54: −26082, not −27014).
 
@@ -211,7 +212,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
 
 ### FR2 Timeline Simulator [SHIPPED]
-- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S107).
+- The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S108).
 - Each event row has a date, an event type and the fields relevant to that type (price, quantity, coupon, tax rate, trial days, proration behavior). Rows can be edited, added ("+ Add event") and deleted (✕).
 - Invoices recompute instantly on every change; there is no submit button.
 - If events are not in chronological order, an error alert is shown instead of invoices.
@@ -281,7 +282,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 | UI E2E | TestSprite UI suite: build plan → run timeline → assert invoice amounts | Every PR, blocking |
 | Parity | Golden scenarios replayed in Stripe test mode; diff must be empty | Nightly + on demand |
 
-Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-20, **all 104 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
+Golden values are **never** produced by Tera's own engine. They are derived by hand from the rules above and frozen only after Stripe parity confirms them (`status: "verified"`). As of 2026-10-20, **all 105 timeline scenarios are verified** (both billing modes) (including amount_due, starting_balance and graduated metered tiers); S11 was corrected because Stripe disagreed with the hand derivation.
 
 ## 9. Out of scope (v1)
 Real payments, dunning, multiple subscriptions per customer, mid-period tax changes, invoice PDFs.
