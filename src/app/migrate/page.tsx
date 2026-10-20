@@ -8,7 +8,7 @@ export default function MigratePage() {
     <>
       <h1 className="mb-1 text-2xl font-semibold">Price migration planner</h1>
       <p className="mb-6 opacity-70">See what a price change does to MRR before you ship it.</p>
-      <Planner />
+      <Planner stripeLive={!!process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")} />
     </>
   );
 }

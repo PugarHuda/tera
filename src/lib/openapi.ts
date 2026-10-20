@@ -164,6 +164,21 @@ export const spec = {
           }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown", content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
       },
     },
+    "/api/migrate/stripe": {
+      get: {
+        summary: "Import a migration's customer base from Stripe (test mode)",
+        description:
+          "Without `price`: the connected account's per-seat recurring prices. With `price`: that price's unit_amount, currency, interval and one customer per live subscription (item quantity as seats), ready for POST /api/migrate.",
+        parameters: [{ name: "price", in: "query", schema: { type: "string", example: "price_1Abc" }, description: "A licensed, per-unit, monthly or yearly Stripe price id" }],
+        responses: {
+          "200": { description: "Prices, or { price, unit_amount, currency, interval, customers: [{ name, seats }], skipped }" },
+          "400": { description: "Malformed id, or a price the planner does not model (metered, tiered, other intervals)", content: { "application/json": { schema: error } } },
+          "404": { description: "No such price in the connected account", content: { "application/json": { schema: error } } },
+          "502": { description: "Stripe API error", content: { "application/json": { schema: error } } },
+          "503": { description: "No test-mode Stripe key configured", content: { "application/json": { schema: error } } },
+        },
+      },
+    },
     "/api/scenarios": {
       get: {
         summary: "List golden scenarios",

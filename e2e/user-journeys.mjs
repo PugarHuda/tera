@@ -134,6 +134,21 @@ const f = out + "/customers.csv"; writeFileSync(f, "name,seats\nacme,4\nglobex,6
 await page.getByTestId("csv-file").setInputFiles(f);
 ok((await page.getByTestId("per-customer").innerText()).includes("globex"), "CSV import lists globex");
 
+// J3b — Import the customer base from the connected Stripe test account (scripts/seed-migration-demo.mts):
+// the per-seat team_seat_m price's live subscriptions, 96 seats at $12.00.
+if (await page.getByTestId("stripe-import").count()) {
+  await page.getByTestId("stripe-import").click();
+  const select = page.getByTestId("stripe-price");
+  await select.waitFor();
+  const seat = await select.locator("option", { hasText: "Tera team_seat_m · $12.00 / month" }).first().getAttribute("value");
+  await select.selectOption(seat);
+  await page.getByTestId("stripe-note").filter({ hasText: "Imported" }).waitFor({ timeout: 30_000 });
+  const note = await page.getByTestId("stripe-note").innerText();
+  ok(/Imported \d+ subscriptions on price_/.test(note), `Stripe import: ${note}`);
+  ok((await page.getByTestId("per-customer").innerText()).includes("Umbrella Corp"), "Stripe import lists Umbrella Corp (40 seats)");
+  ok((await page.getByTestId("mrr-before").innerText()) === "$1,152.00", `Stripe base MRR $1,152.00 (${await page.getByTestId("mrr-before").innerText()})`);
+} else console.log("SKIP J3b: no test-mode Stripe key on this deployment");
+
 // J4 — Parity evidence.
 await page.getByRole("link", { name: "Stripe parity" }).click();
 const summary = await page.getByTestId("parity-summary").innerText();

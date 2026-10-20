@@ -7,7 +7,7 @@ import evidence from "../../../../golden/parity/index.json";
 import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { spec } from "@/lib/openapi";
 import { encodeCatalog, encodeTimeline } from "@/lib/share";
-import { Cooldown, checkLiveLimits, liveParity, pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
+import { Cooldown, checkLiveLimits, liveParity, migratablePrices, pushCatalogOnce, stripeClient, subscribersOf } from "@/lib/stripe-parity";
 import { BadRequest, EVENT_TYPES, defaultCatalog, findScenarios, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
@@ -159,6 +159,41 @@ const handler = createMcpHandler(
         const r = migrate(parseMigration(input));
         return text(`MRR ${formatMoney(r.mrr_before, currency)} -> ${formatMoney(r.mrr_after, currency)} (${r.affected} ${r.affected === 1 ? "customer" : "customers"} affected)`, r);
       }),
+    );
+
+    server.registerTool(
+      "plan_stripe_price_migration",
+      {
+        title: "Preview a price change on real Stripe subscriptions",
+        description:
+          "Read the live subscriptions on a per-seat price in the connected Stripe test-mode account (one customer per subscription, its quantity as seats) and return the MRR impact of moving them to new_unit_amount. Omit stripe_price to list the account's per-seat prices first.",
+        inputSchema: z.object({
+          stripe_price: z.string().optional().describe("A Stripe price id such as price_1Abc…; omitted = list the prices you can choose from"),
+          new_unit_amount: z.number().int().min(1).max(1e12).optional().describe("The new price per seat, minor units of the price's currency"),
+          grandfather: z.boolean().optional().describe("Keep existing customers on the current price; default false"),
+        }),
+        annotations: { readOnlyHint: true, openWorldHint: true },
+      },
+      async ({ stripe_price, new_unit_amount, grandfather = false }) => {
+        try {
+          const stripe = stripeClient();
+          if (!stripe_price) {
+            const prices = await migratablePrices(stripe);
+            return text(prices.map((p) => `${p.id} ${p.name} ${formatMoney(p.unit_amount, p.currency)} / ${p.interval}`).join("\n") || "No per-seat recurring prices in the connected Stripe account", prices);
+          }
+          if (new_unit_amount === undefined) throw new BadRequest("new_unit_amount is required with stripe_price");
+          const base = await subscribersOf(stripe, stripe_price);
+          if (base.customers.length === 0) return text(`No live subscriptions on ${base.price} (${base.skipped} canceled or incomplete): nothing to migrate`, base);
+          const r = migrate(parseMigration({ unit_amount: base.unit_amount, new_unit_amount, grandfather, interval: base.interval, customers: base.customers }));
+          const n = base.customers.length;
+          return text(
+            `${n} live ${n === 1 ? "subscription" : "subscriptions"} on ${base.price}: MRR ${formatMoney(r.mrr_before, base.currency)} -> ${formatMoney(r.mrr_after, base.currency)} (${r.affected} affected)`,
+            { ...r, currency: base.currency, interval: base.interval, unit_amount: base.unit_amount, skipped: base.skipped },
+          );
+        } catch (e) {
+          return text(`Rejected: ${(e as Error).message}`, undefined, true);
+        }
+      },
     );
 
     server.registerTool(

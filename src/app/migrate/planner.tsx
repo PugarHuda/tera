@@ -10,7 +10,10 @@ import { digits, minorOf } from "@/lib/money";
 const CURRENCIES = ["usd", "eur", "gbp", "jpy", "aud", "cad", "sgd", "idr"];
 const SAMPLE = "name,seats\nAcme Inc,12\nGlobex,3\nInitech,1\nUmbrella,40";
 
-export function Planner() {
+type StripePrice = { id: string; name: string; lookup_key: string | null; unit_amount: number; currency: string; interval: Interval };
+type StripeBase = { price: string; unit_amount: number; currency: string; interval: Interval; customers: { name: string; seats: number }[]; skipped: number };
+
+export function Planner({ stripeLive = false }: { stripeLive?: boolean }) {
   const [oldPrice, setOldPrice] = useState("29.00");
   const [newPrice, setNewPrice] = useState("39.00");
   const [interval, setInterval] = useState<Interval>("month");
@@ -19,6 +22,54 @@ export function Planner() {
   const [oldMinor, newMinor] = [minorOf(oldPrice, currency, "Current price"), minorOf(newPrice, currency, "New price")];
   const [grandfather, setGrandfather] = useState(false);
   const [seats, setSeats] = useState("1, 1, 3");
+  // FR3 from Stripe: the connected test-mode account's prices and the subscriptions on one of them.
+  const [stripePrices, setStripePrices] = useState<StripePrice[] | null>(null);
+  const [stripeNote, setStripeNote] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const getJson = async (url: string) => {
+    const res = await fetch(url);
+    const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+    return body;
+  };
+  const loadStripePrices = async () => {
+    setBusy(true);
+    setStripeNote(null);
+    try {
+      const list: StripePrice[] = await getJson("/api/migrate/stripe");
+      setStripePrices(list);
+      if (list.length === 0) setStripeNote("No per-seat recurring prices in the connected Stripe account.");
+    } catch (e) {
+      setStripeNote(`Stripe: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const importPrice = async (id: string) => {
+    if (!id) return;
+    setBusy(true);
+    setStripeNote(null);
+    try {
+      const base: StripeBase = await getJson(`/api/migrate/stripe?price=${encodeURIComponent(id)}`);
+      const d = digits(base.currency);
+      setCurrency(base.currency);
+      setInterval(base.interval);
+      setOldPrice((base.unit_amount / 10 ** d).toFixed(d));
+      // Quoted so a name with a comma or quote survives parseCustomers; a line break would split the row.
+      const q = (name: string) => `"${name.replace(/[\r\n]+/g, " ").replace(/"/g, '""')}"`;
+      if (base.customers.length) setSeats(["name,seats", ...base.customers.map((c) => `${q(c.name)},${c.seats}`)].join("\n"));
+      const n = base.customers.length;
+      setStripeNote(
+        `Imported ${n} ${n === 1 ? "subscription" : "subscriptions"} on ${base.price}` +
+          (base.skipped ? ` (${base.skipped} canceled, incomplete or without seats left out)` : "") +
+          (n === 0 ? ": nothing to migrate, the customer list was left as it was." : "."),
+      );
+    } catch (e) {
+      setStripeNote(`Stripe: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const parsed = parseCustomers(seats);
   const error =
@@ -72,7 +123,7 @@ export function Planner() {
         <label className="block text-sm">
           Currency
           <select className="input mt-1 w-full" value={currency} onChange={(e) => setCurrency(e.target.value)} data-testid="currency-select">
-            {CURRENCIES.map((c) => (
+            {(CURRENCIES.includes(currency) ? CURRENCIES : [...CURRENCIES, currency]).map((c) => (
               <option key={c} value={c}>
                 {c.toUpperCase()}
                 {digits(c) === 0 ? " (no minor unit)" : ""}
@@ -115,7 +166,32 @@ export function Planner() {
           <button type="button" className="btn-ghost border border-current/20" onClick={() => setSeats(SAMPLE)}>
             Load sample customers
           </button>
+          {stripeLive && stripePrices === null && (
+            <button type="button" className="btn-ghost border border-current/20" onClick={loadStripePrices} disabled={busy} data-testid="stripe-import">
+              {busy ? "Loading…" : "Import from Stripe"}
+            </button>
+          )}
         </div>
+        {stripePrices && stripePrices.length > 0 && (
+          <label className="block text-sm">
+            Stripe price (test mode): its live subscriptions become the customer base
+            <select className="input mt-1 w-full" defaultValue="" disabled={busy} onChange={(e) => importPrice(e.target.value)} data-testid="stripe-price">
+              <option value="" disabled>
+                Choose a price…
+              </option>
+              {stripePrices.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} · {formatMoney(p.unit_amount, p.currency)} / {p.interval} · {p.id}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {stripeNote && (
+          <p className="text-xs opacity-80" role="status" data-testid="stripe-note">
+            {stripeNote}
+          </p>
+        )}
       </form>
 
       <section aria-label="Impact report" className="card space-y-4">

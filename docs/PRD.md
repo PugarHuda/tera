@@ -230,6 +230,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - Output, recomputed instantly: customers affected (customers whose MRR changes), MRR before, MRR after, MRR change (signed), and a "Who pays more" table per customer sorted by change, exportable with "Export CSV".
 - Default inputs $29 → $39, seats `1, 1, 3`: affected 3, MRR $145.00 → $195.00, change +$50.00. With grandfathering: affected 0, change +$0.00.
 - Annual reference (golden S29): $290/yr → $390/yr, acme 2 seats + globex 1 seat → MRR $72.50 → $97.50 (+$25.00); acme +$16.67, globex +$8.33.
+- **Import from Stripe** (when the server has a test-mode key): lists the connected account's per-seat recurring prices (licensed, per unit, every month or year), and choosing one fills the current price, currency and interval from it and the customer base from its live subscriptions (active, trialing, past_due, unpaid, paused), one customer per subscription with its item quantity as seats; canceled, incomplete and zero-quantity ones are counted and left out. `GET /api/migrate/stripe` (prices) and `GET /api/migrate/stripe?price=price_…` (the base; 400 for a metered/tiered price or a malformed id, 404 for an unknown one, 503 without a test-mode key); MCP tool `plan_stripe_price_migration`. Stripe does not list subscriptions on test clocks, so `scripts/seed-migration-demo.mts` creates ten real test-mode customers on `team_seat_m` and `pro_y` (idempotent, `metadata.tera_demo`).
 - Non-positive prices show "Prices must be positive amounts."; a bad seat count in the bare list shows "Seat counts must be positive whole numbers."; bad CSV rows are reported with their line number.
 
 ### FR4 Stripe Parity Check [SHIPPED]
@@ -260,7 +261,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - The API is cookie-less and sends `Access-Control-Allow-Origin: *`, so browser apps on any origin can call it. Pages send a Content-Security-Policy, `nosniff`, Referrer-Policy and Permissions-Policy; `/robots.txt` keeps crawlers off `/api/`, `/sitemap.xml` and `/llms.txt` describe the site.
 
 ### FR8 MCP server [SHIPPED]
-- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `list_golden_scenarios`, `get_golden_scenario`.
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `plan_stripe_price_migration` (the same from a Stripe price's live subscriptions), `list_golden_scenarios`, `get_golden_scenario`.
 - Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
 - `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
 

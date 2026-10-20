@@ -354,3 +354,62 @@ export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], te
   const diffs = diffInvoices(tera, replay.invoices);
   return { match: diffs.length === 0, diffs, tera, stripe: replay.invoices, test_clock: replay.clockId, ran_at: new Date().toISOString() };
 }
+
+// FR3 from Stripe: the migration planner's customer base, read from the subscriptions on one price of the connected
+// (test-mode) account instead of a typed or CSV seat list.
+const PRICE_ID = /^price_[A-Za-z0-9]{1,64}$/;
+const LIVE_STATUSES = new Set<string>(["active", "trialing", "past_due", "unpaid", "paused"]);
+const MAX_SUBSCRIPTIONS = 100_000; // the planner's own limit (validate.ts)
+
+/** Per-seat recurring prices the planner models: licensed, per unit, every one month or one year. */
+function migratable(p: Stripe.Price): boolean {
+  const r = p.recurring;
+  return !!r && r.usage_type === "licensed" && r.interval_count === 1 && (r.interval === "month" || r.interval === "year") && p.billing_scheme === "per_unit" && (p.unit_amount ?? 0) > 0;
+}
+
+/** Active prices the planner can import from, newest first (Stripe's order), at most 200. */
+export async function migratablePrices(stripe: Stripe) {
+  const out: { id: string; name: string; lookup_key: string | null; unit_amount: number; currency: string; interval: "month" | "year" }[] = [];
+  for await (const p of stripe.prices.list({ active: true, type: "recurring", limit: 100, expand: ["data.product"] })) {
+    if (!migratable(p)) continue;
+    const product = p.product;
+    const name = typeof product === "object" && !product.deleted ? product.name : typeof product === "string" ? product : product.id;
+    out.push({ id: p.id, name, lookup_key: p.lookup_key, unit_amount: p.unit_amount!, currency: p.currency, interval: p.recurring!.interval as "month" | "year" });
+    if (out.length >= 200) break;
+  }
+  return out;
+}
+
+/** The planner's input from Stripe subscriptions on `price`: one customer per live subscription, its item's quantity as seats. */
+export function migrationBase(price: Stripe.Price, subscriptions: Stripe.Subscription[]) {
+  const customers: { name: string; seats: number }[] = [];
+  let skipped = 0;
+  for (const s of subscriptions) {
+    const item = s.items.data.find((i) => i.price.id === price.id);
+    // Canceled or never-paid (incomplete) subscriptions are not migrated; a quantity-0 item has no seats to reprice.
+    if (!LIVE_STATUSES.has(s.status) || !item || !(item.quantity! >= 1)) {
+      skipped++;
+      continue;
+    }
+    const c = s.customer;
+    const name = typeof c === "string" ? c : c.deleted ? c.id : c.name || c.email || c.id;
+    customers.push({ name, seats: item.quantity! });
+  }
+  return { price: price.id, unit_amount: price.unit_amount!, currency: price.currency, interval: price.recurring!.interval as "month" | "year", customers, skipped };
+}
+
+/** Thrown for a price id the planner cannot import (callers map it to 400). */
+export class NotMigratable extends Error {}
+
+export async function subscribersOf(stripe: Stripe, priceId: string) {
+  if (!PRICE_ID.test(priceId)) throw new NotMigratable("price must be a Stripe price id such as price_1Abc…");
+  const price = await stripe.prices.retrieve(priceId);
+  if (!migratable(price))
+    throw new NotMigratable(`${priceId} is not a per-seat price the planner models (licensed, per unit, every month or year)`);
+  const subscriptions: Stripe.Subscription[] = [];
+  // Every status, so the skipped count is honest; expanded customers give names instead of cus_ ids.
+  for await (const s of stripe.subscriptions.list({ price: priceId, status: "all", limit: 100, expand: ["data.customer"] })) {
+    if (subscriptions.push(s) > MAX_SUBSCRIPTIONS) throw new NotMigratable(`${priceId} has more than ${MAX_SUBSCRIPTIONS} subscriptions`);
+  }
+  return migrationBase(price, subscriptions);
+}
