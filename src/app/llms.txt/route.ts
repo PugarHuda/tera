@@ -6,7 +6,7 @@ import { STRIPE_API_VERSION } from "@/lib/stripe-parity";
 
 // llms.txt (llmstxt.org) for AI agents, built from the sources it describes so it cannot drift: the golden
 // scenarios, the OpenAPI document and the MCP server's own tools/list, resources/list and prompts/list.
-export const dynamic = "force-static";
+// No segment config: with Cache Components a GET handler like this is prerendered on its own.
 
 type Item = { name: string; title?: string; description?: string; uri?: string; uriTemplate?: string };
 
