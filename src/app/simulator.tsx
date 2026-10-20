@@ -257,7 +257,7 @@ export function Simulator({
     <div className="grid gap-8 lg:grid-cols-2">
       <section aria-labelledby="timeline-h" className="min-w-0">
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <h2 id="timeline-h" className="mr-auto text-lg font-semibold">
+          <h2 id="timeline-h" className="mr-auto text-2xl font-medium">
             Customer timeline
           </h2>
           {playable.length > 0 && (
@@ -427,7 +427,7 @@ export function Simulator({
 
       <section aria-labelledby="invoices-h" className="min-w-0">
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <h2 id="invoices-h" className="mr-auto text-lg font-semibold">
+          <h2 id="invoices-h" className="mr-auto text-2xl font-medium">
             Invoices
           </h2>
           {golden !== null && (

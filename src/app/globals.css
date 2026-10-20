@@ -1,35 +1,57 @@
 @import "tailwindcss";
 
+/* Visual language: a black frame around a white sheet, serif headlines, red eyebrows, dashed cards, black pill buttons
+   and the yellow-orange-red stripe band (palette #F6A04A #F57411 #DB1405 #500302). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #f6f6f4;
+  --frame: #020202;
+  --background: #fdfdfd;
+  --foreground: #020202;
+  --card: #f6f5f3;
+  --accent: #b31004; /* #DB1405 darkened to 6.5:1 on the card for small eyebrow text */
+  --stripe-1: #f6a04a;
+  --stripe-2: #f57411;
+  --stripe-3: #db1405;
+  --stripe-4: #500302;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-newsreader);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0d0d0d;
     --foreground: #ededed;
-    --card: #161616;
+    --card: #171615;
+    --accent: #f6a04a;
   }
 }
 
 body {
-  background: var(--background);
+  background: var(--frame);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-newsreader), Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+}
+
 @layer components {
+  .sheet {
+    background: var(--background);
+  }
   .card {
-    @apply rounded-lg border border-current/10 p-4;
+    @apply rounded-xl border border-dashed border-current/25 p-4;
     background: var(--card);
   }
   .input {
@@ -45,7 +67,7 @@ body {
     background: var(--background);
   }
   .btn {
-    @apply rounded-md bg-foreground px-3 py-1.5 text-sm font-medium text-background;
+    @apply rounded-md bg-foreground px-3 py-1.5 text-xs font-semibold tracking-wide text-background uppercase;
   }
   .btn-ghost {
     @apply rounded-md px-2 py-1 opacity-60 hover:opacity-100;
@@ -59,5 +81,23 @@ body {
   }
   .badge-bad {
     @apply border-red-700 text-red-700 dark:border-red-500 dark:text-red-400;
+  }
+  /* "— SIMULATOR —" above a headline. */
+  .eyebrow {
+    @apply mb-2 text-[11px] font-semibold tracking-[0.14em] text-accent uppercase;
+  }
+  .eyebrow::before,
+  .eyebrow::after {
+    content: " — ";
+    opacity: 0.6;
+  }
+  .stripes {
+    height: 40px;
+    background: linear-gradient(
+      var(--stripe-1) 0 25%,
+      var(--stripe-2) 25% 50%,
+      var(--stripe-3) 50% 75%,
+      var(--stripe-4) 75% 100%
+    );
   }
 }

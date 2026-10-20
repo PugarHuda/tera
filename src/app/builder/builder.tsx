@@ -165,7 +165,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
   return (
     <div className="space-y-6">
       <section className="card space-y-3" aria-labelledby="prices-h">
-        <h2 id="prices-h" className="font-semibold">Prices</h2>
+        <h2 id="prices-h" className="text-2xl font-medium">Prices</h2>
         {Object.keys(metered).length > 0 && (
           <p className="text-xs opacity-60">
             Metered prices with graduated tiers ({Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
@@ -216,7 +216,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
       </section>
 
       <section className="card space-y-3" aria-labelledby="coupons-h">
-        <h2 id="coupons-h" className="font-semibold">Coupons</h2>
+        <h2 id="coupons-h" className="text-2xl font-medium">Coupons</h2>
         {rows.coupons.map((c, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2">
             <label className="text-sm">
@@ -272,7 +272,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
       </section>
 
       <section className="card space-y-3" aria-labelledby="tax-h">
-        <h2 id="tax-h" className="font-semibold">Tax rates</h2>
+        <h2 id="tax-h" className="text-2xl font-medium">Tax rates</h2>
         {rows.taxes.map((t, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2">
             <label className="text-sm">

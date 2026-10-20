@@ -1,22 +1,41 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import golden from "../../golden/scenarios.json";
+import evidence from "../../golden/parity/index.json";
 import type { Catalog } from "@/lib/billing";
 import type { TimelineEvent } from "@/lib/billing";
 import { decodeCatalog, decodeTimeline } from "@/lib/share";
 import { Simulator, type Scenario } from "./simulator";
 
 const scenarios = golden.scenarios as unknown as Scenario[];
+// Real counts from the Stripe test-clock evidence (src/lib/webhooks.test.ts holds Tera to every recorded webhook).
+const records = evidence as { match: boolean; stripe: unknown[]; webhooks?: string[][] }[];
+const proof = [
+  [`${records.filter((r) => r.match).length} / ${records.length}`, "timelines replayed in Stripe test clocks match Tera to the cent"],
+  [records.reduce((n, r) => n + r.stripe.length, 0).toLocaleString("en-US"), "invoices compared line by line"],
+  [records.reduce((n, r) => n + (r.webhooks?.flat().length ?? 0), 0).toLocaleString("en-US"), "webhook events Stripe sent, each one predicted"],
+];
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
-      <h1 className="mb-1 text-2xl font-semibold">Customer timeline simulator</h1>
+      <p className="eyebrow">Stripe-parity billing</p>
+      <h1 className="mb-2 text-4xl leading-tight font-medium sm:text-5xl">Customer timeline simulator</h1>
       <p className="mb-6 max-w-2xl opacity-70">
         Run a virtual customer through upgrades, coupons, trials and taxes and see every invoice to the cent — computed with
         Stripe&apos;s billing rules, before any real customer sees it.
       </p>
+      <ul className="mb-8 grid gap-3 sm:grid-cols-3" data-testid="proof">
+        {proof.map(([n, label]) => (
+          <li key={label} className="card">
+            <Link href="/parity" className="block">
+              <span className="font-serif text-3xl">{n}</span>
+              <span className="mt-1 block text-xs opacity-70">{label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
       <Suspense fallback={<p className="opacity-60">Loading simulator…</p>}>
         <SimulatorFromUrl searchParams={searchParams} />
       </Suspense>

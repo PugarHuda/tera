@@ -22,7 +22,8 @@ export default function ParityPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-1 text-2xl font-semibold">Stripe parity</h1>
+        <p className="eyebrow">Proof</p>
+        <h1 className="mb-2 text-4xl leading-tight font-medium sm:text-5xl">Stripe parity</h1>
         <p className="max-w-3xl opacity-70">
           Every golden scenario is replayed in a Stripe test-mode account with test clocks (classic or flexible billing mode, as each scenario sets it; API{" "}
           <code>2026-09-30.endive</code>) and compared line by line with Tera&apos;s engine.

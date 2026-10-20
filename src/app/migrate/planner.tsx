@@ -215,7 +215,7 @@ export function Planner({ stripeLive = false }: { stripeLive?: boolean }) {
             </dl>
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h2 className="text-sm font-semibold">Who pays more</h2>
+                <h2 className="text-lg font-medium">Who pays more</h2>
                 <button type="button" className="btn-ghost border border-current/20 text-xs" onClick={download} data-testid="export-csv">
                   Export CSV
                 </button>
