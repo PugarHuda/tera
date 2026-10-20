@@ -23,6 +23,10 @@ describe("webhook timing", () => {
     const { webhooks } = simulate(catalog, [{ ...sub, type: "start_trial", trial_days: 14 }, { at: "2027-02-01T00:00:00Z", type: "advance_to" }]);
     expect(webhooks.find((w) => w.type === "customer.subscription.trial_will_end")).toEqual({ event: 1, date: "2027-01-12", type: "customer.subscription.trial_will_end" });
   });
+  it("sends trial_will_end for a trial of three days or less once the clock moves, not with the call (Stripe probe)", () => {
+    const short = simulate(catalog, [{ ...sub, type: "start_trial", trial_days: 2 }, { at: "2027-01-10T00:00:00Z", type: "advance_to" }]).webhooks;
+    expect(short.filter((w) => w.type === "customer.subscription.trial_will_end").map((w) => w.event)).toEqual([1]);
+  });
   it("sends nothing for the renewal draft the timeline ends on (Stripe has not finalized it yet)", () => {
     const { webhooks } = simulate(catalog, [sub, { at: "2027-02-01T00:00:00Z", type: "advance_to" }]);
     expect(webhooks.filter((w) => w.event === 1).map((w) => w.type)).toEqual(["invoice.created", "customer.subscription.updated"]);

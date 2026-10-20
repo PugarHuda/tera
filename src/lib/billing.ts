@@ -382,9 +382,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     });
   };
 
-  // trial_will_end: three days before the trial ends, or at once when the trial end is closer than that.
+  // trial_will_end: three days before the trial ends; for a trial of three days or less, not with the call that starts it
+  // but once the clock moves on (probes: 2- and 3-day trials).
   const warn = (t: number) => {
-    if (sub?.status !== "trialing" || sub.warned || sub.periodEnd - 3 * DAY > t) return;
+    if (sub?.status !== "trialing" || sub.warned || sub.periodEnd - 3 * DAY > t || t <= sub.periodStart) return;
     sub.warned = true;
     emit(Math.max(sub.periodEnd - 3 * DAY, sub.periodStart), "customer.subscription.trial_will_end");
   };
