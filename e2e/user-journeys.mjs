@@ -217,6 +217,8 @@ for (const colorScheme of ["light", "dark"]) {
   await p.goto(B + "/parity"); await p.getByTestId("parity-summary").waitFor();
   await p.getByTestId("parity-S74").getByRole("button", { expanded: false }).first().click(); await scan("parity, S74 expanded");
   await p.goto(B + "/mcp-setup"); await p.getByTestId("mcp-tools").waitFor(); await scan("MCP setup");
+  // Scalar's default muted text and POST badges were 3.2-4.4:1 (fixed with customCss in src/app/reference/route.ts).
+  await p.goto(B + "/reference"); await p.locator(".sidebar-heading-type").first().waitFor({ timeout: 30_000 }); await scan("API reference");
   await p.context().close();
 }
 
