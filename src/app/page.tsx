@@ -45,12 +45,12 @@ async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }
   return (
     <>
       {typeof s === "string" && !scenarioId && !t && !c && (
-        <p role="alert" data-testid="scenario-error" className="card mb-6 border-red-500 text-red-600 dark:text-red-400">
+        <p role="alert" data-testid="scenario-error" className="card mb-6 border-red-500 text-red-700 dark:text-red-400">
           There is no golden scenario &ldquo;{s}&rdquo;, so S05 was loaded instead.
         </p>
       )}
       {((t !== undefined && !shared) || (c !== undefined && !custom)) && (
-        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-600 dark:text-red-400">
+        <p role="alert" data-testid="share-error" className="card mb-6 border-red-500 text-red-700 dark:text-red-400">
           This shared link is invalid or corrupted, so the default scenario was loaded instead.
         </p>
       )}

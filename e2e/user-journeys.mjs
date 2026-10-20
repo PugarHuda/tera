@@ -2,6 +2,7 @@
 // never a URL with the answer in it or a value set behind the UI. Expected amounts are hand-derived in the comments.
 // Usage: node e2e/user-journeys.mjs <base-url> [video-dir]   (CI: .github/workflows/e2e.yml on every Vercel preview)
 import { chromium } from "playwright";
+import { AxeBuilder } from "@axe-core/playwright";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -184,6 +185,32 @@ ok((await page.getByTestId("mcp-tools").innerText()).includes("simulate_timeline
 await page.getByRole("link", { name: "API" }).click();
 await page.getByText("POST").first().waitFor({ timeout: 30000 });
 ok(/Tera/i.test(await page.title()), `API reference renders (${await page.title()})`);
+
+// J6 — Accessibility: axe-core (WCAG 2.2 AA) on every page and on states a page-load audit never sees (validation
+// errors, an imported Stripe catalog, the Stripe price picker, an expanded parity row), in light and dark mode.
+// It found the builder's red-600 error text at 4.4:1 on the card background.
+for (const colorScheme of ["light", "dark"]) {
+  const p = await (await b.newContext({ colorScheme, locale: "en-US" })).newPage();
+  const scan = async (label) => {
+    const { violations } = await new AxeBuilder({ page: p }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+    ok(violations.length === 0, `axe ${colorScheme} ${label}: ${violations.map((v) => `${v.id} ×${v.nodes.length} (${v.nodes[0].target.join(" ")})`).join(", ") || "no WCAG AA violations"}`);
+  };
+  await p.goto(B); await p.getByTestId("invoice-1-total").waitFor(); await scan("simulator");
+  await p.getByLabel("Event 1 quantity").fill("0"); await p.getByRole("alert").first().waitFor(); await scan("simulator, invalid quantity");
+  await p.goto(B + "/builder"); await p.getByTestId("builder-valid").waitFor(); await scan("builder");
+  await p.getByLabel("Price 1 amount").fill("abc"); await p.getByTestId("builder-error").waitFor(); await scan("builder, invalid amount");
+  if (await p.getByTestId("pull-stripe").count()) {
+    await p.getByTestId("pull-stripe").click(); await p.getByTestId("pull-note").waitFor({ timeout: 30_000 }); await scan("builder, Stripe catalog imported");
+  }
+  await p.goto(B + "/migrate"); await p.getByTestId("mrr-before").waitFor(); await scan("migration planner");
+  if (await p.getByTestId("stripe-import").count()) {
+    await p.getByTestId("stripe-import").click(); await p.getByTestId("stripe-price").waitFor({ timeout: 30_000 }); await scan("migration planner, Stripe prices");
+  }
+  await p.goto(B + "/parity"); await p.getByTestId("parity-summary").waitFor();
+  await p.getByTestId("parity-S74").getByRole("button", { expanded: false }).first().click(); await scan("parity, S74 expanded");
+  await p.goto(B + "/mcp-setup"); await p.getByTestId("mcp-tools").waitFor(); await scan("MCP setup");
+  await p.context().close();
+}
 
 await ctx.close(); await b.close();
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");

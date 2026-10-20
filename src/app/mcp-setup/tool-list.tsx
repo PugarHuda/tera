@@ -30,7 +30,7 @@ export function ToolList() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  if (error) return <p role="alert" className="text-red-600 dark:text-red-400">{error}</p>;
+  if (error) return <p role="alert" className="text-red-700 dark:text-red-400">{error}</p>;
   if (!lists) return <p className="opacity-60">Loading tools…</p>;
   const list = (items: Item[], testid: string, label: (i: Item) => string) => (
     <ul className="space-y-2" data-testid={testid}>

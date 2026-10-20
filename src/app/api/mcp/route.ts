@@ -359,7 +359,7 @@ const handler = createMcpHandler(
       },
       ({ id }) =>
         ask(
-          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R22 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
+          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R23 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
         ),
     );
     server.registerPrompt(

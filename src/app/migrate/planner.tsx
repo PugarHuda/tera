@@ -196,7 +196,7 @@ export function Planner({ stripeLive = false }: { stripeLive?: boolean }) {
 
       <section aria-label="Impact report" className="card space-y-4">
         {error || !report ? (
-          <p role="alert" className="text-red-600 dark:text-red-400" data-testid="migrate-error">
+          <p role="alert" className="text-red-700 dark:text-red-400" data-testid="migrate-error">
             {error ?? limit}
           </p>
         ) : (

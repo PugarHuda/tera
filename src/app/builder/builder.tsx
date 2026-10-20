@@ -301,7 +301,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
 
       <section className="card space-y-3">
         {error ? (
-          <p role="alert" className="text-red-600 dark:text-red-400" data-testid="builder-error">
+          <p role="alert" className="text-red-700 dark:text-red-400" data-testid="builder-error">
             {error}
           </p>
         ) : (
@@ -337,7 +337,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
           </p>
         )}
         {push.error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          <p role="alert" className="text-sm text-red-700 dark:text-red-400">
             {push.error}
           </p>
         )}

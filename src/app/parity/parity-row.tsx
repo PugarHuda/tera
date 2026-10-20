@@ -55,7 +55,7 @@ export function ParityRow({ id, title, tera, record, live: canRun = true }: { id
       </div>
       {!record && <p className="mt-2 text-xs opacity-60">No Stripe evidence recorded for this scenario yet: run scripts/verify-golden.mts.</p>}
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-400">
           {error}
         </p>
       )}
@@ -87,7 +87,7 @@ export function ParityRow({ id, title, tera, record, live: canRun = true }: { id
                     <td className="font-mono text-xs">{t.lines.map((l) => m(l.amount)).join(" ")}</td>
                     <td className="font-mono text-xs">{s ? s.lines.map((l) => m(l.amount)).join(" ") : "—"}</td>
                     <td className="text-right font-mono">{m(t.total)}</td>
-                    <td className={`text-right font-mono ${s && s.total !== t.total ? "text-red-600 dark:text-red-400" : ""}`}>{s ? m(s.total) : "—"}</td>
+                    <td className={`text-right font-mono ${s && s.total !== t.total ? "text-red-700 dark:text-red-400" : ""}`}>{s ? m(s.total) : "—"}</td>
                   </tr>
                 );
               })}
