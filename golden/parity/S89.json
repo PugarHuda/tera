@@ -1,15 +1,15 @@
 {
   "id": "S89",
   "title": "Flexible: a proration charge takes its percent discount off the unrounded gross (found by fuzzing)",
-  "verified_at": "2026-10-19T06:00:00.418Z",
+  "verified_at": "2026-10-20T11:59:09.355Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US9bS2QR5nixgqNnb30u8Q6",
-  "customer": "cus_VT5nRbzCx4U3bu",
+  "test_clock": "clock_1USbgM2QR5nixgqNanwNQxyO",
+  "customer": "cus_VTYnZM76ElAU8C",
   "stripe": [
     {
-      "id": "in_1US9bT2QR5nixgqNOnjIQhyn",
+      "id": "in_1USbgN2QR5nixgqN0g7C1ou6",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9bk2QR5nixgqNBkXj42Fu",
+      "id": "in_1USbgj2QR5nixgqNgigW3s32",
       "date": "2027-02-10",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9bw2QR5nixgqNsxt9N9Dw",
+      "id": "in_1USbh12QR5nixgqN1AfGulSU",
       "date": "2027-03-10",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,28 @@
       "amount_due": 2175,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S104",
   "title": "Balance debits and credits net out; a credit larger than an invoice carries to the next one",
-  "verified_at": "2026-10-19T17:11:25.129Z",
+  "verified_at": "2026-10-20T12:01:24.158Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USK582QR5nixgqN1RmKWmUb",
-  "customer": "cus_VTGccvM85dd2Xa",
+  "test_clock": "clock_1USbiH2QR5nixgqNu4YatYsi",
+  "customer": "cus_VTYpCco5C0AThl",
   "stripe": [
     {
-      "id": "in_1USK592QR5nixgqNsZmIMmOa",
+      "id": "in_1USbiK2QR5nixgqNo6hK6hbA",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USK5Z2QR5nixgqN7ztNjz7Z",
+      "id": "in_1USbin2QR5nixgqNup75OWbp",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": -9500
     },
     {
-      "id": "in_1USK5i2QR5nixgqNJ9YhYPUO",
+      "id": "in_1USbiu2QR5nixgqNrKzdw5Xa",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,25 @@
       "amount_due": 6300,
       "starting_balance": -1600
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [],
+    [],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

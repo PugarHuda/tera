@@ -1,15 +1,15 @@
 {
   "id": "S14",
   "title": "amount_off larger than invoice is capped, not carried",
-  "verified_at": "2026-10-17T18:28:50.547Z",
+  "verified_at": "2026-10-20T11:51:23.083Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLW2QR5nixgqNaoDyqogg",
-  "customer": "cus_VSXQArdWBHQ7cj",
+  "test_clock": "clock_1USbZQ2QR5nixgqNrrMkWWbI",
+  "customer": "cus_VTYggFhmOsfG4K",
   "stripe": [
     {
-      "id": "in_1URcLX2QR5nixgqNfOdla8KI",
+      "id": "in_1USbZR2QR5nixgqNkRs9fiUU",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLf2QR5nixgqNboKzw0n4",
+      "id": "in_1USbZc2QR5nixgqNB0HV4TEN",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,19 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "customer.discount.deleted",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

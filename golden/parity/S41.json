@@ -1,15 +1,15 @@
 {
   "id": "S41",
   "title": "Switching to a yearly price during a trial issues a new $0 trial invoice",
-  "verified_at": "2026-10-17T18:42:00.848Z",
+  "verified_at": "2026-10-20T11:52:46.534Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcYB2QR5nixgqNq2srRaLJ",
-  "customer": "cus_VSXdn7Dh4byRbB",
+  "test_clock": "clock_1USbae2QR5nixgqNhCt3Z4y1",
+  "customer": "cus_VTYiEDGM15soaR",
   "stripe": [
     {
-      "id": "in_1URcYC2QR5nixgqNxtuz3Qf6",
+      "id": "in_1USbaf2QR5nixgqNRKrsfdQT",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcYF2QR5nixgqNjS5aeIUM",
+      "id": "in_1USbal2QR5nixgqNtknIUdEb",
       "date": "2027-01-05",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcYK2QR5nixgqNgxYf98Il",
+      "id": "in_1USbas2QR5nixgqNHqqLhzSe",
       "date": "2027-01-15",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,26 @@
       "amount_due": 29000,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoice.finalized",
+      "invoice.created",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

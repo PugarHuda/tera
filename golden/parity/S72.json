@@ -1,15 +1,15 @@
 {
   "id": "S72",
   "title": "Flexible: cancel_at in a later period cuts the last renewal short, priced as gross minus discount each rounded",
-  "verified_at": "2026-10-18T16:12:07.119Z",
+  "verified_at": "2026-10-20T11:57:04.144Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URwgR2QR5nixgqNU3f818hk",
-  "customer": "cus_VSsRjsEraoERCm",
+  "test_clock": "clock_1USbeT2QR5nixgqNgbzb602g",
+  "customer": "cus_VTYmghRLeyAXzI",
   "stripe": [
     {
-      "id": "in_1URwgS2QR5nixgqN2Ul4gmfl",
+      "id": "in_1USbeU2QR5nixgqNax6B9FXF",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URwga2QR5nixgqN91TWjOQt",
+      "id": "in_1USbej2QR5nixgqNEWFSH7nm",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,25 @@
       "amount_due": 2962,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.deleted"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S16",
   "title": "20% inclusive VAT",
-  "verified_at": "2026-10-17T18:28:54.608Z",
+  "verified_at": "2026-10-20T11:51:15.287Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLi2QR5nixgqNnP0Tj9Ew",
-  "customer": "cus_VSXQTQZ9WXJwox",
+  "test_clock": "clock_1USbZT2QR5nixgqNZSwUstQi",
+  "customer": "cus_VTYgh2GwUwFSVb",
   "stripe": [
     {
-      "id": "in_1URcLk2QR5nixgqNcSqMYPSI",
+      "id": "in_1USbZU2QR5nixgqNQ7nkcS7x",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -26,5 +26,13 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ]
   ]
 }

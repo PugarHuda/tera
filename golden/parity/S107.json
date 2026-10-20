@@ -1,15 +1,15 @@
 {
   "id": "S107",
   "title": "Flexible: resuming with an unchanged month-end anchor prorates that period in monthly segments from its start day (found by fuzzing)",
-  "verified_at": "2026-10-20T02:56:12.149Z",
+  "verified_at": "2026-10-20T12:03:23.255Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USTD92QR5nixgqNTzRZJhwU",
-  "customer": "cus_VTQ3O5Jo2HhGcj",
+  "test_clock": "clock_1USbjH2QR5nixgqNBSSfII4u",
+  "customer": "cus_VTYrDV8XKeNwlL",
   "stripe": [
     {
-      "id": "in_1USTDA2QR5nixgqN0uL1tdDK",
+      "id": "in_1USbjL2QR5nixgqNYwKuDLCI",
       "date": "2028-01-31",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USTDQ2QR5nixgqNdZ1F8g8v",
+      "id": "in_1USbks2QR5nixgqNNSSwztO7",
       "date": "2028-03-31",
       "currency": "usd",
       "lines": [
@@ -60,7 +60,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USTDc2QR5nixgqNmnjG1sD0",
+      "id": "in_1USbl72QR5nixgqN3dnhM1u2",
       "date": "2028-04-30",
       "currency": "usd",
       "lines": [
@@ -87,5 +87,42 @@
       "amount_due": 52667,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.updated",
+      "customer.subscription.paused"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

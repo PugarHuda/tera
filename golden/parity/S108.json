@@ -1,15 +1,15 @@
 {
   "id": "S108",
   "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
-  "verified_at": "2026-10-20T03:23:47.976Z",
+  "verified_at": "2026-10-20T12:03:07.812Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USTdp2QR5nixgqNxzfczswz",
-  "customer": "cus_VTQUW51a9p3ZgR",
+  "test_clock": "clock_1USbjH2QR5nixgqNISDvHszy",
+  "customer": "cus_VTYrgnwRhpHngd",
   "stripe": [
     {
-      "id": "in_1USTdq2QR5nixgqNQQNCBa3f",
+      "id": "in_1USbjL2QR5nixgqNkpLYCPHZ",
       "date": "2027-06-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USTdw2QR5nixgqNrdRqvbFE",
+      "id": "in_1USbjV2QR5nixgqNqPjH7TLa",
       "date": "2027-06-16",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USTeG2QR5nixgqNH4p5Ove5",
+      "id": "in_1USbkn2QR5nixgqNuiQUjAnQ",
       "date": "2027-07-26",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,33 @@
       "amount_due": 40026,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.discount.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "customer.discount.deleted",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

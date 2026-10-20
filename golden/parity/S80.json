@@ -1,15 +1,15 @@
 {
   "id": "S80",
   "title": "Flexible: pause mid-period, resume a month later; the unused-time credit rides on the resumption invoice and the cycle restarts",
-  "verified_at": "2026-10-19T05:08:10.312Z",
+  "verified_at": "2026-10-20T11:57:49.961Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US8nH2QR5nixgqN8S0ZrluS",
-  "customer": "cus_VT4xPWObaOoaMf",
+  "test_clock": "clock_1USbfC2QR5nixgqNkPZ4dJra",
+  "customer": "cus_VTYmMYvd0IYUfi",
   "stripe": [
     {
-      "id": "in_1US8nJ2QR5nixgqNsU1vVreG",
+      "id": "in_1USbfD2QR5nixgqNLn3oo1QY",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8nc2QR5nixgqN5QV30zcy",
+      "id": "in_1USbfZ2QR5nixgqNNnCAMdXZ",
       "date": "2027-02-15",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8nj2QR5nixgqNOyCFhD9P",
+      "id": "in_1USbfi2QR5nixgqNSXYKQehw",
       "date": "2027-03-15",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,31 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated",
+      "customer.subscription.paused"
+    ],
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

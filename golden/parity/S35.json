@@ -1,15 +1,15 @@
 {
   "id": "S35",
   "title": "A period made free by an amount_off coupon refunds nothing when it is changed",
-  "verified_at": "2026-10-17T18:41:22.270Z",
+  "verified_at": "2026-10-20T11:52:14.628Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcXd2QR5nixgqNoKalKddM",
-  "customer": "cus_VSXcxwms4u7Edp",
+  "test_clock": "clock_1USbaH2QR5nixgqNMuTCCuWu",
+  "customer": "cus_VTYh3eDwyFi0Cf",
   "stripe": [
     {
-      "id": "in_1URcXf2QR5nixgqNN0hrz0tk",
+      "id": "in_1USbaJ2QR5nixgqNmtdtxfdu",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcXk2QR5nixgqNsIcYq2zd",
+      "id": "in_1USbaO2QR5nixgqNnuc3kzFz",
       "date": "2027-03-17",
       "currency": "usd",
       "lines": [
@@ -49,5 +49,23 @@
       "amount_due": 29000,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "customer.discount.deleted",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    []
   ]
 }

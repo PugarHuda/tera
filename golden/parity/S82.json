@@ -1,15 +1,15 @@
 {
   "id": "S82",
   "title": "Flexible: pause with invoicing_behavior invoice; the credit is its own invoice and becomes customer balance",
-  "verified_at": "2026-10-19T05:08:16.406Z",
+  "verified_at": "2026-10-20T11:57:59.696Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US8nI2QR5nixgqNKGcViIU0",
-  "customer": "cus_VT4xVzTtAgA7hy",
+  "test_clock": "clock_1USbfR2QR5nixgqNrpyYqavI",
+  "customer": "cus_VTYnuKoSnwRY5W",
   "stripe": [
     {
-      "id": "in_1US8nJ2QR5nixgqN5OxM7abp",
+      "id": "in_1USbfT2QR5nixgqNq1oGtJcz",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8nT2QR5nixgqNPL4Ub3aB",
+      "id": "in_1USbfZ2QR5nixgqNa3hfZfGF",
       "date": "2027-01-16",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US8ne2QR5nixgqNmJmSp7WB",
+      "id": "in_1USbfh2QR5nixgqNaKniQevp",
       "date": "2027-02-15",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": -4077
     },
     {
-      "id": "in_1US8nm2QR5nixgqNHKIPrVeM",
+      "id": "in_1USbfs2QR5nixgqNbaPBMj7D",
       "date": "2027-03-15",
       "currency": "usd",
       "lines": [
@@ -80,5 +80,33 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "customer.subscription.updated",
+      "customer.subscription.paused"
+    ],
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

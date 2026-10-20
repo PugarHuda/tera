@@ -1,15 +1,15 @@
 {
   "id": "S110",
   "title": "Inclusive tax at an exact half-cent tie on a negative invoice: lines are rounded down at 12 decimals, so -12150.5 rounds to -12151 (found by fuzzing)",
-  "verified_at": "2026-10-20T05:04:15.507Z",
+  "verified_at": "2026-10-20T12:02:44.771Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USVDM2QR5nixgqNxv65xBtb",
-  "customer": "cus_VTS7vNFBu1NKJk",
+  "test_clock": "clock_1USbjQ2QR5nixgqND5qQ4ymU",
+  "customer": "cus_VTYru5Xz1FsUGq",
   "stripe": [
     {
-      "id": "in_1USVDO2QR5nixgqNXfyi0WYp",
+      "id": "in_1USbjV2QR5nixgqNzLZsK9HU",
       "date": "2028-02-29",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVDT2QR5nixgqNYTV0JeBw",
+      "id": "in_1USbjk2QR5nixgqN1tWyP4aw",
       "date": "2028-03-26",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVDa2QR5nixgqNoYmwa9Sj",
+      "id": "in_1USbkN2QR5nixgqNko89iYyH",
       "date": "2028-04-26",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,26 @@
       "amount_due": 0,
       "starting_balance": -72903
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S12",
   "title": "FOREVER25 on Pro",
-  "verified_at": "2026-10-17T18:28:48.250Z",
+  "verified_at": "2026-10-20T11:51:29.036Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLL2QR5nixgqNIU6dz5Ty",
-  "customer": "cus_VSXQrHb9EMFD7N",
+  "test_clock": "clock_1USbZO2QR5nixgqNNR154gOC",
+  "customer": "cus_VTYgLSRy0b3ZrW",
   "stripe": [
     {
-      "id": "in_1URcLM2QR5nixgqNkw0u3FXt",
+      "id": "in_1USbZP2QR5nixgqNZSAxUw2H",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLS2QR5nixgqNmrJXLbLr",
+      "id": "in_1USbZa2QR5nixgqN9ODu6jqn",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLd2QR5nixgqNHWFgY9dB",
+      "id": "in_1USbZh2QR5nixgqNDbzL9jQb",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,22 @@
       "amount_due": 5925,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

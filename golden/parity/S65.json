@@ -1,15 +1,15 @@
 {
   "id": "S65",
   "title": "Flexible: always_invoice after a none change credits the original 2-seat debit at its coupon",
-  "verified_at": "2026-10-18T15:32:20.936Z",
+  "verified_at": "2026-10-20T11:56:13.348Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URw3d2QR5nixgqNTUCUWkIR",
-  "customer": "cus_VSrnKZXQmdw2aH",
+  "test_clock": "clock_1USbdV2QR5nixgqNpZr0IDfj",
+  "customer": "cus_VTYltKn49PolLp",
   "stripe": [
     {
-      "id": "in_1URw3f2QR5nixgqNTXx3ufWg",
+      "id": "in_1USbdW2QR5nixgqNKFRJaNLR",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw422QR5nixgqNOFzWGC5q",
+      "id": "in_1USbdn2QR5nixgqN90d6JxDE",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw482QR5nixgqN9RHDuOUd",
+      "id": "in_1USbe12QR5nixgqNCzWEcrFN",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URw4I2QR5nixgqNZhXURapU",
+      "id": "in_1USbeB2QR5nixgqNxwMbzF6t",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -85,5 +85,35 @@
       "amount_due": 23700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S116",
   "title": "Flexible: after an anchor reset with proration none, an unchanged resume in the new period charges nothing (found by fuzzing)",
-  "verified_at": "2026-10-20T07:29:04.399Z",
+  "verified_at": "2026-10-20T12:04:00.987Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USXT62QR5nixgqNehJl6Yz2",
-  "customer": "cus_VTUSofnt1ZzVvH",
+  "test_clock": "clock_1USbl32QR5nixgqN3CtULGBf",
+  "customer": "cus_VTYsJh2ZNWjuX0",
   "stripe": [
     {
-      "id": "in_1USXT82QR5nixgqN7PvJJ9Ae",
+      "id": "in_1USbl62QR5nixgqNJ0RGJsuz",
       "date": "2027-01-07",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USXTH2QR5nixgqNYGQQffYo",
+      "id": "in_1USblF2QR5nixgqNMu3sC9tA",
       "date": "2027-02-07",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USXTg2QR5nixgqNgRfu5Hjz",
+      "id": "in_1USblj2QR5nixgqN7DIPOeel",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,34 @@
       "amount_due": 2400,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "customer.subscription.updated",
+      "customer.subscription.paused"
+    ],
+    [
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S49",
   "title": "After a none change, an always_invoice change credits the current quantity at the coupon rate",
-  "verified_at": "2026-10-18T00:24:25.818Z",
+  "verified_at": "2026-10-20T11:53:55.485Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URhtF2QR5nixgqN4ncQR1PL",
-  "customer": "cus_VSd98y2Yp4gpe4",
+  "test_clock": "clock_1USbbI2QR5nixgqNCCjHVHur",
+  "customer": "cus_VTYi8R1LT1TVEG",
   "stripe": [
     {
-      "id": "in_1URhtG2QR5nixgqNuwVs2m8t",
+      "id": "in_1USbbJ2QR5nixgqN2WHn6d0i",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhtP2QR5nixgqNOUVPPKO9",
+      "id": "in_1USbbf2QR5nixgqNdCR8OoD0",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhtT2QR5nixgqNVtjfpF0X",
+      "id": "in_1USbbn2QR5nixgqNVEuKnlYQ",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhtd2QR5nixgqNHQsChQoU",
+      "id": "in_1USbbx2QR5nixgqNfNLiJvo3",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -85,5 +85,35 @@
       "amount_due": 23700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

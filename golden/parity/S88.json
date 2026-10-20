@@ -1,15 +1,15 @@
 {
   "id": "S88",
   "title": "Flexible: the charge for resuming with an unchanged anchor takes a percent discount off the unrounded gross (found by fuzzing)",
-  "verified_at": "2026-10-19T05:28:04.339Z",
+  "verified_at": "2026-10-20T11:59:02.536Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1US96e2QR5nixgqNSoyirGFg",
-  "customer": "cus_VT5HlIwOnHzHwB",
+  "test_clock": "clock_1USbg62QR5nixgqNbHBXTQMv",
+  "customer": "cus_VTYn0B9ipI25gx",
   "stripe": [
     {
-      "id": "in_1US96g2QR5nixgqNuC6wxzuS",
+      "id": "in_1USbg72QR5nixgqNTFLg6L9I",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US96s2QR5nixgqNkkcoD0mz",
+      "id": "in_1USbga2QR5nixgqNNa1Jj6xl",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1US9732QR5nixgqNi0mTluBY",
+      "id": "in_1USbgt2QR5nixgqNRLaYGDEs",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,33 @@
       "amount_due": 10875,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.updated",
+      "customer.subscription.paused"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

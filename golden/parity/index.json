@@ -2,15 +2,15 @@
   {
     "id": "S01",
     "title": "Flat monthly subscription",
-    "verified_at": "2026-10-17T18:28:01.178Z",
+    "verified_at": "2026-10-20T11:50:43.527Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKr2QR5nixgqNHE3Zjni7",
-    "customer": "cus_VSXPyZkV5H8pDO",
+    "test_clock": "clock_1USbYw2QR5nixgqNvls7LnIF",
+    "customer": "cus_VTYghxqUVupYlU",
     "stripe": [
       {
-        "id": "in_1URcKt2QR5nixgqNbDpdb0l0",
+        "id": "in_1USbYy2QR5nixgqNbWiLCxxC",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -27,20 +27,28 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S02",
     "title": "Annual plan",
-    "verified_at": "2026-10-17T18:28:01.420Z",
+    "verified_at": "2026-10-20T11:50:43.833Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKs2QR5nixgqNMLCJB4wz",
-    "customer": "cus_VSXPf4VDvsch8q",
+    "test_clock": "clock_1USbYw2QR5nixgqNuLUCgcNU",
+    "customer": "cus_VTYgVm9cNWvjgv",
     "stripe": [
       {
-        "id": "in_1URcKt2QR5nixgqNGZyc76iw",
+        "id": "in_1USbYy2QR5nixgqNowrHvR4Y",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -57,20 +65,28 @@
         "amount_due": 29000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S03",
     "title": "Per-seat x5",
-    "verified_at": "2026-10-17T18:28:01.639Z",
+    "verified_at": "2026-10-20T11:50:42.726Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKs2QR5nixgqN2QvNkxsr",
-    "customer": "cus_VSXPrpOt1iXIbB",
+    "test_clock": "clock_1USbYw2QR5nixgqNgpPbmvEt",
+    "customer": "cus_VTYgjKqSXqOTKA",
     "stripe": [
       {
-        "id": "in_1URcKt2QR5nixgqNhvPPhytN",
+        "id": "in_1USbYy2QR5nixgqNr8fMgt0Q",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -87,20 +103,28 @@
         "amount_due": 6000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S04",
     "title": "14-day trial moves the anchor",
-    "verified_at": "2026-10-17T18:28:09.452Z",
+    "verified_at": "2026-10-20T11:50:52.403Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKv2QR5nixgqNQNYYQcfO",
-    "customer": "cus_VSXP5QvAiI2OJp",
+    "test_clock": "clock_1USbYw2QR5nixgqNgOcvorr1",
+    "customer": "cus_VTYgtzlYVQrfrA",
     "stripe": [
       {
-        "id": "in_1URcKw2QR5nixgqNvDJweG5J",
+        "id": "in_1USbYy2QR5nixgqNMgNE44Jb",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -118,7 +142,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcL02QR5nixgqNFWeEtJYW",
+        "id": "in_1USbZ72QR5nixgqN3bxCLD8o",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -135,20 +159,33 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S05",
     "title": "Upgrade day 17 of 31, prorations on next invoice",
-    "verified_at": "2026-10-17T18:28:15.652Z",
+    "verified_at": "2026-10-20T11:51:04.076Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKv2QR5nixgqNw1INyHj4",
-    "customer": "cus_VSXPEe0dSvTj6z",
+    "test_clock": "clock_1USbYx2QR5nixgqNqxBiXHF5",
+    "customer": "cus_VTYgf42RZr0GA2",
     "stripe": [
       {
-        "id": "in_1URcKx2QR5nixgqNF3YEZbnO",
+        "id": "in_1USbYy2QR5nixgqNr8JTUnxz",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -166,7 +203,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcL62QR5nixgqN77CZ78wS",
+        "id": "in_1USbZI2QR5nixgqNu8wl8zap",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -193,20 +230,37 @@
         "amount_due": 10320,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S06",
     "title": "Downgrade day 17 of 31",
-    "verified_at": "2026-10-17T18:28:15.655Z",
+    "verified_at": "2026-10-20T11:51:00.138Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcKv2QR5nixgqNi6cEWVXv",
-    "customer": "cus_VSXPzmY5KkMMY4",
+    "test_clock": "clock_1USbYw2QR5nixgqNXEDSoR60",
+    "customer": "cus_VTYgEMnEXd5J0N",
     "stripe": [
       {
-        "id": "in_1URcKx2QR5nixgqNVgoVc0c8",
+        "id": "in_1USbYy2QR5nixgqNyQjJ8ri6",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -224,7 +278,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcL62QR5nixgqNsopDxBbP",
+        "id": "in_1USbZE2QR5nixgqNPz0sOYno",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -251,20 +305,37 @@
         "amount_due": 480,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S07",
     "title": "February: mid-month upgrade is exactly half",
-    "verified_at": "2026-10-17T18:28:21.356Z",
+    "verified_at": "2026-10-20T11:51:04.673Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcL32QR5nixgqNhwZXyJYT",
-    "customer": "cus_VSXPKpFvsoAQKV",
+    "test_clock": "clock_1USbZ22QR5nixgqN1bJf22A2",
+    "customer": "cus_VTYgowa3JkgHDP",
     "stripe": [
       {
-        "id": "in_1URcL42QR5nixgqNjH7MU8oC",
+        "id": "in_1USbZ42QR5nixgqNfxhmbCv6",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -282,7 +353,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLC2QR5nixgqNMESB5ihD",
+        "id": "in_1USbZJ2QR5nixgqNFzO4df3G",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -309,20 +380,37 @@
         "amount_due": 10400,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S08",
     "title": "Leap-year February",
-    "verified_at": "2026-10-17T18:28:27.082Z",
+    "verified_at": "2026-10-20T11:51:06.520Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcL92QR5nixgqNhPi9BR2f",
-    "customer": "cus_VSXQ0rwcgOEYsH",
+    "test_clock": "clock_1USbZ32QR5nixgqN0TEMBHSC",
+    "customer": "cus_VTYgvicuUV7mAh",
     "stripe": [
       {
-        "id": "in_1URcLA2QR5nixgqNCF7om7yK",
+        "id": "in_1USbZ52QR5nixgqNii8iErje",
         "date": "2028-02-01",
         "currency": "usd",
         "lines": [
@@ -340,7 +428,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLI2QR5nixgqNwoSoUIgO",
+        "id": "in_1USbZL2QR5nixgqNJU7LgcmU",
         "date": "2028-03-01",
         "currency": "usd",
         "lines": [
@@ -367,20 +455,37 @@
         "amount_due": 10486,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S09",
     "title": "Add 3 seats mid-cycle",
-    "verified_at": "2026-10-17T18:28:25.762Z",
+    "verified_at": "2026-10-20T11:51:07.237Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcL92QR5nixgqNbGRZVF8e",
-    "customer": "cus_VSXQgiOmwT8ReQ",
+    "test_clock": "clock_1USbZ32QR5nixgqN3sAWdea8",
+    "customer": "cus_VTYgaIW2yc4LbS",
     "stripe": [
       {
-        "id": "in_1URcLA2QR5nixgqNlbyAWBf3",
+        "id": "in_1USbZ52QR5nixgqN2uNbvQch",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -398,7 +503,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLH2QR5nixgqNltb15NTA",
+        "id": "in_1USbZM2QR5nixgqN9eO5EL2j",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -425,20 +530,37 @@
         "amount_due": 11342,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S10",
     "title": "SAVE20 once",
-    "verified_at": "2026-10-19T06:22:47.234Z",
+    "verified_at": "2026-10-20T11:51:09.457Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9xo2QR5nixgqNJtHHX6Nc",
-    "customer": "cus_VT6ACpq78c7rkJ",
+    "test_clock": "clock_1USbZC2QR5nixgqNATRf7OC5",
+    "customer": "cus_VTYgY1gkcxLr8g",
     "stripe": [
       {
-        "id": "in_1US9xp2QR5nixgqNytvKLX1w",
+        "id": "in_1USbZD2QR5nixgqNOvaHvs0a",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -456,7 +578,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9y52QR5nixgqNDhBmuzAP",
+        "id": "in_1USbZO2QR5nixgqNJkIif147",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -473,20 +595,34 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S100",
     "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
-    "verified_at": "2026-10-19T16:40:24.320Z",
+    "verified_at": "2026-10-20T12:00:24.938Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJbK2QR5nixgqNgKh1Qwvo",
-    "customer": "cus_VTG7osV5EGaldF",
+    "test_clock": "clock_1USbhd2QR5nixgqNYxswn7A0",
+    "customer": "cus_VTYpG3IRgI6lPk",
     "stripe": [
       {
-        "id": "in_1USJbL2QR5nixgqNvWHxEORH",
+        "id": "in_1USbhe2QR5nixgqNeS6vOYMJ",
         "date": "2028-02-19",
         "currency": "usd",
         "lines": [
@@ -504,7 +640,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJbW2QR5nixgqNMWHoILPr",
+        "id": "in_1USbhx2QR5nixgqNofWfNpSF",
         "date": "2028-04-01",
         "currency": "usd",
         "lines": [
@@ -527,7 +663,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJbh2QR5nixgqNKPGOgoh2",
+        "id": "in_1USbiE2QR5nixgqN1JzmdR9c",
         "date": "2028-05-01",
         "currency": "usd",
         "lines": [
@@ -544,20 +680,48 @@
         "amount_due": 39500,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.updated",
+        "customer.subscription.paused",
+        "invoiceitem.created",
+        "customer.discount.deleted",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S101",
     "title": "Flexible: a resume charge an amount_off coupon makes free is still a $0 debit and uses up the once coupon (found by fuzzing)",
-    "verified_at": "2026-10-19T16:56:31.761Z",
+    "verified_at": "2026-10-20T12:01:31.207Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJqF2QR5nixgqNC10oDBfq",
-    "customer": "cus_VTGNkfhQ9orlrb",
+    "test_clock": "clock_1USbhk2QR5nixgqNqhJHdJWu",
+    "customer": "cus_VTYp3h55mJA1ld",
     "stripe": [
       {
-        "id": "in_1USJqG2QR5nixgqNO5gQ1Uc0",
+        "id": "in_1USbhl2QR5nixgqNEbUtw0G4",
         "date": "2028-06-04",
         "currency": "usd",
         "lines": [
@@ -575,7 +739,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJqk2QR5nixgqNEtsQQKZq",
+        "id": "in_1USbiR2QR5nixgqNG43CBIA6",
         "date": "2028-08-11",
         "currency": "usd",
         "lines": [
@@ -608,7 +772,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJr52QR5nixgqNauWmRN2U",
+        "id": "in_1USbie2QR5nixgqNnXSTnw8f",
         "date": "2028-09-11",
         "currency": "usd",
         "lines": [
@@ -626,7 +790,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJrI2QR5nixgqNFy50wUI1",
+        "id": "in_1USbip2QR5nixgqNBFPTQQNy",
         "date": "2028-10-11",
         "currency": "usd",
         "lines": [
@@ -643,20 +807,57 @@
         "amount_due": 8400,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.updated",
+        "customer.subscription.paused",
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S102",
     "title": "Flexible: switching to yearly with no proration before the first billing date renews the yearly price on that date (found by fuzzing)",
-    "verified_at": "2026-10-19T16:55:34.680Z",
+    "verified_at": "2026-10-20T12:00:34.584Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJqF2QR5nixgqN1yZeYYLS",
-    "customer": "cus_VTGNqBjZgeuMBc",
+    "test_clock": "clock_1USbi32QR5nixgqNbAlQNr8E",
+    "customer": "cus_VTYp0qY1iuyrwt",
     "stripe": [
       {
-        "id": "in_1USJqH2QR5nixgqNmsJCiZFB",
+        "id": "in_1USbi62QR5nixgqNiMHbyiqA",
         "date": "2027-06-01",
         "currency": "usd",
         "lines": [
@@ -674,7 +875,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJqO2QR5nixgqNIz99u5E0",
+        "id": "in_1USbiN2QR5nixgqNoJJkT7CT",
         "date": "2027-06-24",
         "currency": "usd",
         "lines": [
@@ -691,20 +892,39 @@
         "amount_due": 65250,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S103",
     "title": "A customer balance credit is applied to the next invoice",
-    "verified_at": "2026-10-19T17:11:07.381Z",
+    "verified_at": "2026-10-20T12:01:16.769Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USK572QR5nixgqNeoiD6hRd",
-    "customer": "cus_VTGcFXz5wRIQUA",
+    "test_clock": "clock_1USbi62QR5nixgqNNdAIOh17",
+    "customer": "cus_VTYptls4l8M8gR",
     "stripe": [
       {
-        "id": "in_1USK592QR5nixgqN5nEHzG0J",
+        "id": "in_1USbi92QR5nixgqNniHNKrqR",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -722,7 +942,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USK5G2QR5nixgqNNjEGX4GJ",
+        "id": "in_1USbiP2QR5nixgqNG39CKBti",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -740,7 +960,7 @@
         "starting_balance": -1000
       },
       {
-        "id": "in_1USK5R2QR5nixgqNqvjo7ZZM",
+        "id": "in_1USbiZ2QR5nixgqNdO2v2wLc",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -757,20 +977,39 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S104",
     "title": "Balance debits and credits net out; a credit larger than an invoice carries to the next one",
-    "verified_at": "2026-10-19T17:11:25.129Z",
+    "verified_at": "2026-10-20T12:01:24.158Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USK582QR5nixgqN1RmKWmUb",
-    "customer": "cus_VTGccvM85dd2Xa",
+    "test_clock": "clock_1USbiH2QR5nixgqNu4YatYsi",
+    "customer": "cus_VTYpCco5C0AThl",
     "stripe": [
       {
-        "id": "in_1USK592QR5nixgqNsZmIMmOa",
+        "id": "in_1USbiK2QR5nixgqNo6hK6hbA",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -788,7 +1027,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USK5Z2QR5nixgqN7ztNjz7Z",
+        "id": "in_1USbin2QR5nixgqNup75OWbp",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -806,7 +1045,7 @@
         "starting_balance": -9500
       },
       {
-        "id": "in_1USK5i2QR5nixgqNJ9YhYPUO",
+        "id": "in_1USbiu2QR5nixgqNrKzdw5Xa",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -823,20 +1062,40 @@
         "amount_due": 6300,
         "starting_balance": -1600
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S105",
     "title": "An invoice created within the hour after a renewal is finalized before the renewal draft, which then takes its carried cent (found by fuzzing)",
-    "verified_at": "2026-10-19T17:48:00.953Z",
+    "verified_at": "2026-10-20T12:01:32.735Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKej2QR5nixgqN3KITwJw7",
-    "customer": "cus_VTHDpowO1gZ7Z5",
+    "test_clock": "clock_1USbiQ2QR5nixgqN0ufHdCjp",
+    "customer": "cus_VTYqIEXsh4McCI",
     "stripe": [
       {
-        "id": "in_1USKek2QR5nixgqNb4zWMFeB",
+        "id": "in_1USbiT2QR5nixgqNbh75kKja",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -854,7 +1113,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKes2QR5nixgqNj3bGCEYp",
+        "id": "in_1USbih2QR5nixgqNAIglwk3a",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -872,7 +1131,7 @@
         "starting_balance": 1
       },
       {
-        "id": "in_1USKev2QR5nixgqNP85AfpM5",
+        "id": "in_1USbik2QR5nixgqNo5oqfqn3",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -895,7 +1154,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKf62QR5nixgqNJottchrX",
+        "id": "in_1USbjD2QR5nixgqNuudfr0KH",
         "date": "2027-05-01",
         "currency": "usd",
         "lines": [
@@ -912,20 +1171,45 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S106",
     "title": "A first-billing-date stub an amount_off coupon makes free is still invoiced at $0 and uses up the once coupon (found by fuzzing)",
-    "verified_at": "2026-10-19T18:03:19.103Z",
+    "verified_at": "2026-10-20T12:01:26.312Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKtc2QR5nixgqNa16wrhpW",
-    "customer": "cus_VTHSDsimwIgQGi",
+    "test_clock": "clock_1USbia2QR5nixgqNboeRovtH",
+    "customer": "cus_VTYq6WnfyrKg29",
     "stripe": [
       {
-        "id": "in_1USKtd2QR5nixgqNgxIe7IWS",
+        "id": "in_1USbid2QR5nixgqNIKdgs83l",
         "date": "2027-03-03",
         "currency": "usd",
         "lines": [
@@ -943,7 +1227,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKtj2QR5nixgqNCLBYuUyY",
+        "id": "in_1USbim2QR5nixgqNBbBpZ1TG",
         "date": "2027-03-15",
         "currency": "usd",
         "lines": [
@@ -961,7 +1245,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKtv2QR5nixgqNeK6kRHd8",
+        "id": "in_1USbiz2QR5nixgqNLShcsPzX",
         "date": "2027-04-15",
         "currency": "usd",
         "lines": [
@@ -978,20 +1262,41 @@
         "amount_due": 4800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S107",
     "title": "Flexible: resuming with an unchanged month-end anchor prorates that period in monthly segments from its start day (found by fuzzing)",
-    "verified_at": "2026-10-20T02:56:12.149Z",
+    "verified_at": "2026-10-20T12:03:23.255Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USTD92QR5nixgqNTzRZJhwU",
-    "customer": "cus_VTQ3O5Jo2HhGcj",
+    "test_clock": "clock_1USbjH2QR5nixgqNBSSfII4u",
+    "customer": "cus_VTYrDV8XKeNwlL",
     "stripe": [
       {
-        "id": "in_1USTDA2QR5nixgqN0uL1tdDK",
+        "id": "in_1USbjL2QR5nixgqNYwKuDLCI",
         "date": "2028-01-31",
         "currency": "usd",
         "lines": [
@@ -1009,7 +1314,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USTDQ2QR5nixgqNdZ1F8g8v",
+        "id": "in_1USbks2QR5nixgqNNSSwztO7",
         "date": "2028-03-31",
         "currency": "usd",
         "lines": [
@@ -1042,7 +1347,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USTDc2QR5nixgqNmnjG1sD0",
+        "id": "in_1USbl72QR5nixgqN3dnhM1u2",
         "date": "2028-04-30",
         "currency": "usd",
         "lines": [
@@ -1069,20 +1374,57 @@
         "amount_due": 52667,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S108",
     "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
-    "verified_at": "2026-10-20T03:23:47.976Z",
+    "verified_at": "2026-10-20T12:03:07.812Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USTdp2QR5nixgqNxzfczswz",
-    "customer": "cus_VTQUW51a9p3ZgR",
+    "test_clock": "clock_1USbjH2QR5nixgqNISDvHszy",
+    "customer": "cus_VTYrgnwRhpHngd",
     "stripe": [
       {
-        "id": "in_1USTdq2QR5nixgqNQQNCBa3f",
+        "id": "in_1USbjL2QR5nixgqNkpLYCPHZ",
         "date": "2027-06-02",
         "currency": "usd",
         "lines": [
@@ -1100,7 +1442,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USTdw2QR5nixgqNrdRqvbFE",
+        "id": "in_1USbjV2QR5nixgqNqPjH7TLa",
         "date": "2027-06-16",
         "currency": "usd",
         "lines": [
@@ -1118,7 +1460,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USTeG2QR5nixgqNH4p5Ove5",
+        "id": "in_1USbkn2QR5nixgqNuiQUjAnQ",
         "date": "2027-07-26",
         "currency": "usd",
         "lines": [
@@ -1140,20 +1482,48 @@
         "amount_due": 40026,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S109",
     "title": "Inclusive tax at an exact half-cent tie with a credit line: each line's tax is truncated at 12 decimals, so 849.5 rounds to 850 (found by fuzzing)",
-    "verified_at": "2026-10-20T05:04:36.746Z",
+    "verified_at": "2026-10-20T12:03:11.617Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USVDM2QR5nixgqNhgvBTBzM",
-    "customer": "cus_VTS7B3JhBmN6nh",
+    "test_clock": "clock_1USbjO2QR5nixgqNJq9TFfEC",
+    "customer": "cus_VTYryCc50Q8Bm3",
     "stripe": [
       {
-        "id": "in_1USVDN2QR5nixgqNl8OJ3TK6",
+        "id": "in_1USbjR2QR5nixgqNbr7t6JD4",
         "date": "2027-06-30",
         "currency": "usd",
         "lines": [
@@ -1171,7 +1541,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDY2QR5nixgqN6dgeC48G",
+        "id": "in_1USbkN2QR5nixgqNPFZzmuAV",
         "date": "2027-07-30",
         "currency": "usd",
         "lines": [
@@ -1189,7 +1559,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDj2QR5nixgqNNuM16hM6",
+        "id": "in_1USbka2QR5nixgqN9v5BtXUL",
         "date": "2027-08-04",
         "currency": "usd",
         "lines": [
@@ -1212,7 +1582,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDo2QR5nixgqNq1oSFSe6",
+        "id": "in_1USbkn2QR5nixgqN5PD7bZq6",
         "date": "2027-08-25",
         "currency": "usd",
         "lines": [
@@ -1235,7 +1605,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDs2QR5nixgqNU8dcP6wO",
+        "id": "in_1USbkw2QR5nixgqNTGADongl",
         "date": "2027-09-25",
         "currency": "usd",
         "lines": [
@@ -1252,20 +1622,55 @@
         "amount_due": 31600,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "invoiceitem.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
-    "verified_at": "2026-10-17T18:28:38.241Z",
+    "verified_at": "2026-10-20T11:51:20.906Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLJ2QR5nixgqN8Y2s6kgc",
-    "customer": "cus_VSXQOq33pdza0o",
+    "test_clock": "clock_1USbZK2QR5nixgqNP2E7DL5c",
+    "customer": "cus_VTYgilIzI4wly8",
     "stripe": [
       {
-        "id": "in_1URcLL2QR5nixgqNvFEaYJNO",
+        "id": "in_1USbZL2QR5nixgqN9IBOGeOs",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1283,7 +1688,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLT2QR5nixgqNT9gcN1T4",
+        "id": "in_1USbZa2QR5nixgqNnXSgPS72",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -1300,20 +1705,37 @@
         "amount_due": 2320,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S110",
     "title": "Inclusive tax at an exact half-cent tie on a negative invoice: lines are rounded down at 12 decimals, so -12150.5 rounds to -12151 (found by fuzzing)",
-    "verified_at": "2026-10-20T05:04:15.507Z",
+    "verified_at": "2026-10-20T12:02:44.771Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USVDM2QR5nixgqNxv65xBtb",
-    "customer": "cus_VTS7vNFBu1NKJk",
+    "test_clock": "clock_1USbjQ2QR5nixgqND5qQ4ymU",
+    "customer": "cus_VTYru5Xz1FsUGq",
     "stripe": [
       {
-        "id": "in_1USVDO2QR5nixgqNXfyi0WYp",
+        "id": "in_1USbjV2QR5nixgqNzLZsK9HU",
         "date": "2028-02-29",
         "currency": "usd",
         "lines": [
@@ -1331,7 +1753,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDT2QR5nixgqNYTV0JeBw",
+        "id": "in_1USbjk2QR5nixgqN1tWyP4aw",
         "date": "2028-03-26",
         "currency": "usd",
         "lines": [
@@ -1354,7 +1776,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVDa2QR5nixgqNoYmwa9Sj",
+        "id": "in_1USbkN2QR5nixgqNko89iYyH",
         "date": "2028-04-26",
         "currency": "usd",
         "lines": [
@@ -1371,20 +1793,41 @@
         "amount_due": 0,
         "starting_balance": -72903
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S111",
     "title": "Canceling with a final invoice at the renewal instant finalizes the renewal draft first: it is paid in full and the final credit stays on the customer balance (found by fuzzing)",
-    "verified_at": "2026-10-20T05:21:20.468Z",
+    "verified_at": "2026-10-20T12:03:02.510Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USVTi2QR5nixgqNjEvGD15H",
-    "customer": "cus_VTSOIjtt059nug",
+    "test_clock": "clock_1USbjV2QR5nixgqN67a4P9m6",
+    "customer": "cus_VTYrQo0LwUprqG",
     "stripe": [
       {
-        "id": "in_1USVTj2QR5nixgqN5zkR73HI",
+        "id": "in_1USbjX2QR5nixgqNdK8xcc9I",
         "date": "2027-04-30",
         "currency": "usd",
         "lines": [
@@ -1402,7 +1845,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVTp2QR5nixgqN4bN2MLzc",
+        "id": "in_1USbjm2QR5nixgqNVT0jGfDA",
         "date": "2027-05-03",
         "currency": "usd",
         "lines": [
@@ -1420,7 +1863,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVTz2QR5nixgqNc7DmDD16",
+        "id": "in_1USbkc2QR5nixgqN2in8dYNe",
         "date": "2027-06-03",
         "currency": "usd",
         "lines": [
@@ -1438,7 +1881,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVTw2QR5nixgqNBxNs8pDx",
+        "id": "in_1USbkY2QR5nixgqN2a2Xyzwy",
         "date": "2027-06-03",
         "currency": "usd",
         "lines": [
@@ -1465,20 +1908,53 @@
         "amount_due": 2200,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoiceitem.created",
+        "invoice.created",
+        "customer.subscription.deleted"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S112",
     "title": "A first-billing-date stub a once coupon made free is credited at what was paid, $0, not at full price (found by fuzzing)",
-    "verified_at": "2026-10-20T05:21:20.330Z",
+    "verified_at": "2026-10-20T12:02:34.541Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USVTi2QR5nixgqN2hOJxcuz",
-    "customer": "cus_VTSOxvkQ6UdI2j",
+    "test_clock": "clock_1USbjW2QR5nixgqNSvcYfQWN",
+    "customer": "cus_VTYrRrAHUq3zN5",
     "stripe": [
       {
-        "id": "in_1USVTj2QR5nixgqNLNeIl4Vh",
+        "id": "in_1USbjb2QR5nixgqNdkhWRBTL",
         "date": "2027-04-05",
         "currency": "usd",
         "lines": [
@@ -1496,7 +1972,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVTp2QR5nixgqNqUAQJl0K",
+        "id": "in_1USbjk2QR5nixgqNK8EXO4U8",
         "date": "2027-04-16",
         "currency": "usd",
         "lines": [
@@ -1519,7 +1995,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USVTv2QR5nixgqNI4glR8C5",
+        "id": "in_1USbk32QR5nixgqN4ngNIfLt",
         "date": "2027-05-01",
         "currency": "usd",
         "lines": [
@@ -1536,20 +2012,45 @@
         "amount_due": 3600,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S113",
     "title": "Flexible: a month-end first billing date prorates its stub in monthly segments from the shorter month (found by fuzzing)",
-    "verified_at": "2026-10-20T07:25:58.608Z",
+    "verified_at": "2026-10-20T12:03:12.705Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USXQJ2QR5nixgqNrp1qUPhN",
-    "customer": "cus_VTUPL7YFCmIgXn",
+    "test_clock": "clock_1USbkW2QR5nixgqNqnABzNNY",
+    "customer": "cus_VTYsLAdvFC1sEZ",
     "stripe": [
       {
-        "id": "in_1USXQL2QR5nixgqNngo199pK",
+        "id": "in_1USbka2QR5nixgqNn5pS4Cfs",
         "date": "2027-05-17",
         "currency": "usd",
         "lines": [
@@ -1567,7 +2068,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXQS2QR5nixgqNEHG2u1ED",
+        "id": "in_1USbkm2QR5nixgqNPvReczi6",
         "date": "2027-05-31",
         "currency": "usd",
         "lines": [
@@ -1585,7 +2086,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXQi2QR5nixgqNY97OUEEt",
+        "id": "in_1USbkv2QR5nixgqN1Jk3ZxqH",
         "date": "2027-06-30",
         "currency": "usd",
         "lines": [
@@ -1602,20 +2103,41 @@
         "amount_due": 5800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S114",
     "title": "Flexible: pausing with always_invoice when nothing is left to credit opens no invoice (found by fuzzing)",
-    "verified_at": "2026-10-20T07:26:32.051Z",
+    "verified_at": "2026-10-20T12:03:44.063Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USXQJ2QR5nixgqNP3PZKGXy",
-    "customer": "cus_VTUPoclUSPSKlo",
+    "test_clock": "clock_1USbkg2QR5nixgqNejxpUnlu",
+    "customer": "cus_VTYsWBY3Dk4wtB",
     "stripe": [
       {
-        "id": "in_1USXQL2QR5nixgqNBcoOcjiX",
+        "id": "in_1USbki2QR5nixgqNa42wttGB",
         "date": "2027-06-30",
         "currency": "usd",
         "lines": [
@@ -1633,7 +2155,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXQo2QR5nixgqNPhxKRqBx",
+        "id": "in_1USbl82QR5nixgqNJnmJNMPU",
         "date": "2027-09-23",
         "currency": "usd",
         "lines": [
@@ -1651,7 +2173,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXRF2QR5nixgqNgB9DXq50",
+        "id": "in_1USblH2QR5nixgqNFUXye6dB",
         "date": "2027-10-23",
         "currency": "usd",
         "lines": [
@@ -1668,20 +2190,48 @@
         "amount_due": 3600,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S115",
     "title": "Flexible: resuming with an unchanged anchor exactly on a billing date charges the whole period with the next renewal (Stripe probe)",
-    "verified_at": "2026-10-20T07:36:58.428Z",
+    "verified_at": "2026-10-20T12:03:47.364Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USXb12QR5nixgqNcl8vJj5s",
-    "customer": "cus_VTUaqk7iT1Rshz",
+    "test_clock": "clock_1USbky2QR5nixgqNLrD07Izu",
+    "customer": "cus_VTYssFs2lJuLv8",
     "stripe": [
       {
-        "id": "in_1USXb22QR5nixgqN9vFDn2Io",
+        "id": "in_1USbl02QR5nixgqNFQ2vO4Zj",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1699,7 +2249,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXbL2QR5nixgqNF4UtvfJv",
+        "id": "in_1USblV2QR5nixgqNSoor9Mvk",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -1726,20 +2276,44 @@
         "amount_due": 10194,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S116",
     "title": "Flexible: after an anchor reset with proration none, an unchanged resume in the new period charges nothing (found by fuzzing)",
-    "verified_at": "2026-10-20T07:29:04.399Z",
+    "verified_at": "2026-10-20T12:04:00.987Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USXT62QR5nixgqNehJl6Yz2",
-    "customer": "cus_VTUSofnt1ZzVvH",
+    "test_clock": "clock_1USbl32QR5nixgqN3CtULGBf",
+    "customer": "cus_VTYsJh2ZNWjuX0",
     "stripe": [
       {
-        "id": "in_1USXT82QR5nixgqN7PvJJ9Ae",
+        "id": "in_1USbl62QR5nixgqNJ0RGJsuz",
         "date": "2027-01-07",
         "currency": "usd",
         "lines": [
@@ -1757,7 +2331,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXTH2QR5nixgqNYGQQffYo",
+        "id": "in_1USblF2QR5nixgqNMu3sC9tA",
         "date": "2027-02-07",
         "currency": "usd",
         "lines": [
@@ -1775,7 +2349,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXTg2QR5nixgqNgRfu5Hjz",
+        "id": "in_1USblj2QR5nixgqN7DIPOeel",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -1792,20 +2366,49 @@
         "amount_due": 2400,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S117",
     "title": "Flexible: a once coupon applied while paused prices the resume charge and is used up by it (Stripe probe)",
-    "verified_at": "2026-10-20T07:37:11.279Z",
+    "verified_at": "2026-10-20T12:04:08.097Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USXb12QR5nixgqNlKjHEc58",
-    "customer": "cus_VTUa8wYQ4LDH7p",
+    "test_clock": "clock_1USbl72QR5nixgqNRkF0uN2G",
+    "customer": "cus_VTYsZxoXu6rh44",
     "stripe": [
       {
-        "id": "in_1USXb22QR5nixgqNXZKHK1fG",
+        "id": "in_1USbl92QR5nixgqNy1LibmxN",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1823,7 +2426,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USXbX2QR5nixgqNWDWez7Gz",
+        "id": "in_1USblq2QR5nixgqNii3Zc9IR",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -1850,20 +2453,49 @@
         "amount_due": 8614,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S12",
     "title": "FOREVER25 on Pro",
-    "verified_at": "2026-10-17T18:28:48.250Z",
+    "verified_at": "2026-10-20T11:51:29.036Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLL2QR5nixgqNIU6dz5Ty",
-    "customer": "cus_VSXQrHb9EMFD7N",
+    "test_clock": "clock_1USbZO2QR5nixgqNNR154gOC",
+    "customer": "cus_VTYgLSRy0b3ZrW",
     "stripe": [
       {
-        "id": "in_1URcLM2QR5nixgqNkw0u3FXt",
+        "id": "in_1USbZP2QR5nixgqNZSAxUw2H",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1881,7 +2513,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLS2QR5nixgqNmrJXLbLr",
+        "id": "in_1USbZa2QR5nixgqN9ODu6jqn",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -1899,7 +2531,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLd2QR5nixgqNHWFgY9dB",
+        "id": "in_1USbZh2QR5nixgqNDbzL9jQb",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -1916,20 +2548,37 @@
         "amount_due": 5925,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S13",
     "title": "$10 off for 3 months",
-    "verified_at": "2026-10-17T18:29:03.417Z",
+    "verified_at": "2026-10-20T11:51:43.226Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLQ2QR5nixgqNiFJ3lLzt",
-    "customer": "cus_VSXQBeizlN0hal",
+    "test_clock": "clock_1USbZO2QR5nixgqNCCm4dxvJ",
+    "customer": "cus_VTYgrJFsZL25N5",
     "stripe": [
       {
-        "id": "in_1URcLS2QR5nixgqNlgQxBWzf",
+        "id": "in_1USbZQ2QR5nixgqNdPnboCwl",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -1947,7 +2596,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLY2QR5nixgqNEfTps7Is",
+        "id": "in_1USbZZ2QR5nixgqN3vkx4xvC",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -1965,7 +2614,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLi2QR5nixgqNu08ghPsv",
+        "id": "in_1USbZi2QR5nixgqNbpBNetfJ",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -1983,7 +2632,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLs2QR5nixgqN9YigKKxZ",
+        "id": "in_1USbZu2QR5nixgqNLUexTh96",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -2000,20 +2649,42 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "customer.discount.deleted"
+      ]
     ]
   },
   {
     "id": "S14",
     "title": "amount_off larger than invoice is capped, not carried",
-    "verified_at": "2026-10-17T18:28:50.547Z",
+    "verified_at": "2026-10-20T11:51:23.083Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLW2QR5nixgqNaoDyqogg",
-    "customer": "cus_VSXQArdWBHQ7cj",
+    "test_clock": "clock_1USbZQ2QR5nixgqNrrMkWWbI",
+    "customer": "cus_VTYggFhmOsfG4K",
     "stripe": [
       {
-        "id": "in_1URcLX2QR5nixgqNfOdla8KI",
+        "id": "in_1USbZR2QR5nixgqNkRs9fiUU",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2031,7 +2702,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLf2QR5nixgqNboKzw0n4",
+        "id": "in_1USbZc2QR5nixgqNB0HV4TEN",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2048,20 +2719,34 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S15",
     "title": "10% exclusive tax",
-    "verified_at": "2026-10-17T18:28:52.348Z",
+    "verified_at": "2026-10-20T11:51:12.915Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLg2QR5nixgqNnc5iFDEF",
-    "customer": "cus_VSXQljJ1wHsnW3",
+    "test_clock": "clock_1USbZR2QR5nixgqN2Dd5zAqJ",
+    "customer": "cus_VTYgKnsiecUunq",
     "stripe": [
       {
-        "id": "in_1URcLh2QR5nixgqNlkDlq2Oj",
+        "id": "in_1USbZS2QR5nixgqNsTcBlH2F",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2078,20 +2763,28 @@
         "amount_due": 3190,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S16",
     "title": "20% inclusive VAT",
-    "verified_at": "2026-10-17T18:28:54.608Z",
+    "verified_at": "2026-10-20T11:51:15.287Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLi2QR5nixgqNnP0Tj9Ew",
-    "customer": "cus_VSXQTQZ9WXJwox",
+    "test_clock": "clock_1USbZT2QR5nixgqNZSwUstQi",
+    "customer": "cus_VTYgh2GwUwFSVb",
     "stripe": [
       {
-        "id": "in_1URcLk2QR5nixgqNcSqMYPSI",
+        "id": "in_1USbZU2QR5nixgqNQ7nkcS7x",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2108,20 +2801,28 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S17",
     "title": "Coupon then exclusive tax",
-    "verified_at": "2026-10-17T18:28:56.412Z",
+    "verified_at": "2026-10-20T11:51:19.835Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLk2QR5nixgqNexQiKh6t",
-    "customer": "cus_VSXQOPwjlRv4da",
+    "test_clock": "clock_1USbZW2QR5nixgqNXoCyzhAU",
+    "customer": "cus_VTYgNLckigx6sv",
     "stripe": [
       {
-        "id": "in_1URcLl2QR5nixgqNATFBDNZP",
+        "id": "in_1USbZY2QR5nixgqNUEr34gl9",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2138,20 +2839,30 @@
         "amount_due": 6952,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S18",
     "title": "JPY zero-decimal upgrade",
-    "verified_at": "2026-10-17T18:29:05.390Z",
+    "verified_at": "2026-10-20T11:51:32.589Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLm2QR5nixgqNEcZg8S34",
-    "customer": "cus_VSXQshtCJgrgLi",
+    "test_clock": "clock_1USbZZ2QR5nixgqNmrmwliSU",
+    "customer": "cus_VTYgtxNjBD12qE",
     "stripe": [
       {
-        "id": "in_1URcLn2QR5nixgqNjZ751cXv",
+        "id": "in_1USbZa2QR5nixgqNwWMDFNCf",
         "date": "2027-01-01",
         "currency": "jpy",
         "lines": [
@@ -2169,7 +2880,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLu2QR5nixgqN5xXqyktH",
+        "id": "in_1USbZl2QR5nixgqNt48pJLPl",
         "date": "2027-02-01",
         "currency": "jpy",
         "lines": [
@@ -2196,20 +2907,37 @@
         "amount_due": 10419,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S19",
     "title": "EUR locale display",
-    "verified_at": "2026-10-17T18:29:00.155Z",
+    "verified_at": "2026-10-20T11:51:25.425Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLo2QR5nixgqNNsg514nQ",
-    "customer": "cus_VSXQpgETl6b4W6",
+    "test_clock": "clock_1USbZd2QR5nixgqNEFksoUCG",
+    "customer": "cus_VTYhCBHPvs0YQu",
     "stripe": [
       {
-        "id": "in_1URcLp2QR5nixgqNPXUaKrZB",
+        "id": "in_1USbZf2QR5nixgqNl1qJfNYX",
         "date": "2027-01-01",
         "currency": "eur",
         "lines": [
@@ -2226,20 +2954,28 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.finalized",
+        "invoice.created",
+        "invoice.paid",
+        "customer.subscription.created"
+      ]
     ]
   },
   {
     "id": "S20",
     "title": "Upgrade with always_invoice",
-    "verified_at": "2026-10-17T18:29:13.009Z",
+    "verified_at": "2026-10-20T11:51:39.484Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLs2QR5nixgqNpe0AgBJU",
-    "customer": "cus_VSXQRq9uAanvCL",
+    "test_clock": "clock_1USbZe2QR5nixgqN9GMlO4el",
+    "customer": "cus_VTYhKJrXHcD6ev",
     "stripe": [
       {
-        "id": "in_1URcLt2QR5nixgqNRhX7vOaI",
+        "id": "in_1USbZg2QR5nixgqNQCKtern7",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2257,7 +2993,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcLx2QR5nixgqNY8xVvjhz",
+        "id": "in_1USbZm2QR5nixgqNQP1chcvr",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -2280,7 +3016,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcM12QR5nixgqN4kuG4fOj",
+        "id": "in_1USbZt2QR5nixgqNQLde7HUD",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2297,20 +3033,40 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S21",
     "title": "Monthly to annual resets anchor, invoices now",
-    "verified_at": "2026-10-17T18:29:12.429Z",
+    "verified_at": "2026-10-20T11:51:36.677Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLv2QR5nixgqNCowyrq8a",
-    "customer": "cus_VSXQdFjo3zZRud",
+    "test_clock": "clock_1USbZg2QR5nixgqNVg5P2bHL",
+    "customer": "cus_VTYhf2L41puvp6",
     "stripe": [
       {
-        "id": "in_1URcLw2QR5nixgqNhWnJBncy",
+        "id": "in_1USbZi2QR5nixgqNFkk0QtAZ",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2328,7 +3084,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcM12QR5nixgqNszKDVbRU",
+        "id": "in_1USbZp2QR5nixgqNAx1qp0kg",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -2350,20 +3106,35 @@
         "amount_due": 27597,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S22",
     "title": "Cancel at period end: no further invoices",
-    "verified_at": "2026-10-17T18:29:16.054Z",
+    "verified_at": "2026-10-20T11:51:42.260Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcLx2QR5nixgqNwLT5bg8G",
-    "customer": "cus_VSXQLdDykPIURs",
+    "test_clock": "clock_1USbZj2QR5nixgqNZk8bz3RQ",
+    "customer": "cus_VTYhltbr1nCBVG",
     "stripe": [
       {
-        "id": "in_1URcLy2QR5nixgqNquKDMdE6",
+        "id": "in_1USbZk2QR5nixgqNzJvykWZn",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2380,20 +3151,34 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.deleted"
+      ]
     ]
   },
   {
     "id": "S23",
     "title": "Graduated metered usage 12,346 calls",
-    "verified_at": "2026-10-17T18:30:06.986Z",
+    "verified_at": "2026-10-20T11:52:22.606Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcM42QR5nixgqNknBmNfH7",
-    "customer": "cus_VSXQGbiEKVJQds",
+    "test_clock": "clock_1USbZm2QR5nixgqNFB2R8ywg",
+    "customer": "cus_VTYhM9TeVrUFGc",
     "stripe": [
       {
-        "id": "in_1URcM52QR5nixgqNDuNujpPV",
+        "id": "in_1USbZo2QR5nixgqNU30MV1el",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2411,7 +3196,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMu2QR5nixgqN4VJtRemD",
+        "id": "in_1USbaX2QR5nixgqNI2B5RHbB",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2438,20 +3223,33 @@
         "amount_due": 10173,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S26",
     "title": "Price change during a trial does not prorate",
-    "verified_at": "2026-10-17T18:29:41.914Z",
+    "verified_at": "2026-10-20T11:52:05.155Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcM52QR5nixgqNheK5dK2x",
-    "customer": "cus_VSXQpoimdTgShl",
+    "test_clock": "clock_1USbZq2QR5nixgqNxPe8m1ls",
+    "customer": "cus_VTYhukckCn5okn",
     "stripe": [
       {
-        "id": "in_1URcM62QR5nixgqNubWc9QMC",
+        "id": "in_1USbZs2QR5nixgqNWpsw48u6",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2469,7 +3267,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcME2QR5nixgqNaq3BOlfR",
+        "id": "in_1USba22QR5nixgqNE14v3RhP",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -2487,7 +3285,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMO2QR5nixgqNO3z5dlkx",
+        "id": "in_1USbaC2QR5nixgqNKVf6sefh",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -2504,20 +3302,42 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S27",
     "title": "Downgrade with always_invoice creates a credit balance",
-    "verified_at": "2026-10-17T18:29:27.766Z",
+    "verified_at": "2026-10-20T11:51:53.300Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcM82QR5nixgqNtiPwyR94",
-    "customer": "cus_VSXRDR96ASDqtS",
+    "test_clock": "clock_1USbZu2QR5nixgqNO4KZ2bye",
+    "customer": "cus_VTYhMYB8vqqpsn",
     "stripe": [
       {
-        "id": "in_1URcM92QR5nixgqNeOaptDYh",
+        "id": "in_1USbZw2QR5nixgqNATF24i8c",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2535,7 +3355,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcME2QR5nixgqNq5RpnKgp",
+        "id": "in_1USba12QR5nixgqNoudcchkO",
         "date": "2027-01-17",
         "currency": "usd",
         "lines": [
@@ -2558,7 +3378,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMH2QR5nixgqNBcv27x8g",
+        "id": "in_1USba62QR5nixgqNzsD8iCAA",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2575,20 +3395,40 @@
         "amount_due": 480,
         "starting_balance": -2420
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S28",
     "title": "Upgrade under a forever 25% coupon: prorations are pre-discounted, not re-discounted",
-    "verified_at": "2026-10-17T18:29:39.044Z",
+    "verified_at": "2026-10-20T11:51:57.089Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMJ2QR5nixgqNDJCAQQsj",
-    "customer": "cus_VSXRW9XD55PKVF",
+    "test_clock": "clock_1USbZx2QR5nixgqNzXFKdsGp",
+    "customer": "cus_VTYhdjDjYvj3gE",
     "stripe": [
       {
-        "id": "in_1URcML2QR5nixgqNp09QkC4A",
+        "id": "in_1USbZy2QR5nixgqNlOFm2yyW",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2606,7 +3446,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMR2QR5nixgqNkMeOyBhE",
+        "id": "in_1USba92QR5nixgqNj75m7bYP",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2633,20 +3473,38 @@
         "amount_due": 7740,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S30",
     "title": "Seat increase after a used-up 'once' coupon: the credit refunds the discounted price actually paid",
-    "verified_at": "2026-10-17T18:29:50.652Z",
+    "verified_at": "2026-10-20T11:51:58.337Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMV2QR5nixgqNC1tu3MKn",
-    "customer": "cus_VSXRxujbWTPShT",
+    "test_clock": "clock_1USba02QR5nixgqNthHY7Bhb",
+    "customer": "cus_VTYh5VRPFbN2i4",
     "stripe": [
       {
-        "id": "in_1URcMW2QR5nixgqNb2IACWT7",
+        "id": "in_1USba12QR5nixgqN121KpJvT",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -2664,7 +3522,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMe2QR5nixgqNWQTfuwNE",
+        "id": "in_1USbaB2QR5nixgqNgBd8m99s",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -2691,20 +3549,39 @@
         "amount_due": 8114,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S31",
     "title": "Changing the price without a quantity resets 5 seats to quantity 1 (Stripe item semantics)",
-    "verified_at": "2026-10-17T18:29:53.266Z",
+    "verified_at": "2026-10-20T11:51:59.507Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMY2QR5nixgqN0w9nlxZ5",
-    "customer": "cus_VSXR2JsSEmJZTM",
+    "test_clock": "clock_1USba12QR5nixgqNnxoj49qS",
+    "customer": "cus_VTYhA93X4x0DKk",
     "stripe": [
       {
-        "id": "in_1URcMZ2QR5nixgqN0k3ovYz2",
+        "id": "in_1USba22QR5nixgqNQJcHIqAd",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -2722,7 +3599,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMg2QR5nixgqNZfoiu4Pv",
+        "id": "in_1USbaC2QR5nixgqNeCf0BDR9",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -2749,20 +3626,37 @@
         "amount_due": 8635,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.finalized",
+        "invoice.created",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S32",
     "title": "Changing the price with quantity 5 keeps all 5 seats",
-    "verified_at": "2026-10-17T18:30:03.673Z",
+    "verified_at": "2026-10-20T11:52:09.462Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMg2QR5nixgqNwnvZ5yfx",
-    "customer": "cus_VSXR3ZvQft3UPo",
+    "test_clock": "clock_1USbaB2QR5nixgqNRmOif8CC",
+    "customer": "cus_VTYhaUnUH4K2SM",
     "stripe": [
       {
-        "id": "in_1URcMh2QR5nixgqNPlAjUyAk",
+        "id": "in_1USbaC2QR5nixgqNbWysJuG8",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -2780,7 +3674,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMq2QR5nixgqN9agAkSWb",
+        "id": "in_1USbaM2QR5nixgqNWIKO6wwz",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -2807,20 +3701,37 @@
         "amount_due": 52467,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S33",
     "title": "Two seat changes in one period after a used-up 'once' coupon: each credit refunds the rate it was charged at",
-    "verified_at": "2026-10-17T18:30:07.565Z",
+    "verified_at": "2026-10-20T11:52:17.985Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMj2QR5nixgqNlwIxwP3F",
-    "customer": "cus_VSXRbakWpinUBm",
+    "test_clock": "clock_1USbaE2QR5nixgqNhaFDE2tG",
+    "customer": "cus_VTYhIAD8DikAwR",
     "stripe": [
       {
-        "id": "in_1URcMk2QR5nixgqNvojkDa5Z",
+        "id": "in_1USbaG2QR5nixgqNib0BCrfX",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -2838,7 +3749,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcMu2QR5nixgqNdVzOliIy",
+        "id": "in_1USbaV2QR5nixgqNKuhT4iP9",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -2875,20 +3786,44 @@
         "amount_due": 11366,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S34",
     "title": "Coupon applied mid-period, then an upgrade: January was paid in full, so its credit is full price",
-    "verified_at": "2026-10-17T18:30:18.090Z",
+    "verified_at": "2026-10-20T11:52:19.454Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcMt2QR5nixgqNtvXDE3Dv",
-    "customer": "cus_VSXR5CKcelNqzi",
+    "test_clock": "clock_1USbaG2QR5nixgqNNXEM8rIA",
+    "customer": "cus_VTYhaDvoon0BGU",
     "stripe": [
       {
-        "id": "in_1URcMv2QR5nixgqNwXViuo7e",
+        "id": "in_1USbaH2QR5nixgqNdjQHbxjm",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -2906,7 +3841,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcN42QR5nixgqNzJkzqU0T",
+        "id": "in_1USbaW2QR5nixgqNHf4RhyOh",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -2933,20 +3868,41 @@
         "amount_due": 7389,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S35",
     "title": "A period made free by an amount_off coupon refunds nothing when it is changed",
-    "verified_at": "2026-10-17T18:41:22.270Z",
+    "verified_at": "2026-10-20T11:52:14.628Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcXd2QR5nixgqNoKalKddM",
-    "customer": "cus_VSXcxwms4u7Edp",
+    "test_clock": "clock_1USbaH2QR5nixgqNMuTCCuWu",
+    "customer": "cus_VTYh3eDwyFi0Cf",
     "stripe": [
       {
-        "id": "in_1URcXf2QR5nixgqNN0hrz0tk",
+        "id": "in_1USbaJ2QR5nixgqNmtdtxfdu",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -2964,7 +3920,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcXk2QR5nixgqNsIcYq2zd",
+        "id": "in_1USbaO2QR5nixgqNnuc3kzFz",
         "date": "2027-03-17",
         "currency": "usd",
         "lines": [
@@ -2986,20 +3942,38 @@
         "amount_due": 29000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      []
     ]
   },
   {
     "id": "S36",
     "title": "Seat increase under a repeating amount_off coupon: both proration lines are net of the $10",
-    "verified_at": "2026-10-19T06:22:49.475Z",
+    "verified_at": "2026-10-20T11:52:24.129Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9xo2QR5nixgqNmgipUGVm",
-    "customer": "cus_VT6ASf5ydiV4Dr",
+    "test_clock": "clock_1USbaN2QR5nixgqNY1emvyk8",
+    "customer": "cus_VTYhIPYsqGWPrM",
     "stripe": [
       {
-        "id": "in_1US9xp2QR5nixgqNRLdoyyHw",
+        "id": "in_1USbaO2QR5nixgqNRjvFTd77",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3017,7 +3991,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9y72QR5nixgqNYwIKug6p",
+        "id": "in_1USbab2QR5nixgqNCXFgtCZd",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -3044,20 +4018,38 @@
         "amount_due": 12565,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S37",
     "title": "A once coupon applied mid-period is used up by the proration it prices",
-    "verified_at": "2026-10-17T18:41:44.311Z",
+    "verified_at": "2026-10-20T11:52:49.433Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcXd2QR5nixgqNXLvB49uO",
-    "customer": "cus_VSXc0fPu4XX6d5",
+    "test_clock": "clock_1USbaR2QR5nixgqNRvVk9d6L",
+    "customer": "cus_VTYhYj8kPRLpBU",
     "stripe": [
       {
-        "id": "in_1URcXe2QR5nixgqN5a2RHQji",
+        "id": "in_1USbaS2QR5nixgqNEHX2Kszu",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3075,7 +4067,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcXu2QR5nixgqNCi1uVK3X",
+        "id": "in_1USbai2QR5nixgqN2H6BIJEw",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3103,7 +4095,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcY42QR5nixgqNAWLJCcDj",
+        "id": "in_1USbaw2QR5nixgqNx72igLQR",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3120,20 +4112,48 @@
         "amount_due": 15800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.discount.deleted",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S38",
     "title": "Changing to the same quantity or the same price is a no-op",
-    "verified_at": "2026-10-17T18:41:38.806Z",
+    "verified_at": "2026-10-20T11:52:36.470Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcXq2QR5nixgqNITzyzrlI",
-    "customer": "cus_VSXdxY2dbI5gZN",
+    "test_clock": "clock_1USbaW2QR5nixgqNUgl6UTVG",
+    "customer": "cus_VTYhBgqcrMBdTR",
     "stripe": [
       {
-        "id": "in_1URcXr2QR5nixgqNzgX50SzG",
+        "id": "in_1USbaX2QR5nixgqNokVYgti7",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3151,7 +4171,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcY32QR5nixgqNqNiakMOg",
+        "id": "in_1USbao2QR5nixgqNtmelS0ZY",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3168,20 +4188,34 @@
         "amount_due": 15800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S39",
     "title": "Cancel at period end bills pending prorations on a final invoice, with negative tax",
-    "verified_at": "2026-10-17T18:41:43.355Z",
+    "verified_at": "2026-10-20T11:52:53.619Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcXr2QR5nixgqN6gHAXunS",
-    "customer": "cus_VSXdGWXHDb2FPH",
+    "test_clock": "clock_1USbaZ2QR5nixgqNqYtzWKeD",
+    "customer": "cus_VTYinq0sZxiiIN",
     "stripe": [
       {
-        "id": "in_1URcXt2QR5nixgqNWg3GQ0z6",
+        "id": "in_1USbab2QR5nixgqNRNc3qFJS",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3199,7 +4233,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcY42QR5nixgqNegqjPUz4",
+        "id": "in_1USbar2QR5nixgqNydoAvXPR",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3221,20 +4255,42 @@
         "amount_due": 0,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S40",
     "title": "always_invoice change at the exact renewal instant: separate invoices, the credit pays the renewal",
-    "verified_at": "2026-10-17T18:41:58.880Z",
+    "verified_at": "2026-10-20T11:52:53.024Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcY62QR5nixgqNQfMENmjp",
-    "customer": "cus_VSXdglPLtgHwvW",
+    "test_clock": "clock_1USbab2QR5nixgqNAP1bK5er",
+    "customer": "cus_VTYiX8allshY4w",
     "stripe": [
       {
-        "id": "in_1URcY82QR5nixgqNkJMEEg46",
+        "id": "in_1USbac2QR5nixgqNChKlZAR7",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3252,7 +4308,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcYH2QR5nixgqND3oat6cE",
+        "id": "in_1USbao2QR5nixgqNh1MjXabi",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3275,7 +4331,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcYE2QR5nixgqNzQAglV93",
+        "id": "in_1USbal2QR5nixgqNrjRj824g",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3292,20 +4348,42 @@
         "amount_due": 7900,
         "starting_balance": -7900
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S41",
     "title": "Switching to a yearly price during a trial issues a new $0 trial invoice",
-    "verified_at": "2026-10-17T18:42:00.848Z",
+    "verified_at": "2026-10-20T11:52:46.534Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcYB2QR5nixgqNq2srRaLJ",
-    "customer": "cus_VSXdn7Dh4byRbB",
+    "test_clock": "clock_1USbae2QR5nixgqNhCt3Z4y1",
+    "customer": "cus_VTYiEDGM15soaR",
     "stripe": [
       {
-        "id": "in_1URcYC2QR5nixgqNxtuz3Qf6",
+        "id": "in_1USbaf2QR5nixgqNRKrsfdQT",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3323,7 +4401,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcYF2QR5nixgqNjS5aeIUM",
+        "id": "in_1USbal2QR5nixgqNtknIUdEb",
         "date": "2027-01-05",
         "currency": "usd",
         "lines": [
@@ -3341,7 +4419,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcYK2QR5nixgqNgxYf98Il",
+        "id": "in_1USbas2QR5nixgqNHqqLhzSe",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -3358,20 +4436,41 @@
         "amount_due": 29000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.created",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S42",
     "title": "Proration charge under a percent coupon is rounded in two steps",
-    "verified_at": "2026-10-19T06:22:55.508Z",
+    "verified_at": "2026-10-20T11:52:52.581Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9xo2QR5nixgqNIwrUmeor",
-    "customer": "cus_VT6A1GqLeu8kQC",
+    "test_clock": "clock_1USbag2QR5nixgqNxmexj4Jl",
+    "customer": "cus_VTYiCJlKzB9AlA",
     "stripe": [
       {
-        "id": "in_1US9xp2QR5nixgqNG5NlGrlW",
+        "id": "in_1USbah2QR5nixgqN97KsB8wi",
         "date": "2027-03-17",
         "currency": "usd",
         "lines": [
@@ -3389,7 +4488,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9yC2QR5nixgqNs7ZBD1FP",
+        "id": "in_1USbb22QR5nixgqNofzfYynq",
         "date": "2027-04-17",
         "currency": "usd",
         "lines": [
@@ -3416,20 +4515,38 @@
         "amount_due": 3483,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S43",
     "title": "A no-op change with always_invoice still invoices earlier pending prorations now",
-    "verified_at": "2026-10-17T18:59:41.619Z",
+    "verified_at": "2026-10-20T11:53:02.355Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URcpF2QR5nixgqN78aXFUc3",
-    "customer": "cus_VSXvqRA5nnPMgU",
+    "test_clock": "clock_1USbas2QR5nixgqNy6xyOmWB",
+    "customer": "cus_VTYifTlHQWztHR",
     "stripe": [
       {
-        "id": "in_1URcpG2QR5nixgqNqGK0fuix",
+        "id": "in_1USbat2QR5nixgqN1iYqMDQT",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3447,7 +4564,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcpN2QR5nixgqNG7qtJtdl",
+        "id": "in_1USbb62QR5nixgqNjhV9sXZk",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -3470,7 +4587,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URcpS2QR5nixgqNjIG7PqNN",
+        "id": "in_1USbbD2QR5nixgqN5SLIVFsT",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3487,20 +4604,43 @@
         "amount_due": 7200,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S44",
     "title": "proration_behavior none: no lines now; a later proration credits the item as it is then, not what was paid",
-    "verified_at": "2026-10-18T00:23:46.102Z",
+    "verified_at": "2026-10-20T11:53:34.607Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URhsg2QR5nixgqNP1dXdOCJ",
-    "customer": "cus_VSd8Q7mhs5y1yM",
+    "test_clock": "clock_1USbb22QR5nixgqNy1XWbmFS",
+    "customer": "cus_VTYiKLRGoIdTnV",
     "stripe": [
       {
-        "id": "in_1URhsh2QR5nixgqNVEOHdZhH",
+        "id": "in_1USbb42QR5nixgqNWWHjZ7ro",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3518,7 +4658,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhsq2QR5nixgqNxpncOzKk",
+        "id": "in_1USbbM2QR5nixgqNFmQU4m8K",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3546,7 +4686,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URht02QR5nixgqNz5x3D9Pc",
+        "id": "in_1USbbd2QR5nixgqNfytQLYSn",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3563,20 +4703,46 @@
         "amount_due": 8700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S45",
     "title": "Ending a trial early bills the first period now, resets the anchor, and the once coupon applies to it",
-    "verified_at": "2026-10-18T00:23:49.221Z",
+    "verified_at": "2026-10-20T11:53:26.161Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URhsg2QR5nixgqNKfF8ZHxP",
-    "customer": "cus_VSd8H8I0aKBjHN",
+    "test_clock": "clock_1USbb52QR5nixgqNjbY9yFfk",
+    "customer": "cus_VTYitMPVR7ZsDo",
     "stripe": [
       {
-        "id": "in_1URhsh2QR5nixgqNODvOR06j",
+        "id": "in_1USbb62QR5nixgqNJxbzaOuC",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3594,7 +4760,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhsl2QR5nixgqN1Ejdowd6",
+        "id": "in_1USbbC2QR5nixgqNf19YudQj",
         "date": "2027-01-03",
         "currency": "usd",
         "lines": [
@@ -3612,7 +4778,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhsr2QR5nixgqNTyTp5KqM",
+        "id": "in_1USbbK2QR5nixgqNc0ZI5kph",
         "date": "2027-02-03",
         "currency": "usd",
         "lines": [
@@ -3630,7 +4796,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URht22QR5nixgqNb9E9gnr6",
+        "id": "in_1USbbV2QR5nixgqNdKRkNYHE",
         "date": "2027-03-03",
         "currency": "usd",
         "lines": [
@@ -3647,20 +4813,47 @@
         "amount_due": 8690,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S46",
     "title": "Immediate cancel: no final invoice and pending prorations are dropped; a new subscription starts clean",
-    "verified_at": "2026-10-18T15:51:53.135Z",
+    "verified_at": "2026-10-20T11:53:38.275Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwMc2QR5nixgqNf92OCObR",
-    "customer": "cus_VSs631glSsXUMG",
+    "test_clock": "clock_1USbb82QR5nixgqNi6D1TxrJ",
+    "customer": "cus_VTYiSlOCh1GRuu",
     "stripe": [
       {
-        "id": "in_1URwMd2QR5nixgqNmTgURG5C",
+        "id": "in_1USbbA2QR5nixgqNnS9yy7te",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3678,7 +4871,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwMx2QR5nixgqNkiMvYu9J",
+        "id": "in_1USbbV2QR5nixgqNaO1MpvoU",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3696,7 +4889,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwN82QR5nixgqNTAEha9dB",
+        "id": "in_1USbbf2QR5nixgqNmAnYfli1",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3713,20 +4906,48 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.deleted"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S47",
     "title": "Undoing a scheduled cancel keeps renewing",
-    "verified_at": "2026-10-18T00:24:15.748Z",
+    "verified_at": "2026-10-20T11:53:36.218Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URht82QR5nixgqNBAi0vyB8",
-    "customer": "cus_VSd9P1mItA2Pex",
+    "test_clock": "clock_1USbb82QR5nixgqNra738t5R",
+    "customer": "cus_VTYi2ckZFGxgrW",
     "stripe": [
       {
-        "id": "in_1URhtA2QR5nixgqNSHuodf7C",
+        "id": "in_1USbbA2QR5nixgqNC5jZkrZS",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3744,7 +4965,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtK2QR5nixgqNw1UWd3bn",
+        "id": "in_1USbbV2QR5nixgqNmpRxmyD3",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3762,7 +4983,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtU2QR5nixgqNqtqAkOV9",
+        "id": "in_1USbbf2QR5nixgqNKPBJH8P3",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3779,20 +5000,46 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S48",
     "title": "Interval change with proration_behavior none: invoices the new interval now without a credit",
-    "verified_at": "2026-10-18T00:24:02.983Z",
+    "verified_at": "2026-10-20T11:53:18.402Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URhtB2QR5nixgqNUY8d4Cs9",
-    "customer": "cus_VSd9Kh8X4n3nHz",
+    "test_clock": "clock_1USbb92QR5nixgqNjOA9PXT0",
+    "customer": "cus_VTYiTlqnGhwLzK",
     "stripe": [
       {
-        "id": "in_1URhtD2QR5nixgqNNMMe9TDl",
+        "id": "in_1USbbA2QR5nixgqNgSmPgqxd",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3810,7 +5057,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtI2QR5nixgqNPyeezSnD",
+        "id": "in_1USbbI2QR5nixgqN94U953SP",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -3827,20 +5074,35 @@
         "amount_due": 29000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      []
     ]
   },
   {
     "id": "S49",
     "title": "After a none change, an always_invoice change credits the current quantity at the coupon rate",
-    "verified_at": "2026-10-18T00:24:25.818Z",
+    "verified_at": "2026-10-20T11:53:55.485Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URhtF2QR5nixgqN4ncQR1PL",
-    "customer": "cus_VSd98y2Yp4gpe4",
+    "test_clock": "clock_1USbbI2QR5nixgqNCCjHVHur",
+    "customer": "cus_VTYi8R1LT1TVEG",
     "stripe": [
       {
-        "id": "in_1URhtG2QR5nixgqNuwVs2m8t",
+        "id": "in_1USbbJ2QR5nixgqN2WHn6d0i",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -3858,7 +5120,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtP2QR5nixgqNOUVPPKO9",
+        "id": "in_1USbbf2QR5nixgqNdCR8OoD0",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -3881,7 +5143,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtT2QR5nixgqNVtjfpF0X",
+        "id": "in_1USbbn2QR5nixgqNVEuKnlYQ",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -3899,7 +5161,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URhtd2QR5nixgqNHQsChQoU",
+        "id": "in_1USbbx2QR5nixgqNfNLiJvo3",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -3916,20 +5178,50 @@
         "amount_due": 23700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S50",
     "title": "A repeating coupon lasts its months in calendar time, not a count of invoices (yearly -> monthly)",
-    "verified_at": "2026-10-18T00:34:49.979Z",
+    "verified_at": "2026-10-20T11:54:10.684Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URi3E2QR5nixgqNB2FCKJaj",
-    "customer": "cus_VSdJUexonOAquO",
+    "test_clock": "clock_1USbbY2QR5nixgqNtI6y0bpC",
+    "customer": "cus_VTYjzxCjFKgY2t",
     "stripe": [
       {
-        "id": "in_1URi3G2QR5nixgqN7KjYRsIr",
+        "id": "in_1USbbZ2QR5nixgqNRkAmPwju",
         "date": "2027-01-25",
         "currency": "usd",
         "lines": [
@@ -3947,7 +5239,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URi3K2QR5nixgqN3al52wB8",
+        "id": "in_1USbbj2QR5nixgqNhXLwCzHa",
         "date": "2027-02-05",
         "currency": "usd",
         "lines": [
@@ -3970,7 +5262,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URi3N2QR5nixgqNsANJq5HD",
+        "id": "in_1USbbq2QR5nixgqNlCxMYhyx",
         "date": "2027-03-05",
         "currency": "usd",
         "lines": [
@@ -3988,7 +5280,7 @@
         "starting_balance": -20256
       },
       {
-        "id": "in_1URi3X2QR5nixgqNTgzDvjGL",
+        "id": "in_1USbc52QR5nixgqNED4pPdiD",
         "date": "2027-04-05",
         "currency": "usd",
         "lines": [
@@ -4006,7 +5298,7 @@
         "starting_balance": -13356
       },
       {
-        "id": "in_1URi3f2QR5nixgqNSUgBa2CJ",
+        "id": "in_1USbcD2QR5nixgqNn8IElz8Z",
         "date": "2027-05-05",
         "currency": "usd",
         "lines": [
@@ -4023,20 +5315,51 @@
         "amount_due": 1444,
         "starting_balance": -6456
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.finalized",
+        "invoice.created",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.discount.deleted",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S51",
     "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
-    "verified_at": "2026-10-18T06:07:08.761Z",
+    "verified_at": "2026-10-20T11:54:03.140Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnEr2QR5nixgqNxPmcABJw",
-    "customer": "cus_VSigp7t44VVpVL",
+    "test_clock": "clock_1USbbg2QR5nixgqNacp5olH1",
+    "customer": "cus_VTYjy3H6lYZkXw",
     "stripe": [
       {
-        "id": "in_1URnEs2QR5nixgqNBtV8AGgy",
+        "id": "in_1USbbh2QR5nixgqNyxhcMQdU",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4054,7 +5377,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnEy2QR5nixgqN8ENTSeQ3",
+        "id": "in_1USbbq2QR5nixgqNaa4aPBpA",
         "date": "2026-01-11",
         "currency": "usd",
         "lines": [
@@ -4077,7 +5400,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnF82QR5nixgqNHLIQsibh",
+        "id": "in_1USbby2QR5nixgqNMcSHiSs7",
         "date": "2026-02-11",
         "currency": "usd",
         "lines": [
@@ -4095,7 +5418,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFK2QR5nixgqNPzzlrLOE",
+        "id": "in_1USbc72QR5nixgqNJEMcVoml",
         "date": "2026-03-11",
         "currency": "usd",
         "lines": [
@@ -4112,20 +5435,45 @@
         "amount_due": 15800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.finalized",
+        "invoice.created",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S52",
     "title": "Anchor reset with proration none still sweeps earlier pending prorations into the invoice, without a credit",
-    "verified_at": "2026-10-18T06:07:17.513Z",
+    "verified_at": "2026-10-20T11:54:44.473Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnEr2QR5nixgqNT5KfCjbR",
-    "customer": "cus_VSigYhtyv4szm0",
+    "test_clock": "clock_1USbbo2QR5nixgqNdoOhu1r4",
+    "customer": "cus_VTYjgDKSyvpiH2",
     "stripe": [
       {
-        "id": "in_1URnEs2QR5nixgqNrMNP3BDp",
+        "id": "in_1USbbp2QR5nixgqNYx7iiwrD",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4143,7 +5491,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnF42QR5nixgqNqhdbDxn4",
+        "id": "in_1USbc62QR5nixgqNdDAA62fB",
         "date": "2026-01-21",
         "currency": "usd",
         "lines": [
@@ -4171,7 +5519,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFJ2QR5nixgqNkhLq9o2s",
+        "id": "in_1USbcZ2QR5nixgqN0wvQbgJ5",
         "date": "2026-02-21",
         "currency": "usd",
         "lines": [
@@ -4199,7 +5547,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFT2QR5nixgqN3vjCNNMh",
+        "id": "in_1USbck2QR5nixgqNyrcYzdQL",
         "date": "2026-03-21",
         "currency": "usd",
         "lines": [
@@ -4216,20 +5564,57 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S53",
     "title": "Removing a forever coupon: later invoices are full price, but the next credit refunds what was paid (discounted)",
-    "verified_at": "2026-10-18T06:07:20.954Z",
+    "verified_at": "2026-10-20T11:54:27.738Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnEr2QR5nixgqNYkhkk9vm",
-    "customer": "cus_VSig49vkSgxVBV",
+    "test_clock": "clock_1USbbq2QR5nixgqNLTe2ZN6Z",
+    "customer": "cus_VTYjcEYrJ5O9it",
     "stripe": [
       {
-        "id": "in_1URnEs2QR5nixgqNc23PcpZm",
+        "id": "in_1USbbr2QR5nixgqN8Zx4prtJ",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4247,7 +5632,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnF22QR5nixgqNRiQoQSM1",
+        "id": "in_1USbby2QR5nixgqNmvI8dNb6",
         "date": "2026-01-11",
         "currency": "usd",
         "lines": [
@@ -4270,7 +5655,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFJ2QR5nixgqNR92TqrQb",
+        "id": "in_1USbcG2QR5nixgqNME3zMZ2E",
         "date": "2026-02-11",
         "currency": "usd",
         "lines": [
@@ -4298,7 +5683,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFT2QR5nixgqNghGk9Iuj",
+        "id": "in_1USbcS2QR5nixgqN7dwwnAlH",
         "date": "2026-03-11",
         "currency": "usd",
         "lines": [
@@ -4315,20 +5700,55 @@
         "amount_due": 23700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.discount.deleted",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S54",
     "title": "Two interval changes under an amount-off coupon: the second credit refunds the discounted yearly charge",
-    "verified_at": "2026-10-18T06:07:41.712Z",
+    "verified_at": "2026-10-20T11:54:40.084Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnFR2QR5nixgqNZjeATFyw",
-    "customer": "cus_VSig4OZqpV9Wwz",
+    "test_clock": "clock_1USbbs2QR5nixgqNDhJZa4ud",
+    "customer": "cus_VTYjjY2DGe4TsE",
     "stripe": [
       {
-        "id": "in_1URnFT2QR5nixgqNoxAvu86D",
+        "id": "in_1USbbu2QR5nixgqNHe3Ia4mH",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4346,7 +5766,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFX2QR5nixgqNPwrudSnQ",
+        "id": "in_1USbc72QR5nixgqNT8cEfCTU",
         "date": "2026-01-16",
         "currency": "usd",
         "lines": [
@@ -4369,7 +5789,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFc2QR5nixgqNtdAkO85g",
+        "id": "in_1USbcE2QR5nixgqNlleLKHvz",
         "date": "2026-02-10",
         "currency": "usd",
         "lines": [
@@ -4392,7 +5812,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnFg2QR5nixgqNYm5oJWwk",
+        "id": "in_1USbcN2QR5nixgqN0bsxDH2I",
         "date": "2026-03-10",
         "currency": "usd",
         "lines": [
@@ -4410,7 +5830,7 @@
         "starting_balance": -19182
       },
       {
-        "id": "in_1URnFt2QR5nixgqNA7UBhnaP",
+        "id": "in_1USbck2QR5nixgqNEGb4vDjI",
         "date": "2026-04-10",
         "currency": "usd",
         "lines": [
@@ -4427,20 +5847,54 @@
         "amount_due": 0,
         "starting_balance": -12282
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.discount.deleted",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S55",
     "title": "A half-cent tie that is not a tie: Stripe prorates the unit price to 12 decimals before multiplying by seats (found by fuzzing)",
-    "verified_at": "2026-10-18T06:19:47.960Z",
+    "verified_at": "2026-10-20T11:54:23.571Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnRN2QR5nixgqNWC08Ru9j",
-    "customer": "cus_VSit9MHIaDXNxb",
+    "test_clock": "clock_1USbc92QR5nixgqN50rcrwOE",
+    "customer": "cus_VTYj24WDYJa2kQ",
     "stripe": [
       {
-        "id": "in_1URnRO2QR5nixgqNTGxSiYFE",
+        "id": "in_1USbcA2QR5nixgqNfgTBWO0v",
         "date": "2027-04-16",
         "currency": "usd",
         "lines": [
@@ -4458,7 +5912,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnRY2QR5nixgqNillmZWtN",
+        "id": "in_1USbcQ2QR5nixgqNbxNK9mtk",
         "date": "2027-05-16",
         "currency": "usd",
         "lines": [
@@ -4485,20 +5939,40 @@
         "amount_due": 66163,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S56",
     "title": "The same 12-decimal unit proration on a single seat: 7900 x 19/30 x 75% credits 3752, not 3753",
-    "verified_at": "2026-10-18T06:19:48.367Z",
+    "verified_at": "2026-10-20T11:54:41.061Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URnRN2QR5nixgqNIX0A70L2",
-    "customer": "cus_VSitVkgW8MbQ58",
+    "test_clock": "clock_1USbcH2QR5nixgqNnnJXR0oi",
+    "customer": "cus_VTYjGbxZTAESjm",
     "stripe": [
       {
-        "id": "in_1URnRO2QR5nixgqNd0lot9yU",
+        "id": "in_1USbcI2QR5nixgqNV8wJktlz",
         "date": "2027-04-16",
         "currency": "usd",
         "lines": [
@@ -4516,7 +5990,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URnRY2QR5nixgqNYNYYXphW",
+        "id": "in_1USbch2QR5nixgqNVXEzkbcv",
         "date": "2027-05-16",
         "currency": "usd",
         "lines": [
@@ -4543,20 +6017,40 @@
         "amount_due": 15603,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S57",
     "title": "A coupon applied at the exact renewal instant discounts the next invoice, not that renewal (found by fuzzing)",
-    "verified_at": "2026-10-19T17:34:46.396Z",
+    "verified_at": "2026-10-20T11:55:05.278Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKRr2QR5nixgqNdQe0Yh5v",
-    "customer": "cus_VTGzM6IPu34UHw",
+    "test_clock": "clock_1USbcO2QR5nixgqNeoBejdAk",
+    "customer": "cus_VTYjHkIiudHLEV",
     "stripe": [
       {
-        "id": "in_1USKRs2QR5nixgqNN3FrtGs0",
+        "id": "in_1USbcQ2QR5nixgqNhm1Ec6LJ",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -4574,7 +6068,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKS22QR5nixgqNtG984eqx",
+        "id": "in_1USbcp2QR5nixgqNDT9sqcDa",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -4592,7 +6086,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKSI2QR5nixgqNk1wWWy5j",
+        "id": "in_1USbd62QR5nixgqNBAb9dY8D",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -4619,20 +6113,47 @@
         "amount_due": 300,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S58",
     "title": "Flexible: two interval changes keep the anchor and credit each original debit (no invoice until the monthly renewal)",
-    "verified_at": "2026-10-18T15:30:54.253Z",
+    "verified_at": "2026-10-20T11:55:19.102Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw2F2QR5nixgqNbANkqH15",
-    "customer": "cus_VSrlBlkvWmEa0n",
+    "test_clock": "clock_1USbcb2QR5nixgqNY3QnvpsH",
+    "customer": "cus_VTYkXU0a7P62Mh",
     "stripe": [
       {
-        "id": "in_1URw2H2QR5nixgqNgnOI8utS",
+        "id": "in_1USbcd2QR5nixgqNcolP4xdg",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4650,7 +6171,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw2b2QR5nixgqNyX6CpzO3",
+        "id": "in_1USbcy2QR5nixgqNKrD7mhnP",
         "date": "2026-03-01",
         "currency": "usd",
         "lines": [
@@ -4688,7 +6209,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw2s2QR5nixgqNVcsK2Eoq",
+        "id": "in_1USbdG2QR5nixgqN900u44Ua",
         "date": "2026-04-01",
         "currency": "usd",
         "lines": [
@@ -4705,20 +6226,54 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.discount.deleted",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "customer.discount.deleted",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "customer.discount.deleted",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S59",
     "title": "Flexible: a metered subscription gets no $0 invoice at creation",
-    "verified_at": "2026-10-18T15:31:09.142Z",
+    "verified_at": "2026-10-20T11:55:40.828Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw2F2QR5nixgqN9dvbANhY",
-    "customer": "cus_VSrlOAm1NgkdKA",
+    "test_clock": "clock_1USbcf2QR5nixgqNyReIKVmk",
+    "customer": "cus_VTYkXxIvDuVnio",
     "stripe": [
       {
-        "id": "in_1URw3C2QR5nixgqNwaM7HiT1",
+        "id": "in_1USbdj2QR5nixgqNpmisQkOf",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -4745,20 +6300,30 @@
         "amount_due": 10173,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.subscription.created"
+      ],
+      [],
+      [
+        "invoice.created",
+        "customer.subscription.updated"
+      ]
     ]
   },
   {
     "id": "S60",
     "title": "Flexible: a price change during a trial issues a new $0 trial invoice right away",
-    "verified_at": "2026-10-18T15:30:41.975Z",
+    "verified_at": "2026-10-20T11:55:16.042Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw2F2QR5nixgqNW3QdOH6V",
-    "customer": "cus_VSrlUu3IoET7Ds",
+    "test_clock": "clock_1USbcr2QR5nixgqN4ImUcMsA",
+    "customer": "cus_VTYkHhlDPBZewF",
     "stripe": [
       {
-        "id": "in_1URw2H2QR5nixgqNRGbi0v5f",
+        "id": "in_1USbct2QR5nixgqNkqDguwi7",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -4776,7 +6341,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw2L2QR5nixgqNPU38XP9Y",
+        "id": "in_1USbd32QR5nixgqNe2wDlRJS",
         "date": "2027-01-05",
         "currency": "usd",
         "lines": [
@@ -4794,7 +6359,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw2S2QR5nixgqN47SDD5Wp",
+        "id": "in_1USbd92QR5nixgqNA7cPghJB",
         "date": "2027-01-15",
         "currency": "usd",
         "lines": [
@@ -4812,7 +6377,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw2i2QR5nixgqN16w3f3Hj",
+        "id": "in_1USbdH2QR5nixgqNauWsJ3XZ",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -4829,20 +6394,45 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S61",
     "title": "Flexible: billing_cycle_anchor=now nets the overlap and debits only the time past the old period end",
-    "verified_at": "2026-10-18T15:31:17.048Z",
+    "verified_at": "2026-10-20T11:55:34.558Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw2q2QR5nixgqNZdjqmczi",
-    "customer": "cus_VSrmGaHN48lPcs",
+    "test_clock": "clock_1USbcs2QR5nixgqNcGiQtXKD",
+    "customer": "cus_VTYkN5ho4FlDFb",
     "stripe": [
       {
-        "id": "in_1URw2r2QR5nixgqN4tgOAfgF",
+        "id": "in_1USbcu2QR5nixgqNv2V7eRMR",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4860,7 +6450,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw352QR5nixgqNWrqN4Vn2",
+        "id": "in_1USbdP2QR5nixgqNnab8COh6",
         "date": "2026-02-11",
         "currency": "usd",
         "lines": [
@@ -4883,7 +6473,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw3G2QR5nixgqNwUZpHiYN",
+        "id": "in_1USbdY2QR5nixgqN5S6VfXma",
         "date": "2026-03-11",
         "currency": "usd",
         "lines": [
@@ -4900,20 +6490,42 @@
         "amount_due": 15800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S62",
     "title": "Flexible: credits round gross and discount apart; an anchor reset with none debits nothing, so nothing is credited later",
-    "verified_at": "2026-10-18T15:31:56.063Z",
+    "verified_at": "2026-10-20T11:55:52.049Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw322QR5nixgqNv01DLFfQ",
-    "customer": "cus_VSrmCQIncShRGF",
+    "test_clock": "clock_1USbcw2QR5nixgqNmTttJ84J",
+    "customer": "cus_VTYksk0McOOiin",
     "stripe": [
       {
-        "id": "in_1URw332QR5nixgqNXhKteGVo",
+        "id": "in_1USbcx2QR5nixgqNpGDg5ysA",
         "date": "2026-01-01",
         "currency": "usd",
         "lines": [
@@ -4931,7 +6543,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw3Y2QR5nixgqN18qzXaT8",
+        "id": "in_1USbde2QR5nixgqNxFDWE9CM",
         "date": "2026-02-21",
         "currency": "usd",
         "lines": [
@@ -4964,7 +6576,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw3u2QR5nixgqNRmbY45jS",
+        "id": "in_1USbdq2QR5nixgqNZtCCdUvY",
         "date": "2026-03-21",
         "currency": "usd",
         "lines": [
@@ -4981,20 +6593,53 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S63",
     "title": "Flexible: the credit's gross and discount are each rounded from the 12-decimal prorated unit price",
-    "verified_at": "2026-10-18T15:31:31.859Z",
+    "verified_at": "2026-10-20T11:55:29.135Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw3H2QR5nixgqN4n639ZRU",
-    "customer": "cus_VSrmuyxt5l8FX3",
+    "test_clock": "clock_1USbdH2QR5nixgqN1fEkgDW5",
+    "customer": "cus_VTYkQPxAAmjjy6",
     "stripe": [
       {
-        "id": "in_1URw3I2QR5nixgqN0TdbiSV6",
+        "id": "in_1USbdI2QR5nixgqNkbxbB52Y",
         "date": "2027-04-16",
         "currency": "usd",
         "lines": [
@@ -5012,7 +6657,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw3U2QR5nixgqNlyubWIfX",
+        "id": "in_1USbdU2QR5nixgqNXyHUd2xL",
         "date": "2027-05-16",
         "currency": "usd",
         "lines": [
@@ -5039,20 +6684,40 @@
         "amount_due": 66162,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S64",
     "title": "Flexible: after a none change, the next proration credits what was originally debited, not the item as it is",
-    "verified_at": "2026-10-18T15:32:04.786Z",
+    "verified_at": "2026-10-20T11:56:02.532Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw3P2QR5nixgqNFkvselub",
-    "customer": "cus_VSrnWQL6GhMgUg",
+    "test_clock": "clock_1USbdR2QR5nixgqNgqq6SXyp",
+    "customer": "cus_VTYkyGvGhH1LZI",
     "stripe": [
       {
-        "id": "in_1URw3S2QR5nixgqNZ2ZOGFw8",
+        "id": "in_1USbdT2QR5nixgqN0tfRsweJ",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5070,7 +6735,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw3q2QR5nixgqNaop9SBTh",
+        "id": "in_1USbdr2QR5nixgqNNagkNYVy",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -5098,7 +6763,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw432QR5nixgqNUwEB0x3M",
+        "id": "in_1USbe12QR5nixgqNI28Ks18N",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -5115,20 +6780,46 @@
         "amount_due": 8700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S65",
     "title": "Flexible: always_invoice after a none change credits the original 2-seat debit at its coupon",
-    "verified_at": "2026-10-18T15:32:20.936Z",
+    "verified_at": "2026-10-20T11:56:13.348Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URw3d2QR5nixgqNTUCUWkIR",
-    "customer": "cus_VSrnKZXQmdw2aH",
+    "test_clock": "clock_1USbdV2QR5nixgqNpZr0IDfj",
+    "customer": "cus_VTYltKn49PolLp",
     "stripe": [
       {
-        "id": "in_1URw3f2QR5nixgqNTXx3ufWg",
+        "id": "in_1USbdW2QR5nixgqNKFRJaNLR",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5146,7 +6837,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw422QR5nixgqNOFzWGC5q",
+        "id": "in_1USbdn2QR5nixgqN90d6JxDE",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -5169,7 +6860,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw482QR5nixgqN9RHDuOUd",
+        "id": "in_1USbe12QR5nixgqNCzWEcrFN",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -5187,7 +6878,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URw4I2QR5nixgqNZhXURapU",
+        "id": "in_1USbeB2QR5nixgqNxwMbzF6t",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -5204,20 +6895,50 @@
         "amount_due": 23700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S66",
     "title": "Flexible: a proration debit is credited from its rounded gross and rounded discount, not its net (found by fuzzing)",
-    "verified_at": "2026-10-18T15:39:32.168Z",
+    "verified_at": "2026-10-20T11:56:19.285Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwB02QR5nixgqNenteu2nT",
-    "customer": "cus_VSruuxG6QAlAbT",
+    "test_clock": "clock_1USbdf2QR5nixgqN93Je60hH",
+    "customer": "cus_VTYldFROH0v73S",
     "stripe": [
       {
-        "id": "in_1URwB12QR5nixgqNejxrrFth",
+        "id": "in_1USbdg2QR5nixgqNi65enXiF",
         "date": "2028-02-29",
         "currency": "usd",
         "lines": [
@@ -5235,7 +6956,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwBI2QR5nixgqNuKoOnGv4",
+        "id": "in_1USbeB2QR5nixgqNvZhseFck",
         "date": "2028-04-23",
         "currency": "usd",
         "lines": [
@@ -5272,20 +6993,47 @@
         "amount_due": 22737,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      []
     ]
   },
   {
     "id": "S67",
     "title": "Cancel now with a refund (prorate + invoice_now): the final invoice carries pending prorations and the unused-time credit",
-    "verified_at": "2026-10-18T15:51:58.751Z",
+    "verified_at": "2026-10-20T11:56:20.206Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwMc2QR5nixgqNIHX8naWB",
-    "customer": "cus_VSs6qjGPR8Y8Zw",
+    "test_clock": "clock_1USbdk2QR5nixgqNM3LUGseR",
+    "customer": "cus_VTYl10K8bjs1lc",
     "stripe": [
       {
-        "id": "in_1URwMd2QR5nixgqNmrj8FxTT",
+        "id": "in_1USbdl2QR5nixgqNVAop13uC",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5303,7 +7051,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwN62QR5nixgqNLVK0c9Xr",
+        "id": "in_1USbeA2QR5nixgqNuSgNJU0b",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -5330,20 +7078,42 @@
         "amount_due": 813,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "customer.subscription.deleted"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S68",
     "title": "Flexible: cancelling a taxed yearly plan with a refund creates a credit balance that pays the next subscription",
-    "verified_at": "2026-10-19T06:04:46.417Z",
+    "verified_at": "2026-10-20T11:56:30.574Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9g32QR5nixgqNhIkIoNrh",
-    "customer": "cus_VT5r12hcmRtLD9",
+    "test_clock": "clock_1USbdq2QR5nixgqNVxbf24yJ",
+    "customer": "cus_VTYlk8VfINoad0",
     "stripe": [
       {
-        "id": "in_1US9g42QR5nixgqNDjBGUteG",
+        "id": "in_1USbds2QR5nixgqNe0AmGedJ",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5361,7 +7131,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9gN2QR5nixgqNZJFbvfEg",
+        "id": "in_1USbeD2QR5nixgqNQ3Uv4sNp",
         "date": "2027-04-10",
         "currency": "usd",
         "lines": [
@@ -5379,7 +7149,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9gV2QR5nixgqNbtvfE1VS",
+        "id": "in_1USbeO2QR5nixgqNgP4h1uTU",
         "date": "2027-05-01",
         "currency": "usd",
         "lines": [
@@ -5397,7 +7167,7 @@
         "starting_balance": -23247
       },
       {
-        "id": "in_1US9ga2QR5nixgqNybMFHCUu",
+        "id": "in_1USbeW2QR5nixgqNRSI6NjD8",
         "date": "2027-06-01",
         "currency": "usd",
         "lines": [
@@ -5414,20 +7184,47 @@
         "amount_due": 0,
         "starting_balance": -15347
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "customer.subscription.deleted"
+      ],
+      [
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S69",
     "title": "An amount due below Stripe's $0.50 minimum is not charged; it is carried onto the next invoice (found by fuzzing)",
-    "verified_at": "2026-10-18T15:56:53.276Z",
+    "verified_at": "2026-10-20T11:56:33.715Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwRe2QR5nixgqNMz2HR3zR",
-    "customer": "cus_VSsCZffqxD5gM0",
+    "test_clock": "clock_1USbe12QR5nixgqNlw4HHajH",
+    "customer": "cus_VTYlgMvkenQbSL",
     "stripe": [
       {
-        "id": "in_1URwRf2QR5nixgqNrrRRZTuq",
+        "id": "in_1USbe32QR5nixgqNFyTPYjY7",
         "date": "2027-04-30",
         "currency": "usd",
         "lines": [
@@ -5445,7 +7242,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwRm2QR5nixgqNZaKpu94v",
+        "id": "in_1USbeK2QR5nixgqNZnVFtfVL",
         "date": "2027-05-30",
         "currency": "usd",
         "lines": [
@@ -5473,7 +7270,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwRu2QR5nixgqNr5j8g0sD",
+        "id": "in_1USbeS2QR5nixgqNyEm4hS8K",
         "date": "2027-06-30",
         "currency": "usd",
         "lines": [
@@ -5490,20 +7287,43 @@
         "amount_due": 3630,
         "starting_balance": 30
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S70",
     "title": "Flexible: after a none yearly -> monthly change, a later change credits the yearly debit only to the monthly period end (found by fuzzing)",
-    "verified_at": "2026-10-19T06:04:46.520Z",
+    "verified_at": "2026-10-20T11:56:53.717Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9g32QR5nixgqNWsUFRYYU",
-    "customer": "cus_VT5rBMaHkKIKDU",
+    "test_clock": "clock_1USbeC2QR5nixgqNEGPTXX8W",
+    "customer": "cus_VTYlmAlMvz3Xcs",
     "stripe": [
       {
-        "id": "in_1US9g52QR5nixgqNskkkf1qG",
+        "id": "in_1USbeE2QR5nixgqNNWX6ZPFT",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -5521,7 +7341,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9gR2QR5nixgqNiPB0vh7I",
+        "id": "in_1USbec2QR5nixgqNvvsTtHLh",
         "date": "2027-03-25",
         "currency": "usd",
         "lines": [
@@ -5553,20 +7373,50 @@
         "amount_due": 252623,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      []
     ]
   },
   {
     "id": "S71",
     "title": "cancel_at inside the current period: a final invoice on that date credits the unused time at the discounted rate",
-    "verified_at": "2026-10-18T16:11:59.223Z",
+    "verified_at": "2026-10-20T11:56:37.335Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwgR2QR5nixgqNOrO4EZt5",
-    "customer": "cus_VSsR7HGS8GfxRs",
+    "test_clock": "clock_1USbeN2QR5nixgqNldeoyW88",
+    "customer": "cus_VTYllE3xDsecNi",
     "stripe": [
       {
-        "id": "in_1URwgS2QR5nixgqNLaSnCRje",
+        "id": "in_1USbeO2QR5nixgqNEYUzwZso",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5584,7 +7434,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwge2QR5nixgqNwd2CTSMU",
+        "id": "in_1USbeb2QR5nixgqNsw2F4Um0",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -5601,20 +7451,39 @@
         "amount_due": 0,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S72",
     "title": "Flexible: cancel_at in a later period cuts the last renewal short, priced as gross minus discount each rounded",
-    "verified_at": "2026-10-18T16:12:07.119Z",
+    "verified_at": "2026-10-20T11:57:04.144Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwgR2QR5nixgqNU3f818hk",
-    "customer": "cus_VSsRjsEraoERCm",
+    "test_clock": "clock_1USbeT2QR5nixgqNgbzb602g",
+    "customer": "cus_VTYmghRLeyAXzI",
     "stripe": [
       {
-        "id": "in_1URwgS2QR5nixgqN2Ul4gmfl",
+        "id": "in_1USbeU2QR5nixgqNax6B9FXF",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5632,7 +7501,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwga2QR5nixgqN91TWjOQt",
+        "id": "in_1USbej2QR5nixgqNEWFSH7nm",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -5649,20 +7518,40 @@
         "amount_due": 2962,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.deleted"
+      ]
     ]
   },
   {
     "id": "S73",
     "title": "cancel_at sweeps pending prorations onto the final invoice with the credit for the seats as they are",
-    "verified_at": "2026-10-18T16:11:57.303Z",
+    "verified_at": "2026-10-20T11:56:50.859Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1URwgR2QR5nixgqNE8jmTEBt",
-    "customer": "cus_VSsRGDcVgy1C9e",
+    "test_clock": "clock_1USbeU2QR5nixgqNnD3OSaI3",
+    "customer": "cus_VTYmUMNKt8BQ3F",
     "stripe": [
       {
-        "id": "in_1URwgS2QR5nixgqN3kL9w6WH",
+        "id": "in_1USbeV2QR5nixgqNBtL6KGqc",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -5680,7 +7569,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1URwga2QR5nixgqNRP6dLi30",
+        "id": "in_1USbel2QR5nixgqNHoUHN0MY",
         "date": "2027-01-25",
         "currency": "usd",
         "lines": [
@@ -5707,20 +7596,43 @@
         "amount_due": 2090,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.subscription.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S74",
     "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
-    "verified_at": "2026-10-19T18:03:19.755Z",
+    "verified_at": "2026-10-20T11:57:03.192Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKtc2QR5nixgqNocHakN8C",
-    "customer": "cus_VTHSGzv5EYZdKf",
+    "test_clock": "clock_1USbee2QR5nixgqN3QPyyc5d",
+    "customer": "cus_VTYmw4fm38GX9C",
     "stripe": [
       {
-        "id": "in_1USKtd2QR5nixgqNMzk84GVJ",
+        "id": "in_1USbef2QR5nixgqNdhaK6KoJ",
         "date": "2027-02-10",
         "currency": "usd",
         "lines": [
@@ -5738,7 +7650,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKtj2QR5nixgqNp3vC6vT7",
+        "id": "in_1USbem2QR5nixgqNHfHItd1b",
         "date": "2027-03-05",
         "currency": "usd",
         "lines": [
@@ -5756,7 +7668,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKtv2QR5nixgqN0JqTDmsq",
+        "id": "in_1USbex2QR5nixgqNQW7qgCej",
         "date": "2027-04-05",
         "currency": "usd",
         "lines": [
@@ -5773,20 +7685,39 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S75",
     "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
-    "verified_at": "2026-10-19T18:03:29.655Z",
+    "verified_at": "2026-10-20T11:57:24.193Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKtc2QR5nixgqNJucW46XP",
-    "customer": "cus_VTHSLdmeSw4AD7",
+    "test_clock": "clock_1USbeh2QR5nixgqNrni4MAn6",
+    "customer": "cus_VTYmdX2iIqskds",
     "stripe": [
       {
-        "id": "in_1USKtd2QR5nixgqNkrlpCcgl",
+        "id": "in_1USbej2QR5nixgqNtyYGJ3N4",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -5804,7 +7735,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKu12QR5nixgqN5aYGJhLp",
+        "id": "in_1USbfF2QR5nixgqN0UcSYhfx",
         "date": "2027-07-01",
         "currency": "usd",
         "lines": [
@@ -5821,20 +7752,37 @@
         "amount_due": 29000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "customer.discount.deleted",
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S76",
     "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
-    "verified_at": "2026-10-19T05:27:00.606Z",
+    "verified_at": "2026-10-20T11:57:12.351Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US95d2QR5nixgqNJ3CX6qGI",
-    "customer": "cus_VT5GtVLxDJMQcr",
+    "test_clock": "clock_1USbel2QR5nixgqNjRLfsW7x",
+    "customer": "cus_VTYmTz6hNNxlVt",
     "stripe": [
       {
-        "id": "in_1US95e2QR5nixgqNG7O4Hs3k",
+        "id": "in_1USbem2QR5nixgqNJmlEcdjZ",
         "date": "2027-01-20",
         "currency": "usd",
         "lines": [
@@ -5852,7 +7800,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US95n2QR5nixgqNJOw5SgxK",
+        "id": "in_1USbey2QR5nixgqN7XEXfaIU",
         "date": "2027-01-31",
         "currency": "usd",
         "lines": [
@@ -5880,7 +7828,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9612QR5nixgqNsDhVgD3Z",
+        "id": "in_1USbf92QR5nixgqNhXq4qik9",
         "date": "2027-02-28",
         "currency": "usd",
         "lines": [
@@ -5897,20 +7845,44 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S77",
     "title": "First-billing-date stub is prorated over one interval counted from the start (05-31 -> 06-30), not the period ending on the anchor (found by fuzzing)",
-    "verified_at": "2026-10-19T05:27:20.776Z",
+    "verified_at": "2026-10-20T11:57:27.219Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9672QR5nixgqNMJJv8Dqe",
-    "customer": "cus_VT5GuStFQObCEU",
+    "test_clock": "clock_1USbey2QR5nixgqNR0IgzhL7",
+    "customer": "cus_VTYm5Ir0Ox0i7w",
     "stripe": [
       {
-        "id": "in_1US9682QR5nixgqNKRGDJovY",
+        "id": "in_1USbf02QR5nixgqNY5gMrR3D",
         "date": "2028-05-31",
         "currency": "usd",
         "lines": [
@@ -5928,7 +7900,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96C2QR5nixgqNulfGlhSA",
+        "id": "in_1USbf72QR5nixgqNVe5bPgTX",
         "date": "2028-06-13",
         "currency": "usd",
         "lines": [
@@ -5946,7 +7918,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96L2QR5nixgqNd3Am7DSI",
+        "id": "in_1USbfN2QR5nixgqNMTK8Cx9j",
         "date": "2028-07-13",
         "currency": "usd",
         "lines": [
@@ -5963,20 +7935,39 @@
         "amount_due": 23700,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S78",
     "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
-    "verified_at": "2026-10-19T16:40:14.734Z",
+    "verified_at": "2026-10-20T11:57:19.544Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJbK2QR5nixgqNmZuxrESI",
-    "customer": "cus_VTG7VVgIieJi3r",
+    "test_clock": "clock_1USbf12QR5nixgqNDZO3woJ9",
+    "customer": "cus_VTYmN3BkkTXreG",
     "stripe": [
       {
-        "id": "in_1USJbL2QR5nixgqNYvY3IItb",
+        "id": "in_1USbf32QR5nixgqN0iwIXeFo",
         "date": "2027-06-05",
         "currency": "usd",
         "lines": [
@@ -5994,7 +7985,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJbS2QR5nixgqNuEy2GvaC",
+        "id": "in_1USbfA2QR5nixgqNChWjh47d",
         "date": "2027-06-28",
         "currency": "usd",
         "lines": [
@@ -6017,7 +8008,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJbX2QR5nixgqNBbg2uTRh",
+        "id": "in_1USbfH2QR5nixgqNm7qxKAce",
         "date": "2027-07-05",
         "currency": "usd",
         "lines": [
@@ -6034,20 +8025,44 @@
         "amount_due": 39500,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "customer.discount.deleted",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S79",
     "title": "A percent coupon on a proration charge comes off the rounded gross: 28542 x 25% = 7135.5 -> 7136 (found by fuzzing)",
-    "verified_at": "2026-10-19T16:27:02.960Z",
+    "verified_at": "2026-10-20T11:57:48.640Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJO02QR5nixgqNZr1Dz6ka",
-    "customer": "cus_VTFt3dpRi1FIO4",
+    "test_clock": "clock_1USbfB2QR5nixgqNdsjb33oz",
+    "customer": "cus_VTYmRXbkjInq6I",
     "stripe": [
       {
-        "id": "in_1USJO12QR5nixgqNfIEPtNip",
+        "id": "in_1USbfC2QR5nixgqN9F9NHEdA",
         "date": "2027-01-02",
         "currency": "usd",
         "lines": [
@@ -6065,7 +8080,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJOG2QR5nixgqNIzGJaOhe",
+        "id": "in_1USbfQ2QR5nixgqNUsSUix45",
         "date": "2027-01-16",
         "currency": "usd",
         "lines": [
@@ -6083,7 +8098,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJOg2QR5nixgqN73eOScPK",
+        "id": "in_1USbfc2QR5nixgqNWNYiWJLe",
         "date": "2027-02-16",
         "currency": "usd",
         "lines": [
@@ -6110,20 +8125,47 @@
         "amount_due": 43141,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoiceitem.created",
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S80",
     "title": "Flexible: pause mid-period, resume a month later; the unused-time credit rides on the resumption invoice and the cycle restarts",
-    "verified_at": "2026-10-19T05:08:10.312Z",
+    "verified_at": "2026-10-20T11:57:49.961Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US8nH2QR5nixgqN8S0ZrluS",
-    "customer": "cus_VT4xPWObaOoaMf",
+    "test_clock": "clock_1USbfC2QR5nixgqNkPZ4dJra",
+    "customer": "cus_VTYmMYvd0IYUfi",
     "stripe": [
       {
-        "id": "in_1US8nJ2QR5nixgqNsU1vVreG",
+        "id": "in_1USbfD2QR5nixgqNLn3oo1QY",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6141,7 +8183,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8nc2QR5nixgqN5QV30zcy",
+        "id": "in_1USbfZ2QR5nixgqNNnCAMdXZ",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -6164,7 +8206,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8nj2QR5nixgqNOyCFhD9P",
+        "id": "in_1USbfi2QR5nixgqNSXYKQehw",
         "date": "2027-03-15",
         "currency": "usd",
         "lines": [
@@ -6181,20 +8223,46 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S81",
     "title": "Flexible: resume with billing_cycle_anchor unchanged; nothing is invoiced at resume, the rest of the cycle is prorated onto the next renewal",
-    "verified_at": "2026-10-19T05:27:31.409Z",
+    "verified_at": "2026-10-20T11:58:00.518Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9682QR5nixgqNSCihPIvA",
-    "customer": "cus_VT5GW2ke97FUdW",
+    "test_clock": "clock_1USbfK2QR5nixgqNN9JzqCBz",
+    "customer": "cus_VTYma5caYV7nLp",
     "stripe": [
       {
-        "id": "in_1US96A2QR5nixgqN0upTzF9y",
+        "id": "in_1USbfL2QR5nixgqNRcqLM8te",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6212,7 +8280,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96M2QR5nixgqNjN51fcts",
+        "id": "in_1USbfg2QR5nixgqNuRkeFKh7",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -6240,7 +8308,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96W2QR5nixgqN0ZgFygUH",
+        "id": "in_1USbfv2QR5nixgqNAhbsilUC",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -6257,20 +8325,48 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S82",
     "title": "Flexible: pause with invoicing_behavior invoice; the credit is its own invoice and becomes customer balance",
-    "verified_at": "2026-10-19T05:08:16.406Z",
+    "verified_at": "2026-10-20T11:57:59.696Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US8nI2QR5nixgqNKGcViIU0",
-    "customer": "cus_VT4xVzTtAgA7hy",
+    "test_clock": "clock_1USbfR2QR5nixgqNrpyYqavI",
+    "customer": "cus_VTYnuKoSnwRY5W",
     "stripe": [
       {
-        "id": "in_1US8nJ2QR5nixgqN5OxM7abp",
+        "id": "in_1USbfT2QR5nixgqNq1oGtJcz",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6288,7 +8384,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8nT2QR5nixgqNPL4Ub3aB",
+        "id": "in_1USbfZ2QR5nixgqNa3hfZfGF",
         "date": "2027-01-16",
         "currency": "usd",
         "lines": [
@@ -6306,7 +8402,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8ne2QR5nixgqNmJmSp7WB",
+        "id": "in_1USbfh2QR5nixgqNaKniQevp",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -6324,7 +8420,7 @@
         "starting_balance": -4077
       },
       {
-        "id": "in_1US8nm2QR5nixgqNHKIPrVeM",
+        "id": "in_1USbfs2QR5nixgqNbaPBMj7D",
         "date": "2027-03-15",
         "currency": "usd",
         "lines": [
@@ -6341,20 +8437,48 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S83",
     "title": "Flexible: pause without crediting unused time (bill_for.unused_time_from none)",
-    "verified_at": "2026-10-19T05:08:37.732Z",
+    "verified_at": "2026-10-20T11:58:16.170Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US8nu2QR5nixgqNGRoEpzqu",
-    "customer": "cus_VT4xpEZrVdrqhN",
+    "test_clock": "clock_1USbfW2QR5nixgqNbBYtSHvk",
+    "customer": "cus_VTYnp5DtuuThM4",
     "stripe": [
       {
-        "id": "in_1US8nv2QR5nixgqNYs3ec91u",
+        "id": "in_1USbfX2QR5nixgqNZsXJ7NjR",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6372,7 +8496,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8o42QR5nixgqNG6Jz07tE",
+        "id": "in_1USbfw2QR5nixgqNu1ht8byv",
         "date": "2027-02-15",
         "currency": "usd",
         "lines": [
@@ -6390,7 +8514,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8oA2QR5nixgqNjNd0uYQl",
+        "id": "in_1USbg62QR5nixgqNDX7jPv8x",
         "date": "2027-03-15",
         "currency": "usd",
         "lines": [
@@ -6407,20 +8531,45 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S84",
     "title": "Flexible: pausing a discounted, multi-seat subscription mid-day credits gross and discount rounded apart",
-    "verified_at": "2026-10-19T05:08:40.712Z",
+    "verified_at": "2026-10-20T11:58:17.326Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US8o02QR5nixgqNPPtiF8QG",
-    "customer": "cus_VT4x1h2Fd60XH8",
+    "test_clock": "clock_1USbfZ2QR5nixgqNUDCa6GWZ",
+    "customer": "cus_VTYn2RJgph6EJb",
     "stripe": [
       {
-        "id": "in_1US8o12QR5nixgqNKkkVjUo5",
+        "id": "in_1USbfa2QR5nixgqN8FHy5gQp",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6438,7 +8587,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8o82QR5nixgqNBaIpX429",
+        "id": "in_1USbfu2QR5nixgqN0DNUSyMC",
         "date": "2027-01-25",
         "currency": "usd",
         "lines": [
@@ -6461,7 +8610,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US8oF2QR5nixgqNm9pTeS7i",
+        "id": "in_1USbg92QR5nixgqN7MCui588",
         "date": "2027-02-25",
         "currency": "usd",
         "lines": [
@@ -6478,20 +8627,47 @@
         "amount_due": 17775,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S85",
     "title": "Flexible: a first-billing-date stub divides by the anchor-aligned period ending on the anchor, not one interval from the start (found by fuzzing)",
-    "verified_at": "2026-10-19T05:27:32.419Z",
+    "verified_at": "2026-10-20T11:58:26.165Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US96F2QR5nixgqNUNd2QTxt",
-    "customer": "cus_VT5GRt3aUzGVvh",
+    "test_clock": "clock_1USbfu2QR5nixgqNhh1DjX9V",
+    "customer": "cus_VTYnt6NuIx6tG5",
     "stripe": [
       {
-        "id": "in_1US96G2QR5nixgqNA92mw9OO",
+        "id": "in_1USbfw2QR5nixgqNLOoJdzs6",
         "date": "2028-03-05",
         "currency": "usd",
         "lines": [
@@ -6509,7 +8685,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96M2QR5nixgqNXyl7wJX1",
+        "id": "in_1USbg42QR5nixgqNqPGMue65",
         "date": "2028-03-22",
         "currency": "usd",
         "lines": [
@@ -6527,7 +8703,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96W2QR5nixgqNX0nkD53S",
+        "id": "in_1USbgL2QR5nixgqNi97kGOhc",
         "date": "2028-04-22",
         "currency": "usd",
         "lines": [
@@ -6544,20 +8720,40 @@
         "amount_due": 4500,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S86",
     "title": "Flexible: after an unprorated price change, resuming in the same period charges nothing for the rest of it (found by fuzzing)",
-    "verified_at": "2026-10-19T05:27:50.721Z",
+    "verified_at": "2026-10-20T11:58:51.677Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US96T2QR5nixgqNxKWEhqbX",
-    "customer": "cus_VT5HFPMgPgu7hc",
+    "test_clock": "clock_1USbfv2QR5nixgqNguWvuBt6",
+    "customer": "cus_VTYna3JtbwHMnc",
     "stripe": [
       {
-        "id": "in_1US96U2QR5nixgqNyyj8mYDd",
+        "id": "in_1USbfx2QR5nixgqNFaWlsuVi",
         "date": "2027-04-03",
         "currency": "usd",
         "lines": [
@@ -6575,7 +8771,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96f2QR5nixgqNyoVre0VA",
+        "id": "in_1USbgQ2QR5nixgqNfcX2yMT8",
         "date": "2027-05-03",
         "currency": "usd",
         "lines": [
@@ -6598,7 +8794,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96p2QR5nixgqNcVOrREZp",
+        "id": "in_1USbgk2QR5nixgqNwdHIC1Gd",
         "date": "2027-06-03",
         "currency": "usd",
         "lines": [
@@ -6615,20 +8811,50 @@
         "amount_due": 1200,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S87",
     "title": "Flexible: after an unprorated change, resuming in a later period charges the rest of that period as usual",
-    "verified_at": "2026-10-19T05:27:55.332Z",
+    "verified_at": "2026-10-20T11:58:41.439Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US96d2QR5nixgqNjDSSAUsA",
-    "customer": "cus_VT5HPtkGW3DuCX",
+    "test_clock": "clock_1USbg52QR5nixgqNbTaLSRe7",
+    "customer": "cus_VTYn3S9GsydwKL",
     "stripe": [
       {
-        "id": "in_1US96f2QR5nixgqNfRkYYC6g",
+        "id": "in_1USbg72QR5nixgqNMRCSW0Nl",
         "date": "2027-04-03",
         "currency": "usd",
         "lines": [
@@ -6646,7 +8872,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96s2QR5nixgqNqh5QBkWK",
+        "id": "in_1USbga2QR5nixgqNH7TCH6XP",
         "date": "2027-06-03",
         "currency": "usd",
         "lines": [
@@ -6673,20 +8899,47 @@
         "amount_due": 10985,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S88",
     "title": "Flexible: the charge for resuming with an unchanged anchor takes a percent discount off the unrounded gross (found by fuzzing)",
-    "verified_at": "2026-10-19T05:28:04.339Z",
+    "verified_at": "2026-10-20T11:59:02.536Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US96e2QR5nixgqNSoyirGFg",
-    "customer": "cus_VT5HlIwOnHzHwB",
+    "test_clock": "clock_1USbg62QR5nixgqNbHBXTQMv",
+    "customer": "cus_VTYn0B9ipI25gx",
     "stripe": [
       {
-        "id": "in_1US96g2QR5nixgqNuC6wxzuS",
+        "id": "in_1USbg72QR5nixgqNTFLg6L9I",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6704,7 +8957,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US96s2QR5nixgqNkkcoD0mz",
+        "id": "in_1USbga2QR5nixgqNNa1Jj6xl",
         "date": "2027-04-01",
         "currency": "usd",
         "lines": [
@@ -6727,7 +8980,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9732QR5nixgqNi0mTluBY",
+        "id": "in_1USbgt2QR5nixgqNRLaYGDEs",
         "date": "2027-05-01",
         "currency": "usd",
         "lines": [
@@ -6744,20 +8997,48 @@
         "amount_due": 10875,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S89",
     "title": "Flexible: a proration charge takes its percent discount off the unrounded gross (found by fuzzing)",
-    "verified_at": "2026-10-19T06:00:00.418Z",
+    "verified_at": "2026-10-20T11:59:09.355Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9bS2QR5nixgqNnb30u8Q6",
-    "customer": "cus_VT5nRbzCx4U3bu",
+    "test_clock": "clock_1USbgM2QR5nixgqNanwNQxyO",
+    "customer": "cus_VTYnZM76ElAU8C",
     "stripe": [
       {
-        "id": "in_1US9bT2QR5nixgqNOnjIQhyn",
+        "id": "in_1USbgN2QR5nixgqN0g7C1ou6",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6775,7 +9056,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9bk2QR5nixgqNBkXj42Fu",
+        "id": "in_1USbgj2QR5nixgqNgigW3s32",
         "date": "2027-02-10",
         "currency": "usd",
         "lines": [
@@ -6798,7 +9079,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9bw2QR5nixgqNsxt9N9Dw",
+        "id": "in_1USbh12QR5nixgqN1AfGulSU",
         "date": "2027-03-10",
         "currency": "usd",
         "lines": [
@@ -6815,20 +9096,43 @@
         "amount_due": 2175,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "customer.discount.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S90",
     "title": "Inclusive tax at an exact tie rounds half away from zero: 387 incl. 20% VAT is 64.5 -> 65",
-    "verified_at": "2026-10-19T16:26:28.641Z",
+    "verified_at": "2026-10-20T11:59:00.497Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJO02QR5nixgqNf80MIaPd",
-    "customer": "cus_VTFtLNbLGNPtJw",
+    "test_clock": "clock_1USbgN2QR5nixgqNMoOZSmpN",
+    "customer": "cus_VTYnzanSQqeia3",
     "stripe": [
       {
-        "id": "in_1USJO22QR5nixgqNeaOjD0Pg",
+        "id": "in_1USbgO2QR5nixgqNvhFMKFO4",
         "date": "2027-01-01",
         "currency": "jpy",
         "lines": [
@@ -6846,7 +9150,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJO72QR5nixgqNUqmv7rZK",
+        "id": "in_1USbgW2QR5nixgqNN3j9wzid",
         "date": "2027-01-28",
         "currency": "jpy",
         "lines": [
@@ -6869,7 +9173,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJOD2QR5nixgqNsxROHmRq",
+        "id": "in_1USbgs2QR5nixgqNdBEdURzr",
         "date": "2027-02-01",
         "currency": "jpy",
         "lines": [
@@ -6886,20 +9190,42 @@
         "amount_due": 6000,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S91",
     "title": "Flexible: after a pause that credited nothing, resuming restarts the cycle but bills only the time the old debit does not cover (found by fuzzing)",
-    "verified_at": "2026-10-19T06:00:06.029Z",
+    "verified_at": "2026-10-20T11:59:26.993Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9bS2QR5nixgqN5kolcoHX",
-    "customer": "cus_VT5nRTn7nLMoJ3",
+    "test_clock": "clock_1USbgW2QR5nixgqNNXYKFLb0",
+    "customer": "cus_VTYoymb14ORhN5",
     "stripe": [
       {
-        "id": "in_1US9bT2QR5nixgqNuPGCwHSD",
+        "id": "in_1USbgX2QR5nixgqNOr4BspY3",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6917,7 +9243,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9bp2QR5nixgqNW8Aa9YyR",
+        "id": "in_1USbh42QR5nixgqNdV3j8bUA",
         "date": "2027-02-20",
         "currency": "usd",
         "lines": [
@@ -6940,7 +9266,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9c12QR5nixgqNT3nxV5mi",
+        "id": "in_1USbhK2QR5nixgqNgxWWR327",
         "date": "2027-03-20",
         "currency": "usd",
         "lines": [
@@ -6957,20 +9283,47 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S92",
     "title": "Flexible: a pause that credited nothing, resumed in the same period with the anchor unchanged, charges nothing",
-    "verified_at": "2026-10-19T06:00:21.138Z",
+    "verified_at": "2026-10-20T11:59:35.364Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9bw2QR5nixgqNsoSmS5Mq",
-    "customer": "cus_VT5nv8O71BYpnK",
+    "test_clock": "clock_1USbgl2QR5nixgqN6gZTt3Vc",
+    "customer": "cus_VTYovG1Kky6jdT",
     "stripe": [
       {
-        "id": "in_1US9bx2QR5nixgqNcji7xi1V",
+        "id": "in_1USbgm2QR5nixgqNFefqPKJw",
         "date": "2027-01-01",
         "currency": "usd",
         "lines": [
@@ -6988,7 +9341,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9c72QR5nixgqNSlhKZCT4",
+        "id": "in_1USbhF2QR5nixgqNcfgiQE0A",
         "date": "2027-02-01",
         "currency": "usd",
         "lines": [
@@ -7006,7 +9359,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9cI2QR5nixgqN4KMOuwZC",
+        "id": "in_1USbhS2QR5nixgqNVWTo6jjM",
         "date": "2027-03-01",
         "currency": "usd",
         "lines": [
@@ -7023,20 +9376,46 @@
         "amount_due": 7900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.paused"
+      ],
+      [
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S93",
-    "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
-    "verified_at": "2026-10-19T16:26:40.417Z",
+    "title": "Flexible: inclusive tax is rounded at the invoice level from 12-decimal taxable amounts, 13892 where round(83355/6) = 13893 (found by fuzzing)",
+    "verified_at": "2026-10-20T11:59:25.961Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJO02QR5nixgqNIUmYr28r",
-    "customer": "cus_VTFtpGiQ3bNhJw",
+    "test_clock": "clock_1USbgv2QR5nixgqNhbhLCRtf",
+    "customer": "cus_VTYog0574bvOeq",
     "stripe": [
       {
-        "id": "in_1USJO22QR5nixgqNQRIk41Q1",
+        "id": "in_1USbgw2QR5nixgqNhyNtKBcn",
         "date": "2028-07-06",
         "currency": "jpy",
         "lines": [
@@ -7054,7 +9433,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJOK2QR5nixgqNOXrBVCpk",
+        "id": "in_1USbhA2QR5nixgqNcK3rjXMc",
         "date": "2028-08-06",
         "currency": "jpy",
         "lines": [
@@ -7081,20 +9460,39 @@
         "amount_due": 83355,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S94",
     "title": "Flexible: exclusive tax is one computation on the invoice total, not per line (found by fuzzing)",
-    "verified_at": "2026-10-19T06:24:31.322Z",
+    "verified_at": "2026-10-20T11:59:42.482Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1US9zQ2QR5nixgqN6ZKpPe0h",
-    "customer": "cus_VT6BVZzU5phiRP",
+    "test_clock": "clock_1USbh42QR5nixgqNXUWMYPLy",
+    "customer": "cus_VTYoCPF1lcABVN",
     "stripe": [
       {
-        "id": "in_1US9zR2QR5nixgqNEFDZFUAr",
+        "id": "in_1USbh52QR5nixgqNFZFKU1Up",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -7112,7 +9510,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9zX2QR5nixgqNFo8jS56k",
+        "id": "in_1USbhK2QR5nixgqNObMmsYNX",
         "date": "2027-01-14",
         "currency": "usd",
         "lines": [
@@ -7135,7 +9533,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1US9zd2QR5nixgqN1hK76cyI",
+        "id": "in_1USbhW2QR5nixgqNHIZHg7Zg",
         "date": "2027-02-10",
         "currency": "usd",
         "lines": [
@@ -7152,20 +9550,42 @@
         "amount_due": 12760,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S95",
     "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
-    "verified_at": "2026-10-19T17:34:48.186Z",
+    "verified_at": "2026-10-20T12:00:02.011Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USKRr2QR5nixgqNfaHBEGBs",
-    "customer": "cus_VTGzoQukc4hmDM",
+    "test_clock": "clock_1USbh62QR5nixgqNpMIjOlg4",
+    "customer": "cus_VTYoa2PAsw4KwX",
     "stripe": [
       {
-        "id": "in_1USKRs2QR5nixgqN5JnKNQp2",
+        "id": "in_1USbh82QR5nixgqNmVjoza75",
         "date": "2028-01-02",
         "currency": "usd",
         "lines": [
@@ -7183,7 +9603,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKSA2QR5nixgqNhEr9yPoH",
+        "id": "in_1USbhU2QR5nixgqNNpBay1UN",
         "date": "2028-02-02",
         "currency": "usd",
         "lines": [
@@ -7206,7 +9626,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USKS62QR5nixgqNUn4ny1kO",
+        "id": "in_1USbhS2QR5nixgqNRudOtn6l",
         "date": "2028-02-02",
         "currency": "usd",
         "lines": [
@@ -7223,20 +9643,47 @@
         "amount_due": 18960,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.discount.created",
+        "customer.subscription.updated"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoiceitem.created",
+        "invoiceitem.created",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated"
+      ],
+      [
+        "customer.discount.deleted",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S96",
     "title": "Trial ends without a card, end behavior cancel: the subscription is canceled at trial end and nothing is invoiced",
-    "verified_at": "2026-10-19T16:05:40.305Z",
+    "verified_at": "2026-10-20T11:59:35.812Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJ3z2QR5nixgqNAdgrLlkd",
-    "customer": "cus_VTFZBkvDz4QZp5",
+    "test_clock": "clock_1USbhD2QR5nixgqN2ab5AxXD",
+    "customer": "cus_VTYoDJm7UkPCxm",
     "stripe": [
       {
-        "id": "in_1USJ3z2QR5nixgqNNzcHQcli",
+        "id": "in_1USbhE2QR5nixgqNXPeaDjuW",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -7253,20 +9700,32 @@
         "amount_due": 0,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.deleted"
+      ]
     ]
   },
   {
     "id": "S97",
     "title": "Classic: trial ends without a card into a pause; resuming with anchor unchanged prorates the rest of the cycle onto the next renewal",
-    "verified_at": "2026-10-19T16:06:00.758Z",
+    "verified_at": "2026-10-20T12:01:17.086Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJ3z2QR5nixgqN83TsEdeE",
-    "customer": "cus_VTFZCkeYnJBwfw",
+    "test_clock": "clock_1USbhT2QR5nixgqNCGCRBYyR",
+    "customer": "cus_VTYpeUknGPNTcu",
     "stripe": [
       {
-        "id": "in_1USJ3z2QR5nixgqNboWhUrIa",
+        "id": "in_1USbhU2QR5nixgqNfjXh4W1L",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -7284,7 +9743,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJ4D2QR5nixgqNP9YMLXJV",
+        "id": "in_1USbhh2QR5nixgqNhfyPBEh6",
         "date": "2027-02-24",
         "currency": "usd",
         "lines": [
@@ -7307,7 +9766,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJ4O2QR5nixgqNityPCQZw",
+        "id": "in_1USbhr2QR5nixgqNVmpK7fe4",
         "date": "2027-03-24",
         "currency": "usd",
         "lines": [
@@ -7324,20 +9783,46 @@
         "amount_due": 2900,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.updated",
+        "customer.subscription.paused",
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid",
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S98",
     "title": "Flexible: trial ends without a card into a pause; resuming with anchor now invoices a full new period at once and moves the anchor",
-    "verified_at": "2026-10-19T16:05:59.704Z",
+    "verified_at": "2026-10-20T12:00:04.037Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJ3z2QR5nixgqN28SzLK8g",
-    "customer": "cus_VTFZ5QuUSHCzUR",
+    "test_clock": "clock_1USbhU2QR5nixgqN6pbsQBme",
+    "customer": "cus_VTYp9WhzTVfZKM",
     "stripe": [
       {
-        "id": "in_1USJ3z2QR5nixgqNhVL7lwKL",
+        "id": "in_1USbhV2QR5nixgqNTDSOH2hn",
         "date": "2027-01-10",
         "currency": "usd",
         "lines": [
@@ -7355,7 +9840,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJ4D2QR5nixgqNUnobqHjm",
+        "id": "in_1USbhe2QR5nixgqNtEZ8VeTS",
         "date": "2027-02-03",
         "currency": "usd",
         "lines": [
@@ -7373,7 +9858,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJ4J2QR5nixgqN2lhUMcVQ",
+        "id": "in_1USbhm2QR5nixgqNE0RcTaWk",
         "date": "2027-03-03",
         "currency": "usd",
         "lines": [
@@ -7390,20 +9875,44 @@
         "amount_due": 5800,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.updated",
+        "customer.subscription.paused",
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   },
   {
     "id": "S99",
     "title": "Classic: resuming a trial pause two cycles later charges only the part of the current cycle that is left",
-    "verified_at": "2026-10-19T16:06:13.654Z",
+    "verified_at": "2026-10-20T12:00:15.481Z",
     "stripe_api_version": "2026-09-30.endive",
     "match": true,
     "diffs": [],
-    "test_clock": "clock_1USJ4D2QR5nixgqNaL8oF2S3",
-    "customer": "cus_VTFZCGpQ08CmaI",
+    "test_clock": "clock_1USbhd2QR5nixgqNV3yjjgvX",
+    "customer": "cus_VTYpf1K3WkGdly",
     "stripe": [
       {
-        "id": "in_1USJ4E2QR5nixgqNaSBEi0J4",
+        "id": "in_1USbhe2QR5nixgqN3o7ugn3s",
         "date": "2027-01-31",
         "currency": "usd",
         "lines": [
@@ -7421,7 +9930,7 @@
         "starting_balance": 0
       },
       {
-        "id": "in_1USJ4Z2QR5nixgqNrBFOo9eb",
+        "id": "in_1USbi02QR5nixgqNn3q4U9r3",
         "date": "2027-04-14",
         "currency": "usd",
         "lines": [
@@ -7443,6 +9952,28 @@
         "amount_due": 5239,
         "starting_balance": 0
       }
+    ],
+    "webhooks": [
+      [
+        "invoice.created",
+        "invoice.finalized",
+        "invoice.paid",
+        "customer.subscription.created"
+      ],
+      [
+        "customer.subscription.trial_will_end",
+        "customer.subscription.updated",
+        "customer.subscription.paused",
+        "invoiceitem.created",
+        "customer.subscription.updated",
+        "customer.subscription.resumed"
+      ],
+      [
+        "invoice.created",
+        "customer.subscription.updated",
+        "invoice.finalized",
+        "invoice.paid"
+      ]
     ]
   }
 ]

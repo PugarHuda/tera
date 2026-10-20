@@ -1,15 +1,15 @@
 {
   "id": "S48",
   "title": "Interval change with proration_behavior none: invoices the new interval now without a credit",
-  "verified_at": "2026-10-18T00:24:02.983Z",
+  "verified_at": "2026-10-20T11:53:18.402Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URhtB2QR5nixgqNUY8d4Cs9",
-  "customer": "cus_VSd9Kh8X4n3nHz",
+  "test_clock": "clock_1USbb92QR5nixgqNjOA9PXT0",
+  "customer": "cus_VTYiTlqnGhwLzK",
   "stripe": [
     {
-      "id": "in_1URhtD2QR5nixgqNNMMe9TDl",
+      "id": "in_1USbbA2QR5nixgqNgSmPgqxd",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhtI2QR5nixgqNPyeezSnD",
+      "id": "in_1USbbI2QR5nixgqN94U953SP",
       "date": "2027-01-15",
       "currency": "usd",
       "lines": [
@@ -44,5 +44,20 @@
       "amount_due": 29000,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    []
   ]
 }

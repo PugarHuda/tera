@@ -1,15 +1,15 @@
 {
   "id": "S08",
   "title": "Leap-year February",
-  "verified_at": "2026-10-17T18:28:27.082Z",
+  "verified_at": "2026-10-20T11:51:06.520Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcL92QR5nixgqNhPi9BR2f",
-  "customer": "cus_VSXQ0rwcgOEYsH",
+  "test_clock": "clock_1USbZ32QR5nixgqN0TEMBHSC",
+  "customer": "cus_VTYgvicuUV7mAh",
   "stripe": [
     {
-      "id": "in_1URcLA2QR5nixgqNCF7om7yK",
+      "id": "in_1USbZ52QR5nixgqNii8iErje",
       "date": "2028-02-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLI2QR5nixgqNwoSoUIgO",
+      "id": "in_1USbZL2QR5nixgqNJU7LgcmU",
       "date": "2028-03-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 10486,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S103",
   "title": "A customer balance credit is applied to the next invoice",
-  "verified_at": "2026-10-19T17:11:07.381Z",
+  "verified_at": "2026-10-20T12:01:16.769Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USK572QR5nixgqNeoiD6hRd",
-  "customer": "cus_VTGcFXz5wRIQUA",
+  "test_clock": "clock_1USbi62QR5nixgqNNdAIOh17",
+  "customer": "cus_VTYptls4l8M8gR",
   "stripe": [
     {
-      "id": "in_1USK592QR5nixgqN5nEHzG0J",
+      "id": "in_1USbi92QR5nixgqNniHNKrqR",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USK5G2QR5nixgqNNjEGX4GJ",
+      "id": "in_1USbiP2QR5nixgqNG39CKBti",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": -1000
     },
     {
-      "id": "in_1USK5R2QR5nixgqNqvjo7ZZM",
+      "id": "in_1USbiZ2QR5nixgqNdO2v2wLc",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,24 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

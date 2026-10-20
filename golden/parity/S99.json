@@ -1,15 +1,15 @@
 {
   "id": "S99",
   "title": "Classic: resuming a trial pause two cycles later charges only the part of the current cycle that is left",
-  "verified_at": "2026-10-19T16:06:13.654Z",
+  "verified_at": "2026-10-20T12:00:15.481Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJ4D2QR5nixgqNaL8oF2S3",
-  "customer": "cus_VTFZCGpQ08CmaI",
+  "test_clock": "clock_1USbhd2QR5nixgqNV3yjjgvX",
+  "customer": "cus_VTYpf1K3WkGdly",
   "stripe": [
     {
-      "id": "in_1USJ4E2QR5nixgqNaSBEi0J4",
+      "id": "in_1USbhe2QR5nixgqN3o7ugn3s",
       "date": "2027-01-31",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJ4Z2QR5nixgqNrBFOo9eb",
+      "id": "in_1USbi02QR5nixgqNn3q4U9r3",
       "date": "2027-04-14",
       "currency": "usd",
       "lines": [
@@ -49,5 +49,27 @@
       "amount_due": 5239,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "customer.subscription.updated",
+      "customer.subscription.paused",
+      "invoiceitem.created",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

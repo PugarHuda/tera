@@ -1,15 +1,15 @@
 {
   "id": "S111",
   "title": "Canceling with a final invoice at the renewal instant finalizes the renewal draft first: it is paid in full and the final credit stays on the customer balance (found by fuzzing)",
-  "verified_at": "2026-10-20T05:21:20.468Z",
+  "verified_at": "2026-10-20T12:03:02.510Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USVTi2QR5nixgqNjEvGD15H",
-  "customer": "cus_VTSOIjtt059nug",
+  "test_clock": "clock_1USbjV2QR5nixgqN67a4P9m6",
+  "customer": "cus_VTYrQo0LwUprqG",
   "stripe": [
     {
-      "id": "in_1USVTj2QR5nixgqN5zkR73HI",
+      "id": "in_1USbjX2QR5nixgqNdK8xcc9I",
       "date": "2027-04-30",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVTp2QR5nixgqN4bN2MLzc",
+      "id": "in_1USbjm2QR5nixgqNVT0jGfDA",
       "date": "2027-05-03",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVTz2QR5nixgqNc7DmDD16",
+      "id": "in_1USbkc2QR5nixgqN2in8dYNe",
       "date": "2027-06-03",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVTw2QR5nixgqNBxNs8pDx",
+      "id": "in_1USbkY2QR5nixgqN2a2Xyzwy",
       "date": "2027-06-03",
       "currency": "usd",
       "lines": [
@@ -90,5 +90,38 @@
       "amount_due": 2200,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoiceitem.created",
+      "invoice.created",
+      "customer.subscription.deleted"
+    ],
+    [
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

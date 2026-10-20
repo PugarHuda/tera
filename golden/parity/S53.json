@@ -1,15 +1,15 @@
 {
   "id": "S53",
   "title": "Removing a forever coupon: later invoices are full price, but the next credit refunds what was paid (discounted)",
-  "verified_at": "2026-10-18T06:07:20.954Z",
+  "verified_at": "2026-10-20T11:54:27.738Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URnEr2QR5nixgqNYkhkk9vm",
-  "customer": "cus_VSig49vkSgxVBV",
+  "test_clock": "clock_1USbbq2QR5nixgqNLTe2ZN6Z",
+  "customer": "cus_VTYjcEYrJ5O9it",
   "stripe": [
     {
-      "id": "in_1URnEs2QR5nixgqNc23PcpZm",
+      "id": "in_1USbbr2QR5nixgqN8Zx4prtJ",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnF22QR5nixgqNRiQoQSM1",
+      "id": "in_1USbby2QR5nixgqNmvI8dNb6",
       "date": "2026-01-11",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFJ2QR5nixgqNR92TqrQb",
+      "id": "in_1USbcG2QR5nixgqNME3zMZ2E",
       "date": "2026-02-11",
       "currency": "usd",
       "lines": [
@@ -78,7 +78,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFT2QR5nixgqNghGk9Iuj",
+      "id": "in_1USbcS2QR5nixgqN7dwwnAlH",
       "date": "2026-03-11",
       "currency": "usd",
       "lines": [
@@ -95,5 +95,40 @@
       "amount_due": 23700,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "customer.discount.deleted",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

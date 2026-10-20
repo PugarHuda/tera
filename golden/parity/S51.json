@@ -1,15 +1,15 @@
 {
   "id": "S51",
   "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
-  "verified_at": "2026-10-18T06:07:08.761Z",
+  "verified_at": "2026-10-20T11:54:03.140Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URnEr2QR5nixgqNxPmcABJw",
-  "customer": "cus_VSigp7t44VVpVL",
+  "test_clock": "clock_1USbbg2QR5nixgqNacp5olH1",
+  "customer": "cus_VTYjy3H6lYZkXw",
   "stripe": [
     {
-      "id": "in_1URnEs2QR5nixgqNBtV8AGgy",
+      "id": "in_1USbbh2QR5nixgqNyxhcMQdU",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnEy2QR5nixgqN8ENTSeQ3",
+      "id": "in_1USbbq2QR5nixgqNaa4aPBpA",
       "date": "2026-01-11",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnF82QR5nixgqNHLIQsibh",
+      "id": "in_1USbby2QR5nixgqNMcSHiSs7",
       "date": "2026-02-11",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnFK2QR5nixgqNPzzlrLOE",
+      "id": "in_1USbc72QR5nixgqNJEMcVoml",
       "date": "2026-03-11",
       "currency": "usd",
       "lines": [
@@ -85,5 +85,30 @@
       "amount_due": 15800,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoice.finalized",
+      "invoice.created",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

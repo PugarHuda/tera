@@ -1,15 +1,15 @@
 {
   "id": "S100",
   "title": "Resuming charges the rest of the cycle with a once coupon, which uses it up: the next renewal is not discounted (found by fuzzing)",
-  "verified_at": "2026-10-19T16:40:24.320Z",
+  "verified_at": "2026-10-20T12:00:24.938Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJbK2QR5nixgqNgKh1Qwvo",
-  "customer": "cus_VTG7osV5EGaldF",
+  "test_clock": "clock_1USbhd2QR5nixgqNYxswn7A0",
+  "customer": "cus_VTYpG3IRgI6lPk",
   "stripe": [
     {
-      "id": "in_1USJbL2QR5nixgqNvWHxEORH",
+      "id": "in_1USbhe2QR5nixgqNeS6vOYMJ",
       "date": "2028-02-19",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJbW2QR5nixgqNMWHoILPr",
+      "id": "in_1USbhx2QR5nixgqNofWfNpSF",
       "date": "2028-04-01",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJbh2QR5nixgqNKPGOgoh2",
+      "id": "in_1USbiE2QR5nixgqN1JzmdR9c",
       "date": "2028-05-01",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,33 @@
       "amount_due": 39500,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.discount.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "customer.subscription.updated",
+      "customer.subscription.paused",
+      "invoiceitem.created",
+      "customer.discount.deleted",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S97",
   "title": "Classic: trial ends without a card into a pause; resuming with anchor unchanged prorates the rest of the cycle onto the next renewal",
-  "verified_at": "2026-10-19T16:06:00.758Z",
+  "verified_at": "2026-10-20T12:01:17.086Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJ3z2QR5nixgqN83TsEdeE",
-  "customer": "cus_VTFZCkeYnJBwfw",
+  "test_clock": "clock_1USbhT2QR5nixgqNCGCRBYyR",
+  "customer": "cus_VTYpeUknGPNTcu",
   "stripe": [
     {
-      "id": "in_1USJ3z2QR5nixgqNboWhUrIa",
+      "id": "in_1USbhU2QR5nixgqNfjXh4W1L",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJ4D2QR5nixgqNP9YMLXJV",
+      "id": "in_1USbhh2QR5nixgqNhfyPBEh6",
       "date": "2027-02-24",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJ4O2QR5nixgqNityPCQZw",
+      "id": "in_1USbhr2QR5nixgqNVmpK7fe4",
       "date": "2027-03-24",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,31 @@
       "amount_due": 2900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "customer.subscription.updated",
+      "customer.subscription.paused",
+      "invoiceitem.created",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

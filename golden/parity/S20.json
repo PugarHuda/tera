@@ -1,15 +1,15 @@
 {
   "id": "S20",
   "title": "Upgrade with always_invoice",
-  "verified_at": "2026-10-17T18:29:13.009Z",
+  "verified_at": "2026-10-20T11:51:39.484Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcLs2QR5nixgqNpe0AgBJU",
-  "customer": "cus_VSXQRq9uAanvCL",
+  "test_clock": "clock_1USbZe2QR5nixgqN9GMlO4el",
+  "customer": "cus_VTYhKJrXHcD6ev",
   "stripe": [
     {
-      "id": "in_1URcLt2QR5nixgqNRhX7vOaI",
+      "id": "in_1USbZg2QR5nixgqNQCKtern7",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcLx2QR5nixgqNY8xVvjhz",
+      "id": "in_1USbZm2QR5nixgqNQP1chcvr",
       "date": "2027-01-17",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcM12QR5nixgqN4kuG4fOj",
+      "id": "in_1USbZt2QR5nixgqNQLde7HUD",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,25 @@
       "amount_due": 7900,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

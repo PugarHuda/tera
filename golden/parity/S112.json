@@ -1,15 +1,15 @@
 {
   "id": "S112",
   "title": "A first-billing-date stub a once coupon made free is credited at what was paid, $0, not at full price (found by fuzzing)",
-  "verified_at": "2026-10-20T05:21:20.330Z",
+  "verified_at": "2026-10-20T12:02:34.541Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USVTi2QR5nixgqN2hOJxcuz",
-  "customer": "cus_VTSOxvkQ6UdI2j",
+  "test_clock": "clock_1USbjW2QR5nixgqNSvcYfQWN",
+  "customer": "cus_VTYrRrAHUq3zN5",
   "stripe": [
     {
-      "id": "in_1USVTj2QR5nixgqNLNeIl4Vh",
+      "id": "in_1USbjb2QR5nixgqNdkhWRBTL",
       "date": "2027-04-05",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVTp2QR5nixgqNqUAQJl0K",
+      "id": "in_1USbjk2QR5nixgqNK8EXO4U8",
       "date": "2027-04-16",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USVTv2QR5nixgqNI4glR8C5",
+      "id": "in_1USbk32QR5nixgqN4ngNIfLt",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,30 @@
       "amount_due": 3600,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoiceitem.created",
+      "customer.discount.created",
+      "customer.discount.deleted",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S59",
   "title": "Flexible: a metered subscription gets no $0 invoice at creation",
-  "verified_at": "2026-10-18T15:31:09.142Z",
+  "verified_at": "2026-10-20T11:55:40.828Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URw2F2QR5nixgqN9dvbANhY",
-  "customer": "cus_VSrlOAm1NgkdKA",
+  "test_clock": "clock_1USbcf2QR5nixgqNyReIKVmk",
+  "customer": "cus_VTYkXxIvDuVnio",
   "stripe": [
     {
-      "id": "in_1URw3C2QR5nixgqNwaM7HiT1",
+      "id": "in_1USbdj2QR5nixgqNpmisQkOf",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -36,5 +36,15 @@
       "amount_due": 10173,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "customer.subscription.created"
+    ],
+    [],
+    [
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

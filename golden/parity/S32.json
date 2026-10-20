@@ -1,15 +1,15 @@
 {
   "id": "S32",
   "title": "Changing the price with quantity 5 keeps all 5 seats",
-  "verified_at": "2026-10-17T18:30:03.673Z",
+  "verified_at": "2026-10-20T11:52:09.462Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcMg2QR5nixgqNwnvZ5yfx",
-  "customer": "cus_VSXR3ZvQft3UPo",
+  "test_clock": "clock_1USbaB2QR5nixgqNRmOif8CC",
+  "customer": "cus_VTYhaUnUH4K2SM",
   "stripe": [
     {
-      "id": "in_1URcMh2QR5nixgqNPlAjUyAk",
+      "id": "in_1USbaC2QR5nixgqNbWysJuG8",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcMq2QR5nixgqN9agAkSWb",
+      "id": "in_1USbaM2QR5nixgqNWIKO6wwz",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -54,5 +54,22 @@
       "amount_due": 52467,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated"
+    ]
   ]
 }

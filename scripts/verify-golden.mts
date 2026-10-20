@@ -22,9 +22,9 @@ const stripe = stripeClient();
 async function run(s: { id: string; title: string; timeline: TimelineEvent[] }) {
   const tera = simulate(catalog, s.timeline).invoices;
   try {
-    const replay = await replayInStripe(stripe, catalog, s.timeline);
+    const replay = await replayInStripe(stripe, catalog, s.timeline, { events: true });
     const diffs = diffInvoices(tera, replay.invoices);
-    const record = { id: s.id, title: s.title, verified_at: new Date().toISOString(), stripe_api_version: STRIPE_API_VERSION, match: diffs.length === 0, diffs, test_clock: replay.clockId, customer: replay.customerId, stripe: replay.invoices };
+    const record = { id: s.id, title: s.title, verified_at: new Date().toISOString(), stripe_api_version: STRIPE_API_VERSION, match: diffs.length === 0, diffs, test_clock: replay.clockId, customer: replay.customerId, stripe: replay.invoices, webhooks: replay.events };
     results[s.id] = diffs.length === 0;
     writeFileSync(`golden/parity/${s.id}.json`, JSON.stringify(record, null, 2) + "\n");
     console.log(`${s.id} ${diffs.length === 0 ? "MATCH" : "DIFF"} ${s.title}`);
@@ -36,7 +36,7 @@ async function run(s: { id: string; title: string; timeline: TimelineEvent[] }) 
 }
 
 const queue = [...scenarios];
-await Promise.all(Array.from({ length: 3 }, async () => { for (let s; (s = queue.shift()); ) await run(s); }));
+await Promise.all(Array.from({ length: Number(process.env.CONCURRENCY ?? 3) }, async () => { for (let s; (s = queue.shift()); ) await run(s); }));
 
 if (mark) {
   for (const s of golden.scenarios) {

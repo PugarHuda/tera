@@ -1,15 +1,15 @@
 {
   "id": "S93",
-  "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
-  "verified_at": "2026-10-19T16:26:40.417Z",
+  "title": "Flexible: inclusive tax is rounded at the invoice level from 12-decimal taxable amounts, 13892 where round(83355/6) = 13893 (found by fuzzing)",
+  "verified_at": "2026-10-20T11:59:25.961Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJO02QR5nixgqNIUmYr28r",
-  "customer": "cus_VTFtpGiQ3bNhJw",
+  "test_clock": "clock_1USbgv2QR5nixgqNhbhLCRtf",
+  "customer": "cus_VTYog0574bvOeq",
   "stripe": [
     {
-      "id": "in_1USJO22QR5nixgqNQRIk41Q1",
+      "id": "in_1USbgw2QR5nixgqNhyNtKBcn",
       "date": "2028-07-06",
       "currency": "jpy",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJOK2QR5nixgqNOXrBVCpk",
+      "id": "in_1USbhA2QR5nixgqNcK3rjXMc",
       "date": "2028-08-06",
       "currency": "jpy",
       "lines": [
@@ -54,5 +54,24 @@
       "amount_due": 83355,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

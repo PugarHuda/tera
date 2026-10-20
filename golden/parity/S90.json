@@ -1,15 +1,15 @@
 {
   "id": "S90",
   "title": "Inclusive tax at an exact tie rounds half away from zero: 387 incl. 20% VAT is 64.5 -> 65",
-  "verified_at": "2026-10-19T16:26:28.641Z",
+  "verified_at": "2026-10-20T11:59:00.497Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJO02QR5nixgqNf80MIaPd",
-  "customer": "cus_VTFtLNbLGNPtJw",
+  "test_clock": "clock_1USbgN2QR5nixgqNMoOZSmpN",
+  "customer": "cus_VTYnzanSQqeia3",
   "stripe": [
     {
-      "id": "in_1USJO22QR5nixgqNeaOjD0Pg",
+      "id": "in_1USbgO2QR5nixgqNvhFMKFO4",
       "date": "2027-01-01",
       "currency": "jpy",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJO72QR5nixgqNUqmv7rZK",
+      "id": "in_1USbgW2QR5nixgqNN3j9wzid",
       "date": "2027-01-28",
       "currency": "jpy",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJOD2QR5nixgqNsxROHmRq",
+      "id": "in_1USbgs2QR5nixgqNdBEdURzr",
       "date": "2027-02-01",
       "currency": "jpy",
       "lines": [
@@ -67,5 +67,27 @@
       "amount_due": 6000,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

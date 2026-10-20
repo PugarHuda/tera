@@ -1,15 +1,15 @@
 {
   "id": "S96",
   "title": "Trial ends without a card, end behavior cancel: the subscription is canceled at trial end and nothing is invoiced",
-  "verified_at": "2026-10-19T16:05:40.305Z",
+  "verified_at": "2026-10-20T11:59:35.812Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJ3z2QR5nixgqNAdgrLlkd",
-  "customer": "cus_VTFZBkvDz4QZp5",
+  "test_clock": "clock_1USbhD2QR5nixgqN2ab5AxXD",
+  "customer": "cus_VTYoDJm7UkPCxm",
   "stripe": [
     {
-      "id": "in_1USJ3z2QR5nixgqNNzcHQcli",
+      "id": "in_1USbhE2QR5nixgqNXPeaDjuW",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -26,5 +26,17 @@
       "amount_due": 0,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "customer.subscription.deleted"
+    ]
   ]
 }

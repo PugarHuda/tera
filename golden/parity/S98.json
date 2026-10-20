@@ -1,15 +1,15 @@
 {
   "id": "S98",
   "title": "Flexible: trial ends without a card into a pause; resuming with anchor now invoices a full new period at once and moves the anchor",
-  "verified_at": "2026-10-19T16:05:59.704Z",
+  "verified_at": "2026-10-20T12:00:04.037Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USJ3z2QR5nixgqN28SzLK8g",
-  "customer": "cus_VTFZ5QuUSHCzUR",
+  "test_clock": "clock_1USbhU2QR5nixgqN6pbsQBme",
+  "customer": "cus_VTYp9WhzTVfZKM",
   "stripe": [
     {
-      "id": "in_1USJ3z2QR5nixgqNhVL7lwKL",
+      "id": "in_1USbhV2QR5nixgqNTDSOH2hn",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJ4D2QR5nixgqNUnobqHjm",
+      "id": "in_1USbhe2QR5nixgqNtEZ8VeTS",
       "date": "2027-02-03",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USJ4J2QR5nixgqN2lhUMcVQ",
+      "id": "in_1USbhm2QR5nixgqNE0RcTaWk",
       "date": "2027-03-03",
       "currency": "usd",
       "lines": [
@@ -62,5 +62,29 @@
       "amount_due": 5800,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.subscription.trial_will_end",
+      "customer.subscription.updated",
+      "customer.subscription.paused",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated",
+      "customer.subscription.resumed"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

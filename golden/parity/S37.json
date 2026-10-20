@@ -1,15 +1,15 @@
 {
   "id": "S37",
   "title": "A once coupon applied mid-period is used up by the proration it prices",
-  "verified_at": "2026-10-17T18:41:44.311Z",
+  "verified_at": "2026-10-20T11:52:49.433Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URcXd2QR5nixgqNXLvB49uO",
-  "customer": "cus_VSXc0fPu4XX6d5",
+  "test_clock": "clock_1USbaR2QR5nixgqNRvVk9d6L",
+  "customer": "cus_VTYhYj8kPRLpBU",
   "stripe": [
     {
-      "id": "in_1URcXe2QR5nixgqN5a2RHQji",
+      "id": "in_1USbaS2QR5nixgqNEHX2Kszu",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcXu2QR5nixgqNCi1uVK3X",
+      "id": "in_1USbai2QR5nixgqN2H6BIJEw",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URcY42QR5nixgqNAWLJCcDj",
+      "id": "in_1USbaw2QR5nixgqNx72igLQR",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -72,5 +72,33 @@
       "amount_due": 15800,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.discount.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "customer.discount.deleted",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid",
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }

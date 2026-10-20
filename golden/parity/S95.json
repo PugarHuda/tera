@@ -1,15 +1,15 @@
 {
   "id": "S95",
   "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
-  "verified_at": "2026-10-19T17:34:48.186Z",
+  "verified_at": "2026-10-20T12:00:02.011Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USKRr2QR5nixgqNfaHBEGBs",
-  "customer": "cus_VTGzoQukc4hmDM",
+  "test_clock": "clock_1USbh62QR5nixgqNpMIjOlg4",
+  "customer": "cus_VTYoa2PAsw4KwX",
   "stripe": [
     {
-      "id": "in_1USKRs2QR5nixgqN5JnKNQp2",
+      "id": "in_1USbh82QR5nixgqNmVjoza75",
       "date": "2028-01-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USKSA2QR5nixgqNhEr9yPoH",
+      "id": "in_1USbhU2QR5nixgqNNpBay1UN",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USKS62QR5nixgqNUn4ny1kO",
+      "id": "in_1USbhS2QR5nixgqNRudOtn6l",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [
@@ -67,5 +67,32 @@
       "amount_due": 18960,
       "starting_balance": 0
     }
+  ],
+  "webhooks": [
+    [
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.created"
+    ],
+    [
+      "customer.discount.created",
+      "customer.subscription.updated"
+    ],
+    [
+      "invoice.created",
+      "customer.subscription.updated",
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created",
+      "invoice.finalized",
+      "invoice.paid",
+      "customer.subscription.updated"
+    ],
+    [
+      "customer.discount.deleted",
+      "invoice.finalized",
+      "invoice.paid"
+    ]
   ]
 }
