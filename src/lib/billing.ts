@@ -924,8 +924,20 @@ export function migrate(input: {
 }
 
 // R1 display: minor units → locale string; zero-decimal currencies show no separator (I4).
+// Stripe's minor units (docs.stripe.com/currencies), not ISO 4217's: two decimals unless the currency is in Stripe's
+// zero-decimal list, so IDR and HUF count hundredths although Intl gives them none, and ISK and UGX stay two-decimal
+// in the API ("to charge 5 ISK, provide 500"). Intl's three-decimal currencies (BHD, JOD, KWD, OMR, TND) keep three.
+const ZERO_DECIMAL = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "vnd", "vuv", "xaf", "xof", "xpf"]);
+export function minorDigits(currency: string): number {
+  const c = currency.toLowerCase();
+  if (ZERO_DECIMAL.has(c)) return 0;
+  return new Intl.NumberFormat("en", { style: "currency", currency: c }).resolvedOptions().maximumFractionDigits === 3 ? 3 : 2;
+}
+
 export function formatMoney(amount: number, currency: string, locale = "en-US"): string {
-  const f = new Intl.NumberFormat(locale, { style: "currency", currency: currency.toUpperCase() });
-  const digits = f.resolvedOptions().maximumFractionDigits ?? 2;
-  return f.format(amount / 10 ** digits);
+  const d = minorDigits(currency);
+  // Shown with the currency's usual decimals (ISK 500, not 500.00), but a fractional amount shows them all (IDR 10,000.50).
+  const usual = new Intl.NumberFormat(locale, { style: "currency", currency: currency.toUpperCase() }).resolvedOptions().minimumFractionDigits ?? d;
+  const f = new Intl.NumberFormat(locale, { style: "currency", currency: currency.toUpperCase(), minimumFractionDigits: amount % 10 ** d === 0 ? Math.min(usual, d) : d, maximumFractionDigits: d });
+  return f.format(amount / 10 ** d);
 }
