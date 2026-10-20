@@ -261,11 +261,11 @@ export function Simulator({
           {timeline.map((e, i) => (
             <li key={i} className="card flex flex-wrap items-end gap-2" data-testid={`event-${i}`}>
               <span className="w-6 self-center text-xs opacity-50">{i + 1}</span>
-              <label className="text-sm">
+              <label className="max-w-full text-sm">
                 <span className="block text-xs opacity-70">Date</span>
                 <DateField label={`Event ${i + 1} date`} value={e.at} onCommit={(at) => at && update(i, { at })} />
               </label>
-              <label className="text-sm">
+              <label className="max-w-full text-sm">
                 <span className="block text-xs opacity-70">Event</span>
                 <select
                   className="input"
@@ -400,7 +400,7 @@ export function Simulator({
               {golden ? "✅ Matches golden expected" : "❌ Differs from golden expected"}
             </span>
           )}
-          <label className="text-sm">
+          <label className="max-w-full text-sm">
             <span className="block text-xs opacity-70">Locale</span>
             <select data-testid="locale-select" className="input" value={locale} onChange={(e) => setLocale(e.target.value)}>
               {LOCALES.map((l) => (

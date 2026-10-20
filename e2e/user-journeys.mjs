@@ -212,6 +212,36 @@ for (const colorScheme of ["light", "dark"]) {
   await p.context().close();
 }
 
+// J7 — Small screens and keyboard: no page scrolls sideways at 320 px (the event-type select once pushed the
+// simulator to 425 px), and every Tab stop shows a focus indicator (date inputs once showed none).
+{
+  const p = await (await b.newContext({ viewport: { width: 320, height: 740 }, isMobile: true, hasTouch: true })).newPage();
+  for (const [path, ready] of [["/", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"], ["/parity", "parity-summary"], ["/mcp-setup", "mcp-tools"]]) {
+    await p.goto(B + path); await p.getByTestId(ready).waitFor();
+    const [sw, w] = await p.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
+    ok(sw <= w, `320 px: ${path} does not scroll sideways (${sw} / ${w})`);
+  }
+  await p.context().close();
+  const k = await (await b.newContext({ locale: "en-US" })).newPage();
+  for (const [path, ready] of [["/", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"]]) {
+    await k.goto(B + path); await k.getByTestId(ready).waitFor();
+    const unseen = [];
+    for (let i = 0; i < 50; i++) {
+      await k.keyboard.press("Tab");
+      const f = await k.evaluate(() => {
+        const e = document.activeElement;
+        if (!e || e === document.body) return null;
+        const s = getComputedStyle(e);
+        return { name: e.getAttribute("aria-label") ?? e.textContent?.trim().slice(0, 24) ?? e.tagName, shown: (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== "none" };
+      });
+      if (!f) break;
+      if (!f.shown) unseen.push(f.name);
+    }
+    ok(unseen.length === 0, `keyboard: every Tab stop on ${path} shows focus${unseen.length ? ` (not: ${unseen.slice(0, 5).join(", ")})` : ""}`);
+  }
+  await k.context().close();
+}
+
 await ctx.close(); await b.close();
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");
 process.exitCode = fails ? 1 : 0;

@@ -35,6 +35,10 @@ body {
   .input {
     @apply max-w-full rounded-md border border-current/20 bg-transparent px-2 py-1.5;
   }
+  /* One visible focus ring for every field: Chrome's date input otherwise only tints the focused segment. */
+  .input:focus-visible {
+    @apply outline-2 outline-offset-1 outline-current;
+  }
   .input option {
     background: var(--background);
   }
