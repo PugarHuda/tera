@@ -2,6 +2,7 @@ import { formatMoney, simulate } from "@/lib/billing";
 import { badRequest, methodNotAllowed, parseCatalog, parseLocale, parseTimeline, readJson } from "@/lib/validate";
 
 export const GET = methodNotAllowed("POST");
+export { GET as PUT, GET as PATCH, GET as DELETE };
 
 export async function POST(req: Request) {
   try {

@@ -203,6 +203,8 @@ type Sub = {
   trialEnd?: TrialEndBehavior;
   /** R16: the interval a flexible `none` interval change switched to (see flexibleChange). */
   noneInterval?: Interval;
+  /** R21: the start of a period a month-end "unchanged" resume made Stripe prorate in segments (see span). */
+  segmentedFrom?: number;
 };
 
 /** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
@@ -647,9 +649,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
     s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
     if (s.periodStart === at) throw new Error('resume with billing_cycle_anchor "unchanged" exactly on a billing date is not modelled');
-    // Open question: with a month-end anchor (day 31, period 06-30 -> 07-31) Stripe charged 8 days as 6295 of 23700,
-    // not 8/31 = 6116, and no length fits (probe M1; day 15 prorates normally, M2). Rejected rather than guessed.
-    if (s.anchorDay > 28) throw new Error('resume with billing_cycle_anchor "unchanged" on a month-end anchor (day 29-31) is not modelled');
+    // A month-end anchor whose period starts on a shorter month's last day (31 -> 06-30): Stripe moves the anchor to that
+    // day and prorates the rest of this period in monthly segments counted from it (see span; S107, probes M1, me1-me6).
+    if (s.anchorDay > 28) {
+      if (s.mode === "classic" || interval === "year")
+        throw new Error('resume with billing_cycle_anchor "unchanged" on a month-end anchor (day 29-31) is modelled for flexible monthly prices only');
+      if (new Date(s.periodStart).getUTCDate() !== s.anchorDay) s.segmentedFrom = s.periodStart;
+    }
     s.paid = activeDiscount(s, licensedAmount(s), at);
     // Time a debit still pays for is not charged again: after a `none` change or a `none` pause in this period,
     // resuming in it charges nothing (S86, probes Q1, Q5, P3, seed 60105); a later period is charged (S87).
@@ -799,9 +805,23 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // discount: a later credit rounds each of them again (2806 − 702 = 2104; 4/10 of it is 1122 − 281 = 841, not
   // round(841.6), fuzz seed 40005).
   function chargeParts(s: Sub, at: number, from: number, to: number): Debit {
-    const [num, den] = [to - from, s.periodEnd - s.periodStart];
+    const [num, den] = span(s, from, to);
     const { gross, discount } = chargeOf(item(s), activeDiscount(s, licensedAmount(s), at), num, den, s.mode === "flexible");
     return { start: from, end: to, item: { unit: gross, qty: 1 }, paid: { rate: 1, off: discount } };
+  }
+
+  // [from, to) as num/den of the period. After a month-end "unchanged" resume (R21) Stripe prorates that period in
+  // monthly segments from its start day, each over its own length: anchor 31, period 06-30 -> 07-31, 07-23 -> 07-31 is
+  // 7/30 (to 07-30) + 1/31 = 6295 of 23700, where 8/31 is 6116 (probe M1, S107; 02-29 -> 03-31: 9/29 + 2/31, me1). The
+  // next period prorates normally (me6). In whole seconds, so the cross products stay exact (< 2^53).
+  function span(s: Sub, from: number, to: number): [number, number] {
+    if (s.segmentedFrom !== s.periodStart) return [to - from, s.periodEnd - s.periodStart];
+    const day = new Date(s.periodStart).getUTCDate();
+    const cut = addInterval(s.periodStart, "month", day);
+    const sec = (ms: number) => Math.round(ms / 1000);
+    const [d1, d2] = [sec(cut - s.periodStart), sec(addInterval(s.periodStart, "month", day, 2) - cut)];
+    const [n1, n2] = [sec(Math.max(0, Math.min(to, cut) - from)), sec(Math.max(0, to - Math.max(from, cut)))];
+    return [n1 * d2 + n2 * d1, d1 * d2];
   }
 
   // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.

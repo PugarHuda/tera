@@ -5697,6 +5697,79 @@
         }
       ],
       "parity": "golden/parity/S106.json"
+    },
+    {
+      "id": "S107",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16",
+        "R3"
+      ],
+      "title": "Flexible: resuming with an unchanged month-end anchor prorates that period in monthly segments from its start day (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-01-31T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2028-02-10T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2028-03-20T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2028-03-25T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 5
+        },
+        {
+          "at": "2028-04-10T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 6
+        },
+        {
+          "at": "2028-05-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-31 anchor (day 31): 3 x 7900 = 23700. 02-10 pause with none: no credit. 03-20 resume, anchor unchanged: the period is 02-29 -> 03-31, which starts on day 29, so Stripe prorates it in monthly segments from day 29: 02-29 -> 03-29 (29 d) and 03-29 -> 04-29 (31 d). 03-20 -> 03-31 is 9/29 + 2/31: 23700 x 337/899 = 8884.20 -> 8884 (11/31 would be 8410), pending. 03-25 x5: credit the 8884 debit's unused 6 of its 11 days, 8884 x 6/11 = 4845.8 -> -4846; charge 39500 x (4/29 + 2/31) = 39500 x 182/899 = 7996.7 -> 7997, pending. 03-31: -4846 + 7997 + 8884 + 39500 = 51535. The next period 03-31 -> 04-30 prorates normally: 04-10 x6, 20 of 30 days: -39500 x 20/30 = -26333, 47400 x 20/30 = 31600. 04-30: -26333 + 31600 + 47400 = 52667.",
+      "expect": [
+        {
+          "date": "2028-01-31",
+          "lines": [
+            23700
+          ],
+          "total": 23700
+        },
+        {
+          "date": "2028-03-31",
+          "lines": [
+            8884,
+            -4846,
+            7997,
+            39500
+          ],
+          "total": 51535
+        },
+        {
+          "date": "2028-04-30",
+          "lines": [
+            -26333,
+            31600,
+            47400
+          ],
+          "total": 52667
+        }
+      ],
+      "parity": "golden/parity/S107.json"
     }
   ]
 }

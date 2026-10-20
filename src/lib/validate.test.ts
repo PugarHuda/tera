@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { migrate, simulate } from "./billing";
 import { csvBlob, parseCustomers, toCsv } from "./csv";
 import { decodeTimeline, encodeTimeline } from "./share";
-import { BadRequest, defaultCatalog, parseCatalog, parseLocale, parseMigration, parseTimeline } from "./validate";
+import { BadRequest, defaultCatalog, findScenarios, parseCatalog, parseLocale, parseMigration, parseTimeline } from "./validate";
 
 const sub = { at: "2027-01-01T00:00:00Z", type: "subscribe", price: "pro_m" };
 const price = { currency: "usd", unit_amount: 100, interval: "month" };
@@ -39,6 +39,18 @@ describe("parseTimeline", () => {
     [Array.from({ length: 101 }, () => sub), "limited to 100 events"],
   ])("rejects %j", (timeline, message) => expect(() => parseTimeline(timeline)).toThrow(message));
   it("throws BadRequest, which the API maps to 400", () => expect(() => parseTimeline("x")).toThrow(BadRequest));
+});
+
+describe("findScenarios", () => {
+  it("filters by rule and title words, case-insensitively", () => {
+    expect(findScenarios().length).toBeGreaterThan(100);
+    const r22 = findScenarios("r22");
+    expect(r22.length).toBeGreaterThan(0);
+    expect(r22.every((s) => s.rules.includes("R22"))).toBe(true);
+    expect(findScenarios("R2").some((s) => s.rules.includes("R22") && !s.rules.includes("R2"))).toBe(false); // exact rule, not a prefix
+    expect(findScenarios(null, "Flat MONTHLY").map((s) => s.id)).toContain("S01");
+    expect(findScenarios("R6", "nothing-like-this")).toEqual([]);
+  });
 });
 
 describe("migrate (R9)", () => {

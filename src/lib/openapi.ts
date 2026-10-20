@@ -165,7 +165,14 @@ export const spec = {
       },
     },
     "/api/scenarios": {
-      get: { summary: "List golden scenarios", responses: { "200": { description: "Scenario summaries" } } },
+      get: {
+        summary: "List golden scenarios",
+        parameters: [
+          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R23, see docs/PRD.md)" },
+          { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
+        ],
+        responses: { "200": { description: "Scenario summaries" } },
+      },
     },
     "/api/scenarios/{id}": {
       get: {

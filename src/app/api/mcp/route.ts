@@ -8,7 +8,7 @@ import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, m
 import { spec } from "@/lib/openapi";
 import { encodeCatalog, encodeTimeline } from "@/lib/share";
 import { Cooldown, checkLiveLimits, liveParity, pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
-import { BadRequest, EVENT_TYPES, defaultCatalog, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
+import { BadRequest, EVENT_TYPES, defaultCatalog, findScenarios, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
   at: z.string().describe("ISO-8601 UTC timestamp, e.g. 2027-01-17T00:00:00Z"),
@@ -165,11 +165,18 @@ const handler = createMcpHandler(
       "list_golden_scenarios",
       {
         title: "List hand-derived golden billing scenarios",
-        description: "The reference scenarios (with expected invoices derived by hand from Stripe's rules) that Tera is tested against.",
-        inputSchema: z.object({}),
+        description:
+          "The reference scenarios (with expected invoices derived by hand from Stripe's rules) that Tera is tested against, optionally only those citing a rule or with words in the title.",
+        inputSchema: z.object({
+          rule: z.string().optional().describe("A billing rule id such as R6 (tax) or R16 (flexible billing mode)"),
+          query: z.string().optional().describe('Words that must all appear in the title, such as "coupon trial"'),
+        }),
         annotations: readOnly,
       },
-      guard(() => text(golden.scenarios.map((s) => `${s.id} ${s.title}`).join("\n"))),
+      guard(({ rule, query }) => {
+        const found = findScenarios(rule, query);
+        return text(found.length ? found.map((s) => `${s.id} ${s.title}`).join("\n") : "No golden scenario matches; omit rule and query to list all");
+      }),
     );
 
     server.registerTool(

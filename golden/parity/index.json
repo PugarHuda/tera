@@ -981,6 +981,97 @@
     ]
   },
   {
+    "id": "S107",
+    "title": "Flexible: resuming with an unchanged month-end anchor prorates that period in monthly segments from its start day (found by fuzzing)",
+    "verified_at": "2026-10-20T02:56:12.149Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USTD92QR5nixgqNTzRZJhwU",
+    "customer": "cus_VTQ3O5Jo2HhGcj",
+    "stripe": [
+      {
+        "id": "in_1USTDA2QR5nixgqN0uL1tdDK",
+        "date": "2028-01-31",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera pro_m (at $79.00 / month)",
+            "amount": 23700,
+            "proration": false
+          }
+        ],
+        "subtotal": 23700,
+        "discount": 0,
+        "tax": 0,
+        "total": 23700,
+        "amount_due": 23700,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USTDQ2QR5nixgqNdZ1F8g8v",
+        "date": "2028-03-31",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera pro_m after 25 Mar 2028",
+            "amount": -4846,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 5 × Tera pro_m after 25 Mar 2028",
+            "amount": 7997,
+            "proration": true
+          },
+          {
+            "description": "Time on 3 × Tera pro_m after 20 Mar 2028",
+            "amount": 8884,
+            "proration": true
+          },
+          {
+            "description": "5 × Tera pro_m (at $79.00 / month)",
+            "amount": 39500,
+            "proration": false
+          }
+        ],
+        "subtotal": 51535,
+        "discount": 0,
+        "tax": 0,
+        "total": 51535,
+        "amount_due": 51535,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USTDc2QR5nixgqNmnjG1sD0",
+        "date": "2028-04-30",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 5 × Tera pro_m after 10 Apr 2028",
+            "amount": -26333,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 6 × Tera pro_m after 10 Apr 2028",
+            "amount": 31600,
+            "proration": true
+          },
+          {
+            "description": "6 × Tera pro_m (at $79.00 / month)",
+            "amount": 47400,
+            "proration": false
+          }
+        ],
+        "subtotal": 52667,
+        "discount": 0,
+        "tax": 0,
+        "total": 52667,
+        "amount_due": 52667,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
     "verified_at": "2026-10-17T18:28:38.241Z",

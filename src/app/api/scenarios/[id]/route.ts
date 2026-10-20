@@ -1,4 +1,5 @@
 import golden from "../../../../../golden/scenarios.json";
+import { methodNotAllowed } from "@/lib/validate";
 
 export async function GET(_req: Request, ctx: RouteContext<"/api/scenarios/[id]">) {
   const { id } = await ctx.params;
@@ -6,3 +7,5 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/scenarios/[id]"
   if (!scenario) return Response.json({ error: `Scenario ${id} not found` }, { status: 404 });
   return Response.json({ ...scenario, catalog: golden.catalog });
 }
+export const POST = methodNotAllowed("GET");
+export { POST as PUT, POST as PATCH, POST as DELETE };

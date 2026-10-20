@@ -16,6 +16,14 @@ export async function readJson(req: Request): ReturnType<Request["json"]> {
 
 export const defaultCatalog = golden.catalog as unknown as Catalog;
 
+/** Golden scenarios citing a rule (such as R6) and with every word of q in the title; both optional. */
+export function findScenarios(rule?: string | null, q?: string | null) {
+  const words = (q ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+  return golden.scenarios.filter(
+    (s) => (!rule || s.rules.some((r) => r.toLowerCase() === rule.trim().toLowerCase())) && words.every((w) => s.title.toLowerCase().includes(w)),
+  );
+}
+
 export const EVENT_TYPES = [
   "subscribe",
   "start_trial",

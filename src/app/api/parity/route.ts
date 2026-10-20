@@ -2,7 +2,7 @@ import golden from "../../../../golden/scenarios.json";
 import evidence from "../../../../golden/parity/index.json";
 import { simulate, type Catalog, type TimelineEvent } from "@/lib/billing";
 import { checkLiveLimits, Cooldown, liveParity } from "@/lib/stripe-parity";
-import { badRequest, BadRequest, defaultCatalog, parseCatalog, parseTimeline, readJson } from "@/lib/validate";
+import { badRequest, BadRequest, defaultCatalog, methodNotAllowed, parseCatalog, parseTimeline, readJson } from "@/lib/validate";
 
 export const maxDuration = 300;
 
@@ -44,3 +44,5 @@ export async function POST(req: Request) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 }
+export const PUT = methodNotAllowed("GET, POST");
+export { PUT as PATCH, PUT as DELETE };
