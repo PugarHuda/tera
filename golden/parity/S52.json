@@ -1,15 +1,15 @@
 {
   "id": "S52",
   "title": "Anchor reset with proration none still sweeps earlier pending prorations into the invoice, without a credit",
-  "verified_at": "2026-10-20T11:54:44.473Z",
+  "verified_at": "2026-10-20T15:29:58.648Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbbo2QR5nixgqNdoOhu1r4",
-  "customer": "cus_VTYjgDKSyvpiH2",
+  "test_clock": "clock_1USexx2QR5nixgqNsjKBT6wg",
+  "customer": "cus_VTcC284RrPn7DL",
   "stripe": [
     {
-      "id": "in_1USbbp2QR5nixgqNYx7iiwrD",
+      "id": "in_1USey02QR5nixgqNhHD2SF6a",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbc62QR5nixgqNdDAA62fB",
+      "id": "in_1USeyG2QR5nixgqNcwdPZ14A",
       "date": "2026-01-21",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbcZ2QR5nixgqN0wvQbgJ5",
+      "id": "in_1USeyn2QR5nixgqNMPqVN6fT",
       "date": "2026-02-21",
       "currency": "usd",
       "lines": [
@@ -83,7 +83,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbck2QR5nixgqNyrcYzdQL",
+      "id": "in_1USez32QR5nixgqN30cWxTwV",
       "date": "2026-03-21",
       "currency": "usd",
       "lines": [
@@ -103,39 +103,37 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
     ]
   ]
 }

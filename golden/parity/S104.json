@@ -1,15 +1,15 @@
 {
   "id": "S104",
   "title": "Balance debits and credits net out; a credit larger than an invoice carries to the next one",
-  "verified_at": "2026-10-20T12:01:24.158Z",
+  "verified_at": "2026-10-20T15:36:32.572Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbiH2QR5nixgqNu4YatYsi",
-  "customer": "cus_VTYpCco5C0AThl",
+  "test_clock": "clock_1USf4a2QR5nixgqNIqcytS4x",
+  "customer": "cus_VTcJXzClKMGKzC",
   "stripe": [
     {
-      "id": "in_1USbiK2QR5nixgqNo6hK6hbA",
+      "id": "in_1USf4c2QR5nixgqN5oSaAKOL",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbin2QR5nixgqNup75OWbp",
+      "id": "in_1USf502QR5nixgqNQ4gZH9Fn",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": -9500
     },
     {
-      "id": "in_1USbiu2QR5nixgqNrKzdw5Xa",
+      "id": "in_1USf5D2QR5nixgqN9Frsz6Ob",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -65,22 +65,22 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [],
     [],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

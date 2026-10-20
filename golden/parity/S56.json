@@ -1,15 +1,15 @@
 {
   "id": "S56",
   "title": "The same 12-decimal unit proration on a single seat: 7900 x 19/30 x 75% credits 3752, not 3753",
-  "verified_at": "2026-10-20T11:54:41.061Z",
+  "verified_at": "2026-10-20T15:30:08.828Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbcH2QR5nixgqNnnJXR0oi",
-  "customer": "cus_VTYjGbxZTAESjm",
+  "test_clock": "clock_1USeyl2QR5nixgqND0SC5Luy",
+  "customer": "cus_VTcDoYbHMZlXG2",
   "stripe": [
     {
-      "id": "in_1USbcI2QR5nixgqNV8wJktlz",
+      "id": "in_1USeyn2QR5nixgqNjAPK27sl",
       "date": "2027-04-16",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbch2QR5nixgqNVXEzkbcv",
+      "id": "in_1USezC2QR5nixgqNUeukNkdb",
       "date": "2027-05-16",
       "currency": "usd",
       "lines": [
@@ -57,22 +57,21 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
     ]
   ]
 }

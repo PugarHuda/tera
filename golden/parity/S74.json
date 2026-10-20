@@ -1,15 +1,15 @@
 {
   "id": "S74",
   "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
-  "verified_at": "2026-10-20T11:57:03.192Z",
+  "verified_at": "2026-10-20T15:32:24.679Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbee2QR5nixgqN3QPyyc5d",
-  "customer": "cus_VTYmw4fm38GX9C",
+  "test_clock": "clock_1USf182QR5nixgqNqKmFCU68",
+  "customer": "cus_VTcF1XqYpKVsGS",
   "stripe": [
     {
-      "id": "in_1USbef2QR5nixgqNdhaK6KoJ",
+      "id": "in_1USf192QR5nixgqNiMQ0QQwG",
       "date": "2027-02-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbem2QR5nixgqNHfHItd1b",
+      "id": "in_1USf1F2QR5nixgqNIc0eMXHk",
       "date": "2027-03-05",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbex2QR5nixgqNQW7qgCej",
+      "id": "in_1USf1P2QR5nixgqNnhjigQyR",
       "date": "2027-04-05",
       "currency": "usd",
       "lines": [
@@ -66,20 +66,20 @@
   "webhooks": [
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

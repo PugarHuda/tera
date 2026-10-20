@@ -1,15 +1,15 @@
 {
   "id": "S79",
   "title": "A percent coupon on a proration charge comes off the rounded gross: 28542 x 25% = 7135.5 -> 7136 (found by fuzzing)",
-  "verified_at": "2026-10-20T11:57:48.640Z",
+  "verified_at": "2026-10-20T15:33:07.459Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbfB2QR5nixgqNdsjb33oz",
-  "customer": "cus_VTYmRXbkjInq6I",
+  "test_clock": "clock_1USf1Q2QR5nixgqNpF068Aei",
+  "customer": "cus_VTcF9xirHDZmlR",
   "stripe": [
     {
-      "id": "in_1USbfC2QR5nixgqN9F9NHEdA",
+      "id": "in_1USf1S2QR5nixgqN4rWYpalt",
       "date": "2027-01-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbfQ2QR5nixgqNUsSUix45",
+      "id": "in_1USf1f2QR5nixgqNTZnyxP0G",
       "date": "2027-01-16",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbfc2QR5nixgqNWNYiWJLe",
+      "id": "in_1USf1x2QR5nixgqNSWWOOJl4",
       "date": "2027-02-16",
       "currency": "usd",
       "lines": [
@@ -76,28 +76,27 @@
   "webhooks": [
     [
       "invoiceitem.created",
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

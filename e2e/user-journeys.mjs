@@ -68,8 +68,8 @@ ok(/webhooks match/i.test(v), `Verify in Stripe compares webhooks too: ${v.slice
 // paid; subscription updated), then the seat change: a credit and a charge as two invoice items, and the update.
 await page.getByText(/Webhook events Stripe sends \(\d+\)/).click();
 const hooks2 = await page.getByTestId("webhooks-2").innerText();
-ok((hooks2.match(/invoiceitem\.created/g) ?? []).length === 2 && (hooks2.match(/customer\.subscription\.updated/g) ?? []).length === 2 && hooks2.includes("2027-03-05 invoice.paid"),
-  `webhooks for event 2: 2 invoice items, renewal paid 03-05, 2 subscription updates (${hooks2.replace(/\s+/g, " ").slice(0, 200)})`);
+ok((hooks2.match(/invoiceitem\.created/g) ?? []).length === 2 && (hooks2.match(/customer\.subscription\.updated/g) ?? []).length === 2 && /2027-03-05 invoice\.paid → invoice \d+/.test(hooks2) && /customer\.subscription\.updated \(active\)/.test(hooks2),
+  `webhooks for event 2: 2 invoice items, renewal paid 03-05 naming its invoice, 2 subscription updates (active) (${hooks2.replace(/\s+/g, " ").slice(0, 200)})`);
 
 // J1b — pause and resume a flexible subscription (R21, Stripe API 2026-09-30.endive), all by picking from dropdowns.
 await page.getByRole("link", { name: "Simulator" }).click();

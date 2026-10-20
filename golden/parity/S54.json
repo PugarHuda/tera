@@ -1,15 +1,15 @@
 {
   "id": "S54",
   "title": "Two interval changes under an amount-off coupon: the second credit refunds the discounted yearly charge",
-  "verified_at": "2026-10-20T11:54:40.084Z",
+  "verified_at": "2026-10-20T15:30:05.148Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbbs2QR5nixgqNDhJZa4ud",
-  "customer": "cus_VTYjjY2DGe4TsE",
+  "test_clock": "clock_1USeyL2QR5nixgqN6BMFxFa5",
+  "customer": "cus_VTcCbhPerNyf0Q",
   "stripe": [
     {
-      "id": "in_1USbbu2QR5nixgqNHe3Ia4mH",
+      "id": "in_1USeyO2QR5nixgqNLW59DAhw",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbc72QR5nixgqNT8cEfCTU",
+      "id": "in_1USeyX2QR5nixgqN5Q9FnZT0",
       "date": "2026-01-16",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbcE2QR5nixgqNlleLKHvz",
+      "id": "in_1USeyg2QR5nixgqN6tTf6T84",
       "date": "2026-02-10",
       "currency": "usd",
       "lines": [
@@ -73,7 +73,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbcN2QR5nixgqN0bsxDH2I",
+      "id": "in_1USeyt2QR5nixgqNFi79xtDB",
       "date": "2026-03-10",
       "currency": "usd",
       "lines": [
@@ -91,7 +91,7 @@
       "starting_balance": -19182
     },
     {
-      "id": "in_1USbck2QR5nixgqNEGb4vDjI",
+      "id": "in_1USezA2QR5nixgqNStAQgbfm",
       "date": "2026-04-10",
       "currency": "usd",
       "lines": [
@@ -111,36 +111,34 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #3",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.discount.deleted",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4",
+      "invoice.created #5",
+      "customer.subscription.updated active",
+      "invoice.finalized #5",
+      "invoice.paid #5"
     ]
   ]
 }

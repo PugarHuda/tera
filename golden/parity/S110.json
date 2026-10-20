@@ -1,15 +1,15 @@
 {
   "id": "S110",
   "title": "Inclusive tax at an exact half-cent tie on a negative invoice: lines are rounded down at 12 decimals, so -12150.5 rounds to -12151 (found by fuzzing)",
-  "verified_at": "2026-10-20T12:02:44.771Z",
+  "verified_at": "2026-10-20T15:37:00.880Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbjQ2QR5nixgqND5qQ4ymU",
-  "customer": "cus_VTYru5Xz1FsUGq",
+  "test_clock": "clock_1USf5X2QR5nixgqNkpfGY5zV",
+  "customer": "cus_VTcKojm0y4Zqk3",
   "stripe": [
     {
-      "id": "in_1USbjV2QR5nixgqNzLZsK9HU",
+      "id": "in_1USf5b2QR5nixgqNsfyHgeyn",
       "date": "2028-02-29",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbjk2QR5nixgqN1tWyP4aw",
+      "id": "in_1USf5k2QR5nixgqNGmKdzqCx",
       "date": "2028-03-26",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbkN2QR5nixgqNko89iYyH",
+      "id": "in_1USf5t2QR5nixgqNHltjBXLn",
       "date": "2028-04-26",
       "currency": "usd",
       "lines": [
@@ -70,23 +70,23 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

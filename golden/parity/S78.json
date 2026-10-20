@@ -1,15 +1,15 @@
 {
   "id": "S78",
   "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
-  "verified_at": "2026-10-20T11:57:19.544Z",
+  "verified_at": "2026-10-20T15:33:07.629Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbf12QR5nixgqNDZO3woJ9",
-  "customer": "cus_VTYmN3BkkTXreG",
+  "test_clock": "clock_1USf1Q2QR5nixgqNlfF4EMXF",
+  "customer": "cus_VTcF93QFeuObow",
   "stripe": [
     {
-      "id": "in_1USbf32QR5nixgqN0iwIXeFo",
+      "id": "in_1USf1S2QR5nixgqNFwHBzzBN",
       "date": "2027-06-05",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbfA2QR5nixgqNChWjh47d",
+      "id": "in_1USf1n2QR5nixgqNn2ZEN7ht",
       "date": "2027-06-28",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbfH2QR5nixgqNm7qxKAce",
+      "id": "in_1USf262QR5nixgqNtUXW83md",
       "date": "2027-07-05",
       "currency": "usd",
       "lines": [
@@ -70,26 +70,24 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

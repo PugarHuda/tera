@@ -172,7 +172,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   });
 
   // Events are read after each step from a cursor: the account's newest event before this customer existed.
-  const steps: string[][] = [];
+  const steps: { type: string; object: { id?: string; status?: string } }[][] = [];
   let cursor = opts.events ? (await stripe.events.list({ limit: 1 })).data[0]?.id : undefined;
   const mine = (o: { customer?: unknown; id?: unknown }) => o.customer === customer.id || (o.customer as { id?: string } | null)?.id === customer.id;
   const collect = async () => {
@@ -181,7 +181,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     for await (const ev of stripe.events.list({ limit: 100, ...(cursor ? { ending_before: cursor } : {}) })) fresh.push(ev);
     fresh.sort((a, b) => a.created - b.created);
     if (fresh.length) cursor = fresh[fresh.length - 1].id;
-    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)).map((ev) => ev.type));
+    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)).map((ev) => ({ type: ev.type, object: ev.data.object as never })));
   };
 
   let now = start;
@@ -323,7 +323,12 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       amount_due: inv.amount_due,
       starting_balance: inv.starting_balance,
     }));
-  return { clockId: clock.id, customerId: customer.id, invoices: out, events: steps };
+  // Each event as "type #n" (its invoice, numbered as listed) or "type status" (the subscription's status in its payload).
+  const number = new Map(out.map((inv, i) => [inv.id, i + 1]));
+  const recorded = steps.map((step) =>
+    step.map(({ type, object }) => (type.startsWith("invoice.") ? `${type} #${number.get(object.id!)}` : type.startsWith("customer.subscription.") ? `${type} ${object.status}` : type)),
+  );
+  return { clockId: clock.id, customerId: customer.id, invoices: out, events: recorded };
 }
 
 export type InvoiceDiff = { invoice: number; field: string; tera: unknown; stripe: unknown };
@@ -376,14 +381,17 @@ export function checkLiveLimits(timeline: TimelineEvent[]) {
 
 export type WebhookDiff = { event: number; type: string; tera: number; stripe: number };
 
-/** Per timeline event, how many of each webhook type Tera predicts and Stripe sent (order within a step is not compared:
- * Stripe writes several events in the same second). */
+/** A webhook as recorded from Stripe: "invoice.paid #2" (the invoice it is about) or "customer.subscription.updated active". */
+export const webhookKey = (w: Webhook) => (w.invoice ? `${w.type} #${w.invoice}` : w.status ? `${w.type} ${w.status}` : w.type);
+
+/** Per timeline event, how many of each webhook Tera predicts and Stripe sent, by type and the invoice or subscription
+ * status in its payload (order within a step is not compared: Stripe writes several events in the same second). */
 export function diffWebhooks(tera: Webhook[], stripe: string[][]): WebhookDiff[] {
   const diffs: WebhookDiff[] = [];
   stripe.forEach((all, event) => {
-    const sent = all.filter((t) => (WEBHOOK_TYPES as readonly string[]).includes(t)); // recordings may hold more types
+    const sent = all.filter((t) => (WEBHOOK_TYPES as readonly string[]).includes(t.split(" ")[0])); // recordings may hold more types
     const count = (xs: string[]) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>());
-    const [t, s] = [count(tera.filter((w) => w.event === event).map((w) => w.type)), count(sent)];
+    const [t, s] = [count(tera.filter((w) => w.event === event).map(webhookKey)), count(sent)];
     for (const type of new Set([...t.keys(), ...s.keys()])) if (t.get(type) !== s.get(type)) diffs.push({ event, type, tera: t.get(type) ?? 0, stripe: s.get(type) ?? 0 });
   });
   return diffs;

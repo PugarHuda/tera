@@ -1,15 +1,15 @@
 {
   "id": "S55",
   "title": "A half-cent tie that is not a tie: Stripe prorates the unit price to 12 decimals before multiplying by seats (found by fuzzing)",
-  "verified_at": "2026-10-20T11:54:23.571Z",
+  "verified_at": "2026-10-20T15:29:51.898Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbc92QR5nixgqN50rcrwOE",
-  "customer": "cus_VTYj24WDYJa2kQ",
+  "test_clock": "clock_1USeyZ2QR5nixgqNuahZYQcg",
+  "customer": "cus_VTcCXmFOJutdUL",
   "stripe": [
     {
-      "id": "in_1USbcA2QR5nixgqNfgTBWO0v",
+      "id": "in_1USeya2QR5nixgqNTOBybXAS",
       "date": "2027-04-16",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbcQ2QR5nixgqNbxNK9mtk",
+      "id": "in_1USeyv2QR5nixgqN1dcHMyGR",
       "date": "2027-05-16",
       "currency": "usd",
       "lines": [
@@ -57,22 +57,21 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
     ]
   ]
 }

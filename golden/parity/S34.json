@@ -1,15 +1,15 @@
 {
   "id": "S34",
   "title": "Coupon applied mid-period, then an upgrade: January was paid in full, so its credit is full price",
-  "verified_at": "2026-10-20T11:52:19.454Z",
+  "verified_at": "2026-10-20T15:27:15.517Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbaG2QR5nixgqNNXEM8rIA",
-  "customer": "cus_VTYhaDvoon0BGU",
+  "test_clock": "clock_1USewB2QR5nixgqN1f1qVe5U",
+  "customer": "cus_VTcAZ8l2GYXlsQ",
   "stripe": [
     {
-      "id": "in_1USbaH2QR5nixgqNdjQHbxjm",
+      "id": "in_1USewD2QR5nixgqNAZfUl4El",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbaW2QR5nixgqNHf4RhyOh",
+      "id": "in_1USewV2QR5nixgqNPSNTmmOr",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -57,23 +57,22 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.discount.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

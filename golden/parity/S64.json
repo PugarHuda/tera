@@ -1,15 +1,15 @@
 {
   "id": "S64",
   "title": "Flexible: after a none change, the next proration credits what was originally debited, not the item as it is",
-  "verified_at": "2026-10-20T11:56:02.532Z",
+  "verified_at": "2026-10-20T15:31:19.935Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbdR2QR5nixgqNgqq6SXyp",
-  "customer": "cus_VTYkyGvGhH1LZI",
+  "test_clock": "clock_1USezr2QR5nixgqN3Xo15sjy",
+  "customer": "cus_VTcEA2Q5QbT6AU",
   "stripe": [
     {
-      "id": "in_1USbdT2QR5nixgqN0tfRsweJ",
+      "id": "in_1USezt2QR5nixgqNz9G9uFjV",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbdr2QR5nixgqNNagkNYVy",
+      "id": "in_1USf0A2QR5nixgqNtIMYhyCE",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbe12QR5nixgqNI28Ks18N",
+      "id": "in_1USf0N2QR5nixgqNA2bCQolj",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -75,28 +75,28 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

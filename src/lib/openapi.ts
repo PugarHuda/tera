@@ -125,7 +125,7 @@ export const spec = {
           },
         },
         responses: {
-          "200": { description: "match, diffs, tera and stripe invoices, webhooks ({ match, diffs, stripe: the event types Stripe sent per timeline event }), test clock id" },
+          "200": { description: "match, diffs, tera and stripe invoices, webhooks ({ match, diffs, stripe: the events Stripe sent per timeline event, as `type #invoice` or `type status` }), test clock id" },
           "400": { description: "Unknown scenario, malformed timeline or over the live limits", content: { "application/json": { schema: error } } },
           "422": { description: "Tera (and Stripe) reject this timeline", content: { "application/json": { schema: error } } },
           "429": { description: "Another live replay holds the Stripe cooldown", headers: { "retry-after": { schema: { type: "integer" }, description: "Seconds to wait" } }, content: { "application/json": { schema: error } } },
@@ -318,6 +318,8 @@ export const spec = {
                 event: { type: "integer", description: "Index of the timeline event whose step (the clock advance up to it, then the call) sends it" },
                 date: { type: "string", description: "Simulated day it fires" },
                 type: { type: "string" },
+                invoice: { type: "integer", description: "invoice.* events: the invoice the payload is, 1-based in `invoices`" },
+                status: { type: "string", enum: ["active", "trialing", "paused", "canceled"], description: "customer.subscription.* events: the subscription status in the payload" },
               },
             },
           },

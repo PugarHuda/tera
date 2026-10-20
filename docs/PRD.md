@@ -199,6 +199,7 @@ Stripe's events for a timeline, recorded per step from test clocks (all 114 gold
 - `customer.subscription.updated` for each call that changes the subscription and for each renewal; not for a no-op change unless it invoices pending prorations (S43), nor for removing a coupon that no longer applies (see below). A trial that ends into a pause sends `paused` and `updated`; one that ends into a cancellation, `deleted`. Resuming sends `resumed` and `updated`.
 - `trial_will_end`: three days before the trial ends, or with the call that ends it sooner (S45).
 - Removing a coupon sends `customer.subscription.updated` only while its discount still applies: not after a `once` coupon was used up (S52, fuzz seed 120010).
+- Payloads: each `invoice.*` event is about one invoice, and each `customer.subscription.*` event carries the subscription's status after the call (`trialing` for a trial's `created` and `trial_will_end`, `paused` with `paused`, `canceled` with `deleted`). Both are recorded from the events' `data.object` (invoice id → its place in the invoice list, subscription status) and compared per step.
 
 ### R23 — Customer balance adjustments
 - `adjust_balance` with `amount` (minor units) is a Stripe customer balance transaction: negative is a credit, positive a debit. It changes the balance the next finalized invoice starts from (R10), so a credit lowers the amount due and carries over while it lasts, and a debit is added (S103: −1000 against a 2900 renewal leaves 1900 due; S104: +500 and −10000 net to −9500, which covers one 7900 invoice and 1600 of the next).
@@ -284,9 +285,9 @@ Stripe's events for a timeline, recorded per step from test clocks (all 114 gold
 - `/reference` renders the OpenAPI document with Scalar, including a "try it" client for every endpoint.
 
 ### FR10 Webhook events [SHIPPED]
-- Every simulation returns `webhooks[]`: `{ event, date, type }`, the webhook events Stripe sends for the timeline, where `event` is the index of the timeline event whose step (the clock advance up to it, then the call) causes it (R24).
-- On `/`, below the invoices, a collapsed "Webhook events Stripe sends (N)" panel lists them grouped by timeline event ("Event 2 · Change price · 2027-01-17").
-- "Verify in Stripe" (and `POST /api/parity`, MCP `verify_timeline_in_stripe`) also compares them with the events the test clock sent: "✅ Webhooks match" or each differing type with both counts.
+- Every simulation returns `webhooks[]`: `{ event, date, type, invoice?, status? }`, the webhook events Stripe sends for the timeline, where `event` is the index of the timeline event whose step (the clock advance up to it, then the call) causes it, `invoice` the invoice an `invoice.*` event is about (1-based, as in `invoices[]`) and `status` the subscription status a `customer.subscription.*` event carries (R24).
+- On `/`, below the invoices, a collapsed "Webhook events Stripe sends (N)" panel lists them grouped by timeline event ("Event 2 · Change price · 2027-01-17"), each with its invoice ("invoice.paid → invoice 2") or status ("customer.subscription.updated (active)").
+- "Verify in Stripe" (and `POST /api/parity`, MCP `verify_timeline_in_stripe`) also compares them with the events the test clock sent: "✅ Webhooks match" or each differing event (type and invoice or status) with both counts.
 - Reference: S01 → event 1 sends `invoice.created`, `invoice.finalized`, `invoice.paid`, `customer.subscription.created`. S20 (upgrade with always_invoice) → event 2 sends 2 × `invoiceitem.created`, an invoice (created, finalized, paid) and `customer.subscription.updated`; event 3 (the 02-01 renewal the timeline ends on) only `invoice.created` and `customer.subscription.updated`.
 
 ## 7. Non-functional

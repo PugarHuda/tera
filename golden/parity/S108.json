@@ -1,15 +1,15 @@
 {
   "id": "S108",
   "title": "Flexible: an anchor reset's remaining-time charge uses up a once coupon, so the next renewal is full price (found by fuzzing)",
-  "verified_at": "2026-10-20T12:03:07.812Z",
+  "verified_at": "2026-10-20T15:37:17.266Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbjH2QR5nixgqNISDvHszy",
-  "customer": "cus_VTYrgnwRhpHngd",
+  "test_clock": "clock_1USf532QR5nixgqN2TmEOUXT",
+  "customer": "cus_VTcJSoolgOyhpP",
   "stripe": [
     {
-      "id": "in_1USbjL2QR5nixgqNkpLYCPHZ",
+      "id": "in_1USf552QR5nixgqN5UDlkQYp",
       "date": "2027-06-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbjV2QR5nixgqNqPjH7TLa",
+      "id": "in_1USf5Q2QR5nixgqNdry0chFr",
       "date": "2027-06-16",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbkn2QR5nixgqNuiQUjAnQ",
+      "id": "in_1USf5z2QR5nixgqNRbCm2AZI",
       "date": "2027-07-26",
       "currency": "usd",
       "lines": [
@@ -70,30 +70,28 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
     ],
     [
-      "customer.subscription.trial_will_end",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.discount.created",
-      "customer.subscription.updated"
+      "customer.subscription.trial_will_end trialing",
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "customer.discount.deleted",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

@@ -3,7 +3,7 @@
 // --mark flips matching scenarios to status "verified" in golden/scenarios.json (and back to "draft" on a diff).
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { simulate, type Catalog, type TimelineEvent } from "../src/lib/billing.ts";
-import { diffInvoices, replayInStripe, stripeClient, STRIPE_API_VERSION } from "../src/lib/stripe-parity.ts";
+import { diffInvoices, diffWebhooks, replayInStripe, stripeClient, STRIPE_API_VERSION } from "../src/lib/stripe-parity.ts";
 
 for (const line of (existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "").split(/\r?\n/)) {
   const m = line.match(/^([A-Z_]+)=(.*)$/);
@@ -20,7 +20,8 @@ const scenarios = golden.scenarios.filter((s: { id: string; timeline?: unknown }
 const stripe = stripeClient();
 
 async function run(s: { id: string; title: string; timeline: TimelineEvent[] }) {
-  const tera = simulate(catalog, s.timeline).invoices;
+  const sim = simulate(catalog, s.timeline);
+  const tera = sim.invoices;
   try {
     const replay = await replayInStripe(stripe, catalog, s.timeline, { events: true });
     const diffs = diffInvoices(tera, replay.invoices);
@@ -29,6 +30,7 @@ async function run(s: { id: string; title: string; timeline: TimelineEvent[] }) 
     writeFileSync(`golden/parity/${s.id}.json`, JSON.stringify(record, null, 2) + "\n");
     console.log(`${s.id} ${diffs.length === 0 ? "MATCH" : "DIFF"} ${s.title}`);
     for (const d of diffs) console.log(`   invoice ${d.invoice} ${d.field}: tera=${JSON.stringify(d.tera)} stripe=${JSON.stringify(d.stripe)}`);
+    for (const d of diffWebhooks(sim.webhooks, replay.events)) console.log(`   WEBHOOK-DIFF event ${d.event + 1} ${d.type}: tera=${d.tera} stripe=${d.stripe}`);
   } catch (e) {
     results[s.id] = false;
     console.log(`${s.id} SKIP ${(e as Error).message}`);

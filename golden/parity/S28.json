@@ -1,15 +1,15 @@
 {
   "id": "S28",
   "title": "Upgrade under a forever 25% coupon: prorations are pre-discounted, not re-discounted",
-  "verified_at": "2026-10-20T11:51:57.089Z",
+  "verified_at": "2026-10-20T15:26:38.884Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZx2QR5nixgqNzXFKdsGp",
-  "customer": "cus_VTYhdjDjYvj3gE",
+  "test_clock": "clock_1USevb2QR5nixgqNEIzrWWTS",
+  "customer": "cus_VTc9RKVkLcOeBl",
   "stripe": [
     {
-      "id": "in_1USbZy2QR5nixgqNlOFm2yyW",
+      "id": "in_1USevd2QR5nixgqNbdWemojU",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USba92QR5nixgqNj75m7bYP",
+      "id": "in_1USevs2QR5nixgqNujCT4Hp9",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -57,20 +57,19 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

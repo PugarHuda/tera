@@ -1,15 +1,15 @@
 {
   "id": "S62",
   "title": "Flexible: credits round gross and discount apart; an anchor reset with none debits nothing, so nothing is credited later",
-  "verified_at": "2026-10-20T11:55:52.049Z",
+  "verified_at": "2026-10-20T15:31:18.184Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbcw2QR5nixgqNmTttJ84J",
-  "customer": "cus_VTYksk0McOOiin",
+  "test_clock": "clock_1USezP2QR5nixgqN1rPslq4O",
+  "customer": "cus_VTcDQySUicXzY8",
   "stripe": [
     {
-      "id": "in_1USbcx2QR5nixgqNpGDg5ysA",
+      "id": "in_1USezQ2QR5nixgqNJlUQEUoy",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbde2QR5nixgqNxFDWE9CM",
+      "id": "in_1USf0A2QR5nixgqNgLGxgWod",
       "date": "2026-02-21",
       "currency": "usd",
       "lines": [
@@ -60,7 +60,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbdq2QR5nixgqNZtCCdUvY",
+      "id": "in_1USf0N2QR5nixgqNjkHO88Ug",
       "date": "2026-03-21",
       "currency": "usd",
       "lines": [
@@ -80,35 +80,33 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [],
     [
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

@@ -1,15 +1,15 @@
 {
   "id": "S89",
   "title": "Flexible: a proration charge takes its percent discount off the unrounded gross (found by fuzzing)",
-  "verified_at": "2026-10-20T11:59:09.355Z",
+  "verified_at": "2026-10-20T15:34:31.381Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbgM2QR5nixgqNanwNQxyO",
-  "customer": "cus_VTYnZM76ElAU8C",
+  "test_clock": "clock_1USf2p2QR5nixgqNklerQIee",
+  "customer": "cus_VTcHr8MBxZZq4R",
   "stripe": [
     {
-      "id": "in_1USbgN2QR5nixgqN0g7C1ou6",
+      "id": "in_1USf2r2QR5nixgqNjnJBHbGW",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbgj2QR5nixgqNgigW3s32",
+      "id": "in_1USf3I2QR5nixgqNwudXhyxJ",
       "date": "2027-02-10",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbh12QR5nixgqN1AfGulSU",
+      "id": "in_1USf3S2QR5nixgqNhXaplj7q",
       "date": "2027-03-10",
       "currency": "usd",
       "lines": [
@@ -70,25 +70,24 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

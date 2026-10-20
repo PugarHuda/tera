@@ -1,15 +1,15 @@
 {
   "id": "S71",
   "title": "cancel_at inside the current period: a final invoice on that date credits the unused time at the discounted rate",
-  "verified_at": "2026-10-20T11:56:37.335Z",
+  "verified_at": "2026-10-20T15:31:57.599Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbeN2QR5nixgqNldeoyW88",
-  "customer": "cus_VTYllE3xDsecNi",
+  "test_clock": "clock_1USf0j2QR5nixgqNeLQtHXv4",
+  "customer": "cus_VTcFLQECi6rE0T",
   "stripe": [
     {
-      "id": "in_1USbeO2QR5nixgqNEYUzwZso",
+      "id": "in_1USf0k2QR5nixgqNC2hhEe8r",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeb2QR5nixgqNsw2F4Um0",
+      "id": "in_1USf0v2QR5nixgqNEVSY0KYd",
       "date": "2027-01-20",
       "currency": "usd",
       "lines": [
@@ -47,21 +47,20 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "customer.subscription.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid"
+      "customer.subscription.deleted canceled",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2"
     ]
   ]
 }

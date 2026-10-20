@@ -97,8 +97,9 @@ export type Invoice = {
 };
 
 /** A webhook event Stripe sends during the timeline: `event` is the index of the timeline event whose step (the clock
- *  advance up to it, then the API call) causes it, `date` the simulated day it fires. */
-export type Webhook = { event: number; date: string; type: string };
+ *  advance up to it, then the API call) causes it, `date` the simulated day it fires. An invoice.* event names its invoice
+ *  (1-based, as in `invoices`); a customer.subscription.* event carries the subscription's status in its payload. */
+export type Webhook = { event: number; date: string; type: string; invoice?: number; status?: SimulationResult["status"] };
 
 export type SimulationResult = {
   invoices: Invoice[];
@@ -228,7 +229,8 @@ const FULL: Paid = { rate: 1, off: 0 };
 
 /** coupon: the subscription discount when the draft was created; Stripe copies it then (fuzz seed 24019, S57). */
 /** later: a final invoice of a cancellation; Stripe finalizes it an hour later, so its webhooks wait for the clock. */
-type Draft = { at: number; seq: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid; claimed?: boolean; later?: boolean };
+/** hooks: its invoice.* webhooks, given the invoice's number once it has one. */
+type Draft = { at: number; seq: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid; claimed?: boolean; later?: boolean; hooks: Webhook[] };
 
 // Stripe finalizes a renewal draft about an hour after creating it; an invoice a change creates in that hour is
 // finalized first, so it takes (or leaves) the customer balance before the renewal does (fuzz seed 78026, S105).
@@ -242,7 +244,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   let balance = 0; // R10: customer credit balance carried between invoices
   const webhooks: Webhook[] = [];
   let step = 0;
-  const emit = (at: number, ...types: string[]) => types.forEach((type) => webhooks.push({ event: step, date: isoDay(at), type }));
+  const emit = (at: number, ...types: string[]) =>
+    types.map((type) => {
+      const w: Webhook = { event: step, date: isoDay(at), type, ...(type.startsWith("customer.subscription.") && sub ? { status: sub.status } : {}) };
+      webhooks.push(w);
+      return w;
+    });
   // The discount Stripe still has on the subscription: gone once it is replaced, removed, a "once" coupon is used up (one a
   // renewal draft claimed: when that draft is finalized, an hour later) or a repeating one expires. Removing a discount that
   // is already gone is no change, so no event (S52, fuzz seed 120010). customer.discount.* events themselves are not
@@ -284,16 +291,18 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // sent: false for the draft still open when the timeline ends; Stripe has not finalized it yet, so it sends nothing.
   // A cancellation's final invoice is billed now (its balance counts at once) but finalized by Stripe an hour later: those
   // webhooks come with the first step at least that much later, or not at all when the timeline ends first (S67, S68).
-  const deferred: number[] = [];
+  const deferred: { at: number; invoice: number }[] = [];
   const flush = (t: number) => {
-    for (const d of deferred.splice(0).sort((a, b) => a - b)) if (d + DRAFT_MS <= t) emit(d + DRAFT_MS, "invoice.finalized", "invoice.paid");
-    else deferred.push(d);
+    for (const d of deferred.splice(0).sort((a, b) => a.at - b.at))
+      if (d.at + DRAFT_MS <= t) emit(d.at + DRAFT_MS, "invoice.finalized", "invoice.paid").forEach((w) => (w.invoice = d.invoice));
+      else deferred.push(d);
   };
   const finalize = (sent = true) => {
     if (!draft || !sub) return;
-    if (sent && draft.later) deferred.push(draft.at);
+    if (sent && draft.later) deferred.push({ at: draft.at, invoice: invoices.length + 1 });
     // An invoice made while the subscription pauses (its unused-time credit) is finalized but never paid (S82).
-    else if (sent) emit(draft.at, "invoice.finalized", ...(sub.status === "paused" ? [] : ["invoice.paid"]));
+    else if (sent) draft.hooks.push(...emit(draft.at, "invoice.finalized", ...(sub.status === "paused" ? [] : ["invoice.paid"])));
+    for (const w of draft.hooks) w.invoice = invoices.length + 1;
     const claimed = draft.claimed;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
     // R5: proration lines are not discountable (they were already priced at the discounted rate).
@@ -353,17 +362,17 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // (subscription creation, always_invoice, interval change) are finalized immediately.
   const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false, later = false) => {
     const pending = draft;
-    emit(at, "invoice.created");
+    const hooks = emit(at, "invoice.created");
     if (!immediate) {
       // A renewal draft claims a live "once" coupon when it is created, so a change at the same instant is not
       // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
       const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
       s.paid = { ...s.paid }; // a fresh object, so finalize can tell whether a change re-priced it since
-      draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid, claimed: Boolean(claims) };
+      draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid, claimed: Boolean(claims), hooks };
       if (claims) s.coupon!.remaining -= 1;
       return;
     }
-    draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon, later };
+    draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon, later, hooks };
     finalize();
     // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
     // amount due can use the credit this invoice creates.
@@ -491,7 +500,6 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const p = price(e.price!);
         const trial = e.type === "start_trial";
         const periodEnd = trial ? at + (e.trial_days ?? 0) * DAY : addInterval(at, p.interval, new Date(at).getUTCDate());
-        emit(at, "customer.subscription.created");
         sub = {
           priceId: e.price!,
           quantity: e.quantity ?? 1,
@@ -511,6 +519,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           debits: [],
           ...(trial && e.trial_end_behavior ? { trialEnd: e.trial_end_behavior } : {}),
         };
+        emit(at, "customer.subscription.created");
         if (e.coupon) applyCoupon(sub, e.coupon, at);
         if (e.billing_cycle_anchor !== undefined) {
           anchorAt(sub, at, toDate(e.billing_cycle_anchor), e);
@@ -974,6 +983,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   const finalSub = sub as Sub | null;
   const order = invoices.map((_, i) => i).sort((a, b) => created.get(a)![0] - created.get(b)![0] || created.get(b)![1] - created.get(a)![1]);
+  for (const w of webhooks) if (w.invoice) w.invoice = order.indexOf(w.invoice - 1) + 1;
   return {
     invoices: order.map((i) => invoices[i]),
     webhooks,

@@ -1,15 +1,15 @@
 {
   "id": "S18",
   "title": "JPY zero-decimal upgrade",
-  "verified_at": "2026-10-20T11:51:32.589Z",
+  "verified_at": "2026-10-20T15:26:12.959Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZZ2QR5nixgqNmrmwliSU",
-  "customer": "cus_VTYgtxNjBD12qE",
+  "test_clock": "clock_1USevE2QR5nixgqNuw3WrnYQ",
+  "customer": "cus_VTc9pT3MlYoaFa",
   "stripe": [
     {
-      "id": "in_1USbZa2QR5nixgqNwWMDFNCf",
+      "id": "in_1USevH2QR5nixgqN2b3tjabl",
       "date": "2027-01-01",
       "currency": "jpy",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZl2QR5nixgqNt48pJLPl",
+      "id": "in_1USevV2QR5nixgqNGjSQWHVc",
       "date": "2027-02-01",
       "currency": "jpy",
       "lines": [
@@ -57,19 +57,19 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

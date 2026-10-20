@@ -1,15 +1,15 @@
 {
   "id": "S21",
   "title": "Monthly to annual resets anchor, invoices now",
-  "verified_at": "2026-10-20T11:51:36.677Z",
+  "verified_at": "2026-10-20T15:26:13.402Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZg2QR5nixgqNVg5P2bHL",
-  "customer": "cus_VTYhf2L41puvp6",
+  "test_clock": "clock_1USevL2QR5nixgqNRGR9lISh",
+  "customer": "cus_VTc9XcanfkDGYU",
   "stripe": [
     {
-      "id": "in_1USbZi2QR5nixgqNFkk0QtAZ",
+      "id": "in_1USevN2QR5nixgqN05q2csGs",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZp2QR5nixgqNAx1qp0kg",
+      "id": "in_1USevW2QR5nixgqNCj32kahf",
       "date": "2027-01-17",
       "currency": "usd",
       "lines": [
@@ -52,17 +52,17 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

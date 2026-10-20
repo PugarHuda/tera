@@ -1,15 +1,15 @@
 {
   "id": "S70",
   "title": "Flexible: after a none yearly -> monthly change, a later change credits the yearly debit only to the monthly period end (found by fuzzing)",
-  "verified_at": "2026-10-20T11:56:53.717Z",
+  "verified_at": "2026-10-20T15:32:04.392Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbeC2QR5nixgqNEGPTXX8W",
-  "customer": "cus_VTYlmAlMvz3Xcs",
+  "test_clock": "clock_1USf0Y2QR5nixgqNH4vMWLXt",
+  "customer": "cus_VTcF5KJHBe4qOf",
   "stripe": [
     {
-      "id": "in_1USbeE2QR5nixgqNNWX6ZPFT",
+      "id": "in_1USf0Z2QR5nixgqNZu2cfkFo",
       "date": "2027-01-10",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbec2QR5nixgqNvvsTtHLh",
+      "id": "in_1USf0t2QR5nixgqNew9Rn7M3",
       "date": "2027-03-25",
       "currency": "usd",
       "lines": [
@@ -62,31 +62,29 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     []
   ]

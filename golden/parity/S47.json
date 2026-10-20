@@ -1,15 +1,15 @@
 {
   "id": "S47",
   "title": "Undoing a scheduled cancel keeps renewing",
-  "verified_at": "2026-10-20T11:53:36.218Z",
+  "verified_at": "2026-10-20T15:29:01.311Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbb82QR5nixgqNra738t5R",
-  "customer": "cus_VTYi2ckZFGxgrW",
+  "test_clock": "clock_1USexL2QR5nixgqNEuVMmWzh",
+  "customer": "cus_VTcB9eKNFJEzQ0",
   "stripe": [
     {
-      "id": "in_1USbbA2QR5nixgqNC5jZkrZS",
+      "id": "in_1USexO2QR5nixgqNlxTDnJdb",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbbV2QR5nixgqNmpRxmyD3",
+      "id": "in_1USexr2QR5nixgqNGrpVPK2W",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbbf2QR5nixgqNKPBJH8P3",
+      "id": "in_1USey42QR5nixgqNs7popU7w",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -65,28 +65,26 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

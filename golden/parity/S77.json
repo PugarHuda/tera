@@ -1,15 +1,15 @@
 {
   "id": "S77",
   "title": "First-billing-date stub is prorated over one interval counted from the start (05-31 -> 06-30), not the period ending on the anchor (found by fuzzing)",
-  "verified_at": "2026-10-20T11:57:27.219Z",
+  "verified_at": "2026-10-20T15:32:29.527Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbey2QR5nixgqNR0IgzhL7",
-  "customer": "cus_VTYm5Ir0Ox0i7w",
+  "test_clock": "clock_1USf1G2QR5nixgqNH38yDdGL",
+  "customer": "cus_VTcFEsKQV6ge2C",
   "stripe": [
     {
-      "id": "in_1USbf02QR5nixgqNY5gMrR3D",
+      "id": "in_1USf1I2QR5nixgqNK50jTvUA",
       "date": "2028-05-31",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbf72QR5nixgqNVe5bPgTX",
+      "id": "in_1USf1O2QR5nixgqN2mX6pKVX",
       "date": "2028-06-13",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbfN2QR5nixgqNMTK8Cx9j",
+      "id": "in_1USf1W2QR5nixgqNB03v1WU4",
       "date": "2028-07-13",
       "currency": "usd",
       "lines": [
@@ -66,20 +66,20 @@
   "webhooks": [
     [
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

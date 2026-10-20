@@ -1,15 +1,15 @@
 {
   "id": "S13",
   "title": "$10 off for 3 months",
-  "verified_at": "2026-10-20T11:51:43.226Z",
+  "verified_at": "2026-10-20T15:26:10.365Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZO2QR5nixgqNCCm4dxvJ",
-  "customer": "cus_VTYgrJFsZL25N5",
+  "test_clock": "clock_1USeus2QR5nixgqNe0IpSmDd",
+  "customer": "cus_VTc9W4ZKUMp1rX",
   "stripe": [
     {
-      "id": "in_1USbZQ2QR5nixgqNdPnboCwl",
+      "id": "in_1USeuu2QR5nixgqN8Z7crhv8",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZZ2QR5nixgqN3vkx4xvC",
+      "id": "in_1USev72QR5nixgqNp6dzeKjX",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZi2QR5nixgqNbpBNetfJ",
+      "id": "in_1USevH2QR5nixgqNcvdbZJCb",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZu2QR5nixgqNLUexTh96",
+      "id": "in_1USevR2QR5nixgqNBYQsMiZL",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -83,24 +83,22 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "customer.discount.deleted"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active"
     ]
   ]
 }

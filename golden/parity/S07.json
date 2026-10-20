@@ -1,15 +1,15 @@
 {
   "id": "S07",
   "title": "February: mid-month upgrade is exactly half",
-  "verified_at": "2026-10-20T11:51:04.673Z",
+  "verified_at": "2026-10-20T15:25:28.423Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZ22QR5nixgqN1bJf22A2",
-  "customer": "cus_VTYgowa3JkgHDP",
+  "test_clock": "clock_1USeuQ2QR5nixgqNdR5Hmunp",
+  "customer": "cus_VTc80wf4TBZ3TS",
   "stripe": [
     {
-      "id": "in_1USbZ42QR5nixgqNfxhmbCv6",
+      "id": "in_1USeuV2QR5nixgqN7A9JJqAV",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZJ2QR5nixgqNFzO4df3G",
+      "id": "in_1USeum2QR5nixgqNJjCy7ZC6",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -57,19 +57,19 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

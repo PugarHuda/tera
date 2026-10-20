@@ -1,15 +1,15 @@
 {
   "id": "S40",
   "title": "always_invoice change at the exact renewal instant: separate invoices, the credit pays the renewal",
-  "verified_at": "2026-10-20T11:52:53.024Z",
+  "verified_at": "2026-10-20T15:27:45.117Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbab2QR5nixgqNAP1bK5er",
-  "customer": "cus_VTYiX8allshY4w",
+  "test_clock": "clock_1USewW2QR5nixgqNPJ0YkPLM",
+  "customer": "cus_VTcAbLpqudhCJR",
   "stripe": [
     {
-      "id": "in_1USbac2QR5nixgqNChKlZAR7",
+      "id": "in_1USewY2QR5nixgqNP27HYRgl",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbao2QR5nixgqNh1MjXabi",
+      "id": "in_1USewm2QR5nixgqNPHcTzeN4",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbal2QR5nixgqNrjRj824g",
+      "id": "in_1USewj2QR5nixgqNXs41O0KF",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -70,24 +70,24 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
+      "invoice.created #3",
+      "customer.subscription.updated active",
       "invoiceitem.created",
+      "invoice.created #2",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

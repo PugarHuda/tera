@@ -1,15 +1,15 @@
 {
   "id": "S68",
   "title": "Flexible: cancelling a taxed yearly plan with a refund creates a credit balance that pays the next subscription",
-  "verified_at": "2026-10-20T11:56:30.574Z",
+  "verified_at": "2026-10-20T15:31:55.836Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbdq2QR5nixgqNVxbf24yJ",
-  "customer": "cus_VTYlk8VfINoad0",
+  "test_clock": "clock_1USf0R2QR5nixgqNcnGoqmPt",
+  "customer": "cus_VTcEPNB2BsIzoz",
   "stripe": [
     {
-      "id": "in_1USbds2QR5nixgqNe0AmGedJ",
+      "id": "in_1USf0T2QR5nixgqN5ANu1jlM",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeD2QR5nixgqNQ3Uv4sNp",
+      "id": "in_1USf0h2QR5nixgqN85TLhANY",
       "date": "2027-04-10",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeO2QR5nixgqNgP4h1uTU",
+      "id": "in_1USf0o2QR5nixgqN18IPtDqd",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": -23247
     },
     {
-      "id": "in_1USbeW2QR5nixgqNRSI6NjD8",
+      "id": "in_1USf0z2QR5nixgqN94kGpDC9",
       "date": "2027-06-01",
       "currency": "usd",
       "lines": [
@@ -83,29 +83,29 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "invoice.created",
-      "customer.subscription.deleted"
+      "invoice.created #2",
+      "customer.subscription.deleted canceled"
     ],
     [
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
     ]
   ]
 }

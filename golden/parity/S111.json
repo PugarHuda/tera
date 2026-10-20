@@ -1,15 +1,15 @@
 {
   "id": "S111",
   "title": "Canceling with a final invoice at the renewal instant finalizes the renewal draft first: it is paid in full and the final credit stays on the customer balance (found by fuzzing)",
-  "verified_at": "2026-10-20T12:03:02.510Z",
+  "verified_at": "2026-10-20T15:37:35.561Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbjV2QR5nixgqN67a4P9m6",
-  "customer": "cus_VTYrQo0LwUprqG",
+  "test_clock": "clock_1USf5c2QR5nixgqNdAm7yS8U",
+  "customer": "cus_VTcKA5FJW80tGv",
   "stripe": [
     {
-      "id": "in_1USbjX2QR5nixgqNdK8xcc9I",
+      "id": "in_1USf5d2QR5nixgqNbj4LyTlI",
       "date": "2027-04-30",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbjm2QR5nixgqNVT0jGfDA",
+      "id": "in_1USf5p2QR5nixgqNfNgQLa5F",
       "date": "2027-05-03",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbkc2QR5nixgqN2in8dYNe",
+      "id": "in_1USf6F2QR5nixgqNnvizMVsw",
       "date": "2027-06-03",
       "currency": "usd",
       "lines": [
@@ -63,7 +63,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbkY2QR5nixgqN2a2Xyzwy",
+      "id": "in_1USf6B2QR5nixgqNf53f5HPr",
       "date": "2027-06-03",
       "currency": "usd",
       "lines": [
@@ -93,35 +93,35 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
     ],
     [
-      "customer.subscription.trial_will_end",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "customer.subscription.trial_will_end trialing",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
+      "invoice.created #4",
+      "customer.subscription.updated active",
       "invoiceitem.created",
-      "invoice.created",
-      "customer.subscription.deleted"
+      "invoice.created #3",
+      "customer.subscription.deleted canceled"
     ],
     [
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.finalized #4",
+      "invoice.paid #4",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

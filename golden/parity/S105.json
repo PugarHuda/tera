@@ -1,15 +1,15 @@
 {
   "id": "S105",
   "title": "An invoice created within the hour after a renewal is finalized before the renewal draft, which then takes its carried cent (found by fuzzing)",
-  "verified_at": "2026-10-20T12:01:32.735Z",
+  "verified_at": "2026-10-20T15:36:39.229Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbiQ2QR5nixgqN0ufHdCjp",
-  "customer": "cus_VTYqIEXsh4McCI",
+  "test_clock": "clock_1USf4a2QR5nixgqN8IL0Xqhp",
+  "customer": "cus_VTcJP5juoIlNSN",
   "stripe": [
     {
-      "id": "in_1USbiT2QR5nixgqNbh75kKja",
+      "id": "in_1USf4c2QR5nixgqNUmEkFa4w",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbih2QR5nixgqNAIglwk3a",
+      "id": "in_1USf4x2QR5nixgqNNKzz5GMv",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 1
     },
     {
-      "id": "in_1USbik2QR5nixgqNo5oqfqn3",
+      "id": "in_1USf502QR5nixgqNnp1FxrKH",
       "date": "2027-04-01",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbjD2QR5nixgqNuudfr0KH",
+      "id": "in_1USf5S2QR5nixgqN6Ftz7Ucb",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -88,27 +88,27 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
+      "invoice.created #2",
+      "customer.subscription.updated active",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #3",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
     ]
   ]
 }

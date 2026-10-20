@@ -1,15 +1,15 @@
 {
   "id": "S03",
   "title": "Per-seat x5",
-  "verified_at": "2026-10-20T11:50:42.726Z",
+  "verified_at": "2026-10-20T15:25:03.843Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbYw2QR5nixgqNgpPbmvEt",
-  "customer": "cus_VTYgjKqSXqOTKA",
+  "test_clock": "clock_1USeuI2QR5nixgqNnvP1MtO5",
+  "customer": "cus_VTc8WL6TJLPr09",
   "stripe": [
     {
-      "id": "in_1USbYy2QR5nixgqNr8fMgt0Q",
+      "id": "in_1USeuK2QR5nixgqNmhyXoKsJ",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -29,10 +29,10 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ]
   ]
 }

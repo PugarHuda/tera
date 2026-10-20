@@ -1,15 +1,15 @@
 {
   "id": "S112",
   "title": "A first-billing-date stub a once coupon made free is credited at what was paid, $0, not at full price (found by fuzzing)",
-  "verified_at": "2026-10-20T12:02:34.541Z",
+  "verified_at": "2026-10-20T15:37:25.914Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbjW2QR5nixgqNSvcYfQWN",
-  "customer": "cus_VTYrRrAHUq3zN5",
+  "test_clock": "clock_1USf5i2QR5nixgqNig08U7lS",
+  "customer": "cus_VTcKgUqr1nhBng",
   "stripe": [
     {
-      "id": "in_1USbjb2QR5nixgqNdkhWRBTL",
+      "id": "in_1USf5k2QR5nixgqNEgAR2yub",
       "date": "2027-04-05",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbjk2QR5nixgqNK8EXO4U8",
+      "id": "in_1USf5t2QR5nixgqNmW3kUHDi",
       "date": "2027-04-16",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbk32QR5nixgqN4ngNIfLt",
+      "id": "in_1USf672QR5nixgqNZbrjyKPr",
       "date": "2027-05-01",
       "currency": "usd",
       "lines": [
@@ -71,26 +71,24 @@
   "webhooks": [
     [
       "invoiceitem.created",
-      "customer.discount.created",
-      "customer.discount.deleted",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.finalized #1",
+      "invoice.created #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

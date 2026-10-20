@@ -1,15 +1,15 @@
 {
   "id": "S69",
   "title": "An amount due below Stripe's $0.50 minimum is not charged; it is carried onto the next invoice (found by fuzzing)",
-  "verified_at": "2026-10-20T11:56:33.715Z",
+  "verified_at": "2026-10-20T15:31:58.588Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbe12QR5nixgqNlw4HHajH",
-  "customer": "cus_VTYlgMvkenQbSL",
+  "test_clock": "clock_1USf0W2QR5nixgqN3iDm9yCL",
+  "customer": "cus_VTcFKSPMq377ek",
   "stripe": [
     {
-      "id": "in_1USbe32QR5nixgqNFyTPYjY7",
+      "id": "in_1USf0Y2QR5nixgqNHEFZEVv9",
       "date": "2027-04-30",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeK2QR5nixgqNZnVFtfVL",
+      "id": "in_1USf0i2QR5nixgqNBW7Wt0To",
       "date": "2027-05-30",
       "currency": "usd",
       "lines": [
@@ -55,7 +55,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeS2QR5nixgqNyEm4hS8K",
+      "id": "in_1USf0q2QR5nixgqNkj5Qq8ux",
       "date": "2027-06-30",
       "currency": "usd",
       "lines": [
@@ -75,25 +75,25 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

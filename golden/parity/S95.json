@@ -1,15 +1,15 @@
 {
   "id": "S95",
   "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
-  "verified_at": "2026-10-20T12:00:02.011Z",
+  "verified_at": "2026-10-20T15:34:59.349Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbh62QR5nixgqNpMIjOlg4",
-  "customer": "cus_VTYoa2PAsw4KwX",
+  "test_clock": "clock_1USf3S2QR5nixgqNjD6DJFzd",
+  "customer": "cus_VTcIRey9juwEXx",
   "stripe": [
     {
-      "id": "in_1USbh82QR5nixgqNmVjoza75",
+      "id": "in_1USf3U2QR5nixgqNk2CwQ8w5",
       "date": "2028-01-02",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbhU2QR5nixgqNNpBay1UN",
+      "id": "in_1USf3k2QR5nixgqNtuwe8Jp1",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbhS2QR5nixgqNRudOtn6l",
+      "id": "in_1USf3h2QR5nixgqNJShmuL04",
       "date": "2028-02-02",
       "currency": "usd",
       "lines": [
@@ -70,29 +70,27 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.discount.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
+      "invoice.created #3",
+      "customer.subscription.updated active",
       "invoiceitem.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "customer.discount.deleted",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

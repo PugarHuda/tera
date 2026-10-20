@@ -1,15 +1,15 @@
 {
   "id": "S101",
   "title": "Flexible: a resume charge an amount_off coupon makes free is still a $0 debit and uses up the once coupon (found by fuzzing)",
-  "verified_at": "2026-10-20T12:01:31.207Z",
+  "verified_at": "2026-10-20T15:36:13.399Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbhk2QR5nixgqNqhJHdJWu",
-  "customer": "cus_VTYp3h55mJA1ld",
+  "test_clock": "clock_1USf412QR5nixgqNXxcVizgn",
+  "customer": "cus_VTcIcxN5qdwwDO",
   "stripe": [
     {
-      "id": "in_1USbhl2QR5nixgqNEbUtw0G4",
+      "id": "in_1USf422QR5nixgqNvv6sTlHj",
       "date": "2028-06-04",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbiR2QR5nixgqNG43CBIA6",
+      "id": "in_1USf4g2QR5nixgqNPHoZ6gds",
       "date": "2028-08-11",
       "currency": "usd",
       "lines": [
@@ -60,7 +60,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbie2QR5nixgqNnXSTnw8f",
+      "id": "in_1USf4r2QR5nixgqNuA2JIoYj",
       "date": "2028-09-11",
       "currency": "usd",
       "lines": [
@@ -78,7 +78,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbip2QR5nixgqNBFPTQQNy",
+      "id": "in_1USf562QR5nixgqNic2zGWG0",
       "date": "2028-10-11",
       "currency": "usd",
       "lines": [
@@ -98,39 +98,37 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created trialing"
     ],
     [
-      "customer.subscription.trial_will_end",
-      "customer.subscription.updated",
-      "customer.subscription.paused",
-      "customer.discount.deleted",
+      "customer.subscription.trial_will_end trialing",
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused",
       "invoiceitem.created",
-      "customer.subscription.updated",
-      "customer.subscription.resumed"
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
     ]
   ]
 }

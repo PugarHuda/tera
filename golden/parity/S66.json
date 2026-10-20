@@ -1,15 +1,15 @@
 {
   "id": "S66",
   "title": "Flexible: a proration debit is credited from its rounded gross and rounded discount, not its net (found by fuzzing)",
-  "verified_at": "2026-10-20T11:56:19.285Z",
+  "verified_at": "2026-10-20T15:31:30.812Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbdf2QR5nixgqN93Je60hH",
-  "customer": "cus_VTYldFROH0v73S",
+  "test_clock": "clock_1USf062QR5nixgqN34JELDBB",
+  "customer": "cus_VTcEdDYbNw1IPb",
   "stripe": [
     {
-      "id": "in_1USbdg2QR5nixgqNi65enXiF",
+      "id": "in_1USf082QR5nixgqN6yXgSG3A",
       "date": "2028-02-29",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbeB2QR5nixgqNvZhseFck",
+      "id": "in_1USf0X2QR5nixgqNPassYjvs",
       "date": "2028-04-23",
       "currency": "usd",
       "lines": [
@@ -67,28 +67,27 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "customer.subscription.updated"
-    ],
-    [
-      "invoiceitem.created",
-      "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
+    ],
+    [
+      "invoiceitem.created",
+      "invoiceitem.created",
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     []
   ]

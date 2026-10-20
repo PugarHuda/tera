@@ -1,15 +1,15 @@
 {
   "id": "S102",
   "title": "Flexible: switching to yearly with no proration before the first billing date renews the yearly price on that date (found by fuzzing)",
-  "verified_at": "2026-10-20T12:00:34.584Z",
+  "verified_at": "2026-10-20T15:35:41.244Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbi32QR5nixgqNbAlQNr8E",
-  "customer": "cus_VTYp0qY1iuyrwt",
+  "test_clock": "clock_1USf452QR5nixgqNBEvtsLsv",
+  "customer": "cus_VTcITbceoQSLnn",
   "stripe": [
     {
-      "id": "in_1USbi62QR5nixgqNiMHbyiqA",
+      "id": "in_1USf472QR5nixgqNtTf3tkz9",
       "date": "2027-06-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbiN2QR5nixgqNoJJkT7CT",
+      "id": "in_1USf4Y2QR5nixgqNGRzqUuL5",
       "date": "2027-06-24",
       "currency": "usd",
       "lines": [
@@ -47,21 +47,20 @@
   ],
   "webhooks": [
     [
-      "customer.discount.created",
       "invoiceitem.created",
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2"
     ]
   ]
 }

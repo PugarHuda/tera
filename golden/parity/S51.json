@@ -1,15 +1,15 @@
 {
   "id": "S51",
   "title": "Reset the billing anchor mid-period (billing_cycle_anchor=now): credit unused time, bill a full new period today",
-  "verified_at": "2026-10-20T11:54:03.140Z",
+  "verified_at": "2026-10-20T15:29:29.221Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbbg2QR5nixgqNacp5olH1",
-  "customer": "cus_VTYjy3H6lYZkXw",
+  "test_clock": "clock_1USexx2QR5nixgqNAKXSClzp",
+  "customer": "cus_VTcCkJMfm6GDtx",
   "stripe": [
     {
-      "id": "in_1USbbh2QR5nixgqNyxhcMQdU",
+      "id": "in_1USey02QR5nixgqNjGdCHiAt",
       "date": "2026-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbbq2QR5nixgqNaa4aPBpA",
+      "id": "in_1USeyB2QR5nixgqNaCdFQThh",
       "date": "2026-01-11",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbby2QR5nixgqNMcSHiSs7",
+      "id": "in_1USeyN2QR5nixgqNSEjYur08",
       "date": "2026-02-11",
       "currency": "usd",
       "lines": [
@@ -68,7 +68,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbc72QR5nixgqNJEMcVoml",
+      "id": "in_1USeyX2QR5nixgqNtJmN3ZFh",
       "date": "2026-03-11",
       "currency": "usd",
       "lines": [
@@ -88,27 +88,27 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
-      "invoice.finalized",
-      "invoice.created",
-      "invoice.paid",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3",
+      "invoice.created #4",
+      "customer.subscription.updated active",
+      "invoice.finalized #4",
+      "invoice.paid #4"
     ]
   ]
 }

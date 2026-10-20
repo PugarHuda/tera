@@ -493,6 +493,7 @@ function Webhooks({ hooks, timeline }: { hooks: Webhook[]; timeline: TimelineEve
               {hooks.map((h, j) => (
                 <li key={j}>
                   {h.date} {h.type}
+                  {h.invoice ? ` → invoice ${h.invoice}` : h.status ? ` (${h.status})` : ""}
                 </li>
               ))}
             </ul>

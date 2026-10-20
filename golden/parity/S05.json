@@ -1,15 +1,15 @@
 {
   "id": "S05",
   "title": "Upgrade day 17 of 31, prorations on next invoice",
-  "verified_at": "2026-10-20T11:51:04.076Z",
+  "verified_at": "2026-10-20T15:25:22.754Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbYx2QR5nixgqNqxBiXHF5",
-  "customer": "cus_VTYgf42RZr0GA2",
+  "test_clock": "clock_1USeuI2QR5nixgqN068NZs7f",
+  "customer": "cus_VTc86nqNVgBIkR",
   "stripe": [
     {
-      "id": "in_1USbYy2QR5nixgqNr8JTUnxz",
+      "id": "in_1USeuK2QR5nixgqN6FVBxbKG",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZI2QR5nixgqNu8wl8zap",
+      "id": "in_1USeuh2QR5nixgqNEHnRXL7B",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -57,19 +57,19 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }

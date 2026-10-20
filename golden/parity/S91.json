@@ -1,15 +1,15 @@
 {
   "id": "S91",
   "title": "Flexible: after a pause that credited nothing, resuming restarts the cycle but bills only the time the old debit does not cover (found by fuzzing)",
-  "verified_at": "2026-10-20T11:59:26.993Z",
+  "verified_at": "2026-10-20T15:34:47.992Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbgW2QR5nixgqNNXYKFLb0",
-  "customer": "cus_VTYoymb14ORhN5",
+  "test_clock": "clock_1USf2w2QR5nixgqNtNeAThLs",
+  "customer": "cus_VTcHfZ9xfZ4G18",
   "stripe": [
     {
-      "id": "in_1USbgX2QR5nixgqNOr4BspY3",
+      "id": "in_1USf2x2QR5nixgqNaGvaR0dJ",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbh42QR5nixgqNdV3j8bUA",
+      "id": "in_1USf3X2QR5nixgqNt1GRl0jl",
       "date": "2027-02-20",
       "currency": "usd",
       "lines": [
@@ -50,7 +50,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbhK2QR5nixgqNgxWWR327",
+      "id": "in_1USf3j2QR5nixgqNjdyhOADc",
       "date": "2027-03-20",
       "currency": "usd",
       "lines": [
@@ -70,29 +70,29 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
-      "customer.subscription.updated",
-      "customer.subscription.paused"
+      "customer.subscription.updated paused",
+      "customer.subscription.paused paused"
     ],
     [
       "invoiceitem.created",
-      "customer.subscription.updated",
-      "customer.subscription.resumed"
+      "customer.subscription.updated active",
+      "customer.subscription.resumed active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid",
-      "invoice.created",
-      "customer.subscription.updated",
-      "invoice.finalized",
-      "invoice.paid"
+      "invoice.created #2",
+      "customer.subscription.updated active",
+      "invoice.finalized #2",
+      "invoice.paid #2",
+      "invoice.created #3",
+      "customer.subscription.updated active",
+      "invoice.finalized #3",
+      "invoice.paid #3"
     ]
   ]
 }

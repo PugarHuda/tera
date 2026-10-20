@@ -1,15 +1,15 @@
 {
   "id": "S09",
   "title": "Add 3 seats mid-cycle",
-  "verified_at": "2026-10-20T11:51:07.237Z",
+  "verified_at": "2026-10-20T15:25:36.255Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1USbZ32QR5nixgqN3sAWdea8",
-  "customer": "cus_VTYgaIW2yc4LbS",
+  "test_clock": "clock_1USeuU2QR5nixgqN5pwaL90C",
+  "customer": "cus_VTc8fX0UUvkil5",
   "stripe": [
     {
-      "id": "in_1USbZ52QR5nixgqN2uNbvQch",
+      "id": "in_1USeuY2QR5nixgqNmCH6Xegq",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1USbZM2QR5nixgqN9eO5EL2j",
+      "id": "in_1USeuq2QR5nixgqNCFFT2cDI",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -57,19 +57,19 @@
   ],
   "webhooks": [
     [
-      "invoice.created",
-      "invoice.finalized",
-      "invoice.paid",
-      "customer.subscription.created"
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
     ],
     [
       "invoiceitem.created",
       "invoiceitem.created",
-      "customer.subscription.updated"
+      "customer.subscription.updated active"
     ],
     [
-      "invoice.created",
-      "customer.subscription.updated"
+      "invoice.created #2",
+      "customer.subscription.updated active"
     ]
   ]
 }
