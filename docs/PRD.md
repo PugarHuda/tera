@@ -150,6 +150,11 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 ### R18 — Minimum charge
 - An amount due above zero but below Stripe's minimum charge (USD/EUR 0.50, GBP 0.30, JPY 50, … per docs.stripe.com/currencies) is not collected: the invoice's `amount_due` is 0 and the amount is carried as a **debit** customer balance, so the next invoice's `starting_balance` is positive and its amount due grows by it (S69: a 30-cent invoice, then 3600 + 30 = 3630). Found by fuzzing; applies in both billing modes. Stripe applies the minimum of the account's settlement currency after conversion; Tera uses the invoice currency's minimum, which is exact when they match (the reference account settles in USD).
 
+### R19 — Cancel on a date
+- `cancel_at` (Stripe `cancel_at`) ends the subscription on a given date, in both billing modes (probed in both).
+- Inside the current period: on that date a final invoice carries the pending prorations and the credit for the time after it, priced as any credit in the mode (S71, S73); with `none` there is no credit and no invoice.
+- In a later period: renewals continue, and the renewal whose period contains the date bills only up to it, as a proration priced like a remaining-time charge, gross and discount rounded apart (S72: 3950 − 988 = 2962); `none` does not change this. `resume` clears it. Not modelled during a trial (rejected).
+
 ## 5. Invariants (must hold for every simulation)
 
 - **I1** `total == Σ lines − discount + tax_exclusive`, and every amount is an integer.

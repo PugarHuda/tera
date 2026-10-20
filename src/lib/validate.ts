@@ -19,6 +19,7 @@ export const EVENT_TYPES = [
   "cancel_now",
   "reset_anchor",
   "remove_coupon",
+  "cancel_at",
   "advance_to",
 ] as const;
 
@@ -99,6 +100,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
+    if (e.cancel_at !== undefined || e.type === "cancel_at")
+      if (typeof e.cancel_at !== "string" || !ISO.test(e.cancel_at) || Number.isNaN(Date.parse(e.cancel_at))) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     if (e.billing_mode !== undefined && !BILLING_MODES.includes(e.billing_mode as never)) fail(`${at}.billing_mode must be one of ${BILLING_MODES.join(", ")}`);
