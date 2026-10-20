@@ -119,6 +119,20 @@ await page.getByTestId("custom-catalog-banner").waitFor();
 await page.getByLabel("Event 1 price").selectOption("growth_m");
 ok((await total(1)).includes("$49.50"), `custom price bills $49.50 (${await total(1)})`);
 
+// J2b — Import the connected Stripe test account's catalog into the builder and simulate on it.
+await page.getByRole("link", { name: "Builder" }).click();
+if (await page.getByTestId("pull-stripe").count()) {
+  await page.getByTestId("pull-stripe").click();
+  await page.getByTestId("pull-note").filter({ hasText: /Imported|Stripe:/ }).waitFor({ timeout: 30_000 });
+  const note = await page.getByTestId("pull-note").innerText();
+  ok(/^Imported \d+ prices, \d+ coupons and \d+ tax rates from Stripe/.test(note), `Stripe catalog import: ${note}`);
+  ok(await page.getByTestId("builder-valid").isVisible(), "imported catalog is valid");
+  await page.getByTestId("simulate-catalog").click();
+  await page.getByTestId("custom-catalog-banner").waitFor();
+  await page.getByLabel("Event 1 price").selectOption("team_seat_m");
+  ok((await total(1)).includes("$12.00"), `Stripe's team_seat_m bills $12.00 a seat (${await total(1)})`);
+} else console.log("SKIP J2b: no test-mode Stripe key on this deployment");
+
 // J3 — Migration planner: type prices and seats, grandfather toggle, CSV file pick.
 await page.getByRole("link", { name: "Migration" }).click();
 await type(page.getByLabel("Current price (USD)"), "10");

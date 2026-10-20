@@ -2,7 +2,7 @@
 // Server-only: needs STRIPE_SECRET_KEY (test mode). Never import from client components.
 import Stripe from "stripe";
 import { createHash } from "node:crypto";
-import type { Catalog, Invoice, TimelineEvent } from "./billing";
+import type { Catalog, Coupon, Invoice, TimelineEvent } from "./billing";
 
 // Stripe objects are keyed by id + a hash of their definition: same definition -> reused, changed definition -> new object.
 const key = (prefix: string, id: string, def: unknown) => `${prefix}_${id}_${createHash("sha256").update(JSON.stringify(def)).digest("hex").slice(0, 10)}`;
@@ -412,4 +412,72 @@ export async function subscribersOf(stripe: Stripe, priceId: string) {
     if (subscriptions.push(s) > MAX_SUBSCRIPTIONS) throw new NotMigratable(`${priceId} has more than ${MAX_SUBSCRIPTIONS} subscriptions`);
   }
   return migrationBase(price, subscriptions);
+}
+
+// FR5 the other way: the connected test-mode account's catalog as a Tera catalog, so the builder (and the simulator)
+// can start from the prices, coupons and tax rates a team already has. Objects Tera pushed get their Tera id back.
+const PUSHED = /^(?:tera|TERA)_(\w+?)(?:_[0-9a-f]{10})?$/; // older pushes had no definition hash
+const slug = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 36) || "x";
+
+/** The catalog's limits (validate.ts): 50 prices, 50 coupons, 20 tax rates. */
+export function catalogFromStripe(prices: Stripe.Price[], coupons: Stripe.Coupon[], taxRates: Stripe.TaxRate[]) {
+  const skipped = { prices: 0, coupons: 0, tax_rates: 0 };
+  const catalog: Required<Catalog> = { prices: {}, coupons: {}, tax_rates: {} };
+  // First one wins (Stripe lists newest first); another object with the same name gets _2, _3…
+  const add = <T,>(into: Record<string, T>, name: string, value: T, max: number, kind: keyof typeof skipped) => {
+    if (Object.keys(into).length >= max) return skipped[kind]++;
+    const pushed = PUSHED.exec(name)?.[1];
+    const base = pushed ?? slug(name);
+    // An older push of the same Tera object is superseded by the newer one, and an exact copy is not a second object.
+    if (Object.hasOwn(into, base) && (pushed || JSON.stringify(into[base]) === JSON.stringify(value))) return skipped[kind]++;
+    let id = base;
+    for (let n = 2; Object.hasOwn(into, id); n++) id = `${base}_${n}`;
+    into[id] = value;
+  };
+  for (const p of prices) {
+    // Only what the builder edits: per-seat prices every month or year (metered prices need a Stripe Meter id).
+    if (!migratable(p)) {
+      skipped.prices++;
+      continue;
+    }
+    const product = typeof p.product === "object" && !p.product.deleted ? p.product.name : p.id;
+    const name = p.lookup_key ?? `${product}_${p.recurring!.interval === "month" ? "m" : "y"}`;
+    add(catalog.prices, name, { currency: p.currency, unit_amount: p.unit_amount!, interval: p.recurring!.interval as "month" | "year" }, 50, "prices");
+  }
+  for (const c of coupons) {
+    const months = c.duration_in_months ?? 0;
+    // ponytail: product-restricted coupons (applies_to, only returned when expanded) import as applying to every price.
+    if (!c.valid || !["once", "repeating", "forever"].includes(c.duration) || (c.duration === "repeating" && !(months >= 1 && months <= 120)) || (c.percent_off == null && !(c.amount_off && c.currency))) {
+      skipped.coupons++;
+      continue;
+    }
+    const kc: Coupon = {
+      duration: c.duration as Coupon["duration"],
+      ...(c.duration === "repeating" ? { duration_in_months: months } : {}),
+      ...(c.percent_off != null ? { percent_off: c.percent_off } : { amount_off: c.amount_off!, currency: c.currency! }),
+    };
+    add(catalog.coupons, PUSHED.test(c.id) ? c.id : (c.name ?? c.id), kc, 50, "coupons");
+  }
+  for (const t of taxRates) {
+    if (!t.active || !(t.percentage >= 0 && t.percentage < 100)) {
+      skipped.tax_rates++;
+      continue;
+    }
+    add(catalog.tax_rates, PUSHED.test(t.display_name) ? t.display_name : `${t.display_name}_${t.percentage}`, { percentage: t.percentage, behavior: t.inclusive ? "inclusive" : "exclusive" }, 20, "tax_rates");
+  }
+  return { catalog, skipped };
+}
+
+export async function stripeCatalog(stripe: Stripe) {
+  const all = async <T,>(list: AsyncIterable<T>, max = 500) => {
+    const out: T[] = [];
+    for await (const x of list) if (out.push(x) >= max) break;
+    return out;
+  };
+  const [prices, coupons, taxRates] = await Promise.all([
+    all(stripe.prices.list({ active: true, type: "recurring", limit: 100, expand: ["data.product"] })),
+    all(stripe.coupons.list({ limit: 100 })),
+    all(stripe.taxRates.list({ active: true, limit: 100 })),
+  ]);
+  return catalogFromStripe(prices, coupons, taxRates);
 }

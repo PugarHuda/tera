@@ -213,6 +213,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - Amounts are typed in major units and stored in minor units. JPY rejects decimals ("JPY has no minor unit, so the amount cannot have decimals"); duplicate price ids, non-positive amounts and invalid ids are reported, and the same validator as the API runs on the whole catalog. A valid catalog shows "Catalog is valid: N prices, M coupons, K tax rates."
 - "Simulate with this catalog" opens `/?c=<catalog>` with a subscribe on the first price; share links keep the catalog. Golden scenarios are hidden for custom catalogs and a banner names the custom catalog.
 - "Push to Stripe (test mode)" calls `POST /api/stripe/push` (FR5) and lists the Stripe ids it created or reused.
+- "Import from Stripe" (shown when the deployment has a test-mode key) replaces the rows with the connected account's catalog (`GET /api/stripe/catalog`, FR5) and says how many prices, coupons and tax rates it imported and left out.
 
 ### FR2 Timeline Simulator [SHIPPED]
 - The page loads with golden scenario S05 selected. A "Load scenario" dropdown replaces the timeline with any golden scenario (S01–S112).
@@ -246,6 +247,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 ### FR5 Push to Stripe [SHIPPED]
 - `POST /api/stripe/push {catalog}` validates the catalog (400 on invalid input) and creates or reuses its Stripe objects; 10 s cooldown (429).
 - The parity run first pushes Tera's catalog to Stripe idempotently: prices by `lookup_key`, coupons by id and tax rates by display name, each keyed as `<id>_<sha256 of its definition>`: re-running never duplicates objects, and a changed definition (e.g. starter_m at $39) creates a new Stripe object instead of silently reusing the old $29 price.
+- The other way: `GET /api/stripe/catalog` reads the account's active per-seat monthly and yearly prices, valid coupons and active tax rates as a Tera catalog (`{ catalog, skipped }`), ready for `POST /api/simulate`. An object Tera pushed gets its Tera id back (`tera_pro_m_<hash>` → `pro_m`) and only its newest definition is kept; others are named from the lookup key, `<product>_m|y`, the coupon name or `<tax name>_<percentage>`, with `_2`, `_3` for different objects of one name and exact copies left out. Metered, tiered and multi-interval prices, invalid coupons and anything over the catalog limits (50/50/20) are counted in `skipped`, never silently dropped. 503 without a test-mode key, 502 on a Stripe error.
 
 ### FR6 Shareable link [SHIPPED]
 - A "Copy share link" button on `/` encodes the current timeline into the URL (`/?t=<base64url JSON>`), shows the link in a read-only field and copies it to the clipboard.
@@ -264,7 +266,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - The API is cookie-less and sends `Access-Control-Allow-Origin: *`, so browser apps on any origin can call it. Pages send a Content-Security-Policy, `nosniff`, Referrer-Policy and Permissions-Policy; `/robots.txt` keeps crawlers off `/api/`, `/sitemap.xml` and `/llms.txt` describe the site.
 
 ### FR8 MCP server [SHIPPED]
-- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `plan_stripe_price_migration` (the same from a Stripe price's live subscriptions), `list_golden_scenarios`, `get_golden_scenario`.
+- `POST /api/mcp` is a Model Context Protocol server (Streamable HTTP, stateless) exposing tools `simulate_timeline`, `verify_timeline_in_stripe` (live replay in a Stripe test clock, same limits as `POST /api/parity`), `plan_price_migration`, `plan_stripe_price_migration` (the same from a Stripe price's live subscriptions), `import_stripe_catalog` (the account's catalog, as FR5), `list_golden_scenarios`, `get_golden_scenario`.
 - Tool input goes through the same validation as the REST API; rejected input returns a tool result with `isError: true` and the reason (never a protocol crash).
 - `/mcp-setup` shows connection snippets (Claude Code, Cursor) and lists the live tools fetched from this deployment.
 

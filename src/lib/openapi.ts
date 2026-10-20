@@ -179,6 +179,18 @@ export const spec = {
         },
       },
     },
+    "/api/stripe/catalog": {
+      get: {
+        summary: "Import the connected Stripe account's catalog (test mode)",
+        description:
+          "Active per-seat monthly and yearly prices, valid coupons and active tax rates as a Tera catalog, ready for POST /api/simulate. Objects Tera pushed get their Tera id back; others are named from the lookup key, product, coupon or tax rate name. `skipped` counts what Tera does not model (metered, tiered or other intervals) or what exceeds the catalog limits.",
+        responses: {
+          "200": { description: "{ catalog: { prices, coupons, tax_rates }, skipped: { prices, coupons, tax_rates } }" },
+          "502": { description: "Stripe API error", content: { "application/json": { schema: error } } },
+          "503": { description: "No test-mode Stripe key configured", content: { "application/json": { schema: error } } },
+        },
+      },
+    },
     "/api/scenarios": {
       get: {
         summary: "List golden scenarios",

@@ -12,7 +12,7 @@ export default function BuilderPage() {
       <p className="mb-6 max-w-2xl opacity-70">
         Design plans, coupons and tax rates, simulate customers on them, then push the exact same catalog to Stripe test mode.
       </p>
-      <Builder reference={golden.catalog as unknown as Catalog} />
+      <Builder reference={golden.catalog as unknown as Catalog} stripeLive={!!process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")} />
     </>
   );
 }

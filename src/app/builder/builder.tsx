@@ -8,6 +8,8 @@ import { BadRequest, parseCatalog } from "@/lib/validate";
 
 const CURRENCIES = ["usd", "eur", "gbp", "jpy"];
 const STORAGE_KEY = "tera.builder.catalog";
+// An imported Stripe catalog may use any currency; it stays selectable next to the usual four.
+const currencyOptions = (c: string) => (CURRENCIES.includes(c) ? CURRENCIES : [...CURRENCIES, c]);
 
 type PriceRow = { id: string; currency: string; amount: string; interval: Interval };
 type CouponRow = { code: string; kind: "percent" | "amount"; value: string; currency: string; duration: Coupon["duration"]; months: string };
@@ -72,7 +74,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
 
 // A draft saved by an older version (or edited by hand) may lack fields; a missing currency crashed the page.
 function normalize(x: Partial<Rows>): Rows {
-  const cur = (c: unknown) => (typeof c === "string" && CURRENCIES.includes(c) ? c : "usd");
+  const cur = (c: unknown) => (typeof c === "string" && /^[a-z]{3}$/.test(c) ? c : "usd");
   return {
     prices: (Array.isArray(x.prices) ? x.prices : []).map((p) => ({ id: String(p.id ?? ""), currency: cur(p.currency), amount: String(p.amount ?? ""), interval: p.interval === "year" ? "year" : "month" })),
     coupons: (Array.isArray(x.coupons) ? x.coupons : []).map((c) => ({
@@ -89,9 +91,10 @@ function normalize(x: Partial<Rows>): Rows {
 
 type PushResult = { prices: Record<string, string>; coupons: Record<string, string>; taxRates: Record<string, string>; meterId: string | null };
 
-export function Builder({ reference }: { reference: Catalog }) {
+export function Builder({ reference, stripeLive = false }: { reference: Catalog; stripeLive?: boolean }) {
   const [rows, setRows] = useState<Rows>(() => toRows(reference));
   const [push, setPush] = useState<{ busy: boolean; result?: PushResult; error?: string }>({ busy: false });
+  const [pull, setPull] = useState<{ busy: boolean; note?: string }>({ busy: false });
 
   // Per-viewer convenience: keep the draft across reloads (never required for correctness).
   // Saving waits for the load: otherwise the first save writes the reference rows over the draft before it is read
@@ -133,6 +136,27 @@ export function Builder({ reference }: { reference: Catalog }) {
     }
   };
 
+  const importFromStripe = async () => {
+    setPull({ busy: true });
+    try {
+      const res = await fetch("/api/stripe/catalog");
+      const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      const { catalog: c, skipped } = body as { catalog: Catalog; skipped: Record<"prices" | "coupons" | "tax_rates", number> };
+      const n = Object.keys(c.prices).length;
+      if (n === 0) throw new Error("no per-seat monthly or yearly prices in the connected account; the catalog was left as it was");
+      setRows(toRows(c));
+      const left = skipped.prices + skipped.coupons + skipped.tax_rates;
+      setPull({
+        busy: false,
+        note: `Imported ${n} prices, ${Object.keys(c.coupons ?? {}).length} coupons and ${Object.keys(c.tax_rates ?? {}).length} tax rates from Stripe` +
+          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates Tera does not model).` : "."),
+      });
+    } catch (e) {
+      setPull({ busy: false, note: `Stripe: ${(e as Error).message}` });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <section className="card space-y-3" aria-labelledby="prices-h">
@@ -151,7 +175,7 @@ export function Builder({ reference }: { reference: Catalog }) {
             <label className="text-sm">
               <span className="block text-xs opacity-70">Currency</span>
               <select className="input" aria-label={`Price ${i + 1} currency`} value={p.currency} onChange={(e) => set("prices", i, { currency: e.target.value })}>
-                {CURRENCIES.map((c) => (
+                {currencyOptions(p.currency).map((c) => (
                   <option key={c} value={c}>
                     {c.toUpperCase()}
                   </option>
@@ -207,7 +231,7 @@ export function Builder({ reference }: { reference: Catalog }) {
             </label>
             {c.kind === "amount" && (
               <select className="input" aria-label={`Coupon ${i + 1} currency`} value={c.currency} onChange={(e) => set("coupons", i, { currency: e.target.value })}>
-                {CURRENCIES.map((x) => (
+                {currencyOptions(c.currency).map((x) => (
                   <option key={x} value={x}>
                     {x.toUpperCase()}
                   </option>
@@ -298,10 +322,20 @@ export function Builder({ reference }: { reference: Catalog }) {
           <button type="button" className="btn-ghost border border-current/20" disabled={!catalog || push.busy} onClick={pushToStripe} data-testid="push-stripe">
             {push.busy ? "Pushing to Stripe…" : "Push to Stripe (test mode)"}
           </button>
+          {stripeLive && (
+            <button type="button" className="btn-ghost border border-current/20" disabled={pull.busy} onClick={importFromStripe} data-testid="pull-stripe">
+              {pull.busy ? "Importing from Stripe…" : "Import from Stripe"}
+            </button>
+          )}
           <button type="button" className="btn-ghost" onClick={() => setRows(toRows(reference))}>
             Reset to reference catalog
           </button>
         </div>
+        {pull.note && (
+          <p className="text-sm opacity-80" role="status" data-testid="pull-note">
+            {pull.note}
+          </p>
+        )}
         {push.error && (
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">
             {push.error}

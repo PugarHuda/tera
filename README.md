@@ -22,10 +22,10 @@ Founders are afraid to touch pricing. A mid-cycle upgrade, a coupon or a tax rul
 | FR2 | **Timeline simulator**: every invoice to the cent, proration badges, credit balance, 4 locales, CSV export, **Verify in Stripe** for your own timeline | `/` |
 | FR3 | **Migration planner**: MRR impact, grandfathering, annual prices, "who pays more", CSV import/export, and **import from Stripe** (the live subscriptions on a price in the connected test-mode account) | `/migrate` |
 | FR4 | **Stripe parity**: golden scenarios replayed with Stripe test clocks, with Tera and Stripe shown side by side and a live re-run | `/parity` |
-| FR5 | **Push to Stripe**: create the catalog's products, prices, coupons and tax rates in test mode, idempotently | `/builder` |
+| FR5 | **Two-way Stripe sync**: push the catalog's products, prices, coupons and tax rates to test mode, idempotently, or **import the account's existing catalog** into the builder and simulate on it | `/builder` |
 | FR6 | **Shareable links**: the timeline (and custom catalog) travel in the URL | "Copy share link" |
-| FR7 | **Public REST API** with 400/422/404 semantics, CORS-enabled for browser apps | `/api/simulate`, `/api/migrate`, `/api/scenarios`, `/api/parity`, `/api/stripe/push` |
-| FR8 | **MCP server**: 9 tools (`simulate_timeline` and `verify_timeline_in_stripe` with custom catalogs, `plan_price_migration`, `plan_stripe_price_migration`, `push_catalog_to_stripe`, `create_share_link`, `get_parity_evidence`, golden scenario tools), 4 resources (`tera://catalog`, `tera://openapi.json`, `tera://parity`, `tera://scenarios/{id}`), 2 prompts (`explain_invoice`, `audit_price_change`) | `/api/mcp`, `/mcp-setup` |
+| FR7 | **Public REST API** with 400/422/404 semantics, CORS-enabled for browser apps | `/api/simulate`, `/api/migrate`, `/api/scenarios`, `/api/parity`, `/api/stripe/push`, `/api/stripe/catalog` |
+| FR8 | **MCP server**: 10 tools (`simulate_timeline` and `verify_timeline_in_stripe` with custom catalogs, `plan_price_migration`, `plan_stripe_price_migration`, `push_catalog_to_stripe`, `import_stripe_catalog`, `create_share_link`, `get_parity_evidence`, golden scenario tools), 4 resources (`tera://catalog`, `tera://openapi.json`, `tera://parity`, `tera://scenarios/{id}`), 2 prompts (`explain_invoice`, `audit_price_change`) | `/api/mcp`, `/mcp-setup` |
 | FR9 | **Interactive API reference** | `/reference` |
 
 ## How correctness is established

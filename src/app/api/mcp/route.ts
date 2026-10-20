@@ -7,7 +7,7 @@ import evidence from "../../../../golden/parity/index.json";
 import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { spec } from "@/lib/openapi";
 import { encodeCatalog, encodeTimeline } from "@/lib/share";
-import { Cooldown, checkLiveLimits, liveParity, migratablePrices, pushCatalogOnce, stripeClient, subscribersOf } from "@/lib/stripe-parity";
+import { Cooldown, checkLiveLimits, liveParity, migratablePrices, pushCatalogOnce, stripeCatalog, stripeClient, subscribersOf } from "@/lib/stripe-parity";
 import { BadRequest, EVENT_TYPES, defaultCatalog, findScenarios, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
@@ -189,6 +189,29 @@ const handler = createMcpHandler(
           return text(
             `${n} live ${n === 1 ? "subscription" : "subscriptions"} on ${base.price}: MRR ${formatMoney(r.mrr_before, base.currency)} -> ${formatMoney(r.mrr_after, base.currency)} (${r.affected} affected)`,
             { ...r, currency: base.currency, interval: base.interval, unit_amount: base.unit_amount, skipped: base.skipped },
+          );
+        } catch (e) {
+          return text(`Rejected: ${(e as Error).message}`, undefined, true);
+        }
+      },
+    );
+
+    server.registerTool(
+      "import_stripe_catalog",
+      {
+        title: "Import the connected Stripe account's catalog",
+        description:
+          "Read the active per-seat prices, valid coupons and active tax rates of the connected Stripe test-mode account as a Tera catalog. Pass it as `catalog` to simulate_timeline or verify_timeline_in_stripe to simulate customers on the prices a team already has.",
+        inputSchema: z.object({}),
+        annotations: { readOnlyHint: true, openWorldHint: true },
+      },
+      async () => {
+        try {
+          const { catalog, skipped } = await stripeCatalog(stripeClient());
+          const line = (kind: string, ids: string[]) => `${kind}: ${ids.join(", ") || "none"}`;
+          return text(
+            [line("prices", Object.keys(catalog.prices)), line("coupons", Object.keys(catalog.coupons)), line("tax_rates", Object.keys(catalog.tax_rates)), `skipped (not modelled or over the limits): ${JSON.stringify(skipped)}`].join("\n"),
+            { catalog, skipped },
           );
         } catch (e) {
           return text(`Rejected: ${(e as Error).message}`, undefined, true);
