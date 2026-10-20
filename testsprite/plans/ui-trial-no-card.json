@@ -5,7 +5,7 @@
   "description": "R22 (Stripe trial_settings.end_behavior.missing_payment_method): nothing is invoiced at trial end; resuming with billing_cycle_anchor unchanged prorates the rest of the cycle onto the next renewal.",
   "priority": "p1",
   "planSteps": [
-    { "type": "action", "description": "Open the app home page and choose 'S97' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S97' in the 'Load scenario' dropdown" },
     { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is shown" },
     { "type": "assertion", "description": "Assert Event 1 is 'Start trial' with trial end behavior 'pause', and Event 2 is 'Resume (undo cancel, or unpause)' with billing cycle anchor 'unchanged'" },
     { "type": "assertion", "description": "Assert exactly 3 invoices: 2027-01-10 totals $0.00, 2027-02-24 totals $48.65 with lines $19.65 and $29.00, 2027-03-24 totals $29.00. No invoice is dated 2027-01-24" },

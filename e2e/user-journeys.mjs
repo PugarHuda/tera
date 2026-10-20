@@ -25,8 +25,12 @@ const clearTimeline = async () => {
 };
 
 // J1 — build a flexible, fixed-billing-day timeline from scratch in the simulator.
+// A visitor lands on the landing page, whose hero invoice and numbers are computed, and opens the simulator from it.
 await page.goto(B);
-await page.getByRole("link", { name: "Simulator" }).click();
+ok((await page.getByTestId("landing-invoice").innerText()).includes("$103.20"), "landing hero shows S05's computed upgrade invoice ($103.20)");
+ok(/\d+ \/ \d+/.test(await page.getByTestId("proof").innerText()), "landing shows the Stripe parity count");
+await page.getByTestId("landing-cta").click();
+await page.waitForURL(/\/simulator$/);
 await clearTimeline();
 await typeDate(page.getByLabel("Event 1 date"), "02102027");
 await page.getByLabel("Event 1 price").selectOption("pro_m");
@@ -56,6 +60,11 @@ ok((await total(3)).replace(/\s/g, " ").includes("517,32"), `de-DE shows 517,32 
 const tab = await ctx.newPage();
 await tab.goto(shareUrl);
 ok((await tab.getByTestId("invoice-3-total").innerText()).includes("$517.32") && (await tab.getByLabel("Event 1 billing_mode").inputValue()) === "flexible", "shared link reopens the same flexible timeline");
+// Links shared before the landing page pointed at /?t=…, /?s=…: they still open the simulator.
+await tab.goto(shareUrl.replace("/simulator?", "/?"));
+ok(new URL(tab.url()).pathname === "/simulator" && (await tab.getByTestId("invoice-3-total").innerText()).includes("$517.32"), `an old /?t= share link redirects to the simulator (${tab.url().slice(0, 80)})`);
+await tab.goto(B + "/?s=S74");
+ok(new URL(tab.url()).pathname === "/simulator" && (await tab.getByTestId("scenario-select").inputValue()) === "S74", "an old /?s=S74 link opens S74 in the simulator");
 await tab.close();
 
 await page.getByTestId("verify-stripe").click();
@@ -203,7 +212,8 @@ for (const colorScheme of ["light", "dark"]) {
     const { violations } = await new AxeBuilder({ page: p }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
     ok(violations.length === 0, `axe ${colorScheme} ${label}: ${violations.map((v) => `${v.id} ×${v.nodes.length} (${v.nodes[0].target.join(" ")})`).join(", ") || "no WCAG AA violations"}`);
   };
-  await p.goto(B); await p.getByTestId("invoice-1-total").waitFor(); await scan("simulator");
+  await p.goto(B); await p.getByTestId("landing-cta").waitFor(); await scan("landing");
+  await p.goto(B + "/simulator"); await p.getByTestId("invoice-1-total").waitFor(); await scan("simulator");
   await p.getByLabel("Event 1 quantity").fill("0"); await p.getByRole("alert").first().waitFor(); await scan("simulator, invalid quantity");
   await p.goto(B + "/builder"); await p.getByTestId("builder-valid").waitFor(); await scan("builder");
   await p.getByLabel("Price 1 amount").fill("abc"); await p.getByTestId("builder-error").waitFor(); await scan("builder, invalid amount");
@@ -226,14 +236,14 @@ for (const colorScheme of ["light", "dark"]) {
 // simulator to 425 px), and every Tab stop shows a focus indicator (date inputs once showed none).
 {
   const p = await (await b.newContext({ viewport: { width: 320, height: 740 }, isMobile: true, hasTouch: true })).newPage();
-  for (const [path, ready] of [["/", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"], ["/parity", "parity-summary"], ["/mcp-setup", "mcp-tools"]]) {
+  for (const [path, ready] of [["/", "landing-cta"], ["/simulator", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"], ["/parity", "parity-summary"], ["/mcp-setup", "mcp-tools"]]) {
     await p.goto(B + path); await p.getByTestId(ready).waitFor();
     const [sw, w] = await p.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
     ok(sw <= w, `320 px: ${path} does not scroll sideways (${sw} / ${w})`);
   }
   await p.context().close();
   const k = await (await b.newContext({ locale: "en-US" })).newPage();
-  for (const [path, ready] of [["/", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"]]) {
+  for (const [path, ready] of [["/", "landing-cta"], ["/simulator", "invoice-1-total"], ["/builder", "builder-valid"], ["/migrate", "mrr-before"]]) {
     await k.goto(B + path); await k.getByTestId(ready).waitFor();
     const unseen = [];
     for (let i = 0; i < 50; i++) {

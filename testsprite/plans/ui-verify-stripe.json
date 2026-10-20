@@ -5,7 +5,7 @@
   "description": "FR4 for your own timeline: the edited timeline (not a golden id) is replayed live in Stripe test mode and must match Tera to the cent.",
   "priority": "p1",
   "planSteps": [
-    { "type": "action", "description": "Open the app home page and choose 'S01' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S01' in the 'Load scenario' dropdown" },
     { "type": "action", "description": "In the first event, change the 'quantity' field from its current value to 2" },
     { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is no longer shown, because the timeline was edited" },
     { "type": "action", "description": "Click the 'Verify in Stripe' button and wait up to 120 seconds until a result box appears below the buttons (the button text changes back from 'Replaying in Stripe…')" },

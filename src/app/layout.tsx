@@ -33,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/" className="mr-2 font-serif text-xl font-semibold tracking-tight normal-case">
                 Tera
               </Link>
-              <Link href="/">Simulator</Link>
+              <Link href="/simulator">Simulator</Link>
               <Link href="/builder">Builder</Link>
               <Link href="/migrate">Migration</Link>
               <Link href="/parity">Stripe parity</Link>

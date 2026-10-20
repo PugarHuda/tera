@@ -19,7 +19,7 @@ Founders are afraid to touch pricing. A mid-cycle upgrade, a coupon or a tax rul
 | | Feature | Where |
 |---|---|---|
 | FR1 | **Pricing builder**: prices in USD/EUR/GBP/JPY, coupons, tax rates, with JPY-aware validation | `/builder` |
-| FR2 | **Timeline simulator**: every invoice to the cent, proration badges, credit balance, 4 locales, CSV export, **Verify in Stripe** for your own timeline | `/` |
+| FR2 | **Timeline simulator**: every invoice to the cent, proration badges, credit balance, 4 locales, CSV export, **Verify in Stripe** for your own timeline | `/simulator` (old `/?t=` and `/?s=` links redirect there) |
 | FR3 | **Migration planner**: MRR impact, grandfathering, annual prices, "who pays more", CSV import/export, and **import from Stripe** (the live subscriptions on a price in the connected test-mode account) | `/migrate` |
 | FR4 | **Stripe parity**: golden scenarios replayed with Stripe test clocks, with Tera and Stripe shown side by side and a live re-run | `/parity` |
 | FR5 | **Two-way Stripe sync**: push the catalog's products, prices, coupons and tax rates to test mode, idempotently, or **import the account's existing catalog** into the builder and simulate on it | `/builder` |
@@ -27,7 +27,7 @@ Founders are afraid to touch pricing. A mid-cycle upgrade, a coupon or a tax rul
 | FR7 | **Public REST API** with 400/422/404 semantics, CORS-enabled for browser apps | `/api/simulate`, `/api/migrate`, `/api/scenarios`, `/api/parity`, `/api/stripe/push`, `/api/stripe/catalog` |
 | FR8 | **MCP server**: 10 tools (`simulate_timeline` and `verify_timeline_in_stripe` with custom catalogs, `plan_price_migration`, `plan_stripe_price_migration`, `push_catalog_to_stripe`, `import_stripe_catalog`, `create_share_link`, `get_parity_evidence`, golden scenario tools), 4 resources (`tera://catalog`, `tera://openapi.json`, `tera://parity`, `tera://scenarios/{id}`), 2 prompts (`explain_invoice`, `audit_price_change`) | `/api/mcp`, `/mcp-setup` |
 | FR9 | **Interactive API reference** | `/reference` |
-| FR10 | **Webhook events**: every timeline also lists the webhook events Stripe sends for it (`invoice.created/finalized/paid`, `customer.subscription.*`, `invoiceitem.created`), per event and dated, each naming the invoice it is about or the subscription status it carries, so a webhook handler can be tested against the real sequence. Recorded from test clocks for all 114 golden timelines and matched event for event | `/` ("Webhook events Stripe sends"), `webhooks` in `/api/simulate`, MCP |
+| FR10 | **Webhook events**: every timeline also lists the webhook events Stripe sends for it (`invoice.created/finalized/paid`, `customer.subscription.*`, `invoiceitem.created`), per event and dated, each naming the invoice it is about or the subscription status it carries, so a webhook handler can be tested against the real sequence. Recorded from test clocks for all 114 golden timelines and matched event for event | `/simulator` ("Webhook events Stripe sends"), `webhooks` in `/api/simulate`, MCP |
 
 ## How correctness is established
 

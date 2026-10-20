@@ -5,7 +5,7 @@
   "description": "R8 cancel_now and R4 end_trial: Stripe's immediate cancel never invoices pending prorations, and ending a trial on a subscription that is not trialing is refused with a reason.",
   "priority": "p1",
   "planSteps": [
-    { "type": "action", "description": "Open the app home page and choose 'S46' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S46' in the 'Load scenario' dropdown" },
     { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is shown" },
     { "type": "assertion", "description": "Assert the timeline contains an event whose type is 'Cancel immediately'" },
     { "type": "assertion", "description": "Assert exactly 3 invoices are shown: Invoice 1 dated 2027-01-01 totals $79.00, Invoice 2 dated 2027-02-01 totals $29.00, Invoice 3 dated 2027-03-01 totals $29.00, and no invoice contains an 'Unused time' or 'Remaining time' line" },
