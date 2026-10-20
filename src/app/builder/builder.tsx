@@ -143,14 +143,19 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
       const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
       if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
       const { catalog: c, skipped } = body as { catalog: Catalog; skipped: Record<"prices" | "coupons" | "tax_rates", number> };
-      const n = Object.keys(c.prices).length;
+      // The builder keeps its metered prices next to the imported ones, so they share the 50-price limit: an account with 50
+      // importable prices made a catalog of 51 that failed validation (found by the J2b E2E journey).
+      const room = 50 - Object.keys(metered).length;
+      const all = Object.keys(c.prices).length;
+      const n = Math.min(all, room);
       if (n === 0) throw new Error("no per-seat monthly or yearly prices in the connected account; the catalog was left as it was");
-      setRows(toRows(c));
+      setRows(toRows({ ...c, prices: Object.fromEntries(Object.entries(c.prices).slice(0, n)) }));
+      skipped.prices += all - n;
       const left = skipped.prices + skipped.coupons + skipped.tax_rates;
       setPull({
         busy: false,
         note: `Imported ${n} prices, ${Object.keys(c.coupons ?? {}).length} coupons and ${Object.keys(c.tax_rates ?? {}).length} tax rates from Stripe` +
-          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates that are older copies or that Tera does not model).` : "."),
+          (left ? ` (left out: ${skipped.prices} prices, ${skipped.coupons} coupons, ${skipped.tax_rates} tax rates: older copies, over the catalog limits or not modelled by Tera).` : "."),
       });
     } catch (e) {
       setPull({ busy: false, note: `Stripe: ${(e as Error).message}` });
