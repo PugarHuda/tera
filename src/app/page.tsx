@@ -99,7 +99,7 @@ export default function Landing() {
         </figure>
       </section>
 
-      <div className="stripes -mx-4 h-10" aria-hidden="true" />
+      <div className="stripes relative left-1/2 h-10 w-screen -translate-x-1/2" aria-hidden="true" />
 
       <ul className="grid gap-3 sm:grid-cols-3" data-testid="proof">
         {proof.map(([n, label]) => (
