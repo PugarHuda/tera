@@ -96,8 +96,13 @@ export type Invoice = {
   amount_due: number;
 };
 
+/** A webhook event Stripe sends during the timeline: `event` is the index of the timeline event whose step (the clock
+ *  advance up to it, then the API call) causes it, `date` the simulated day it fires. */
+export type Webhook = { event: number; date: string; type: string };
+
 export type SimulationResult = {
   invoices: Invoice[];
+  webhooks: Webhook[];
   status: "active" | "trialing" | "paused" | "canceled" | "none";
   canceled_at: string | null;
 };
@@ -204,6 +209,8 @@ type Sub = {
   coveredUntil?: number;
   /** R22: what the trial ends into when the customer has no card. */
   trialEnd?: TrialEndBehavior;
+  /** customer.subscription.trial_will_end was sent (3 days before the trial ends, or when it is ended early). */
+  warned?: boolean;
   /** R16: the interval a flexible `none` interval change switched to (see flexibleChange). */
   noneInterval?: Interval;
   /** R21: the start of a period a month-end "unchanged" resume made Stripe prorate in segments (see span). */
@@ -220,7 +227,8 @@ type Paid = { rate: number; off: number };
 const FULL: Paid = { rate: 1, off: 0 };
 
 /** coupon: the subscription discount when the draft was created; Stripe copies it then (fuzz seed 24019, S57). */
-type Draft = { at: number; seq: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid };
+/** later: a final invoice of a cancellation; Stripe finalizes it an hour later, so its webhooks wait for the clock. */
+type Draft = { at: number; seq: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid; claimed?: boolean; later?: boolean };
 
 // Stripe finalizes a renewal draft about an hour after creating it; an invoice a change creates in that hour is
 // finalized first, so it takes (or leaves) the customer balance before the renewal does (fuzz seed 78026, S105).
@@ -232,6 +240,19 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   let draft: Draft | null = null;
   let canceledAt: number | null = null;
   let balance = 0; // R10: customer credit balance carried between invoices
+  const webhooks: Webhook[] = [];
+  let step = 0;
+  const emit = (at: number, ...types: string[]) => types.forEach((type) => webhooks.push({ event: step, date: isoDay(at), type }));
+  // The discount Stripe still has on the subscription: gone once it is replaced, removed, a "once" coupon is used up (one a
+  // renewal draft claimed: when that draft is finalized, an hour later) or a repeating one expires. Removing a discount that
+  // is already gone is no change, so no event (S52, fuzz seed 120010). customer.discount.* events themselves are not
+  // modelled: for a test clock dated before the real present Stripe sends extra ones (S58 against fuzz seed 130012).
+  let attached: Sub["coupon"] = null;
+  const checkDiscount = (s: Sub, at: number) => {
+    if (attached && (s.coupon !== attached || (!liveCoupon(s, at) && !(draft?.claimed && s.coupon === attached)))) attached = null;
+  };
+  // Proration lines become invoice items, one event each, whether they wait for the next invoice or go on one now.
+  const items = (at: number, lines: InvoiceLine[]) => emit(at, ...lines.filter((l) => l.proration).map(() => "invoiceitem.created"));
 
   const price = (id: string) => {
     // Own keys only: "toString" or "constructor" must be unknown, not Object.prototype members.
@@ -260,8 +281,20 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // created in the same second are listed newest first, as Stripe's list returns them (seed 100178).
   const created = new Map<number, [number, number]>();
   let seq = 0;
-  const finalize = () => {
+  // sent: false for the draft still open when the timeline ends; Stripe has not finalized it yet, so it sends nothing.
+  // A cancellation's final invoice is billed now (its balance counts at once) but finalized by Stripe an hour later: those
+  // webhooks come with the first step at least that much later, or not at all when the timeline ends first (S67, S68).
+  const deferred: number[] = [];
+  const flush = (t: number) => {
+    for (const d of deferred.splice(0).sort((a, b) => a - b)) if (d + DRAFT_MS <= t) emit(d + DRAFT_MS, "invoice.finalized", "invoice.paid");
+    else deferred.push(d);
+  };
+  const finalize = (sent = true) => {
     if (!draft || !sub) return;
+    if (sent && draft.later) deferred.push(draft.at);
+    // An invoice made while the subscription pauses (its unused-time credit) is finalized but never paid (S82).
+    else if (sent) emit(draft.at, "invoice.finalized", ...(sub.status === "paused" ? [] : ["invoice.paid"]));
+    const claimed = draft.claimed;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
     // R5: proration lines are not discountable (they were already priced at the discounted rate).
     const discountable = draft.lines.filter((l) => !l.proration).reduce((a, l) => a + l.amount, 0);
@@ -313,22 +346,24 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       amount_due,
     });
     draft = null;
+    if (sent && claimed) checkDiscount(sub, created.get(invoices.length - 1)![0]);
   };
 
   // Renewal invoices stay drafts until time moves on; invoices Stripe creates during an API call
   // (subscription creation, always_invoice, interval change) are finalized immediately.
-  const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false) => {
+  const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false, later = false) => {
     const pending = draft;
+    emit(at, "invoice.created");
     if (!immediate) {
       // A renewal draft claims a live "once" coupon when it is created, so a change at the same instant is not
       // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
       const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
       s.paid = { ...s.paid }; // a fresh object, so finalize can tell whether a change re-priced it since
-      draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid };
+      draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid, claimed: Boolean(claims) };
       if (claims) s.coupon!.remaining -= 1;
       return;
     }
-    draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon };
+    draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon, later };
     finalize();
     // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
     // amount due can use the credit this invoice creates.
@@ -347,29 +382,40 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     });
   };
 
+  // trial_will_end: three days before the trial ends, or at once when the trial end is closer than that.
+  const warn = (t: number) => {
+    if (sub?.status !== "trialing" || sub.warned || sub.periodEnd - 3 * DAY > t) return;
+    sub.warned = true;
+    emit(Math.max(sub.periodEnd - 3 * DAY, sub.periodStart), "customer.subscription.trial_will_end");
+  };
+
   const renewUntil = (t: number) => {
+    warn(t);
     // R21: a paused subscription generates no invoices until it resumes.
     while (sub && sub.status !== "canceled" && sub.status !== "paused" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
       finalize();
       const s: Sub = sub;
       if (s.cancelAt !== null && s.cancelAt <= s.periodEnd) {
         cancelOn(s, s.cancelAt);
+        emit(s.cancelAt, "customer.subscription.deleted");
         break;
       }
       const at = s.periodEnd;
       if (s.cancelAtPeriodEnd) {
         // R8: no renewal, but prorations still pending (and metered usage) are billed on a final invoice.
         const final = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : [])];
-        if (final.length) openInvoice(s, at, final, true);
+        if (final.length) openInvoice(s, at, final, true, true);
         s.pending = [];
         s.status = "canceled";
         canceledAt = at;
+        emit(at, "customer.subscription.deleted");
         break;
       }
       if (s.status === "trialing" && s.trialEnd) {
         // R22: no card when the trial ends: Stripe cancels, or pauses with nothing invoiced (probes T1, T2, S96).
         s.status = s.trialEnd === "cancel" ? "canceled" : "paused";
         if (s.trialEnd === "cancel") canceledAt = at;
+        emit(at, ...(s.trialEnd === "cancel" ? ["customer.subscription.deleted"] : ["customer.subscription.paused", "customer.subscription.updated"]));
         break;
       }
       const p = price(s.priceId);
@@ -389,10 +435,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const part = chargeParts(s, at, at, s.cancelAt);
         lines.pop();
         lines.push({ description: "Time until cancellation", amount: part.item.unit - part.paid.off, proration: true });
+        items(at, lines.slice(-1)); // Stripe adds it as an invoice item (S72)
         s.debits.push(part);
         s.periodEnd = s.cancelAt;
       } else debit(s, at);
       openInvoice(s, at, lines);
+      emit(at, "customer.subscription.updated");
+      checkDiscount(s, at);
     }
   };
 
@@ -425,10 +474,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   const events = [...timeline].sort((a, b) => toDate(a.at) - toDate(b.at));
 
-  for (const e of events) {
+  for (const [i, e] of events.entries()) {
+    step = i;
     const at = toDate(e.at);
+    flush(at);
     if (draft && at >= (draft as Draft).at + DRAFT_MS) finalize();
     renewUntil(at);
+    flush(at);
     if (draft && at >= (draft as Draft).at + DRAFT_MS) finalize();
 
     switch (e.type) {
@@ -438,6 +490,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const p = price(e.price!);
         const trial = e.type === "start_trial";
         const periodEnd = trial ? at + (e.trial_days ?? 0) * DAY : addInterval(at, p.interval, new Date(at).getUTCDate());
+        emit(at, "customer.subscription.created");
         sub = {
           priceId: e.price!,
           quantity: e.quantity ?? 1,
@@ -478,6 +531,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         if (e.type === "change_price" ? e.price === s.priceId && (e.quantity ?? s.quantity) === s.quantity : e.quantity === s.quantity) {
           // R16: flexible leaves pending items for the next invoice.
           if (s.mode === "classic" && e.proration_behavior === "always_invoice" && s.pending.length) {
+            emit(at, "customer.subscription.updated"); // its latest_invoice changes
             openInvoice(s, at, s.pending, true);
             s.pending = [];
           }
@@ -491,8 +545,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           // Switching the interval mid-trial makes Stripe issue a fresh $0 trial invoice right away; flexible does
           // that for any change, as a change outside a trial gets its own line (R16).
           if (s.mode === "flexible" || price(s.priceId).interval !== trialInterval) openInvoice(s, at, [{ description: "Trial", amount: 0, proration: false }], true);
+          emit(at, "customer.subscription.updated");
           break;
         }
+        emit(at, "customer.subscription.updated");
         const old = item(s);
         const oldInterval = price(s.priceId).interval;
         // R13: like Stripe, a *different* price without a quantity resets the item to quantity 1.
@@ -511,14 +567,18 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           // R14: with "none" nothing is prorated; the new amount bills from the next renewal, and a later
           // proration credits the item as it is then, not what was paid (Stripe probe, S44).
           const lines = prorate(s, at, old);
+          items(at, lines);
           if (e.proration_behavior === "always_invoice") openInvoice(s, at, lines, true);
           else s.pending.push(...lines);
         }
         break;
       }
-      case "apply_coupon":
-        applyCoupon(active(e.type), e.coupon!, at);
+      case "apply_coupon": {
+        const before = active(e.type).coupon;
+        applyCoupon(sub!, e.coupon!, at);
+        if (sub!.coupon !== before) emit(at, "customer.subscription.updated");
         break;
+      }
       case "report_usage": {
         const s = active(e.type);
         if (price(s.priceId).usage_type !== "metered") throw new Error(`report_usage needs a metered price; ${s.priceId} is licensed`);
@@ -528,6 +588,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       case "cancel_at_period_end": {
         const s = active(e.type);
         [s.cancelAtPeriodEnd, s.cancelAt] = [true, null];
+        emit(at, "customer.subscription.updated");
         break;
       }
       case "cancel_at": {
@@ -538,16 +599,23 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const when = toDate(e.cancel_at ?? "");
         if (!(when > at)) throw new Error("cancel_at must be a date after the request");
         [s.cancelAt, s.cancelBehavior, s.cancelAtPeriodEnd] = [when, e.proration_behavior, false];
+        emit(at, "customer.subscription.updated");
+        // Inside the current period Stripe creates the credit for the time after cancel_at now, as a pending invoice item
+        // (S71); it is billed on the final invoice then.
+        if (when < s.periodEnd && e.proration_behavior !== "none")
+          emit(at, ...(s.mode === "flexible" ? s.debits.filter((d) => d.end > when) : [0]).map(() => "invoiceitem.created"));
         break;
       }
       case "resume": {
         const r = active(e.type);
         if (r.status === "paused") {
           resumePaused(r, at, e);
+          emit(at, "customer.subscription.resumed", "customer.subscription.updated");
           break;
         }
         // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
         [r.cancelAtPeriodEnd, r.cancelAt] = [false, null];
+        emit(at, "customer.subscription.updated");
         break;
       }
       case "pause": {
@@ -560,11 +628,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         if (s.status === "trialing") throw new Error("pause during a trial: Stripe rejects it; use end_trial first");
         if (price(s.priceId).usage_type === "metered") throw new Error("pause with a metered price is not modelled");
         if (s.cancelAtPeriodEnd || s.cancelAt !== null) throw new Error("pause with a scheduled cancellation is not modelled: resume it first");
+        s.status = "paused"; // before the credit is invoiced: that invoice is not paid (S82)
         if (e.proration_behavior !== "none") bill(s, at, creditDebits(s, at), e.proration_behavior);
         else s.coveredUntil = Math.max(s.coveredUntil ?? 0, s.periodEnd);
         s.debits = [];
         s.periodEnd = at;
-        s.status = "paused";
+        emit(at, "customer.subscription.paused", "customer.subscription.updated");
         break;
       }
       case "end_trial": {
@@ -572,6 +641,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const s = active(e.type);
         if (s.status !== "trialing") throw new Error("end_trial needs a subscription in trial");
         if (s.trialEnd) throw new Error("end_trial with a trial_end_behavior: the customer has no card to pay the first period");
+        if (!s.warned) emit(at, "customer.subscription.trial_will_end");
         s.status = "active";
         s.periodStart = at;
         s.anchorDay = new Date(at).getUTCDate();
@@ -580,6 +650,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         s.anchor = at;
         debit(s, at);
         openInvoice(s, at, [{ description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+        emit(at, "customer.subscription.updated");
         break;
       }
       case "reset_anchor": {
@@ -588,10 +659,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         if (s.status === "trialing") throw new Error("reset_anchor during a trial: use end_trial");
         if (s.mode === "flexible") flexibleReset(s, at, e.proration_behavior);
         else restartPeriod(s, at, item(s), e.proration_behavior);
+        emit(at, "customer.subscription.updated");
         break;
       }
       case "remove_coupon":
         // R5: future invoices are full price; what was already charged (s.paid) still prices the next credit.
+        // Removing a discount Stripe already deleted (a used-up "once" coupon) changes nothing: no event (S52, S62).
+        if (attached) emit(at, "customer.subscription.updated");
         active(e.type).coupon = null;
         break;
       case "cancel_now": {
@@ -604,12 +678,18 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           const lines = [...s.pending, ...(s.mode === "flexible" ? creditDebits(s, at) : [prorate(s, at, item(s), false)[0]])];
           // Canceling finalizes a renewal still in draft first, so the final invoice's credit does not reach it
           // (seed 100178: the 05-02 renewal is 8211 due from a 0 balance, the -2900 credit stays on the customer).
-          if (draft && lines.length) finalize();
-          if (lines.length) openInvoice(s, at, lines, true);
+          // Stripe finalizes that renewal an hour later too, like the final invoice (S111).
+          if (draft && lines.length) {
+            (draft as Draft).later = true;
+            finalize();
+          }
+          items(at, lines.slice(s.pending.length));
+          if (lines.length) openInvoice(s, at, lines, true, true);
         }
         s.status = "canceled";
         s.pending = [];
         canceledAt = at;
+        emit(at, "customer.subscription.deleted");
         break;
       }
       case "adjust_balance":
@@ -620,8 +700,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       case "advance_to":
         break;
     }
+    if (sub) checkDiscount(sub, at);
+    warn(at);
   }
-  finalize();
+  finalize(false);
 
   // R21: resume a paused subscription. billing_cycle_anchor "now" (Stripe's default) starts a new period now and
   // invoices it at once with anything pending, such as the pause credit (S80). "unchanged" keeps the old anchor: the
@@ -689,6 +771,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // Credit the unused time (unless "none"), move the anchor to now and invoice the full new period at once.
   function restartPeriod(s: Sub, at: number, old: Item, behavior: ProrationBehavior | undefined) {
     const credit = behavior === "none" ? [] : [prorate(s, at, old, false)[0]];
+    items(at, credit);
     s.periodStart = at;
     s.anchorDay = new Date(at).getUTCDate();
     s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
@@ -735,7 +818,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.paid = activeDiscount(s, licensedAmount(s), at);
     if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
     s.debits.push(part);
-    openInvoice(s, at, [{ description: "Time until the first billing date", amount, proration: true }], true);
+    const stub = [{ description: "Time until the first billing date", amount, proration: true }];
+    items(at, stub); // an invoice item on the first invoice (S74)
+    openInvoice(s, at, stub, true);
   }
 
   // R19: the subscription ends at `when` (its cancel_at). Pending prorations, unbilled usage and (unless "none")
@@ -743,7 +828,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   function cancelOn(s: Sub, when: number) {
     const credit = s.cancelBehavior !== "none" && when < s.periodEnd ? (s.mode === "flexible" ? creditDebits(s, when) : [prorate(s, when, item(s), false)[0]]) : [];
     const lines = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : []), ...credit];
-    if (lines.length) openInvoice(s, when, lines, true);
+    if (lines.length) openInvoice(s, when, lines, true, true);
     s.pending = [];
     s.status = "canceled";
     canceledAt = when;
@@ -849,6 +934,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.
   function bill(s: Sub, at: number, lines: InvoiceLine[], behavior: ProrationBehavior | undefined) {
+    items(at, lines);
     if (behavior === "always_invoice") {
       // Nothing to invoice is no invoice: a pause that credits nothing (no debit left after a "none" anchor reset)
       // opens no $0 invoice in Stripe (fuzz seed 94027).
@@ -882,12 +968,14 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     // invoices: a yearly -> monthly switch inside the window gets discounted renewals until it ends (S50).
     const end = c.duration === "repeating" ? addInterval(at, "month", new Date(at).getUTCDate(), c.duration_in_months ?? 1) : Infinity;
     s.coupon = { code, remaining: c.duration === "once" ? 1 : Infinity, end };
+    attached = s.coupon;
   }
 
   const finalSub = sub as Sub | null;
   const order = invoices.map((_, i) => i).sort((a, b) => created.get(a)![0] - created.get(b)![0] || created.get(b)![1] - created.get(a)![1]);
   return {
     invoices: order.map((i) => invoices[i]),
+    webhooks,
     status: finalSub ? finalSub.status : "none",
     canceled_at: canceledAt ? isoDay(canceledAt) : null,
   };

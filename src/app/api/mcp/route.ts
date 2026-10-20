@@ -93,7 +93,7 @@ const handler = createMcpHandler(
       {
         title: "Simulate a customer's invoices",
         description:
-          "Run a customer timeline (subscribe, trials, upgrades, coupons, tax, usage, cancellation) through Tera's Stripe-parity billing engine and return every invoice to the cent. Amounts are integers in minor units.",
+          "Run a customer timeline (subscribe, trials, upgrades, coupons, tax, usage, cancellation) through Tera's Stripe-parity billing engine and return every invoice to the cent, plus the webhook events Stripe sends for it (per timeline event, to test a webhook handler). Amounts are integers in minor units.",
         inputSchema: z.object({ timeline: z.array(event).min(1), catalog, locale: z.string().optional() }),
         annotations: readOnly,
       },
@@ -103,7 +103,8 @@ const handler = createMcpHandler(
         const summary = result.invoices
           .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}, due ${formatMoney(i.amount_due, i.currency, locale)}${i.starting_balance < 0 ? ` (credit applied ${formatMoney(-i.starting_balance, i.currency, locale)})` : ""}`)
           .join("\n");
-        return text(`Status: ${result.status}\n${summary}`, result);
+        const hooks = Object.entries(Object.groupBy(result.webhooks, (w) => w.type)).map(([type, ws]) => `${type} ×${ws!.length}`);
+        return text(`Status: ${result.status}\n${summary}\nWebhook events Stripe sends (${result.webhooks.length}): ${hooks.join(", ")}`, result);
       }),
     );
 
@@ -122,7 +123,7 @@ const handler = createMcpHandler(
           cat = parseCatalog(raw);
           parsed = parseTimeline(timeline);
           checkLiveLimits(parsed);
-          tera = simulate(cat, parsed).invoices;
+          tera = simulate(cat, parsed);
         } catch (e) {
           return text(`Rejected: ${(e as Error).message}`, undefined, true);
         }
@@ -131,7 +132,11 @@ const handler = createMcpHandler(
           const head = r.match
             ? `Matches Stripe: ${r.stripe.length} invoice(s) identical to the cent (test clock ${r.test_clock}).`
             : `Differs from Stripe on ${r.diffs.length} field(s) (test clock ${r.test_clock}).`;
-          return text(head, { match: r.match, diffs: r.diffs, stripe: r.stripe });
+          const hooks = r.webhooks.match
+            ? `Webhook events match: ${r.webhooks.stripe.flat().length} sent, the same types for every timeline event.`
+            : `Webhook events differ: ${r.webhooks.diffs.map((d) => `event ${d.event} ${d.type} Tera ${d.tera}, Stripe ${d.stripe}`).join("; ")}.`;
+          return text(`${head}
+${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webhooks });
         } catch (e) {
           return text(e instanceof Cooldown ? e.message : `Stripe replay failed: ${(e as Error).message}`, undefined, true);
         }

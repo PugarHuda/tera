@@ -2,7 +2,7 @@
 // Server-only: needs STRIPE_SECRET_KEY (test mode). Never import from client components.
 import Stripe from "stripe";
 import { createHash } from "node:crypto";
-import type { Catalog, Coupon, Invoice, TimelineEvent } from "./billing";
+import type { Catalog, Coupon, Invoice, SimulationResult, TimelineEvent, Webhook } from "./billing";
 
 // Stripe objects are keyed by id + a hash of their definition: same definition -> reused, changed definition -> new object.
 const key = (prefix: string, id: string, def: unknown) => `${prefix}_${id}_${createHash("sha256").update(JSON.stringify(def)).digest("hex").slice(0, 10)}`;
@@ -141,8 +141,24 @@ export type ParityInvoice = Pick<Invoice, "date" | "currency" | "subtotal" | "di
   id: string;
 };
 
-/** Replay a timeline against Stripe and return the invoices Stripe produced. */
-export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[]) {
+/** The webhook event types Tera predicts; others (charges, payment intents, customer.updated, customer.discount.*) are
+ * not compared. */
+export const WEBHOOK_TYPES = [
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "customer.subscription.paused",
+  "customer.subscription.resumed",
+  "customer.subscription.trial_will_end",
+  "invoice.created",
+  "invoice.finalized",
+  "invoice.paid",
+  "invoiceitem.created",
+] as const;
+
+/** Replay a timeline against Stripe and return the invoices Stripe produced; with `events`, also the webhook events each
+ * timeline event caused (the clock advance up to it included), oldest first. */
+export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline: TimelineEvent[], opts: { events?: boolean } = {}) {
   const ids = await pushCatalogOnce(stripe, catalog);
   const events = [...timeline].sort((a, b) => sec(a.at) - sec(b.at));
   const start = sec(events[0].at);
@@ -154,6 +170,19 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     name: "Tera parity customer",
     ...(noCard ? {} : { payment_method: "pm_card_visa", invoice_settings: { default_payment_method: "pm_card_visa" } }),
   });
+
+  // Events are read after each step from a cursor: the account's newest event before this customer existed.
+  const steps: string[][] = [];
+  let cursor = opts.events ? (await stripe.events.list({ limit: 1 })).data[0]?.id : undefined;
+  const mine = (o: { customer?: unknown; id?: unknown }) => o.customer === customer.id || (o.customer as { id?: string } | null)?.id === customer.id;
+  const collect = async () => {
+    await sleep(1500); // events are written just after the API call returns
+    const fresh: Stripe.Event[] = [];
+    for await (const ev of stripe.events.list({ limit: 100, ...(cursor ? { ending_before: cursor } : {}) })) fresh.push(ev);
+    fresh.sort((a, b) => a.created - b.created);
+    if (fresh.length) cursor = fresh[fresh.length - 1].id;
+    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)).map((ev) => ev.type));
+  };
 
   let now = start;
   let sub: Stripe.Subscription | null = null;
@@ -272,6 +301,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "advance_to":
         break;
     }
+    if (opts.events) await collect();
   }
 
   const invoices = await stripe.invoices.list({ customer: customer.id, limit: 100, expand: ["data.lines"] });
@@ -293,7 +323,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       amount_due: inv.amount_due,
       starting_balance: inv.starting_balance,
     }));
-  return { clockId: clock.id, customerId: customer.id, invoices: out };
+  return { clockId: clock.id, customerId: customer.id, invoices: out, events: steps };
 }
 
 export type InvoiceDiff = { invoice: number; field: string; tera: unknown; stripe: unknown };
@@ -344,15 +374,40 @@ export function checkLiveLimits(timeline: TimelineEvent[]) {
   if (Math.max(...times) - Math.min(...times) > LIVE_MAX_SPAN_MS) throw new Error("a live Stripe replay may span at most 2 years");
 }
 
-/** Replay in Stripe and diff against Tera's invoices (the caller has already simulated and validated). */
-export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], tera: Invoice[]) {
+export type WebhookDiff = { event: number; type: string; tera: number; stripe: number };
+
+/** Per timeline event, how many of each webhook type Tera predicts and Stripe sent (order within a step is not compared:
+ * Stripe writes several events in the same second). */
+export function diffWebhooks(tera: Webhook[], stripe: string[][]): WebhookDiff[] {
+  const diffs: WebhookDiff[] = [];
+  stripe.forEach((all, event) => {
+    const sent = all.filter((t) => (WEBHOOK_TYPES as readonly string[]).includes(t)); // recordings may hold more types
+    const count = (xs: string[]) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>());
+    const [t, s] = [count(tera.filter((w) => w.event === event).map((w) => w.type)), count(sent)];
+    for (const type of new Set([...t.keys(), ...s.keys()])) if (t.get(type) !== s.get(type)) diffs.push({ event, type, tera: t.get(type) ?? 0, stripe: s.get(type) ?? 0 });
+  });
+  return diffs;
+}
+
+/** Replay in Stripe and diff against Tera's invoices and webhook events (the caller has already simulated and validated). */
+export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], sim: SimulationResult) {
+  const tera = sim.invoices;
   const wait = lastLiveRun + COOLDOWN_MS - Date.now();
   if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000));
   const stripe = stripeClient(); // a missing key is a config error, not a run that holds the cooldown
   lastLiveRun = Date.now();
-  const replay = await replayInStripe(stripe, catalog, timeline);
+  const replay = await replayInStripe(stripe, catalog, timeline, { events: true });
   const diffs = diffInvoices(tera, replay.invoices);
-  return { match: diffs.length === 0, diffs, tera, stripe: replay.invoices, test_clock: replay.clockId, ran_at: new Date().toISOString() };
+  const hookDiffs = diffWebhooks(sim.webhooks, replay.events);
+  return {
+    match: diffs.length === 0,
+    diffs,
+    tera,
+    stripe: replay.invoices,
+    webhooks: { match: hookDiffs.length === 0, diffs: hookDiffs, stripe: replay.events },
+    test_clock: replay.clockId,
+    ran_at: new Date().toISOString(),
+  };
 }
 
 // FR3 from Stripe: the migration planner's customer base, read from the subscriptions on one price of the connected

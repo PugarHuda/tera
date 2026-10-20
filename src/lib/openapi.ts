@@ -125,7 +125,7 @@ export const spec = {
           },
         },
         responses: {
-          "200": { description: "match, diffs, tera and stripe invoices, test clock id" },
+          "200": { description: "match, diffs, tera and stripe invoices, webhooks ({ match, diffs, stripe: the event types Stripe sent per timeline event }), test clock id" },
           "400": { description: "Unknown scenario, malformed timeline or over the live limits", content: { "application/json": { schema: error } } },
           "422": { description: "Tera (and Stripe) reject this timeline", content: { "application/json": { schema: error } } },
           "429": { description: "Another live replay holds the Stripe cooldown", headers: { "retry-after": { schema: { type: "integer" }, description: "Seconds to wait" } }, content: { "application/json": { schema: error } } },
@@ -307,6 +307,20 @@ export const spec = {
         properties: {
           status: { type: "string", enum: ["active", "trialing", "paused", "canceled", "none"] },
           canceled_at: { type: ["string", "null"] },
+          webhooks: {
+            type: "array",
+            description:
+              "The webhook events Stripe sends for this timeline, verified against the events real test clocks sent for the golden scenarios. Types: customer.subscription.created/updated/deleted/paused/resumed/trial_will_end, invoice.created/finalized/paid, invoiceitem.created. Charges, payment intents, customer.updated and customer.discount.* are not modelled.",
+            items: {
+              type: "object",
+              required: ["event", "date", "type"],
+              properties: {
+                event: { type: "integer", description: "Index of the timeline event whose step (the clock advance up to it, then the call) sends it" },
+                date: { type: "string", description: "Simulated day it fires" },
+                type: { type: "string" },
+              },
+            },
+          },
           invoices: {
             type: "array",
             items: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent, type Webhook } from "@/lib/billing";
 import { csvBlob, toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 import { parseTimeline } from "@/lib/validate";
@@ -122,7 +122,17 @@ export function Simulator({
   const [locale, setLocale] = useState("en-US");
   // Live check: replay this exact timeline in a Stripe test clock (POST /api/parity).
   const [stripeCheck, setStripeCheck] = useState<
-    { state: "running" } | { state: "done"; match: boolean; diffs: { invoice: number; field: string; tera: unknown; stripe: unknown }[]; clock: string; count: number } | { state: "error"; error: string } | null
+    | { state: "running" }
+    | {
+        state: "done";
+        match: boolean;
+        diffs: { invoice: number; field: string; tera: unknown; stripe: unknown }[];
+        clock: string;
+        count: number;
+        webhooks: { match: boolean; diffs: { event: number; type: string; tera: number; stripe: number }[]; sent: number };
+      }
+    | { state: "error"; error: string }
+    | null
   >(null);
 
   const scenario = playable.find((s) => s.id === scenarioId);
@@ -172,7 +182,15 @@ export function Simulator({
       }
       const body = await res.json();
       if (!res.ok) return setStripeCheck({ state: "error", error: body.error ?? `HTTP ${res.status}` });
-      setStripeCheck({ state: "done", match: body.match, diffs: body.diffs, clock: body.test_clock, count: body.stripe.length });
+      const hooks = body.webhooks;
+      setStripeCheck({
+        state: "done",
+        match: body.match,
+        diffs: body.diffs,
+        clock: body.test_clock,
+        count: body.stripe.length,
+        webhooks: { match: hooks.match, diffs: hooks.diffs, sent: hooks.stripe.flat().length },
+      });
     } catch (e) {
       setStripeCheck({ state: "error", error: (e as Error).message });
     }
@@ -380,6 +398,23 @@ export function Simulator({
                 </ul>
               </>
             )}
+            {stripeCheck.state === "done" && (
+              <p className="mt-2" data-testid="stripe-check-webhooks">
+                {stripeCheck.webhooks.match ? (
+                  <>
+                    <span className="badge badge-ok">✅ Webhooks match</span> Stripe sent the {stripeCheck.webhooks.sent} webhook event
+                    {stripeCheck.webhooks.sent === 1 ? "" : "s"} Tera predicts.
+                  </>
+                ) : (
+                  <>
+                    <span className="badge badge-bad">❌ Webhooks differ</span>
+                    <span className="mt-1 block font-mono text-xs">
+                      {stripeCheck.webhooks.diffs.map((d) => `event ${d.event + 1} ${d.type}: Tera ${d.tera} · Stripe ${d.stripe}`).join("; ")}
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
           </div>
         )}
         {shareUrl && (
@@ -432,10 +467,39 @@ export function Simulator({
                 <InvoiceCard key={i} n={i + 1} inv={inv} locale={locale} />
               ))}
             </ol>
+            <Webhooks hooks={outcome.result!.webhooks} timeline={timeline} />
           </>
         )}
       </section>
     </div>
+  );
+}
+
+// The webhook events Stripe sends for the timeline, grouped by the event that causes them, so a webhook handler can be
+// tested against the same sequence.
+function Webhooks({ hooks, timeline }: { hooks: Webhook[]; timeline: TimelineEvent[] }) {
+  if (hooks.length === 0) return null;
+  const steps = timeline.map((e, i) => ({ e, i, hooks: hooks.filter((h) => h.event === i) })).filter((s) => s.hooks.length > 0);
+  return (
+    <details className="card mt-3 text-sm" data-testid="webhooks">
+      <summary className="cursor-pointer font-semibold">Webhook events Stripe sends ({hooks.length})</summary>
+      <ol className="mt-2 space-y-2">
+        {steps.map(({ e, i, hooks }) => (
+          <li key={i} data-testid={`webhooks-${i + 1}`}>
+            <span className="text-xs opacity-70">
+              Event {i + 1} · {LABEL[e.type]} · {e.at.slice(0, 10)}
+            </span>
+            <ul className="font-mono text-xs">
+              {hooks.map((h, j) => (
+                <li key={j}>
+                  {h.date} {h.type}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </details>
   );
 }
 

@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   let input, tera;
   try {
     input = parseBody(await readJson(req));
-    tera = simulate(input.catalog, input.timeline).invoices; // R11: what Tera rejects never reaches Stripe
+    tera = simulate(input.catalog, input.timeline); // R11: what Tera rejects never reaches Stripe
   } catch (e) {
     return badRequest(e);
   }

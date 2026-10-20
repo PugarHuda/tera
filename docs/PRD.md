@@ -192,6 +192,14 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 ### Draft finalization
 - Stripe finalizes a renewal draft about an hour after creating it. An invoice that a change creates within that hour is finalized first, so it takes (or adds to) the customer balance before the renewal does, while invoices are listed in creation order (S105: a reset 20 minutes after renewal leaves a 1-cent carry below the minimum charge, and the renewal finalized after it is 2901 due; fuzz seed 78026).
 
+### R24 — Webhook events
+Stripe's events for a timeline, recorded per step from test clocks (all 114 golden timelines, `golden/parity/S*.json` → `webhooks`). Types modelled: `customer.subscription.created/updated/deleted/paused/resumed/trial_will_end`, `invoice.created/finalized/paid`, `invoiceitem.created`. Charges, payment intents and `customer.updated` are not, nor `customer.discount.*`: for a test clock dated before the real present Stripe sends extra `customer.discount.deleted` events for discounts that still apply (S58, dated 2026, against fuzz seed 130012, dated 2028), so those depend on the real date, not the simulated one.
+- Every invoice sends `invoice.created`; it sends `invoice.finalized` and `invoice.paid` when Stripe finalizes it: at once for one an API call creates, an hour later for a renewal and for a cancellation's final invoice (and for a renewal draft that canceling finalizes first, S111). A timeline that ends before that hour has passed sends neither. An invoice made while pausing (its unused-time credit) is finalized but never paid (S82).
+- Every proration line is an invoice item (`invoiceitem.created`) when it is created, pending or invoiced at once: credits and charges of a change, resume charges, a first-billing-date stub (S74), the shortened last period before `cancel_at` (S72). The credit for the time after `cancel_at` inside the current period is created when `cancel_at` is set (S71).
+- `customer.subscription.updated` for each call that changes the subscription and for each renewal; not for a no-op change unless it invoices pending prorations (S43), nor for removing a coupon that no longer applies (see below). A trial that ends into a pause sends `paused` and `updated`; one that ends into a cancellation, `deleted`. Resuming sends `resumed` and `updated`.
+- `trial_will_end`: three days before the trial ends, or with the call that ends it sooner (S45).
+- Removing a coupon sends `customer.subscription.updated` only while its discount still applies: not after a `once` coupon was used up (S52, fuzz seed 120010).
+
 ### R23 — Customer balance adjustments
 - `adjust_balance` with `amount` (minor units) is a Stripe customer balance transaction: negative is a credit, positive a debit. It changes the balance the next finalized invoice starts from (R10), so a credit lowers the amount due and carries over while it lasts, and a debit is added (S103: −1000 against a 2900 renewal leaves 1900 due; S104: +500 and −10000 net to −9500, which covers one 7900 invoice and 1600 of the next).
 
@@ -240,7 +248,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - Non-positive prices show "Prices must be positive amounts."; a bad seat count in the bare list shows "Seat counts must be positive whole numbers."; bad CSV rows are reported with their line number.
 
 ### FR4 Stripe Parity Check [SHIPPED]
-- `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (the billing mode each scenario sets, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total, starting_balance, amount_due). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer) is committed under `golden/parity/`.
+- `scripts/verify-golden.mts` replays every golden timeline in a Stripe **test-mode** account using test clocks (the billing mode each scenario sets, API `2026-09-30.endive`), fetches Stripe's invoices and diffs them line by line against Tera's engine (date, currency, line amounts, subtotal, discount, tax, total, starting_balance, amount_due). Matching scenarios are marked `"status": "verified"`; the evidence (Stripe invoice ids, test clock, customer, and the webhook event types Stripe sent per timeline event) is committed under `golden/parity/`.
 - Page `/parity` lists every timeline scenario with a ✅ Match / ❌ Diff / — Not replayable badge and the summary "N / M scenarios match Stripe to the cent"; expanding a row shows Tera and Stripe invoices side by side; "Re-run live in Stripe" replays it now.
 - `GET /api/parity` returns the recorded evidence; `POST /api/parity {"scenario":"S05"}` replays one golden scenario live (golden ids only; one live run per 30 s → 429).
 - The Stripe key is server-side only (`STRIPE_SECRET_KEY`, test mode enforced) and never returned to the client.
@@ -258,13 +266,13 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - A corrupted `t` value never crashes the page: an alert reads "This shared link is invalid or corrupted, so the default scenario was loaded instead." and S05 is loaded.
 
 ### FR7 Public API [SHIPPED] (tested directly by TestSprite's API suite)
-- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[] }`; each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
+- `POST /api/simulate` — body `{ timeline, catalog?, locale? }`. `catalog` defaults to the golden catalog. Returns `{ status, canceled_at, invoices[], webhooks[] }` (webhooks: FR10); each invoice has `date, currency, period_start, period_end, lines[{description, amount, proration}], subtotal, discount, tax, total, starting_balance, amount_due, total_display`. Reference: S27 (downgrade, always_invoice) → invoice 2 total −2420 with amount_due 0; invoice 3 starting_balance −2420, amount_due 480.
 - `POST /api/migrate` — body `{ unit_amount, new_unit_amount, grandfather, customers[], interval? }` where a customer is a seat count or `{ name, seats }` → `{ affected, mrr_before, mrr_after, mrr_delta, per_customer[] }`.
 - `GET /api/scenarios` — list of `{ id, title, status, rules }`, optionally filtered by `?rule=R6` (scenarios citing that rule) and `?q=coupon trial` (every word in the title); the MCP tool `list_golden_scenarios` takes the same `rule` and `query`. Methods a route does not serve → 405 with an `Allow` header. `GET /api/scenarios/:id` (case-insensitive) — the scenario with its `timeline` and hand-derived `expect`, plus the `catalog`. Unknown id → 404.
 - Errors: malformed JSON, invalid fields or events out of date order → **400** `{ error }`; a body over 4 MB → **413**; unknown price/coupon/tax rate, an event before subscribe, or any R11 rejection → **422** `{ error }`. Dates run from 1970 to 2099.
 - Contract: for every golden scenario, posting its `timeline` to `/api/simulate` must return invoices whose `date`, line `amount`s and `total` equal its `expect` exactly.
 - Documented in an OpenAPI spec at `/api/openapi.json`.
-- `POST /api/parity` — `{ scenario }` or `{ timeline, catalog? }` (≤ 15 events, ≤ 2 years): live replay in a Stripe test clock, returns `{ match, diffs, tera, stripe, test_clock }`; 429 with `retry-after` during the 30 s cooldown.
+- `POST /api/parity` — `{ scenario }` or `{ timeline, catalog? }` (≤ 15 events, ≤ 2 years): live replay in a Stripe test clock, returns `{ match, diffs, tera, stripe, webhooks: { match, diffs, stripe }, test_clock }`; 429 with `retry-after` during the 30 s cooldown.
 - The API is cookie-less and sends `Access-Control-Allow-Origin: *`, so browser apps on any origin can call it. Pages send a Content-Security-Policy, `nosniff`, Referrer-Policy and Permissions-Policy; `/robots.txt` keeps crawlers off `/api/`, `/sitemap.xml` and `/llms.txt` describe the site.
 
 ### FR8 MCP server [SHIPPED]
@@ -274,6 +282,12 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 
 ### FR9 Interactive API reference [SHIPPED]
 - `/reference` renders the OpenAPI document with Scalar, including a "try it" client for every endpoint.
+
+### FR10 Webhook events [SHIPPED]
+- Every simulation returns `webhooks[]`: `{ event, date, type }`, the webhook events Stripe sends for the timeline, where `event` is the index of the timeline event whose step (the clock advance up to it, then the call) causes it (R24).
+- On `/`, below the invoices, a collapsed "Webhook events Stripe sends (N)" panel lists them grouped by timeline event ("Event 2 · Change price · 2027-01-17").
+- "Verify in Stripe" (and `POST /api/parity`, MCP `verify_timeline_in_stripe`) also compares them with the events the test clock sent: "✅ Webhooks match" or each differing type with both counts.
+- Reference: S01 → event 1 sends `invoice.created`, `invoice.finalized`, `invoice.paid`, `customer.subscription.created`. S20 (upgrade with always_invoice) → event 2 sends 2 × `invoiceitem.created`, an invoice (created, finalized, paid) and `customer.subscription.updated`; event 3 (the 02-01 renewal the timeline ends on) only `invoice.created` and `customer.subscription.updated`.
 
 ## 7. Non-functional
 - The simulation engine is a pure TypeScript module: no I/O, deterministic, unit-testable.
