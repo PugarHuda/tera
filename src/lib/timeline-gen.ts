@@ -1,6 +1,6 @@
 // Seeded random customer timelines, shared by the Stripe differential fuzzer (scripts/fuzz-parity.mts)
 // and the local invariant property test (billing.test.ts).
-import type { TimelineEvent } from "./billing";
+import type { BillingMode, TimelineEvent } from "./billing";
 
 // mulberry32: tiny deterministic PRNG so a failing case is reproducible from its seed.
 const rng = (seed: number) => () => {
@@ -15,7 +15,7 @@ export const GROUPS = [
   { prices: ["basic_m_jpy", "premium_m_jpy"], coupons: ["SAVE20", "FOREVER25"] },
 ];
 
-export function generate(seed: number): TimelineEvent[] {
+export function generate(seed: number, mode: BillingMode = "classic"): TimelineEvent[] {
   const r = rng(seed);
   const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
   const int = (lo: number, hi: number) => lo + Math.floor(r() * (hi - lo + 1));
@@ -27,6 +27,7 @@ export function generate(seed: number): TimelineEvent[] {
   const step = (lo: number, hi: number) => int(lo, hi) * 86_400_000 + (clock ? int(0, 86_399) * 1000 : 0);
   const at = () => new Date(t).toISOString().replace(".000", "");
   const first: TimelineEvent = { at: at(), type: r() < 0.2 ? "start_trial" : "subscribe", price: pick(g.prices), quantity: int(1, 5) };
+  if (mode === "flexible") first.billing_mode = mode; // after the draws above, so classic seeds stay reproducible
   if (first.type === "start_trial") first.trial_days = int(7, 30);
   else if (r() < 0.5) first.coupon = pick(g.coupons);
   if (r() < 0.4) first.tax_rate = pick(["tax10_ex", "vat20_in"]);

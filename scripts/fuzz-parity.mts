@@ -1,8 +1,8 @@
 // Differential fuzzing: random (seeded) timelines are run through Tera and replayed in Stripe test clocks.
 // Every diff is a candidate rule gap; a confirmed one becomes a hand-derived golden scenario.
-// Usage: node --no-warnings scripts/fuzz-parity.mts [count=12] [seed=1]   (needs STRIPE_SECRET_KEY in .env.local)
+// Usage: node --no-warnings scripts/fuzz-parity.mts [count=12] [seed=1] [classic|flexible]   (needs STRIPE_SECRET_KEY in .env.local)
 import { existsSync, readFileSync } from "node:fs";
-import { simulate, type Catalog } from "../src/lib/billing.ts";
+import { simulate, type BillingMode, type Catalog } from "../src/lib/billing.ts";
 import { generate } from "../src/lib/timeline-gen.ts";
 import { diffInvoices, replayInStripe, stripeClient } from "../src/lib/stripe-parity.ts";
 
@@ -12,14 +12,15 @@ for (const line of (existsSync(".env.local") ? readFileSync(".env.local", "utf8"
 }
 
 const catalog = JSON.parse(readFileSync("golden/scenarios.json", "utf8")).catalog as Catalog;
-const [count = 12, seed0 = 1] = process.argv.slice(2).map(Number);
+const [count = 12, seed0 = 1] = process.argv.slice(2, 4).map(Number);
+const mode = (process.argv[4] ?? "classic") as BillingMode;
 
 const stripe = stripeClient();
 const seeds = Array.from({ length: count }, (_, i) => seed0 + i);
 let diffsFound = 0;
 
 async function run(seed: number) {
-  const timeline = generate(seed);
+  const timeline = generate(seed, mode);
   let tera;
   try {
     tera = simulate(catalog, timeline).invoices;

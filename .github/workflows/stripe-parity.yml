@@ -7,7 +7,7 @@ name: Stripe parity
 
 on:
   pull_request:
-    paths: ["src/lib/billing.ts", "src/lib/stripe-parity.ts", "golden/scenarios.json", "scripts/verify-golden.mts"]
+    paths: ["src/lib/billing.ts", "src/lib/stripe-parity.ts", "src/lib/timeline-gen.ts", "golden/scenarios.json", "scripts/verify-golden.mts", "scripts/fuzz-parity.mts"]
   schedule:
     - cron: "30 3 * * *"
   workflow_dispatch:
@@ -49,7 +49,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # New seeds every run: 24 timelines starting at run_number × 1000.
-      - run: node --no-warnings scripts/fuzz-parity.mts 24 $(( ${{ github.run_number }} * 1000 ))
+      # New seeds every run: 24 timelines per billing mode starting at run_number × 1000 (Stripe's default for
+      # new subscriptions is flexible, R16). Both run even if the first finds a diff.
+      - run: node --no-warnings scripts/fuzz-parity.mts 24 $(( ${{ github.run_number }} * 1000 )) classic
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      - if: ${{ !cancelled() }}
+        run: node --no-warnings scripts/fuzz-parity.mts 24 $(( ${{ github.run_number }} * 1000 + 500 )) flexible
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, simulate, type Catalog, type Invoice, type TimelineEvent } from "@/lib/billing";
 import { toCsv } from "@/lib/csv";
 import { encodeTimeline } from "@/lib/share";
 
 export type Scenario = { id: string; title: string; timeline?: TimelineEvent[]; expect?: { total: number }[] };
 type EventType = TimelineEvent["type"];
-type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior";
+type Field = "price" | "quantity" | "coupon" | "tax_rate" | "trial_days" | "proration_behavior" | "billing_mode";
 
 const FIELDS: Record<EventType, Field[]> = {
-  subscribe: ["price", "quantity", "coupon", "tax_rate"],
-  start_trial: ["price", "trial_days", "quantity", "tax_rate"],
+  subscribe: ["price", "quantity", "coupon", "tax_rate", "billing_mode"],
+  start_trial: ["price", "trial_days", "quantity", "tax_rate", "billing_mode"],
   change_price: ["price", "quantity", "proration_behavior"],
   change_quantity: ["quantity", "proration_behavior"],
   apply_coupon: ["coupon"],
@@ -248,7 +248,7 @@ export function Simulator({
                       onChange={(ev) => update(i, { [f]: ev.target.value || undefined })}
                     >
                       <option value="">—</option>
-                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : PRORATION_BEHAVIORS).map((o) => (
+                      {(f === "price" ? prices : f === "coupon" ? coupons : f === "tax_rate" ? taxes : f === "billing_mode" ? BILLING_MODES : PRORATION_BEHAVIORS).map((o) => (
                         <option key={o} value={o}>
                           {optionLabel(f, o)}
                         </option>

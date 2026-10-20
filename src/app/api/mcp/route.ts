@@ -2,7 +2,7 @@
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import golden from "../../../../golden/scenarios.json";
-import { PRORATION_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
+import { BILLING_MODES, PRORATION_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { Cooldown, checkLiveLimits, liveParity } from "@/lib/stripe-parity";
 import { BadRequest, EVENT_TYPES, defaultCatalog, parseMigration, parseTimeline } from "@/lib/validate";
 
@@ -19,6 +19,10 @@ const event = z.object({
   tax_rate: z.string().optional().describe(`Tax rate id: ${Object.keys(defaultCatalog.tax_rates ?? {}).join(", ")}`),
   trial_days: z.number().int().optional(),
   proration_behavior: z.enum(PRORATION_BEHAVIORS).optional().describe("none = no proration; the new terms bill from the next renewal (R14)"),
+  billing_mode: z
+    .enum(BILLING_MODES)
+    .optional()
+    .describe("subscribe/start_trial only. Stripe's default for new subscriptions is flexible; omitted means classic (R16)"),
 });
 
 const text = (t: string, data?: unknown, isError = false) => ({

@@ -168,8 +168,8 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       case "subscribe":
       case "start_trial":
         sub = await stripe.subscriptions.create({
-          // R12: Tera models Stripe's classic billing mode (new subscriptions default to flexible since 2025).
-          billing_mode: { type: "classic" },
+          // Stripe defaults new subscriptions to flexible; Tera's default (and every pre-R16 golden) is classic.
+          billing_mode: { type: e.billing_mode ?? "classic" },
           customer: customer.id,
           items: [{ price: ids.prices[e.price!], ...(catalog.prices[e.price!].usage_type === "metered" ? {} : { quantity: e.quantity ?? 1 }) }],
           ...(e.coupon ? { discounts: [{ coupon: ids.coupons[e.coupon] }] } : {}),

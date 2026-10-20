@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import golden from "../../golden/scenarios.json";
-import { formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
+import { BILLING_MODES, formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
 import { generate } from "./timeline-gen";
-import { BadRequest, parseMigration } from "./validate";
+import { BadRequest, parseMigration, parseTimeline } from "./validate";
 
 type Expected = {
   date: string;
@@ -116,9 +116,9 @@ describe("rejects timelines Stripe would reject", () => {
 
 // Property test: the invariants must hold on thousands of random timelines, not only on the goldens.
 // A rejected timeline must fail with a reason (R11), never with a crash.
-describe("invariants on 5000 random timelines", () => {
+for (const mode of BILLING_MODES) describe(`invariants on 5000 random ${mode} timelines`, () => {
   const runs = Array.from({ length: 5000 }, (_, seed) => {
-    const timeline = generate(seed);
+    const timeline = generate(seed, mode);
     try {
       return { seed, timeline, invoices: simulate(catalog, timeline).invoices };
     } catch (e) {
@@ -148,6 +148,14 @@ describe("invariants on 5000 random timelines", () => {
 
   it("I5 deterministic", () => {
     for (const r of runs.slice(0, 500)) if (r.invoices) expect(simulate(catalog, r.timeline).invoices).toEqual(r.invoices);
+  });
+});
+
+describe("billing_mode input", () => {
+  it("accepts classic and flexible, rejects anything else", () => {
+    const tl = (billing_mode: unknown) => [{ at: "2027-01-01T00:00:00Z", type: "subscribe", price: "pro_m", billing_mode }];
+    expect(() => parseTimeline(tl("flexible"))).not.toThrow();
+    expect(() => parseTimeline(tl("turbo"))).toThrow(/billing_mode must be one of classic, flexible/);
   });
 });
 
