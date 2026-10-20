@@ -52,9 +52,21 @@ const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
 // Date.parse rolls 2027-02-30 over to 03-02; a date that does not exist on the calendar is rejected instead.
 const isDate = (v: unknown): v is string =>
   typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0 && Date.parse(v) < Date.UTC(2100, 0, 1) && new Date(v).toISOString().slice(0, 10) === v.slice(0, 10);
-// ISO 4217 codes this runtime knows (Stripe rejects made-up ones such as "zzz").
+// ISO 4217 codes this runtime knows (Stripe rejects made-up ones such as "zzz"), minus the ones no Stripe account can
+// use (probed in test mode, 2026-10). BHD, KWD, GHS and the like stay: Stripe takes them once the account has a bank
+// account in that currency, and a push without one returns Stripe's own message.
+const RETIRED = new Set(["bgn", "hrk"]);
+const NOT_ON_STRIPE = new Set([...RETIRED, "cuc", "cup", "ern", "iqd", "irr", "kpw", "lyd", "mru", "sdg", "ssp", "stn", "syp", "tmt", "ves", "xdr", "xsu", "zwg", "zwl"]);
 const CURRENCIES = new Set(Intl.supportedValuesOf("currency").map((c) => c.toLowerCase()));
-const isCurrency = (v: unknown): v is string => typeof v === "string" && CURRENCIES.has(v.toLowerCase());
+const isCurrency = (v: unknown): v is string => typeof v === "string" && CURRENCIES.has(v.toLowerCase()) && !NOT_ON_STRIPE.has(v.toLowerCase());
+const currencyError = (at: string, v: unknown) =>
+  typeof v === "string" && RETIRED.has(v.toLowerCase())
+    ? `${at} ${v.toLowerCase()} was retired for eur; Stripe no longer accepts it`
+    : typeof v === "string" && NOT_ON_STRIPE.has(v.toLowerCase())
+      ? `${at} ${v.toLowerCase()} is not a currency Stripe supports`
+      : `${at} must be an ISO 4217 currency code such as usd`;
+// Stripe's decimal limits: percent_off takes two decimals, a tax rate's percentage four.
+const places = (n: number, max: number) => Number(n.toFixed(max)) === n;
 // Stripe's unit_amount_decimal: a plain decimal with at most 12 places (no "Infinity", "1e400" or "0x10").
 const DECIMAL = /^\d{1,15}(\.\d{1,12})?$/;
 
@@ -79,7 +91,7 @@ export function parseCatalog(x: unknown): Catalog {
   for (const [id, p] of Object.entries(x.prices)) {
     const at = `catalog.prices.${id}`;
     if (!isObj(p)) fail(`${at} must be an object`);
-    if (!isCurrency(p.currency)) fail(`${at}.currency must be an ISO 4217 currency code such as usd`);
+    if (!isCurrency(p.currency)) fail(currencyError(`${at}.currency`, p.currency));
     p.currency = p.currency.toLowerCase(); // Stripe's form: "USD" and "usd" are one currency
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
     if (p.usage_type === "metered") {
@@ -101,10 +113,11 @@ export function parseCatalog(x: unknown): Catalog {
       if (!isObj(c)) fail(`${at} must be an object`);
       const pct = c.percent_off !== undefined;
       if (pct === (c.amount_off !== undefined)) fail(`${at} needs exactly one of percent_off or amount_off`);
-      if (pct && !(typeof c.percent_off === "number" && c.percent_off > 0 && c.percent_off <= 100)) fail(`${at}.percent_off must be in (0, 100]`);
+      if (pct && !(typeof c.percent_off === "number" && c.percent_off > 0 && c.percent_off <= 100 && places(c.percent_off, 2)))
+        fail(`${at}.percent_off must be in (0, 100] with at most two decimals`);
       if (!pct && !isInt(c.amount_off, 1)) fail(`${at}.amount_off must be a positive integer`);
       // Stripe rejects an amount_off coupon without a currency: catch it here, not as a 502 on push.
-      if (!pct && !isCurrency(c.currency)) fail(`${at}.currency must be an ISO 4217 currency code for amount_off`);
+      if (!pct && !isCurrency(c.currency)) fail(c.currency === undefined ? `${at}.currency is required for amount_off` : currencyError(`${at}.currency`, c.currency));
       if (!pct) c.currency = (c.currency as string).toLowerCase();
       if (!["once", "repeating", "forever"].includes(c.duration as string)) fail(`${at}.duration must be once, repeating or forever`);
       if (c.duration === "repeating" && !isInt(c.duration_in_months, 1, 120)) fail(`${at}.duration_in_months must be 1-120`);
@@ -114,7 +127,8 @@ export function parseCatalog(x: unknown): Catalog {
     if (!isObj(x.tax_rates)) fail("catalog.tax_rates must be an object");
     for (const [id, r] of Object.entries(x.tax_rates)) {
       const at = `catalog.tax_rates.${id}`;
-      if (!isObj(r) || !(typeof r.percentage === "number" && r.percentage >= 0 && r.percentage < 100)) fail(`${at}.percentage must be in [0, 100)`);
+      if (!isObj(r) || !(typeof r.percentage === "number" && r.percentage >= 0 && r.percentage < 100 && places(r.percentage, 4)))
+        fail(`${at}.percentage must be in [0, 100) with at most four decimals`);
       if (r.behavior !== "inclusive" && r.behavior !== "exclusive") fail(`${at}.behavior must be inclusive or exclusive`);
     }
   }
@@ -178,7 +192,7 @@ export function parseMigration(x: unknown) {
 
 /** A BCP 47 locale for money formatting; "en_US" or "" would make Intl throw a RangeError (a 500). */
 export function parseCurrency(x: unknown): string {
-  if (!isCurrency(x)) fail("currency must be an ISO 4217 currency code such as usd");
+  if (!isCurrency(x)) fail(currencyError("currency", x));
   return x.toLowerCase();
 }
 

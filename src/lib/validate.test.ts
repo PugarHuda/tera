@@ -10,7 +10,7 @@ const price = { currency: "usd", unit_amount: 100, interval: "month" };
 describe("parseCatalog", () => {
   it("defaults to the golden catalog", () => expect(parseCatalog(undefined)).toBe(defaultCatalog));
   it.each([
-    [{ prices: { p: price }, coupons: { OFF: { amount_off: 500, duration: "once" } } }, "ISO 4217 currency code for amount_off"],
+    [{ prices: { p: price }, coupons: { OFF: { amount_off: 500, duration: "once" } } }, "currency is required for amount_off"],
     [{ prices: { p: price }, coupons: { OFF: { percent_off: 10, amount_off: 5, duration: "once" } } }, "exactly one of percent_off or amount_off"],
     [{ prices: { p: price }, coupons: { OFF: { percent_off: 101, duration: "once" } } }, "percent_off must be in (0, 100]"],
     [{ prices: { p: price }, coupons: { OFF: { percent_off: 10, duration: "repeating" } } }, "duration_in_months must be 1-120"],
@@ -110,6 +110,20 @@ describe("found by Playwright QA", () => {
       parseCatalog({ prices: { m: { currency: "usd", interval: "month", usage_type: "metered", tiers: [{ up_to: null, unit_amount_decimal: d }] } } }),
     ).toThrow("decimal string"));
   it("rejects a made-up currency", () => expect(() => parseCatalog({ prices: { p: { ...price, currency: "zzz" } } })).toThrow("ISO 4217"));
+  // Probed in Stripe test mode: no account can price in these; BHD needs a bank account but is a real Stripe currency.
+  it("rejects currencies Stripe does not support", () => {
+    expect(() => parseCatalog({ prices: { p: { ...price, currency: "bgn" } } })).toThrow("retired for eur");
+    expect(() => parseCatalog({ prices: { p: { ...price, currency: "IRR" } } })).toThrow("irr is not a currency Stripe supports");
+    expect(() => parseCatalog({ prices: { p: price }, coupons: { O: { amount_off: 5, currency: "ves", duration: "once" } } })).toThrow("not a currency Stripe");
+    expect(() => parseCatalog({ prices: { p: { ...price, currency: "bhd" } } })).not.toThrow();
+  });
+  it("keeps Stripe's decimal limits on percentages", () => {
+    const c = (coupons: object, tax_rates: object = {}) => () => parseCatalog({ prices: { p: price }, coupons, tax_rates });
+    expect(c({ O: { percent_off: 33.33, duration: "once" } })).not.toThrow();
+    expect(c({ O: { percent_off: 33.333, duration: "once" } })).toThrow("at most two decimals");
+    expect(c({}, { t: { percentage: 8.8755, behavior: "exclusive" } })).not.toThrow();
+    expect(c({}, { t: { percentage: 8.87555, behavior: "exclusive" } })).toThrow("at most four decimals");
+  });
   it("rejects __proto__ as an id", () => expect(() => parseCatalog(JSON.parse('{"prices":{"__proto__":{"currency":"usd","unit_amount":1,"interval":"month"}}}'))).toThrow());
   it.each(["x", "", "en_US", 7])("rejects the locale %j with a 400, not a RangeError", (l) => expect(() => parseLocale(l)).toThrow(BadRequest));
   it("keeps a valid locale", () => expect(parseLocale("de-DE")).toBe("de-DE"));

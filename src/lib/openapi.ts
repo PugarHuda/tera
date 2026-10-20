@@ -243,7 +243,7 @@ export const spec = {
               type: "object",
               required: ["duration"],
               properties: {
-                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100 },
+                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100, description: "At most two decimals (Stripe's limit)." },
                 amount_off: { type: "integer", minimum: 1 },
                 currency: { type: "string", description: "Required with amount_off" },
                 duration: { type: "string", enum: ["once", "repeating", "forever"] },
@@ -257,7 +257,7 @@ export const spec = {
             additionalProperties: {
               type: "object",
               required: ["percentage", "behavior"],
-              properties: { percentage: { type: "number", minimum: 0, exclusiveMaximum: 100 }, behavior: { type: "string", enum: ["inclusive", "exclusive"] } },
+              properties: { percentage: { type: "number", minimum: 0, exclusiveMaximum: 100, description: "At most four decimals (Stripe's limit)." }, behavior: { type: "string", enum: ["inclusive", "exclusive"] } },
             },
           },
         },
