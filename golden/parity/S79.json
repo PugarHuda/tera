@@ -1,0 +1,76 @@
+{
+  "id": "S79",
+  "title": "A percent coupon on a proration charge comes off the rounded gross: 28542 x 25% = 7135.5 -> 7136 (found by fuzzing)",
+  "verified_at": "2026-10-18T16:47:07.749Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URxEK2QR5nixgqNb5J61TBS",
+  "customer": "cus_VSt0M3pJVgyrTv",
+  "stripe": [
+    {
+      "id": "in_1URxEM2QR5nixgqNs2vrx2AO",
+      "date": "2027-01-02",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera starter_m (with 25.0% off) after 02 Jan 2027",
+          "amount": 1333,
+          "proration": true
+        }
+      ],
+      "subtotal": 1333,
+      "discount": 0,
+      "tax": 222,
+      "total": 1333,
+      "amount_due": 1333,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxER2QR5nixgqNyeiw4rt1",
+      "date": "2027-01-16",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 725,
+      "tax": 363,
+      "total": 2175,
+      "amount_due": 2175,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxEX2QR5nixgqNuAR1OUGS",
+      "date": "2027-02-16",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera starter_m (with 25.0% off) after 19 Jan 2027",
+          "amount": -1965,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 4 × Tera pro_m (with 25.0% off) after 19 Jan 2027",
+          "amount": 21406,
+          "proration": true
+        },
+        {
+          "description": "4 × Tera pro_m (at $79.00 / month)",
+          "amount": 31600,
+          "proration": false
+        }
+      ],
+      "subtotal": 51041,
+      "discount": 7900,
+      "tax": 7190,
+      "total": 43141,
+      "amount_due": 43141,
+      "starting_balance": 0
+    }
+  ]
+}

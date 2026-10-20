@@ -1,0 +1,63 @@
+# Real-user journeys (clicks, typing, file pick, download, Verify in Stripe) against every PR's Vercel preview and
+# production after each push to main, independent of TestSprite: e2e/user-journeys.mjs. The run video is kept.
+name: E2E user journeys
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: User journeys on the deployed app
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Wait for Vercel to deploy this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Vercel reports through the "Vercel" commit status (no GitHub deployments), up to 10 minutes.
+          for i in $(seq 1 60); do
+            state=$(gh api "repos/${{ github.repository }}/commits/$SHA/status" --jq '[.statuses[] | select(.context == "Vercel")][0].state // "missing"')
+            [ "$state" = success ] && exit 0
+            [ "$state" = failure ] || [ "$state" = error ] && { echo "Vercel deployment $state"; exit 1; }
+            sleep 10
+          done
+          echo "Vercel never finished deploying $SHA"; exit 1
+      - name: Deployment URL
+        id: url
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if [ -z "$BRANCH" ]; then echo "url=https://tera-orpin-three.vercel.app" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Vercel's branch alias, the same host TestSprite tests: tera-git-<branch slug>-<team>.vercel.app
+          slug=$(echo "$BRANCH" | tr 'A-Z' 'a-z' | sed 's/[^a-z0-9]/-/g')
+          echo "url=https://tera-git-$slug-hudas-projects-a8e7f558.vercel.app" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node e2e/user-journeys.mjs "${{ steps.url.outputs.url }}" e2e-video
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-video
+          path: e2e-video/*.webm
+          retention-days: 14

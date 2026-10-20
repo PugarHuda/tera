@@ -56,6 +56,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
+  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20). */
+  billing_cycle_anchor?: string;
   /** cancel_at: when the subscription ends (Stripe `cancel_at`), ISO-8601 UTC. */
   cancel_at?: string;
   /** subscribe / start_trial: Stripe's billing mode for the new subscription (default classic). */
@@ -120,6 +122,18 @@ const toDate = (iso: string) => new Date(iso).getTime();
 const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
 
 // R2: same day next interval, clamped to month length but keeping the anchor day.
+// R3/R5: a proration charge for num/den of a period, as Stripe prices it with a coupon still active: the gross from
+// the 12-decimal prorated unit price, less the discount, each rounded. A percent discount is taken off the *rounded*
+// gross: 28542 x 25% = 7135.5 -> 7136 gives 21406 (fuzz 45005); 3135 x 25% = 783.75 -> 784 gives 2351 (S42). An
+// amount_off discount is prorated itself: round(1000 x f).
+export function chargeOf(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number) {
+  const gross = prorated(item, FULL_RATE, num, den);
+  const pct = BigInt(Math.round((1 - paid.rate) * 1e6)); // ponytail: percent_off with ≤4 decimals is exact
+  const discount = Number(divRound(BigInt(gross) * pct, 1_000_000n)) + prorated({ unit: Math.round(paid.off), qty: 1 }, FULL_RATE, num, den);
+  return { gross, discount, amount: gross - discount };
+}
+const FULL_RATE = { rate: 1, off: 0 };
+
 export function addInterval(t: number, interval: Interval, anchorDay: number, count = 1): number {
   const d = new Date(t);
   const y = d.getUTCFullYear() + (interval === "year" ? count : 0);
@@ -335,7 +349,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const now = activeDiscount(s, newAmount, at);
     const lines = [
       { description: "Unused time", amount: 0 - prorated(old, s.paid, num, den), proration: true }, // 0 - x: never -0 ("-$0.00")
-      { description: "Remaining time", amount: prorated(next, FULL, num, den) - roundMinor((newAmount * (1 - now.rate) + now.off) * f), proration: true },
+      { description: "Remaining time", amount: chargeOf(next, now, num, den).amount, proration: true },
     ];
     if (c?.duration === "once" && newAmount > 0) s.coupon!.remaining = 0;
     s.paid = now;
@@ -376,6 +390,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
           debits: [],
         };
         if (e.coupon) applyCoupon(sub, e.coupon, at);
+        if (e.billing_cycle_anchor !== undefined) {
+          anchorAt(sub, at, toDate(e.billing_cycle_anchor), e);
+          break;
+        }
         if (!trial) debit(sub, at);
         // R16: flexible does not invoice a $0 metered item at creation (S59).
         if (sub.mode === "flexible" && !trial && p.usage_type === "metered") break;
@@ -520,6 +538,32 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.pending = [];
   }
 
+  // R20: a first billing date after the start (Stripe billing_cycle_anchor at creation). The stub from the start is
+  // prorated over one interval counted from the start (start 05-31, anchor 06-13: 13 of 05-31 -> 06-30's 30 days,
+  // fuzz 45015; start 02-10: 23 of 28) and billed now like a remaining-time charge (S74); a "once" coupon is used up
+  // by it. With "none" nothing is billed until the anchor. Stripe rejects an anchor more than one period ahead.
+  function anchorAt(s: Sub, at: number, when: number, e: TimelineEvent) {
+    const p = price(s.priceId);
+    if (e.type !== "subscribe") throw new Error("billing_cycle_anchor is only modelled on subscribe");
+    if (p.usage_type === "metered") throw new Error("billing_cycle_anchor with a metered price is not modelled");
+    if (!(when > at) || when > addInterval(at, p.interval, new Date(at).getUTCDate()))
+      throw new Error("billing_cycle_anchor must be after the start and at most one billing period ahead");
+    s.anchor = when;
+    s.anchorDay = new Date(when).getUTCDate();
+    s.periodEnd = when;
+    // The stub period is as long as one interval from the start, ending on the anchor, so every proration
+    // before the anchor divides by that length.
+    s.periodStart = when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
+    if (e.proration_behavior === "none") return;
+    const part = chargeParts(s, at, at, when);
+    const amount = part.item.unit - part.paid.off;
+    if (amount === 0) return;
+    if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
+    s.paid = activeDiscount(s, licensedAmount(s), at);
+    s.debits.push(part);
+    openInvoice(s, at, [{ description: "Time until the first billing date", amount, proration: true }], true);
+  }
+
   // R19: the subscription ends at `when` (its cancel_at). Pending prorations, unbilled usage and (unless "none")
   // the credit for the time after it go on a final invoice dated then (S71).
   function cancelOn(s: Sub, when: number) {
@@ -548,9 +592,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       .map((d) => {
         const [num, den] = [Math.min(d.end, until) - Math.max(at, d.start), d.end - d.start];
         const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
+        // Kept at 0 too: a debit made free by a coupon is still credited, as a $0 line (fuzz seed 44012).
         return { description: "Unused time", amount: 0 - amount, proration: true };
-      })
-      .filter((l) => l.amount !== 0);
+      });
     s.debits = [];
     return lines;
   }
@@ -595,10 +639,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // round(841.6), fuzz seed 40005).
   function chargeParts(s: Sub, at: number, from: number, to: number): Debit {
     const [num, den] = [to - from, s.periodEnd - s.periodStart];
-    const amount = licensedAmount(s);
-    const now = activeDiscount(s, amount, at);
-    const off = roundMinor((amount * (1 - now.rate) + now.off) * (num / den)); // same expression as prorate()
-    return { start: from, end: to, item: { unit: prorated(item(s), FULL, num, den), qty: 1 }, paid: { rate: 1, off } };
+    const { gross, discount } = chargeOf(item(s), activeDiscount(s, licensedAmount(s), at), num, den);
+    return { start: from, end: to, item: { unit: gross, qty: 1 }, paid: { rate: 1, off: discount } };
   }
 
   // always_invoice invoices the lines (and anything pending) now; otherwise they wait for the next invoice.

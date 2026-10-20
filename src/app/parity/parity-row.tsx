@@ -4,7 +4,7 @@ import { useState } from "react";
 import { formatMoney, type Invoice } from "@/lib/billing";
 
 type StripeInvoice = { id: string; date: string; currency: string; lines: { description: string; amount: number; proration: boolean }[]; total: number };
-type Evidence = { verified_at: string; match: boolean; test_clock: string; stripe: StripeInvoice[] } | null;
+type Evidence = { verified_at: string; match: boolean; test_clock: string; stripe_api_version: string; stripe: StripeInvoice[] } | null;
 type Live = { match: boolean; diffs: { invoice: number; field: string }[]; stripe: StripeInvoice[]; test_clock: string; ran_at: string };
 
 export function ParityRow({ id, title, tera, record }: { id: string; title: string; tera: Invoice[]; record: Evidence }) {
@@ -85,6 +85,18 @@ export function ParityRow({ id, title, tera, record }: { id: string; title: stri
             })}
           </tbody>
         </table>
+      )}
+      {open && stripe && (
+        // The Stripe objects behind the evidence, so anyone with access to the test account can look them up.
+        <p className="mt-2 text-xs opacity-70" data-testid={`parity-${id}-evidence`}>
+          Stripe test clock <code>{live?.test_clock ?? record?.test_clock}</code> · invoices{" "}
+          {stripe.map((s) => (
+            <code key={s.id} className="mr-1">
+              {s.id}
+            </code>
+          ))}
+          {record && !live && <> · API {record.stripe_api_version}</>}
+        </p>
       )}
     </li>
   );

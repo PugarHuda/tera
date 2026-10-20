@@ -3808,6 +3808,325 @@
       ],
       "expect_status": "canceled",
       "parity": "golden/parity/S73.json"
+    },
+    {
+      "id": "S74",
+      "status": "verified",
+      "rules": [
+        "R20"
+      ],
+      "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over one interval from the start",
+      "timeline": [
+        {
+          "at": "2027-02-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_cycle_anchor": "2027-03-05T00:00:00Z"
+        },
+        {
+          "at": "2027-04-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Start 02-10, anchor 03-05. The stub divides by one month counted from the start, 02-10 -> 03-10 (28 days, not 31). 23 days to the anchor: round(7900*23/28) = 6489, a proration. Then the anchor day: 03-05 and 04-05 at 7900.",
+      "expect": [
+        {
+          "date": "2027-02-10",
+          "lines": [
+            6489
+          ],
+          "total": 6489
+        },
+        {
+          "date": "2027-03-05",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-04-05",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S74.json"
+    },
+    {
+      "id": "S75",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R5"
+      ],
+      "title": "A once coupon is used up by the first-billing-date proration; the first full invoice is full price",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_y",
+          "coupon": "SAVE20",
+          "billing_cycle_anchor": "2027-07-01T00:00:00Z"
+        },
+        {
+          "at": "2027-08-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 07-01: yearly period 2026-07-01 -> 2027-07-01 (365 d), 172 days left on 01-10. Prorate with the coupon: round(29000*172/365) = 13666 - round(5800*172/365) = 2733 = 10933. SAVE20 (once) prices that charge, so it is used up: 07-01 bills 29000 with no discount.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            10933
+          ],
+          "discount": 0,
+          "total": 10933
+        },
+        {
+          "date": "2027-07-01",
+          "lines": [
+            29000
+          ],
+          "discount": 0,
+          "total": 29000
+        }
+      ],
+      "parity": "golden/parity/S75.json"
+    },
+    {
+      "id": "S76",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R16"
+      ],
+      "title": "Flexible: an upgrade before the first billing date credits the stub debit over its own days",
+      "timeline": [
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "billing_cycle_anchor": "2027-01-31T00:00:00Z",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-25T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 01-31: period 12-31 -> 01-31 (31 d). 01-20 stub: round(2900*11/31) = 1029. 01-25 pro_m: credit the 1029 debit over 6 of its 11 days, -round(1029*6/11) = -561; debit round(7900*6/31) = 1529, pending. 01-31: -561 + 1529 + 7900 = 8868. The anchor day 31 clamps to 02-28: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-20",
+          "lines": [
+            1029
+          ],
+          "total": 1029
+        },
+        {
+          "date": "2027-01-31",
+          "lines": [
+            -561,
+            1529,
+            7900
+          ],
+          "total": 8868
+        },
+        {
+          "date": "2027-02-28",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S76.json"
+    },
+    {
+      "id": "S77",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R6"
+      ],
+      "title": "First-billing-date stub is prorated over one interval counted from the start (05-31 -> 06-30), not the period ending on the anchor (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-05-31T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "tax_rate": "vat20_in",
+          "billing_cycle_anchor": "2028-06-13T00:00:00Z"
+        },
+        {
+          "at": "2028-07-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Start 05-31: one month from it is 06-30 (June has 30 days), so the stub divides by 30, not by 05-13 -> 06-13's 31. 13 days to the anchor: round(23700*13/30) = 10270, inclusive VAT round(10270*20/120) = 1712. Then 06-13 and 07-13: 23700, VAT 3950.",
+      "expect": [
+        {
+          "date": "2028-05-31",
+          "lines": [
+            10270
+          ],
+          "tax": 1712,
+          "total": 10270
+        },
+        {
+          "date": "2028-06-13",
+          "lines": [
+            23700
+          ],
+          "tax": 3950,
+          "total": 23700
+        },
+        {
+          "date": "2028-07-13",
+          "lines": [
+            23700
+          ],
+          "tax": 3950,
+          "total": 23700
+        }
+      ],
+      "parity": "golden/parity/S77.json"
+    },
+    {
+      "id": "S78",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R5",
+        "R6"
+      ],
+      "title": "Flexible: a period made free by an amount_off coupon is still credited, as a $0 line (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-06-05T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 4,
+          "coupon": "FIFTYOFF",
+          "tax_rate": "vat20_in",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-06-28T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 5,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-07-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "06-05: 4 x 1200 = 4800 less FIFTYOFF ($50 once, capped at 4800): 0. 06-28 pro_m x5 always_invoice, 7 of 30 days left: credit the debit gross and discount apart, round(4800*7/30) - round(4800*7/30) = 0, kept as a $0 line; debit round(39500*7/30) = 9217 (the once coupon is used). Invoiced now: 0 + 9217, inclusive VAT round(9217/6) = 1536. 07-05: 39500, VAT 6583.",
+      "expect": [
+        {
+          "date": "2027-06-05",
+          "lines": [
+            4800
+          ],
+          "discount": 4800,
+          "total": 0
+        },
+        {
+          "date": "2027-06-28",
+          "lines": [
+            0,
+            9217
+          ],
+          "tax": 1536,
+          "total": 9217
+        },
+        {
+          "date": "2027-07-05",
+          "lines": [
+            39500
+          ],
+          "tax": 6583,
+          "total": 39500
+        }
+      ],
+      "parity": "golden/parity/S78.json"
+    },
+    {
+      "id": "S79",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R20",
+        "R15"
+      ],
+      "title": "A percent coupon on a proration charge comes off the rounded gross: 28542 x 25% = 7135.5 -> 7136 (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-02T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "FOREVER25",
+          "tax_rate": "vat20_in",
+          "billing_cycle_anchor": "2027-01-21T00:00:00Z"
+        },
+        {
+          "at": "2027-01-16T00:00:00Z",
+          "type": "reset_anchor",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-19T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "quantity": 4
+        },
+        {
+          "at": "2027-02-18T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-02 stub to the 01-21 anchor over 01-02 -> 02-02 (31 d), 19 days: gross round(2900*19/31) = 1777, 25% of it round(444.25) = 444: 1333 (VAT incl. 222). 01-16 anchor reset with none: a full period now, 2900 - 725 = 2175, no credit. Period 01-16 -> 02-16. 01-19 pro_m x4, 28 of 31 days left: credit what was paid, -round(2175*28/31) = -1965; charge gross round(31600*28/31) = 28542, discount 25% of 28542 = 7135.5 -> 7136 (not round(7900*28/31) = 7135): 21406. 02-16: -1965 + 21406 + 31600 = 51041, discount 7900, total 43141, VAT incl. round(43141/6) = 7190.",
+      "expect": [
+        {
+          "date": "2027-01-02",
+          "lines": [
+            1333
+          ],
+          "tax": 222,
+          "total": 1333
+        },
+        {
+          "date": "2027-01-16",
+          "lines": [
+            2900
+          ],
+          "discount": 725,
+          "total": 2175
+        },
+        {
+          "date": "2027-02-16",
+          "lines": [
+            -1965,
+            21406,
+            31600
+          ],
+          "discount": 7900,
+          "tax": 7190,
+          "total": 43141
+        }
+      ],
+      "parity": "golden/parity/S79.json"
     }
   ]
 }

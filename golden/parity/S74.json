@@ -1,0 +1,66 @@
+{
+  "id": "S74",
+  "title": "Bill on a fixed day: billing_cycle_anchor at creation prorates the time until the first billing date over the period ending on it",
+  "verified_at": "2026-10-18T16:46:03.998Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URxDC2QR5nixgqNWDxDA76x",
+  "customer": "cus_VSszTpCSIKgYjF",
+  "stripe": [
+    {
+      "id": "in_1URxDD2QR5nixgqNATO5h8pZ",
+      "date": "2027-02-10",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera pro_m after 10 Feb 2027",
+          "amount": 6489,
+          "proration": true
+        }
+      ],
+      "subtotal": 6489,
+      "discount": 0,
+      "tax": 0,
+      "total": 6489,
+      "amount_due": 6489,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxDJ2QR5nixgqNyrwcfKrJ",
+      "date": "2027-03-05",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URxDb2QR5nixgqN47tIJPUO",
+      "date": "2027-04-05",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}
