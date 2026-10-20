@@ -130,7 +130,8 @@ for (const mode of BILLING_MODES) describe(`invariants on 5000 random ${mode} ti
     for (const r of runs) if (r.error) expect(r.error.constructor, `seed ${r.seed}: ${r.error.message}`).toBe(Error);
   });
 
-  it("I1 totals add up, I6 amount due and credit carry over between invoices", () => {
+  // ~5 s over every generated seed; under load it once hit the 5 s default timeout.
+  it("I1 totals add up, I6 amount due and credit carry over between invoices", { timeout: 30_000 }, () => {
     for (const r of runs) {
       let balance = 0;
       // ponytail: a balance adjustment (R23) moves the starting balance between invoices; the carry check is skipped

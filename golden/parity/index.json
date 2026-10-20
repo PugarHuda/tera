@@ -1143,6 +1143,118 @@
     ]
   },
   {
+    "id": "S109",
+    "title": "Inclusive tax at an exact half-cent tie with a credit line: each line's tax is truncated at 12 decimals, so 849.5 rounds to 850 (found by fuzzing)",
+    "verified_at": "2026-10-20T05:04:36.746Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USVDM2QR5nixgqNhgvBTBzM",
+    "customer": "cus_VTS7B3JhBmN6nh",
+    "stripe": [
+      {
+        "id": "in_1USVDN2QR5nixgqNl8OJ3TK6",
+        "date": "2027-06-30",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "2 × Tera pro_m (at $79.00 / month)",
+            "amount": 15800,
+            "proration": false
+          }
+        ],
+        "subtotal": 15800,
+        "discount": 0,
+        "tax": 2633,
+        "total": 15800,
+        "amount_due": 15800,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDY2QR5nixgqN6dgeC48G",
+        "date": "2027-07-30",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 31600,
+        "discount": 0,
+        "tax": 5267,
+        "total": 31600,
+        "amount_due": 31600,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDj2QR5nixgqNNuM16hM6",
+        "date": "2027-08-04",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 4 × Tera pro_m after 04 Aug 2027",
+            "amount": -26503,
+            "proration": true
+          },
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 5097,
+        "discount": 0,
+        "tax": 850,
+        "total": 5097,
+        "amount_due": 5097,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDo2QR5nixgqNq1oSFSe6",
+        "date": "2027-08-25",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 4 × Tera pro_m after 25 Aug 2027",
+            "amount": -10194,
+            "proration": true
+          },
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 21406,
+        "discount": 0,
+        "tax": 3568,
+        "total": 21406,
+        "amount_due": 21406,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDs2QR5nixgqNU8dcP6wO",
+        "date": "2027-09-25",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "4 × Tera pro_m (at $79.00 / month)",
+            "amount": 31600,
+            "proration": false
+          }
+        ],
+        "subtotal": 31600,
+        "discount": 0,
+        "tax": 5267,
+        "total": 31600,
+        "amount_due": 31600,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
     "id": "S11",
     "title": "SAVE20 applied twice right after subscribing discounts the next invoice once",
     "verified_at": "2026-10-17T18:28:38.241Z",
@@ -1187,6 +1299,77 @@
         "total": 2320,
         "amount_due": 2320,
         "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S110",
+    "title": "Inclusive tax at an exact half-cent tie on a negative invoice: lines are rounded down at 12 decimals, so -12150.5 rounds to -12151 (found by fuzzing)",
+    "verified_at": "2026-10-20T05:04:15.507Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USVDM2QR5nixgqNxv65xBtb",
+    "customer": "cus_VTS7vNFBu1NKJk",
+    "stripe": [
+      {
+        "id": "in_1USVDO2QR5nixgqNXfyi0WYp",
+        "date": "2028-02-29",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera pro_y (at $290.00 / year)",
+            "amount": 87000,
+            "proration": false
+          }
+        ],
+        "subtotal": 87000,
+        "discount": 0,
+        "tax": 14500,
+        "total": 87000,
+        "amount_due": 87000,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDT2QR5nixgqNYTV0JeBw",
+        "date": "2028-03-26",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 3 × Tera pro_y after 26 Mar 2028",
+            "amount": -80803,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": -72903,
+        "discount": 0,
+        "tax": -12151,
+        "total": -72903,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVDa2QR5nixgqNoYmwa9Sj",
+        "date": "2028-04-26",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 1317,
+        "total": 7900,
+        "amount_due": 0,
+        "starting_balance": -72903
       }
     ]
   },

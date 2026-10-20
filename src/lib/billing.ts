@@ -123,17 +123,20 @@ const MAX_AMOUNT = 1e12;
 const E12 = 10n ** 12n;
 const divRound = (a: bigint, b: bigint) => (a < 0n ? -1n : 1n) * ((2n * (a < 0n ? -a : a) + b) / (2n * b));
 const divFloor = (a: bigint, b: bigint) => (a < 0n ? -((-a + b - 1n) / b) : a / b);
+const divTrunc = (a: bigint, b: bigint) => a / b;
 
 // R6 inclusive tax, Stripe's "invoice level" tax rounding (docs.stripe.com/billing/taxes/tax-rates#rounding): each
-// line's taxable amount, amount / (1 + rate), is kept to 12 decimals (rounded down), the taxable amounts are summed,
-// the rate is applied to that sum, and the result is rounded once, half away from zero. The 12-decimal floor decides
-// ties: 1019 + 7900 -> 849.1666… + 6583.3333… = 7432.4999…, tax 1486 (fuzz seed 70012), while 387 = -322.5 + 645
-// is a true tie, 65 (S90); -32258 + 51613 + 64000 JPY sums to 69462.4999…, tax 13892 (S93), in either billing mode.
+// line's tax, amount x rate / (1 + rate), is kept to 12 decimals, the line taxes are summed and the sum is rounded
+// once, half away from zero. The 12th-decimal cut only matters at an exact half cent, and it goes toward zero on a
+// positive invoice but down on a negative one: 1019 + 7900 -> 169.833333333333 + 1316.666666666666 = 1486.499…, tax
+// 1486 (fuzz seed 70012); -26503 + 31600 -> 849.5, 850 (S109); -80803 + 7900 -> -12150.500…01, -12151 (S110);
+// -387 + 774 -> -64.5 + 129 = 64.5 is a true tie, 65 (S90). Fits every tie Stripe produced in 24 fuzz replays where rules differ.
 function inclusiveTax(amounts: number[], percentage: number): number {
   const p = BigInt(Math.round(percentage * 1e4)); // ponytail: Stripe allows 4 decimals on a percentage
   const base = 100n * 10_000n;
-  const taxable = amounts.reduce((sum, a) => sum + divFloor(BigInt(a) * E12 * base, base + p), 0n);
-  return Number(divRound(taxable * p, base * E12));
+  const neg = amounts.reduce((a, b) => a + b, 0) < 0;
+  const tax = amounts.reduce((sum, a) => sum + (neg ? divFloor : divTrunc)(BigInt(a) * E12 * p, base + p), 0n);
+  return Number(divRound(tax, E12));
 }
 export function prorated(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number): number {
   const [n, d] = [BigInt(num), BigInt(den)];
