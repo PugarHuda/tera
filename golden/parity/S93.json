@@ -1,0 +1,58 @@
+{
+  "id": "S93",
+  "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
+  "verified_at": "2026-10-19T06:05:07.208Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1US9gg2QR5nixgqN2hXW2MA2",
+  "customer": "cus_VT5sAT9LPcIwl7",
+  "stripe": [
+    {
+      "id": "in_1US9gi2QR5nixgqNG18wHLIC",
+      "date": "2028-07-06",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "5 × Tera premium_m_jpy (at ¥8,000 / month)",
+          "amount": 40000,
+          "proration": false
+        }
+      ],
+      "subtotal": 40000,
+      "discount": 0,
+      "tax": 6667,
+      "total": 40000,
+      "amount_due": 40000,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US9gq2QR5nixgqNbhiXtPLD",
+      "date": "2028-08-06",
+      "currency": "jpy",
+      "lines": [
+        {
+          "description": "Unused time on 5 × Tera premium_m_jpy after 12 Jul 2028",
+          "amount": -32258,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 8 × Tera premium_m_jpy after 12 Jul 2028",
+          "amount": 51613,
+          "proration": true
+        },
+        {
+          "description": "8 × Tera premium_m_jpy (at ¥8,000 / month)",
+          "amount": 64000,
+          "proration": false
+        }
+      ],
+      "subtotal": 83355,
+      "discount": 0,
+      "tax": 13892,
+      "total": 83355,
+      "amount_due": 83355,
+      "starting_balance": 0
+    }
+  ]
+}

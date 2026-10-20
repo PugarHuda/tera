@@ -1,0 +1,71 @@
+{
+  "id": "S84",
+  "title": "Flexible: pausing a discounted, multi-seat subscription mid-day credits gross and discount rounded apart",
+  "verified_at": "2026-10-19T05:08:40.712Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1US8o02QR5nixgqNPPtiF8QG",
+  "customer": "cus_VT4x1h2Fd60XH8",
+  "stripe": [
+    {
+      "id": "in_1US8o12QR5nixgqNKkkVjUo5",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 23700,
+      "discount": 5925,
+      "tax": 0,
+      "total": 17775,
+      "amount_due": 17775,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US8o82QR5nixgqNBaIpX429",
+      "date": "2027-01-25",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 3 × Tera pro_m (with 25.0% off) after 20 Jan 2027",
+          "amount": -6594,
+          "proration": true
+        },
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 17106,
+      "discount": 5925,
+      "tax": 0,
+      "total": 11181,
+      "amount_due": 11181,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US8oF2QR5nixgqNm9pTeS7i",
+      "date": "2027-02-25",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "3 × Tera pro_m (at $79.00 / month)",
+          "amount": 23700,
+          "proration": false
+        }
+      ],
+      "subtotal": 23700,
+      "discount": 5925,
+      "tax": 0,
+      "total": 17775,
+      "amount_due": 17775,
+      "starting_balance": 0
+    }
+  ]
+}

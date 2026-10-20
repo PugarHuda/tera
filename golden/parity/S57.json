@@ -1,15 +1,15 @@
 {
   "id": "S57",
   "title": "A coupon applied at the exact renewal instant discounts the next invoice, not that renewal (found by fuzzing)",
-  "verified_at": "2026-10-18T06:27:49.924Z",
+  "verified_at": "2026-10-19T06:23:27.799Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URnYt2QR5nixgqN3axvgHmY",
-  "customer": "cus_VSj0gzPG6oXjaI",
+  "test_clock": "clock_1US9y72QR5nixgqN0l20he0w",
+  "customer": "cus_VT6ABpkqkoO776",
   "stripe": [
     {
-      "id": "in_1URnYv2QR5nixgqNLguKkEbm",
+      "id": "in_1US9y92QR5nixgqNZLUjl2aM",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnZ42QR5nixgqNBCvjwYXr",
+      "id": "in_1US9yO2QR5nixgqNzU4SLxNR",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URnZK2QR5nixgqN9QrJzVZi",
+      "id": "in_1US9yd2QR5nixgqN03MErBeP",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [

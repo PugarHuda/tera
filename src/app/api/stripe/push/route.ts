@@ -1,7 +1,8 @@
-import { badRequest, parseCatalog } from "@/lib/validate";
+import { badRequest, methodNotAllowed, parseCatalog } from "@/lib/validate";
 import { pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
 
 export const maxDuration = 120;
+export const GET = methodNotAllowed("POST");
 
 // FR5: create (or reuse) the catalog's products, prices, coupons and tax rates in Stripe test mode.
 let lastPush = 0;
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
   lastPush = Date.now();
   try {
     const ids = await pushCatalogOnce(stripeClient(), catalog);
-    return Response.json({ prices: ids.prices, coupons: ids.coupons, taxRates: ids.taxRates });
+    return Response.json(ids);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }

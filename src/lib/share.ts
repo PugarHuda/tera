@@ -4,7 +4,10 @@ import { parseCatalog, parseTimeline } from "./validate";
 
 export function encodeJson(value: unknown): string {
   const bytes = new TextEncoder().encode(JSON.stringify(value));
-  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  // Spreading every byte into fromCharCode overflows the call stack on long timelines; go in chunks.
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 export const encodeTimeline = (timeline: TimelineEvent[]) => encodeJson(timeline);

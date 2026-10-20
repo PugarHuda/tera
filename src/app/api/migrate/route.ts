@@ -1,5 +1,7 @@
 import { migrate } from "@/lib/billing";
-import { badRequest, parseMigration } from "@/lib/validate";
+import { badRequest, methodNotAllowed, parseMigration } from "@/lib/validate";
+
+export const GET = methodNotAllowed("POST");
 
 export async function POST(req: Request) {
   try {

@@ -49,6 +49,7 @@ export type TimelineEvent = {
     | "reset_anchor"
     | "remove_coupon"
     | "cancel_at"
+    | "pause"
     | "advance_to";
   price?: string;
   quantity?: number;
@@ -56,7 +57,8 @@ export type TimelineEvent = {
   tax_rate?: string;
   trial_days?: number;
   proration_behavior?: ProrationBehavior;
-  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20). */
+  /** subscribe: first billing date (Stripe `billing_cycle_anchor`), ISO-8601 UTC; the time before it is prorated (R20).
+   *  resume of a paused subscription: "now" (default, a new period starts) or "unchanged" (R21). */
   billing_cycle_anchor?: string;
   /** cancel_at: when the subscription ends (Stripe `cancel_at`), ISO-8601 UTC. */
   cancel_at?: string;
@@ -87,7 +89,7 @@ export type Invoice = {
 
 export type SimulationResult = {
   invoices: Invoice[];
-  status: "active" | "trialing" | "canceled" | "none";
+  status: "active" | "trialing" | "paused" | "canceled" | "none";
   canceled_at: string | null;
 };
 
@@ -103,6 +105,8 @@ export const minimumCharge = (currency: string) => MIN_CHARGE[currency.toLowerCa
 
 // R1: round half away from zero (Math.round rounds -0.5 toward +inf).
 export const roundMinor = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
+// R6: the tax in one amount, rounded once (half away from zero, S90: 64.5 -> 65).
+const taxOf = (amount: number, r: TaxRate) => roundMinor((amount * r.percentage) / (r.behavior === "exclusive" ? 100 : 100 + r.percentage));
 
 // R3: Stripe prorates the unit price to a 12-place decimal first, then multiplies by quantity and the paid rate,
 // so `(qty × unit × rate − off) × num/den` is rounded once but from that decimal: 7900 × 19/30 = 5003.333333333333,
@@ -125,9 +129,14 @@ const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
 // R3/R5: a proration charge for num/den of a period, as Stripe prices it with a coupon still active: the gross from
 // the 12-decimal prorated unit price, less the discount, each rounded. A percent discount is taken off the *rounded*
 // gross: 28542 x 25% = 7135.5 -> 7136 gives 21406 (fuzz 45005); 3135 x 25% = 783.75 -> 784 gives 2351 (S42). An
-// amount_off discount is prorated itself: round(1000 x f).
-export function chargeOf(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number) {
+// amount_off discount is prorated itself: round(1000 x f). Flexible billing mode instead rounds the discount from the
+// unrounded gross, like its credits: 865.96 x 25% = 216.49 -> 216 (fuzz seeds 60013, 60105; S88, S89).
+export function chargeOf(item: { unit: number; qty: number }, paid: { rate: number; off: number }, num: number, den: number, flexible = false) {
   const gross = prorated(item, FULL_RATE, num, den);
+  if (flexible) {
+    const discount = prorated(item, { rate: 1 - paid.rate, off: -paid.off }, num, den);
+    return { gross, discount, amount: gross - discount };
+  }
   const pct = BigInt(Math.round((1 - paid.rate) * 1e6)); // ponytail: percent_off with ≤4 decimals is exact
   const discount = Number(divRound(BigInt(gross) * pct, 1_000_000n)) + prorated({ unit: Math.round(paid.off), qty: 1 }, FULL_RATE, num, den);
   return { gross, discount, amount: gross - discount };
@@ -148,7 +157,7 @@ type Sub = {
   anchorDay: number;
   periodStart: number;
   periodEnd: number;
-  status: "active" | "trialing" | "canceled";
+  status: "active" | "trialing" | "paused" | "canceled";
   cancelAtPeriodEnd: boolean;
   /** R19: Stripe `cancel_at`, and the proration behavior it was set with. */
   cancelAt: number | null;
@@ -166,6 +175,9 @@ type Sub = {
   anchor: number;
   /** Flexible: what each still-unexpired span was debited (gross and its discount), credited back on a change. */
   debits: Debit[];
+  /** Flexible: time already paid for by a debit Stripe will not charge again on resume: the period an unprorated (`none`)
+   *  change was made in, or the period a `none` pause did not credit (R21). */
+  coveredUntil?: number;
 };
 
 /** A span debited as `item` at discount `paid`; amounts are recomputed from the unit price, like R3. */
@@ -209,6 +221,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
 
   // Draft invoices finalize once time moves past them, with the discount they were created with: a coupon
   // applied or removed at the renewal instant changes the next invoice, not this one (S57).
+  // Flexible credits: the tax their original debit was charged, prorated (set by creditDebits, read by finalize).
+  const creditTax = new WeakMap<InvoiceLine, number>();
+
   const finalize = () => {
     if (!draft || !sub) return;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
@@ -227,17 +242,21 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       sub.paid = !c ? FULL : c.percent_off != null ? { rate: 1 - c.percent_off / 100, off: 0 } : { rate: 1, off: discount };
     }
     const taxable = subtotal - discount;
+    // The invoice discount spread over its discountable lines (one, in practice), for per-line tax.
+    const share = (l: InvoiceLine) => (discountable === 0 ? 0 : roundMinor((discount * l.amount) / discountable));
     let tax = 0;
     let total = taxable;
     const r = sub.taxRate;
     // R6: a negative (credit) invoice carries negative tax too.
     if (r && taxable !== 0) {
-      if (r.behavior === "exclusive") {
-        tax = roundMinor((taxable * r.percentage) / 100);
-        total = taxable + tax;
-      } else {
-        tax = roundMinor((taxable * r.percentage) / (100 + r.percentage));
-      }
+      // R16/R6 flexible inclusive tax is per line, and a credit refunds the tax its original debit was charged,
+      // prorated: -round(6667 x 25/31) = -5377, not the 5376.33 a fresh computation rounds to (fuzz seed 60124, S93).
+      // Exclusive tax stays one computation on the total (757.7 -> 758, seeds 61019 and 61030, S94).
+      tax =
+        sub.mode === "flexible" && r.behavior === "inclusive"
+          ? draft.lines.reduce((a, l) => a + (creditTax.get(l) ?? taxOf(l.proration ? l.amount : l.amount - share(l), r)), 0)
+          : taxOf(taxable, r);
+      if (r.behavior === "exclusive") total = taxable + tax;
     }
     // R10: a negative invoice becomes credit; credit is consumed by later invoices. R18: an amount due below
     // Stripe's minimum charge is not collected; it is carried as a debit balance onto the next invoice (fuzz 41031).
@@ -266,8 +285,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // (subscription creation, always_invoice, interval change) are finalized immediately.
   const openInvoice = (s: Sub, at: number, lines: InvoiceLine[], immediate = false) => {
     const pending = draft;
+    if (!immediate) {
+      // A renewal draft claims a live "once" coupon when it is created, so a change at the same instant is not
+      // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
+      const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
+      draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon } };
+      if (claims) s.coupon!.remaining -= 1;
+      return;
+    }
     draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon };
-    if (!immediate) return;
     finalize();
     // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
     // amount due can use the credit this invoice creates.
@@ -287,7 +313,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   const renewUntil = (t: number) => {
-    while (sub && sub.status !== "canceled" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
+    // R21: a paused subscription generates no invoices until it resumes.
+    while (sub && sub.status !== "canceled" && sub.status !== "paused" && Math.min(sub.periodEnd, sub.cancelAt ?? Infinity) <= t) {
       finalize();
       const s: Sub = sub;
       if (s.cancelAt !== null && s.cancelAt <= s.periodEnd) {
@@ -342,7 +369,6 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // A "once" coupon that prices that charge is used up by it (the next invoice is not discounted).
   const prorate = (s: Sub, at: number, old: Item, charge = true): InvoiceLine[] => {
     const [num, den] = [s.periodEnd - at, s.periodEnd - s.periodStart];
-    const f = num / den;
     const c = liveCoupon(s, at);
     const next = charge ? item(s) : { unit: 0, qty: 0 };
     const newAmount = next.unit * next.qty;
@@ -433,6 +459,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const p = price(s.priceId);
         if (s.mode === "flexible") {
           flexibleChange(s, at, p.interval !== oldInterval, e.proration_behavior);
+          if (e.proration_behavior === "none") s.coveredUntil = s.periodEnd;
           break;
         }
         if (p.interval !== oldInterval) {
@@ -472,9 +499,30 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         break;
       }
       case "resume": {
-        // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
         const r = active(e.type);
+        if (r.status === "paused") {
+          resumePaused(r, at, e);
+          break;
+        }
+        // R8: undoing a scheduled cancellation (at period end or cancel_at); the subscription renews as before.
         [r.cancelAtPeriodEnd, r.cancelAt] = [false, null];
+        break;
+      }
+      case "pause": {
+        // R21: Stripe's pause (API 2026-09-30.endive) stops invoicing now. Flexible billing mode only, and not in a
+        // trial. The period ends now; unused time is credited from each original debit like any flexible credit
+        // (pending by default = invoicing_behavior pending_invoice_item; always_invoice = invoice; none =
+        // bill_for.unused_time_from none), so a coupon-priced debit refunds net of its discount (S84).
+        const s = active(e.type);
+        if (s.mode !== "flexible") throw new Error("pause needs flexible billing mode (Stripe rejects pausing a classic subscription)");
+        if (s.status === "trialing") throw new Error("pause during a trial: Stripe rejects it; use end_trial first");
+        if (price(s.priceId).usage_type === "metered") throw new Error("pause with a metered price is not modelled");
+        if (s.cancelAtPeriodEnd || s.cancelAt !== null) throw new Error("pause with a scheduled cancellation is not modelled: resume it first");
+        if (e.proration_behavior !== "none") bill(s, at, creditDebits(s, at), e.proration_behavior);
+        else s.coveredUntil = Math.max(s.coveredUntil ?? 0, s.periodEnd);
+        s.debits = [];
+        s.periodEnd = at;
+        s.status = "paused";
         break;
       }
       case "end_trial": {
@@ -524,6 +572,55 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
   finalize();
 
+  // R21: resume a paused subscription. billing_cycle_anchor "now" (Stripe's default) starts a new period now and
+  // invoices it at once with anything pending, such as the pause credit (S80). "unchanged" keeps the old anchor: the
+  // period containing `at` is charged from now to its end as a proration, left pending for the next renewal (S81).
+  function resumePaused(s: Sub, at: number, e: TimelineEvent) {
+    const anchor = e.billing_cycle_anchor ?? "now";
+    if (anchor !== "now" && anchor !== "unchanged") throw new Error('resume of a paused subscription takes billing_cycle_anchor "now" or "unchanged"');
+    s.status = "active";
+    const interval = price(s.priceId).interval;
+    const covered = s.coveredUntil ?? 0;
+    if (anchor === "now") {
+      s.periodStart = at;
+      s.anchor = at;
+      s.anchorDay = new Date(at).getUTCDate();
+      s.periodEnd = addInterval(at, interval, s.anchorDay);
+      s.paid = activeDiscount(s, licensedAmount(s), at);
+      if (covered <= at) {
+        debit(s, at);
+        openInvoice(s, at, [...s.pending, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+        s.pending = [];
+        return;
+      }
+      // Part of the new period is still paid for (a `none` pause or change): nothing is invoiced now; the rest of the
+      // period is a pending proration from where that coverage ends (seed 60134: "Time on ... after 24 Mar", S91).
+      if (covered < s.periodEnd) charge(s, at, covered, e.proration_behavior);
+      return;
+    }
+    let k = 0;
+    while (addInterval(s.anchor, interval, s.anchorDay, k + 1) <= at) k++;
+    s.periodStart = addInterval(s.anchor, interval, s.anchorDay, k);
+    s.periodEnd = addInterval(s.anchor, interval, s.anchorDay, k + 1);
+    if (s.periodStart === at) throw new Error('resume with billing_cycle_anchor "unchanged" exactly on a billing date is not modelled');
+    // Open question: with a month-end anchor (day 31, period 06-30 -> 07-31) Stripe charged 8 days as 6295 of 23700,
+    // not 8/31 = 6116, and no length fits (probe M1; day 15 prorates normally, M2). Rejected rather than guessed.
+    if (s.anchorDay > 28) throw new Error('resume with billing_cycle_anchor "unchanged" on a month-end anchor (day 29-31) is not modelled');
+    s.paid = activeDiscount(s, licensedAmount(s), at);
+    // Time a debit still pays for is not charged again: after a `none` change or a `none` pause in this period,
+    // resuming in it charges nothing (S86, probes Q1, Q5, P3, seed 60105); a later period is charged (S87).
+    if (covered < s.periodEnd) charge(s, at, Math.max(at, covered), e.proration_behavior);
+  }
+
+  // Resuming: charge [from, period end) as a pending proration (the discount off the unrounded gross, S88).
+  function charge(s: Sub, at: number, from: number, behavior: ProrationBehavior | undefined) {
+    if (behavior === "none") return;
+    const parts = chargeParts(s, at, from, s.periodEnd);
+    const line = { description: "Time after resuming", amount: parts.item.unit - parts.paid.off, proration: true };
+    if (line.amount !== 0) s.debits.push(parts);
+    bill(s, at, [line], behavior);
+  }
+
   // Credit the unused time (unless "none"), move the anchor to now and invoice the full new period at once.
   function restartPeriod(s: Sub, at: number, old: Item, behavior: ProrationBehavior | undefined) {
     const credit = behavior === "none" ? [] : [prorate(s, at, old, false)[0]];
@@ -551,9 +648,13 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchor = when;
     s.anchorDay = new Date(when).getUTCDate();
     s.periodEnd = when;
-    // The stub period is as long as one interval from the start, ending on the anchor, so every proration
-    // before the anchor divides by that length.
-    s.periodStart = when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
+    // Classic: the stub period is as long as one interval from the start, ending on the anchor, so every proration
+    // before the anchor divides by that length (S77). Flexible: it is the anchor-aligned period ending on the anchor
+    // (start 03-05, anchor 03-22 in 2028: 02-22 -> 03-22 = 29 days, not 31; fuzz seeds 60008, 60015, 60035).
+    s.periodStart =
+      s.mode === "flexible"
+        ? addInterval(when, p.interval, s.anchorDay, -1)
+        : when - (addInterval(at, p.interval, new Date(at).getUTCDate()) - at);
     if (e.proration_behavior === "none") return;
     const part = chargeParts(s, at, at, when);
     const amount = part.item.unit - part.paid.off;
@@ -593,7 +694,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const [num, den] = [Math.min(d.end, until) - Math.max(at, d.start), d.end - d.start];
         const amount = prorated(d.item, FULL, num, den) - prorated(d.item, { rate: 1 - d.paid.rate, off: -d.paid.off }, num, den);
         // Kept at 0 too: a debit made free by a coupon is still credited, as a $0 line (fuzz seed 44012).
-        return { description: "Unused time", amount: 0 - amount, proration: true };
+        const line = { description: "Unused time", amount: 0 - amount, proration: true };
+        if (s.taxRate) creditTax.set(line, 0 - roundMinor((taxOf(prorated(d.item, d.paid, den, den), s.taxRate) * num) / den));
+        return line;
       });
     s.debits = [];
     return lines;
@@ -614,7 +717,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     if (behavior === "none") return;
     const credits = creditDebits(s, at, oldEnd);
     const parts = chargeParts(s, at, at, s.periodEnd);
-    const charge = prorate(s, at, { unit: 0, qty: 0 })[1];
+    const charge = { ...prorate(s, at, { unit: 0, qty: 0 })[1], amount: parts.item.unit - parts.paid.off };
     if (charge.amount !== 0) s.debits.push(parts);
     bill(s, at, [...credits, ...(charge.amount !== 0 ? [charge] : [])], behavior);
   }
@@ -639,7 +742,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // round(841.6), fuzz seed 40005).
   function chargeParts(s: Sub, at: number, from: number, to: number): Debit {
     const [num, den] = [to - from, s.periodEnd - s.periodStart];
-    const { gross, discount } = chargeOf(item(s), activeDiscount(s, licensedAmount(s), at), num, den);
+    const { gross, discount } = chargeOf(item(s), activeDiscount(s, licensedAmount(s), at), num, den, s.mode === "flexible");
     return { start: from, end: to, item: { unit: gross, qty: 1 }, paid: { rate: 1, off: discount } };
   }
 
@@ -659,6 +762,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   function active(type: string): Sub {
     if (!sub) throw new Error(`${type} before subscribe`);
     if (sub.status === "canceled") throw new Error(`${type} after the subscription was canceled on ${isoDay(canceledAt!)}`);
+    if (sub.status === "paused" && type !== "resume" && type !== "cancel_now") throw new Error(`${type} while paused is not modelled: resume first`);
     return sub;
   }
 

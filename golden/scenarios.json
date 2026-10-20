@@ -4127,6 +4127,961 @@
         }
       ],
       "parity": "golden/parity/S79.json"
+    },
+    {
+      "id": "S80",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16"
+      ],
+      "title": "Flexible: pause mid-period, resume a month later; the unused-time credit rides on the resumption invoice and the cycle restarts",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-16T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900, period 01-01 -> 02-01 (31 d). 01-16 pause (Stripe default: bill_for.unused_time_from now, invoicing_behavior pending_invoice_item): the period ends now; credit 16 of 31 days of the debit, -round(7900*16/31) = -4077, pending. No invoice on 02-01 (paused). 02-15 resume (billing_cycle_anchor now): new period 02-15 -> 03-15, invoiced at once with the pending credit: 7900 - 4077 = 3823. 03-15: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-15",
+          "lines": [
+            -4077,
+            7900
+          ],
+          "discount": 0,
+          "total": 3823
+        },
+        {
+          "date": "2027-03-15",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S80.json"
+    },
+    {
+      "id": "S81",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16",
+        "R3"
+      ],
+      "title": "Flexible: resume with billing_cycle_anchor unchanged; nothing is invoiced at resume, the rest of the cycle is prorated onto the next renewal",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-16T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-04-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-16 pause: -4077 pending (16/31). 02-15 resume, anchor unchanged (01-01): the period containing 02-15 is 02-01 -> 03-01 (28 d); the 14 days left are charged round(7900*14/28) = 3950 as a pending proration, no invoice now. 03-01 renewal: -4077 + 3950 + 7900 = 7773. 04-01: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            -4077,
+            3950,
+            7900
+          ],
+          "discount": 0,
+          "total": 7773
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S81.json"
+    },
+    {
+      "id": "S82",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R10"
+      ],
+      "title": "Flexible: pause with invoicing_behavior invoice; the credit is its own invoice and becomes customer balance",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-16T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-16 pause with always_invoice (Stripe invoicing_behavior invoice): a credit invoice now, total -4077, amount due 0, balance -4077 (R10). 02-15 resume: 7900, starting balance -4077, amount due 3823. 03-15: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-01-16",
+          "lines": [
+            -4077
+          ],
+          "discount": 0,
+          "total": -4077,
+          "starting_balance": 0,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-02-15",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900,
+          "starting_balance": -4077,
+          "amount_due": 3823
+        },
+        {
+          "date": "2027-03-15",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S82.json"
+    },
+    {
+      "id": "S83",
+      "status": "verified",
+      "rules": [
+        "R21"
+      ],
+      "title": "Flexible: pause without crediting unused time (bill_for.unused_time_from none)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-16T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-16 pause with none (Stripe bill_for.unused_time_from none): no credit. 02-15 resume: a full 7900 for 02-15 -> 03-15. 03-15: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-15",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-03-15",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S83.json"
+    },
+    {
+      "id": "S84",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16",
+        "R5"
+      ],
+      "title": "Flexible: pausing a discounted, multi-seat subscription mid-day credits gross and discount rounded apart",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible",
+          "quantity": 3,
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-20T12:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-01-25T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 3 x 7900 = 23700 less 25% = 5925, total 17775. 01-20 12:00 pause: 11.5 of 31 days unused; credit -(round(23700*11.5/31) = 8792 - round(5925*11.5/31) = 2198) = -6594, pending (Stripe: 'Unused time on 3 x pro_m (with 25.0% off)'). 01-25 resume: new period 01-25 -> 02-25; 23700 - 6594 = 17106 subtotal, the coupon discounts only the new period line: 5925, total 11181. 02-25: 17775.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            23700
+          ],
+          "discount": 5925,
+          "total": 17775
+        },
+        {
+          "date": "2027-01-25",
+          "lines": [
+            -6594,
+            23700
+          ],
+          "discount": 5925,
+          "total": 11181
+        },
+        {
+          "date": "2027-02-25",
+          "lines": [
+            23700
+          ],
+          "discount": 5925,
+          "total": 17775
+        }
+      ],
+      "parity": "golden/parity/S84.json"
+    },
+    {
+      "id": "S85",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R16",
+        "R5"
+      ],
+      "title": "Flexible: a first-billing-date stub divides by the anchor-aligned period ending on the anchor, not one interval from the start (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-03-05T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 5,
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible",
+          "billing_cycle_anchor": "2028-03-22T00:00:00Z"
+        },
+        {
+          "at": "2028-04-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Anchor 03-22: in flexible mode the stub divides by 02-22 -> 03-22 (29 days in leap 2028), where classic divides by one month from the start, 03-05 -> 04-05 (31, S77). 17 days to the anchor: gross round(6000*17/29) = 3517, 25% of the rounded gross 879.25 -> 879, charge 2638. 03-22: 6000 - 1500 = 4500. 04-22: 4500.",
+      "expect": [
+        {
+          "date": "2028-03-05",
+          "lines": [
+            2638
+          ],
+          "discount": 0,
+          "total": 2638
+        },
+        {
+          "date": "2028-03-22",
+          "lines": [
+            6000
+          ],
+          "discount": 1500,
+          "total": 4500
+        },
+        {
+          "date": "2028-04-22",
+          "lines": [
+            6000
+          ],
+          "discount": 1500,
+          "total": 4500
+        }
+      ],
+      "parity": "golden/parity/S85.json"
+    },
+    {
+      "id": "S86",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16",
+        "R14"
+      ],
+      "title": "Flexible: after an unprorated price change, resuming in the same period charges nothing for the rest of it (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-04-03T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-04-14T00:00:00Z",
+          "type": "change_price",
+          "price": "team_seat_m",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-04-28T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-04-29T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-06-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-03: 2900, period 04-03 -> 05-03 (30 d). 04-14 team_seat_m with none: nothing billed; the 2900 debit stays (R16). 04-28 pause: credit that debit for 5 of 30 days, -round(2900*5/30) = -483, pending. 04-29 resume with the anchor unchanged: the period is still 04-03 -> 05-03, the one the unprorated change was made in, and Stripe charges nothing for the 4 days left (probes Q1 and Q5, any new price). 05-03: -483 + 1200 = 717. 06-03: 1200.",
+      "expect": [
+        {
+          "date": "2027-04-03",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        },
+        {
+          "date": "2027-05-03",
+          "lines": [
+            -483,
+            1200
+          ],
+          "discount": 0,
+          "total": 717
+        },
+        {
+          "date": "2027-06-03",
+          "lines": [
+            1200
+          ],
+          "discount": 0,
+          "total": 1200
+        }
+      ],
+      "parity": "golden/parity/S86.json"
+    },
+    {
+      "id": "S87",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16",
+        "R14"
+      ],
+      "title": "Flexible: after an unprorated change, resuming in a later period charges the rest of that period as usual",
+      "timeline": [
+        {
+          "at": "2027-04-03T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-04-14T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-04-28T00:00:00Z",
+          "type": "pause"
+        },
+        {
+          "at": "2027-05-20T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-06-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-03: 2900. 04-14 pro_m with none: nothing billed. 04-28 pause: -round(2900*5/30) = -483 pending. Paused through 05-03: no renewal. 05-20 resume, anchor unchanged: period 05-03 -> 06-03 (31 d), 14 days left: round(7900*14/31) = 3568, pending. 06-03: -483 + 3568 + 7900 = 10985.",
+      "expect": [
+        {
+          "date": "2027-04-03",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "total": 2900
+        },
+        {
+          "date": "2027-06-03",
+          "lines": [
+            -483,
+            3568,
+            7900
+          ],
+          "discount": 0,
+          "total": 10985
+        }
+      ],
+      "parity": "golden/parity/S87.json"
+    },
+    {
+      "id": "S88",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R5"
+      ],
+      "title": "Flexible: the charge for resuming with an unchanged anchor takes a percent discount off the unrounded gross (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "quantity": 5,
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-03-23T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-05-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 5 x 2900 = 14500 less 25% = 3625, total 10875. 01-05 pause with none: no credit, no renewals while paused. 03-23 resume, anchor unchanged: period 03-01 -> 04-01 (31 d), 9 days left: gross 14500*9/31 = 4209.68 -> 4210; the discount is 25% of the unrounded gross, 1052.42 -> 1052 (25% of 4210 would be 1052.5 -> 1053, as a change's remaining-time charge does, S79): 3158, pending. 04-01: 3158 + 14500, coupon on the period line 3625, total 14033. 05-01: 10875.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            14500
+          ],
+          "discount": 3625,
+          "total": 10875
+        },
+        {
+          "date": "2027-04-01",
+          "lines": [
+            3158,
+            14500
+          ],
+          "discount": 3625,
+          "total": 14033
+        },
+        {
+          "date": "2027-05-01",
+          "lines": [
+            14500
+          ],
+          "discount": 3625,
+          "total": 10875
+        }
+      ],
+      "parity": "golden/parity/S88.json"
+    },
+    {
+      "id": "S89",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R15",
+        "R5"
+      ],
+      "title": "Flexible: a proration charge takes its percent discount off the unrounded gross (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "FOREVER25",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2027-03-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 2900 - 725 = 2175. 01-10 anchor reset: new period 01-10 -> 02-10 (31 d); only 02-01 -> 02-10 (9 d) is debited: gross 2900*9/31 = 841.94 -> 842, and in flexible mode the 25% comes off the unrounded gross, 210.48 -> 210 (classic takes 25% of the rounded 842, 210.5 -> 211, S79): 632, pending. 02-10: 632 + 2900, coupon 725 on the period line: 2807. 03-10: 2175.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "discount": 725,
+          "total": 2175
+        },
+        {
+          "date": "2027-02-10",
+          "lines": [
+            632,
+            2900
+          ],
+          "discount": 725,
+          "total": 2807
+        },
+        {
+          "date": "2027-03-10",
+          "lines": [
+            2900
+          ],
+          "discount": 725,
+          "total": 2175
+        }
+      ],
+      "parity": "golden/parity/S89.json"
+    },
+    {
+      "id": "S90",
+      "status": "verified",
+      "rules": [
+        "R6",
+        "R3"
+      ],
+      "title": "Inclusive tax at an exact tie rounds half away from zero: 387 incl. 20% VAT is 64.5 -> 65",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "basic_m_jpy",
+          "tax_rate": "vat20_in"
+        },
+        {
+          "at": "2027-01-28T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 2,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 3000 JPY incl. 20% VAT: tax 3000*20/120 = 500. 01-28 x2 with always_invoice, 4 of 31 days left: credit -round(3000*4/31) = -387, debit round(6000*4/31) = 774, total 387. Inclusive tax 387*20/120 = 64.5 exactly, rounded half away from zero like every amount (R1): 65. 02-01: 6000, tax 1000.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            3000
+          ],
+          "discount": 0,
+          "tax": 500,
+          "total": 3000
+        },
+        {
+          "date": "2027-01-28",
+          "lines": [
+            -387,
+            774
+          ],
+          "discount": 0,
+          "tax": 65,
+          "total": 387
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            6000
+          ],
+          "discount": 0,
+          "tax": 1000,
+          "total": 6000
+        }
+      ],
+      "parity": "golden/parity/S90.json"
+    },
+    {
+      "id": "S91",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16"
+      ],
+      "title": "Flexible: after a pause that credited nothing, resuming restarts the cycle but bills only the time the old debit does not cover (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "resume"
+        },
+        {
+          "at": "2027-03-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900, debit 01-01 -> 02-01. 01-10 pause with none: nothing credited, so that debit still pays up to 02-01. 01-20 resume (anchor now): new period 01-20 -> 02-20 (31 d), but nothing is invoiced now; only 02-01 -> 02-20 (19 d) is charged, round(7900*19/31) = 4842, pending (seed 60134: 'Time on ... after 24 Mar'). 02-20: 4842 + 7900 = 12742. 03-20: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-20",
+          "lines": [
+            4842,
+            7900
+          ],
+          "discount": 0,
+          "total": 12742
+        },
+        {
+          "date": "2027-03-20",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S91.json"
+    },
+    {
+      "id": "S92",
+      "status": "verified",
+      "rules": [
+        "R21",
+        "R16"
+      ],
+      "title": "Flexible: a pause that credited nothing, resumed in the same period with the anchor unchanged, charges nothing",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "pause",
+          "proration_behavior": "none"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "resume",
+          "billing_cycle_anchor": "unchanged"
+        },
+        {
+          "at": "2027-03-05T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900. 01-10 pause with none: no credit, the 01-01 -> 02-01 debit still pays for the period. 01-20 resume, anchor unchanged, in that same period: nothing to charge (probe P3). 02-01: 7900. 03-01: 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            7900
+          ],
+          "discount": 0,
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S92.json"
+    },
+    {
+      "id": "S93",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R6"
+      ],
+      "title": "Flexible: a credit refunds the tax its original debit was charged, so tax is per line (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-07-06T00:00:00Z",
+          "type": "subscribe",
+          "price": "premium_m_jpy",
+          "quantity": 5,
+          "tax_rate": "vat20_in",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2028-07-12T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 8
+        },
+        {
+          "at": "2028-08-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "07-06: 5 x 8000 = 40000 JPY incl. 20% VAT, tax round(40000*20/120) = round(6666.67) = 6667. 07-12 x8, 25 of 31 days left: credit -round(40000*25/31) = -32258, debit round(64000*25/31) = 51613, pending. 08-06: -32258 + 51613 + 64000 = 83355. Tax per line: the credit refunds 25/31 of the 6667 its debit was charged, -round(5376.61) = -5377; 51613 -> round(8602.17) = 8602; 64000 -> round(10666.67) = 10667; total 13892 (one computation on 83355 gives round(13892.5) = 13893, as classic does).",
+      "expect": [
+        {
+          "date": "2028-07-06",
+          "lines": [
+            40000
+          ],
+          "discount": 0,
+          "tax": 6667,
+          "total": 40000
+        },
+        {
+          "date": "2028-08-06",
+          "lines": [
+            -32258,
+            51613,
+            64000
+          ],
+          "discount": 0,
+          "tax": 13892,
+          "total": 83355
+        }
+      ],
+      "parity": "golden/parity/S93.json"
+    },
+    {
+      "id": "S94",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R6"
+      ],
+      "title": "Flexible: exclusive tax is one computation on the invoice total, not per line (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "tax_rate": "tax10_ex",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-14T00:00:00Z",
+          "type": "change_quantity",
+          "quantity": 4,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-10: 2900 + 10% = 3190. 01-14 x4 with always_invoice, 27 of 31 days left: credit -round(2900*27/31) = -2526, debit round(11600*27/31) = 10103, subtotal 7577. Exclusive tax on the total: round(757.7) = 758, total 8335 (per line it would be -253 + 1010 = 757; per-line credit refunds apply to inclusive tax only, S93). 02-10: 11600 + 1160 = 12760.",
+      "expect": [
+        {
+          "date": "2027-01-10",
+          "lines": [
+            2900
+          ],
+          "discount": 0,
+          "tax": 290,
+          "total": 3190
+        },
+        {
+          "date": "2027-01-14",
+          "lines": [
+            -2526,
+            10103
+          ],
+          "discount": 0,
+          "tax": 758,
+          "total": 8335
+        },
+        {
+          "date": "2027-02-10",
+          "lines": [
+            11600
+          ],
+          "discount": 0,
+          "tax": 1160,
+          "total": 12760
+        }
+      ],
+      "parity": "golden/parity/S94.json"
+    },
+    {
+      "id": "S95",
+      "status": "verified",
+      "rules": [
+        "R5",
+        "R16",
+        "R13"
+      ],
+      "title": "A renewal claims a once coupon when it is drafted, so a plan change at that same instant is not discounted by it (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2028-01-02T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "quantity": 3,
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2028-01-18T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "SAVE20"
+        },
+        {
+          "at": "2028-02-02T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2028-04-07T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-02: 3 x 7900 = 23700. 01-18 SAVE20 (once). 02-02 the renewal is drafted first: 23700 less 20% = 4740, and the once coupon is claimed by it. The same instant, pro_y (quantity 1, R13) with always_invoice: credit the renewal's debit for its full period, -(23700 - 4740) = -18960; the yearly period aligned to the 01-02 anchor is 2028-01-02 -> 2029-01-02 (366 d, 335 left): round(29000*335/366) = 26544, not discounted because the coupon is already claimed. That invoice is 7584 and finalizes first; then the renewal draft, 18960.",
+      "expect": [
+        {
+          "date": "2028-01-02",
+          "lines": [
+            23700
+          ],
+          "discount": 0,
+          "total": 23700
+        },
+        {
+          "date": "2028-02-02",
+          "lines": [
+            -18960,
+            26544
+          ],
+          "discount": 0,
+          "total": 7584
+        },
+        {
+          "date": "2028-02-02",
+          "lines": [
+            23700
+          ],
+          "discount": 4740,
+          "total": 18960
+        }
+      ],
+      "parity": "golden/parity/S95.json"
     }
   ]
 }

@@ -19,7 +19,13 @@ export function ParityRow({ id, title, tera, record }: { id: string; title: stri
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/parity", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: id }) });
+      const post = () => fetch("/api/parity", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: id }) });
+      let res = await post();
+      // Another visitor's replay holds the Stripe cooldown: wait it out once, as the simulator's Verify does.
+      if (res.status === 429) {
+        await new Promise((r) => setTimeout(r, Math.min(Number(res.headers.get("retry-after")) || 10, 60) * 1000));
+        res = await post();
+      }
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
       setLive(body);

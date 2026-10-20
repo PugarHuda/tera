@@ -20,6 +20,7 @@ export const EVENT_TYPES = [
   "reset_anchor",
   "remove_coupon",
   "cancel_at",
+  "pause",
   "advance_to",
 ] as const;
 
@@ -28,7 +29,14 @@ const ID = /^[A-Za-z0-9_]{1,40}$/;
 const MAX_SPAN_MS = 10 * 366 * 86_400_000;
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
 // 1970 or later: a half-typed year (0002, 0202) is not a date a subscription can have.
-const isDate = (v: unknown): v is string => typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0;
+// Date.parse rolls 2027-02-30 over to 03-02; a date that does not exist on the calendar is rejected instead.
+const isDate = (v: unknown): v is string =>
+  typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0 && new Date(v).toISOString().slice(0, 10) === v.slice(0, 10);
+// ISO 4217 codes this runtime knows (Stripe rejects made-up ones such as "zzz").
+const CURRENCIES = new Set(Intl.supportedValuesOf("currency").map((c) => c.toLowerCase()));
+const isCurrency = (v: unknown): v is string => typeof v === "string" && CURRENCIES.has(v.toLowerCase());
+// Stripe's unit_amount_decimal: a plain decimal with at most 12 places (no "Infinity", "1e400" or "0x10").
+const DECIMAL = /^\d{1,15}(\.\d{1,12})?$/;
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
 const isInt = (x: unknown, min = 0, max = 1e12): x is number => Number.isInteger(x) && (x as number) >= min && (x as number) <= max;
@@ -44,21 +52,21 @@ export function parseCatalog(x: unknown): Catalog {
   for (const [name, obj, max] of limits) {
     const keys = Object.keys(obj as object);
     if (keys.length > max) fail(`catalog.${name} is limited to ${max} entries`);
-    const bad = keys.find((k) => !ID.test(k));
+    const bad = keys.find((k) => !ID.test(k) || k === "__proto__");
     if (bad !== undefined) fail(`catalog.${name} id "${bad}" must be 1-40 letters, digits or underscores`);
   }
   if (Object.keys(x.prices).length === 0) fail("catalog.prices needs at least one price");
   for (const [id, p] of Object.entries(x.prices)) {
     const at = `catalog.prices.${id}`;
     if (!isObj(p)) fail(`${at} must be an object`);
-    if (typeof p.currency !== "string" || !/^[a-z]{3}$/i.test(p.currency)) fail(`${at}.currency must be a 3-letter ISO code`);
+    if (!isCurrency(p.currency)) fail(`${at}.currency must be an ISO 4217 currency code such as usd`);
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
       let prev = 0;
       p.tiers.forEach((t: unknown, i: number) => {
-        if (!isObj(t) || typeof t.unit_amount_decimal !== "string" || !(Number(t.unit_amount_decimal) >= 0))
-          fail(`${at}.tiers[${i}].unit_amount_decimal must be a non-negative decimal string`);
+        if (!isObj(t) || typeof t.unit_amount_decimal !== "string" || !DECIMAL.test(t.unit_amount_decimal))
+          fail(`${at}.tiers[${i}].unit_amount_decimal must be a non-negative decimal string with at most 12 decimals`);
         const last = i === (p.tiers as unknown[]).length - 1;
         if (last ? t.up_to !== null : !isInt(t.up_to, prev + 1)) fail(`${at}.tiers must ascend and end with up_to: null`);
         prev = t.up_to as number;
@@ -74,6 +82,8 @@ export function parseCatalog(x: unknown): Catalog {
       if (pct === (c.amount_off !== undefined)) fail(`${at} needs exactly one of percent_off or amount_off`);
       if (pct && !(typeof c.percent_off === "number" && c.percent_off > 0 && c.percent_off <= 100)) fail(`${at}.percent_off must be in (0, 100]`);
       if (!pct && !isInt(c.amount_off, 1)) fail(`${at}.amount_off must be a positive integer`);
+      // Stripe rejects an amount_off coupon without a currency: catch it here, not as a 502 on push.
+      if (!pct && !isCurrency(c.currency)) fail(`${at}.currency must be an ISO 4217 currency code for amount_off`);
       if (!["once", "repeating", "forever"].includes(c.duration as string)) fail(`${at}.duration must be once, repeating or forever`);
       if (c.duration === "repeating" && !isInt(c.duration_in_months, 1, 120)) fail(`${at}.duration_in_months must be 1-120`);
     }
@@ -97,12 +107,15 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (!isObj(e)) fail(`${at} must be an object`);
     if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date in 1970 or later`);
     if (!EVENT_TYPES.includes(e.type as (typeof EVENT_TYPES)[number])) fail(`${at}.type must be one of ${EVENT_TYPES.join(", ")}`);
-    if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a non-negative integer`);
+    if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a whole number from 0 to 1,000,000,000`);
     if (e.trial_days !== undefined && !isInt(e.trial_days, 1, 730)) fail(`${at}.trial_days must be 1-730`);
-    if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a positive integer`);
+    if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a whole number from 1 to 1,000,000,000`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
-    if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
+    if (e.type === "resume") {
+      if (e.billing_cycle_anchor !== undefined && e.billing_cycle_anchor !== "now" && e.billing_cycle_anchor !== "unchanged")
+        fail(`${at}.billing_cycle_anchor on resume must be "now" or "unchanged"`);
+    } else if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
     if ((e.cancel_at !== undefined || e.type === "cancel_at") && !isDate(e.cancel_at)) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
@@ -122,6 +135,7 @@ export function parseMigration(x: unknown) {
   if (typeof x.grandfather !== "boolean") fail("grandfather must be a boolean");
   if (x.interval !== undefined && x.interval !== "month" && x.interval !== "year") fail('interval must be "month" or "year"');
   if (!Array.isArray(x.customers) || x.customers.length > 100_000) fail("customers must be an array (max 100000)");
+  if (x.customers.length === 0) fail("customers needs at least one customer");
   x.customers.forEach((c: unknown, i: number) => {
     const seats = isObj(c) ? c.seats : c;
     if (!isInt(seats, 1, 1e6)) fail(`customers[${i}] needs a positive whole number of seats`);
@@ -132,6 +146,20 @@ export function parseMigration(x: unknown) {
   if (seats * Math.max(x.unit_amount as number, x.new_unit_amount as number) > 1e15) fail("unit_amount × total seats must be at most 1e15 minor units");
   return x as unknown as Parameters<typeof migrate>[0];
 }
+
+/** A BCP 47 locale for money formatting; "en_US" or "" would make Intl throw a RangeError (a 500). */
+export function parseLocale(x: unknown): string {
+  if (x === undefined) return "en-US";
+  try {
+    if (typeof x === "string" && x) {
+      new Intl.NumberFormat(x);
+      return x;
+    }
+  } catch {}
+  fail('locale must be a BCP 47 language tag such as "en-US" or "de-DE"');
+}
+
+export const methodNotAllowed = (allow: string) => () => Response.json({ error: `Method not allowed; use ${allow}` }, { status: 405, headers: { allow } });
 
 export function badRequest(e: unknown) {
   if (e instanceof BadRequest || e instanceof SyntaxError) return Response.json({ error: e.message }, { status: 400 });

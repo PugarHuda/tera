@@ -19,14 +19,14 @@ export default function McpSetup() {
       <section className="card space-y-3">
         <h2 className="font-semibold">Connect</h2>
         <p className="text-sm">Claude Code</p>
-        <pre className="overflow-x-auto rounded bg-black/80 p-3 text-xs text-white">claude mcp add --transport http tera {URL}</pre>
+        <pre tabIndex={0} className="overflow-x-auto rounded bg-black/80 p-3 text-xs text-white">claude mcp add --transport http tera {URL}</pre>
         <p className="text-sm">Cursor / Claude Desktop (mcp.json)</p>
-        <pre className="overflow-x-auto rounded bg-black/80 p-3 text-xs text-white">{JSON.stringify({ mcpServers: { tera: { url: URL } } }, null, 2)}</pre>
+        <pre tabIndex={0} className="overflow-x-auto rounded bg-black/80 p-3 text-xs text-white">{JSON.stringify({ mcpServers: { tera: { url: URL } } }, null, 2)}</pre>
       </section>
 
       <section className="card space-y-3">
-        <h2 className="font-semibold">Live tools on this deployment</h2>
-        <p className="text-sm opacity-70">Fetched right now from this deployment&apos;s /api/mcp endpoint with a JSON-RPC tools/list call.</p>
+        <h2 className="font-semibold">Live tools, resources and prompts on this deployment</h2>
+        <p className="text-sm opacity-70">Fetched right now from this deployment&apos;s /api/mcp endpoint with JSON-RPC list calls.</p>
         <ToolList />
       </section>
     </div>

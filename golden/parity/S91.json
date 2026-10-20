@@ -1,0 +1,71 @@
+{
+  "id": "S91",
+  "title": "Flexible: after a pause that credited nothing, resuming restarts the cycle but bills only the time the old debit does not cover (found by fuzzing)",
+  "verified_at": "2026-10-19T06:00:06.029Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1US9bS2QR5nixgqN5kolcoHX",
+  "customer": "cus_VT5nRTn7nLMoJ3",
+  "stripe": [
+    {
+      "id": "in_1US9bT2QR5nixgqNuPGCwHSD",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US9bp2QR5nixgqNW8Aa9YyR",
+      "date": "2027-02-20",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Time on Tera pro_m after 01 Feb 2027",
+          "amount": 4842,
+          "proration": true
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 12742,
+      "discount": 0,
+      "tax": 0,
+      "total": 12742,
+      "amount_due": 12742,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1US9c12QR5nixgqNT3nxV5mi",
+      "date": "2027-03-20",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    }
+  ]
+}
