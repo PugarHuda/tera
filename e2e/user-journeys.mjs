@@ -16,11 +16,17 @@ const type = async (loc, text) => { await loc.click(); await page.keyboard.press
 const typeDate = async (loc, mmddyyyy) => { await loc.focus(); await page.keyboard.type(mmddyyyy, { delay: 25 }); };
 const total = (n) => page.getByTestId(`invoice-${n}-total`).innerText();
 const invoices = () => page.locator("li[data-testid^=invoice-]").count();
+// Re-reads the count each time: hydration can re-render the timeline after a first count (a stale "Delete event 6"
+// timed out in CI once).
+const clearTimeline = async () => {
+  await page.getByLabel("Event 1 date").waitFor();
+  for (let n; (n = await page.locator("[aria-label^='Delete event']").count()) > 1; ) await page.getByLabel(`Delete event ${n}`).click();
+};
 
 // J1 — build a flexible, fixed-billing-day timeline from scratch in the simulator.
 await page.goto(B);
 await page.getByRole("link", { name: "Simulator" }).click();
-for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await clearTimeline();
 await typeDate(page.getByLabel("Event 1 date"), "02102027");
 await page.getByLabel("Event 1 price").selectOption("pro_m");
 await type(page.getByLabel("Event 1 quantity"), "2");
@@ -58,7 +64,7 @@ ok(/matches stripe/i.test(v), `Verify in Stripe: ${v.slice(0, 100)}`);
 
 // J1b — pause and resume a flexible subscription (R21, Stripe API 2026-09-30.endive), all by picking from dropdowns.
 await page.getByRole("link", { name: "Simulator" }).click();
-for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await clearTimeline();
 await page.getByTestId("locale-select").selectOption("en-US");
 await page.getByLabel("Event 1 billing_cycle_anchor").fill(""); // J1 left a first billing date on it
 await typeDate(page.getByLabel("Event 1 date"), "01012027");
@@ -78,7 +84,7 @@ await page.getByLabel("Event 2 proration_behavior").selectOption("always_invoice
 ok((await invoices()) === 4 && (await total(2)).includes("-$40.77"), `pause credit invoiced now: -$40.77 (${await total(2)})`);
 
 // J1c — a trial that ends without a card (R22): paused at trial end, resumed later on the old anchor.
-for (let n = await page.locator("[aria-label^='Delete event']").count(); n > 1; n--) await page.getByLabel(`Delete event ${n}`).click();
+await clearTimeline();
 await page.getByLabel("Event 1 type").selectOption("start_trial");
 await typeDate(page.getByLabel("Event 1 date"), "01102027");
 await page.getByLabel("Event 1 price").selectOption("starter_m");
