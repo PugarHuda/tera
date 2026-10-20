@@ -1,0 +1,58 @@
+{
+  "id": "S67",
+  "title": "Cancel now with a refund (prorate + invoice_now): the final invoice carries pending prorations and the unused-time credit",
+  "verified_at": "2026-10-18T15:51:58.751Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1URwMc2QR5nixgqNIHX8naWB",
+  "customer": "cus_VSs6qjGPR8Y8Zw",
+  "stripe": [
+    {
+      "id": "in_1URwMd2QR5nixgqNmrj8FxTT",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "2 × Tera team_seat_m (at $12.00 / month)",
+          "amount": 2400,
+          "proration": false
+        }
+      ],
+      "subtotal": 2400,
+      "discount": 0,
+      "tax": 0,
+      "total": 2400,
+      "amount_due": 2400,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1URwN62QR5nixgqNLVK0c9Xr",
+      "date": "2027-01-20",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on 5 × Tera team_seat_m after 20 Jan 2027",
+          "amount": -2323,
+          "proration": true
+        },
+        {
+          "description": "Unused time on 2 × Tera team_seat_m after 05 Jan 2027",
+          "amount": -2090,
+          "proration": true
+        },
+        {
+          "description": "Remaining time on 5 × Tera team_seat_m after 05 Jan 2027",
+          "amount": 5226,
+          "proration": true
+        }
+      ],
+      "subtotal": 813,
+      "discount": 0,
+      "tax": 0,
+      "total": 813,
+      "amount_due": 813,
+      "starting_balance": 0
+    }
+  ]
+}

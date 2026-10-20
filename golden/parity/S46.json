@@ -1,15 +1,15 @@
 {
   "id": "S46",
   "title": "Immediate cancel: no final invoice and pending prorations are dropped; a new subscription starts clean",
-  "verified_at": "2026-10-18T00:23:52.562Z",
+  "verified_at": "2026-10-18T15:51:53.135Z",
   "stripe_api_version": "2026-09-30.endive",
   "match": true,
   "diffs": [],
-  "test_clock": "clock_1URhsg2QR5nixgqNO7yEVDt1",
-  "customer": "cus_VSd8Ok7fjuShTQ",
+  "test_clock": "clock_1URwMc2QR5nixgqNf92OCObR",
+  "customer": "cus_VSs631glSsXUMG",
   "stripe": [
     {
-      "id": "in_1URhsh2QR5nixgqN70kzg2h4",
+      "id": "in_1URwMd2QR5nixgqNmTgURG5C",
       "date": "2027-01-01",
       "currency": "usd",
       "lines": [
@@ -27,7 +27,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URhsr2QR5nixgqN8JGBrmJk",
+      "id": "in_1URwMx2QR5nixgqNkiMvYu9J",
       "date": "2027-02-01",
       "currency": "usd",
       "lines": [
@@ -45,7 +45,7 @@
       "starting_balance": 0
     },
     {
-      "id": "in_1URht02QR5nixgqNj8ilxQhC",
+      "id": "in_1URwN82QR5nixgqNTAEha9dB",
       "date": "2027-03-01",
       "currency": "usd",
       "lines": [

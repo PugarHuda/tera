@@ -137,11 +137,18 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### R16 — Flexible billing mode
 Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexible` (16 differed), then confirmed by hand-derived goldens S58–S66 and differential fuzzing in flexible mode.
-- **Credits refund original debits.** Every span already debited (a period charge or a proration charge) is remembered with its unit price, quantity and discount. A change credits each debit still covering time after it, over that debit's own span, with gross and discount rounded **apart**, each from the 12-decimal prorated unit price: `round(unit·f·qty) − round(unit·f·qty·pct)` (S62: −4282 where one step gives −4281; S63: −11258 where classic gives −11257). After `proration_behavior = none` the old debit is what a later change credits, not the item as it is (S64, S65; the opposite of R14). A proration debit keeps its rounded gross and rounded discount, and a later credit rounds each again: 4/10 of 2806 − 702 is 1122 − 281 = 841, not round(2104 × 0.4) = 842 (S66, found by fuzzing).
+- **Credits refund original debits.** Every span already debited (a period charge or a proration charge) is remembered with its unit price, quantity and discount. A change credits each debit still covering time after it, over that debit's own span, with gross and discount rounded **apart**, each from the 12-decimal prorated unit price: `round(unit·f·qty) − round(unit·f·qty·pct)` (S62: −4282 where one step gives −4281; S63: −11258 where classic gives −11257). After `proration_behavior = none` the old debit is what a later change credits, not the item as it is (S64, S65; the opposite of R14). A proration debit keeps its rounded gross and rounded discount, and a later credit rounds each again: 4/10 of 2806 − 702 is 1122 − 281 = 841, not round(2104 × 0.4) = 842 (S66, found by fuzzing). Only time up to the item's current period end is credited: after a `none` yearly → monthly change, a later change credits the yearly debit up to the monthly period end, not to its own end (S70, found by fuzzing).
 - **The anchor never moves on its own.** An interval change keeps the anchor: the new interval's period is the one containing the change, aligned to the anchor (monthly → yearly on Jan 16 under a Jan 1 anchor debits Jan 1 → Jan 1 of the next year, S58). Nothing is invoiced at the change unless `always_invoice`; the prorations wait for the next renewal of the new interval.
 - **Anchor reset nets out.** `reset_anchor` debits only the time past the old period end, as a proration on the next invoice (S61); `none` bills nothing, so that time is never debited (and never credited later, S62); `always_invoice` invoices it now.
 - **No forced invoices.** A no-op change with `always_invoice` does not invoice pending items; a metered subscription gets no $0 invoice at creation (S59).
 - **Trials.** Any price or quantity change during a trial issues its own $0 trial invoice at once (S60).
+
+### R17 — Refund on immediate cancellation
+- `cancel_now` with `proration_behavior = always_invoice` is Stripe's `cancel` with `prorate` and `invoice_now`: a final invoice is created at once with the prorations still pending and an unused-time credit, priced as any credit in the subscription's mode (classic: the item at the rate last charged; flexible: each original debit, R16). Tax applies to the credit (R6) and a negative total becomes credit balance (R10) that a later subscription consumes (S67, S68).
+- `create_prorations` leaves the credit as a pending item on a canceled subscription: nothing is invoiced. Omitted or `none` is R8 (no final invoice). Cancelling a trial refunds nothing (nothing was paid).
+
+### R18 — Minimum charge
+- An amount due above zero but below Stripe's minimum charge (USD/EUR 0.50, GBP 0.30, JPY 50, … per docs.stripe.com/currencies) is not collected: the invoice's `amount_due` is 0 and the amount is carried as a **debit** customer balance, so the next invoice's `starting_balance` is positive and its amount due grows by it (S69: a 30-cent invoice, then 3600 + 30 = 3630). Found by fuzzing; applies in both billing modes. Stripe applies the minimum of the account's settlement currency after conversion; Tera uses the invoice currency's minimum, which is exact when they match (the reference account settles in USD).
 
 ## 5. Invariants (must hold for every simulation)
 
@@ -150,7 +157,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 - **I3** A `once` coupon discounts exactly one invoice, regardless of reloads or repeated applications.
 - **I4** Zero-decimal currencies never display a decimal separator.
 - **I5** Simulating the same timeline twice yields byte-identical invoices (deterministic).
-- **I6** Invoice periods are contiguous with no gaps or overlaps, and `amount_due` is never negative.
+- **I6** Invoice periods are contiguous with no gaps or overlaps, and `amount_due` is never negative (and is 0 or at least the minimum charge, R18).
 
 ## 6. Functional requirements
 

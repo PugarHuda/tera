@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import golden from "../../golden/scenarios.json";
-import { BILLING_MODES, formatMoney, migrate, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
+import { BILLING_MODES, formatMoney, migrate, minimumCharge, simulate, type Catalog, type MigrationCustomer, type TimelineEvent } from "./billing";
 import { generate } from "./timeline-gen";
 import { BadRequest, parseMigration, parseTimeline } from "./validate";
 
@@ -139,9 +139,12 @@ for (const mode of BILLING_MODES) describe(`invariants on 5000 random ${mode} ti
         for (const n of [inv.subtotal, inv.discount, inv.tax, inv.total, inv.amount_due]) expect(Number.isInteger(n), msg).toBe(true);
         expect(inv.discount, msg).toBeGreaterThanOrEqual(0);
         expect(inv.starting_balance, msg).toBe(balance);
-        expect(inv.amount_due, msg).toBe(Math.max(0, inv.total + balance));
+        // R18: a positive amount below the minimum charge is carried to the next invoice, never collected.
+        const owed = Math.max(0, inv.total + balance);
+        const carried = owed > 0 && owed < minimumCharge(inv.currency);
+        expect(inv.amount_due, msg).toBe(carried ? 0 : owed);
         expect(inv.period_start <= inv.period_end, msg).toBe(true);
-        balance = Math.min(0, inv.total + balance);
+        balance = carried ? owed : Math.min(0, inv.total + balance);
       }
     }
   });
