@@ -44,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </a>
             </nav>
           </header>
+          <div className="stripes h-3" aria-hidden="true" />
           <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
           <footer className="mt-8">
             <div className="stripes" aria-hidden="true" />
