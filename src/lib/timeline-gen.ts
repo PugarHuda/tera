@@ -93,6 +93,22 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
     const amount = pick([-1, 1]) * int(1, 200) * 100;
     if (when < Date.parse(events[i].at)) events.splice(i, 0, { at: new Date(when).toISOString().replace(".000", ""), type: "adjust_balance", amount });
   }
+  // R21 (S115, S117), drawn last for the same reason: a coupon applied while paused, and an unchanged resume moved onto
+  // a billing date (the anchor's day and time in the resume's month) when nothing has moved the anchor.
+  const p = events.findIndex((e) => e.type === "pause");
+  if (p >= 0 && events[p + 1]?.type === "resume") {
+    const [pause, resume] = [Date.parse(events[p].at), Date.parse(events[p + 1].at)];
+    if (r() < 0.3 && resume - pause > 2 * 86_400_000)
+      events.splice(p + 1, 0, { at: new Date(pause + 86_400_000).toISOString().replace(".000", ""), type: "apply_coupon", coupon: pick(g.coupons) });
+    const res = events.find((e) => e.type === "resume")!;
+    const moved = events.some((e) => e.type === "reset_anchor") || first.billing_cycle_anchor;
+    if (r() < 0.4 && res.billing_cycle_anchor === "unchanged" && !moved) {
+      const a = new Date(first.at), d = new Date(res.at);
+      const on = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, a.getUTCDate(), a.getUTCHours(), a.getUTCMinutes(), a.getUTCSeconds());
+      if (new Date(on).getUTCDate() === a.getUTCDate() && on < Date.parse(events.at(-1)!.at) - 86_400_000 && !events.some((e) => e !== res && Date.parse(e.at) > Date.parse(res.at) && Date.parse(e.at) <= on && e.type !== "advance_to"))
+        res.at = new Date(on).toISOString().replace(".000", "");
+    }
+  }
   return events;
 }
 
