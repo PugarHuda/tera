@@ -5971,6 +5971,140 @@
         }
       ],
       "parity": "golden/parity/S110.json"
+    },
+    {
+      "id": "S111",
+      "status": "verified",
+      "rules": [
+        "R17",
+        "R10",
+        "R3"
+      ],
+      "title": "Canceling with a final invoice at the renewal instant finalizes the renewal draft first: it is paid in full and the final credit stays on the customer balance (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-04-30T00:00:00Z",
+          "type": "start_trial",
+          "price": "team_seat_m",
+          "quantity": 5,
+          "trial_days": 16
+        },
+        {
+          "at": "2027-05-03T00:00:00Z",
+          "type": "end_trial"
+        },
+        {
+          "at": "2027-05-27T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-06-03T00:00:00Z",
+          "type": "cancel_now",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-07-21T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-30 trial, $0. 05-03 end the trial (R4): 5 x 1200 = 6000 for 05-03 -> 06-03 (31 d). 05-27 to starter_m x 1, 7 of 31 days left: credit -round(6000 x 7/31) = -1355, charge round(2900 x 7/31) = 655, pending. 06-03 00:00 the renewal draft: -1355 + 655 + 2900 = 2200. At the same instant cancel_now with a final invoice: canceling finalizes the renewal draft first, from a 0 balance, so 2200 is due; then the final invoice credits the whole new period, -2900, which leaves 0 due and -2900 on the customer balance. Both invoices are created in the same second and listed newest first: the credit, then the renewal.",
+      "expect": [
+        {
+          "date": "2027-04-30",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-05-03",
+          "lines": [
+            6000
+          ],
+          "total": 6000
+        },
+        {
+          "date": "2027-06-03",
+          "lines": [
+            -2900
+          ],
+          "total": -2900,
+          "starting_balance": 0,
+          "amount_due": 0
+        },
+        {
+          "date": "2027-06-03",
+          "lines": [
+            -1355,
+            655,
+            2900
+          ],
+          "total": 2200,
+          "starting_balance": 0,
+          "amount_due": 2200
+        }
+      ],
+      "parity": "golden/parity/S111.json"
+    },
+    {
+      "id": "S112",
+      "status": "verified",
+      "rules": [
+        "R20",
+        "R5",
+        "R3"
+      ],
+      "title": "A first-billing-date stub a once coupon made free is credited at what was paid, $0, not at full price (found by fuzzing)",
+      "timeline": [
+        {
+          "at": "2027-04-05T00:00:00Z",
+          "type": "subscribe",
+          "price": "team_seat_m",
+          "quantity": 2,
+          "coupon": "FIFTYOFF",
+          "billing_cycle_anchor": "2027-05-01T00:00:00Z"
+        },
+        {
+          "at": "2027-04-16T16:01:24Z",
+          "type": "change_quantity",
+          "quantity": 3,
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-05-30T16:01:24Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "04-05, first billing date 05-01 (R20, classic): the stub is 26 days of one interval from the start, 04-05 -> 05-05 (30 d): gross round(2400 x 26/30) = 2080, all taken by FIFTYOFF ($50 once, capped at the amount): a $0 invoice, which uses up the coupon. The stub was paid at 2400 less 2400. 04-16 16:01:24 x3, invoiced now: the unused time is credited at what was paid, (2400 - 2400) x f = 0 (not -round(2400 x 14.33/30) = -1147); the remaining 14 d 7 h 58 m 36 s of the 30-day stub on 3 seats: round(3600 x 1238316/2592000) = 1720, no coupon left. 05-01: 3600.",
+      "expect": [
+        {
+          "date": "2027-04-05",
+          "lines": [
+            0
+          ],
+          "discount": 0,
+          "total": 0
+        },
+        {
+          "date": "2027-04-16",
+          "lines": [
+            0,
+            1720
+          ],
+          "discount": 0,
+          "total": 1720
+        },
+        {
+          "date": "2027-05-01",
+          "lines": [
+            3600
+          ],
+          "discount": 0,
+          "total": 3600
+        }
+      ],
+      "parity": "golden/parity/S112.json"
     }
   ]
 }

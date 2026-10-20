@@ -1374,6 +1374,171 @@
     ]
   },
   {
+    "id": "S111",
+    "title": "Canceling with a final invoice at the renewal instant finalizes the renewal draft first: it is paid in full and the final credit stays on the customer balance (found by fuzzing)",
+    "verified_at": "2026-10-20T05:21:20.468Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USVTi2QR5nixgqNjEvGD15H",
+    "customer": "cus_VTSOIjtt059nug",
+    "stripe": [
+      {
+        "id": "in_1USVTj2QR5nixgqN5zkR73HI",
+        "date": "2027-04-30",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Trial period for Tera team_seat_m",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVTp2QR5nixgqN4bN2MLzc",
+        "date": "2027-05-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 6000,
+            "proration": false
+          }
+        ],
+        "subtotal": 6000,
+        "discount": 0,
+        "tax": 0,
+        "total": 6000,
+        "amount_due": 6000,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVTz2QR5nixgqNc7DmDD16",
+        "date": "2027-06-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera starter_m after 03 Jun 2027",
+            "amount": -2900,
+            "proration": true
+          }
+        ],
+        "subtotal": -2900,
+        "discount": 0,
+        "tax": 0,
+        "total": -2900,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVTw2QR5nixgqNBxNs8pDx",
+        "date": "2027-06-03",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 5 × Tera team_seat_m after 27 May 2027",
+            "amount": -1355,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on Tera starter_m after 27 May 2027",
+            "amount": 655,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera starter_m (at $29.00 / month)",
+            "amount": 2900,
+            "proration": false
+          }
+        ],
+        "subtotal": 2200,
+        "discount": 0,
+        "tax": 0,
+        "total": 2200,
+        "amount_due": 2200,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
+    "id": "S112",
+    "title": "A first-billing-date stub a once coupon made free is credited at what was paid, $0, not at full price (found by fuzzing)",
+    "verified_at": "2026-10-20T05:21:20.330Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1USVTi2QR5nixgqN2hOJxcuz",
+    "customer": "cus_VTSOxvkQ6UdI2j",
+    "stripe": [
+      {
+        "id": "in_1USVTj2QR5nixgqNLNeIl4Vh",
+        "date": "2027-04-05",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Time on 2 × Tera team_seat_m (with $50.00 off) after 05 Apr 2027",
+            "amount": 0,
+            "proration": true
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVTp2QR5nixgqNqUAQJl0K",
+        "date": "2027-04-16",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on 2 × Tera team_seat_m (with $50.00 off) after 16 Apr 2027",
+            "amount": 0,
+            "proration": true
+          },
+          {
+            "description": "Remaining time on 3 × Tera team_seat_m after 16 Apr 2027",
+            "amount": 1720,
+            "proration": true
+          }
+        ],
+        "subtotal": 1720,
+        "discount": 0,
+        "tax": 0,
+        "total": 1720,
+        "amount_due": 1720,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1USVTv2QR5nixgqNI4glR8C5",
+        "date": "2027-05-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "3 × Tera team_seat_m (at $12.00 / month)",
+            "amount": 3600,
+            "proration": false
+          }
+        ],
+        "subtotal": 3600,
+        "discount": 0,
+        "tax": 0,
+        "total": 3600,
+        "amount_due": 3600,
+        "starting_balance": 0
+      }
+    ]
+  },
+  {
     "id": "S12",
     "title": "FOREVER25 on Pro",
     "verified_at": "2026-10-17T18:28:48.250Z",

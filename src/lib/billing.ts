@@ -220,7 +220,7 @@ type Paid = { rate: number; off: number };
 const FULL: Paid = { rate: 1, off: 0 };
 
 /** coupon: the subscription discount when the draft was created; Stripe copies it then (fuzz seed 24019, S57). */
-type Draft = { at: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid };
+type Draft = { at: number; seq: number; periodStart: number; periodEnd: number; lines: InvoiceLine[]; coupon: Sub["coupon"]; paid?: Paid };
 
 // Stripe finalizes a renewal draft about an hour after creating it; an invoice a change creates in that hour is
 // finalized first, so it takes (or leaves) the customer balance before the renewal does (fuzz seed 78026, S105).
@@ -256,8 +256,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // Draft invoices finalize once time moves past them, with the discount they were created with: a coupon
   // applied or removed at the renewal instant changes the next invoice, not this one (S57).
 
-  // Invoices are listed in creation order (as Stripe lists them), while the balance runs in finalization order.
-  const created = new Map<number, number>();
+  // Invoices are listed in creation order (as Stripe lists them), while the balance runs in finalization order. Two
+  // created in the same second are listed newest first, as Stripe's list returns them (seed 100178).
+  const created = new Map<number, [number, number]>();
+  let seq = 0;
   const finalize = () => {
     if (!draft || !sub) return;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
@@ -296,7 +298,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const carried = owed > 0 && owed < minimumCharge(price(sub.priceId).currency);
     const amount_due = carried ? 0 : owed;
     balance = carried ? owed : Math.min(0, total + starting_balance);
-    created.set(invoices.length, draft.at);
+    created.set(invoices.length, [draft.at, draft.seq]);
     invoices.push({
       date: isoDay(draft.at),
       currency: price(sub.priceId).currency,
@@ -322,11 +324,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       // discounted by it; the draft keeps its own copy (S57: later coupon changes do not reach it). Seed 61025, S95.
       const claims = s.coupon && s.coupon.remaining !== Infinity && liveCoupon(s, at) && lines.some((l) => !l.proration && l.amount > 0);
       s.paid = { ...s.paid }; // a fresh object, so finalize can tell whether a change re-priced it since
-      draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid };
+      draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon && { ...s.coupon }, paid: s.paid };
       if (claims) s.coupon!.remaining -= 1;
       return;
     }
-    draft = { at, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon };
+    draft = { at, seq: ++seq, periodStart: s.periodStart, periodEnd: s.periodEnd, lines, coupon: s.coupon };
     finalize();
     // A renewal drafted at this same instant stays a draft and finalizes after it (Stripe order), so its
     // amount due can use the credit this invoice creates.
@@ -600,6 +602,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const s = active(e.type);
         if (e.proration_behavior === "always_invoice" && s.status === "active") {
           const lines = [...s.pending, ...(s.mode === "flexible" ? creditDebits(s, at) : [prorate(s, at, item(s), false)[0]])];
+          // Canceling finalizes a renewal still in draft first, so the final invoice's credit does not reach it
+          // (seed 100178: the 05-02 renewal is 8211 due from a 0 balance, the -2900 credit stays on the customer).
+          if (draft && lines.length) finalize();
           if (lines.length) openInvoice(s, at, lines, true);
         }
         s.status = "canceled";
@@ -718,8 +723,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     // A stub an amount_off coupon makes free is still invoiced, at $0, and still uses up a "once" coupon (fuzz
     // seed 80012, S106), like a free resume charge (S101).
     if (part.item.unit === 0) return;
-    if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
+    // What the stub was paid at, its coupon included, prices the next credit (seed 100183: a stub FIFTYOFF made $0
+    // is credited $0, not at full price), so it is read before the "once" coupon is used up.
     s.paid = activeDiscount(s, licensedAmount(s), at);
+    if (liveCoupon(s, at)?.duration === "once") s.coupon!.remaining = 0;
     s.debits.push(part);
     openInvoice(s, at, [{ description: "Time until the first billing date", amount, proration: true }], true);
   }
@@ -865,7 +872,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
 
   const finalSub = sub as Sub | null;
-  const order = invoices.map((_, i) => i).sort((a, b) => created.get(a)! - created.get(b)!); // stable: ties keep finalization order
+  const order = invoices.map((_, i) => i).sort((a, b) => created.get(a)![0] - created.get(b)![0] || created.get(b)![1] - created.get(a)![1]);
   return {
     invoices: order.map((i) => invoices[i]),
     status: finalSub ? finalSub.status : "none",
