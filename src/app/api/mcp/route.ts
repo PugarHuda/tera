@@ -67,10 +67,53 @@ const evidenceSummary = () =>
 const json = (uri: URL, data: unknown) => ({ contents: [{ uri: uri.href, mimeType: "application/json", text: JSON.stringify(data, null, 2) }] });
 const ask = (t: string) => ({ messages: [{ role: "user" as const, content: { type: "text" as const, text: t } }] });
 
-const text = (t: string, data?: unknown, isError = false) => ({
+// Data goes out twice, as MCP asks: structuredContent for clients that read it (checked against the tool's
+// outputSchema by the SDK) and the same JSON in the text for those that do not.
+const text = (t: string, data?: object, isError = false) => ({
   content: [{ type: "text" as const, text: data === undefined ? t : `${t}\n\n${JSON.stringify(data, null, 2)}` }],
+  ...(data === undefined || Array.isArray(data) ? {} : { structuredContent: data as Record<string, unknown> }),
   isError,
 });
+
+// Output schemas: what an agent can rely on without parsing prose. Same field names as POST /api/simulate.
+const int = z.number().int();
+const invoiceOut = z.object({
+  date: z.string(),
+  currency: z.string(),
+  period_start: z.string(),
+  period_end: z.string(),
+  lines: z.array(z.object({ description: z.string(), amount: int, proration: z.boolean() })),
+  subtotal: int,
+  discount: int,
+  tax: int,
+  total: int.describe("Minor units; negative for a credit"),
+  starting_balance: int.describe("Customer balance before this invoice; negative = credit (R10)"),
+  amount_due: int.min(0),
+  total_display: z.string().describe("total formatted for the requested locale"),
+});
+const simulationOut = z.object({
+  status: z.enum(["active", "trialing", "paused", "canceled", "none"]),
+  canceled_at: z.string().nullable(),
+  invoices: z.array(invoiceOut),
+  webhooks: z.array(
+    z.object({
+      event: int.describe("Index of the timeline event whose step sends it"),
+      date: z.string(),
+      type: z.string(),
+      invoice: int.optional().describe("invoice.* events: 1-based index in invoices"),
+      status: z.enum(["active", "trialing", "paused", "canceled", "none"]).optional(),
+    }),
+  ),
+});
+const migrationOut = z.object({
+  affected: int,
+  mrr_before: int,
+  mrr_after: int,
+  mrr_delta: int,
+  per_customer: z.array(z.object({ name: z.string(), seats: int, mrr_before: int, mrr_after: int, mrr_delta: int })),
+});
+const scenarioListOut = z.object({ scenarios: z.array(z.object({ id: z.string(), title: z.string(), rules: z.array(z.string()) })) });
+const scenarioOut = z.object({ id: z.string(), title: z.string(), rules: z.array(z.string()), expect: z.array(z.record(z.string(), z.unknown())).optional() }).passthrough();
 
 // Domain errors are the caller's to fix, so they come back as tool errors instead of protocol failures.
 function guard<A>(fn: (a: A) => ReturnType<typeof text>) {
@@ -95,6 +138,7 @@ const handler = createMcpHandler(
         description:
           "Run a customer timeline (subscribe, trials, upgrades, coupons, tax, usage, cancellation) through Tera's Stripe-parity billing engine and return every invoice to the cent, plus the webhook events Stripe sends for it (per timeline event, to test a webhook handler). Amounts are integers in minor units.",
         inputSchema: z.object({ timeline: z.array(event).min(1), catalog, locale: z.string().optional() }),
+        outputSchema: simulationOut,
         annotations: readOnly,
       },
       guard(({ timeline, catalog, locale: tag }) => {
@@ -104,7 +148,8 @@ const handler = createMcpHandler(
           .map((i, n) => `Invoice ${n + 1} ${i.date}: total ${formatMoney(i.total, i.currency, locale)}, due ${formatMoney(i.amount_due, i.currency, locale)}${i.starting_balance < 0 ? ` (credit applied ${formatMoney(-i.starting_balance, i.currency, locale)})` : ""}`)
           .join("\n");
         const hooks = Object.entries(Object.groupBy(result.webhooks, (w) => w.type)).map(([type, ws]) => `${type} ×${ws!.length}`);
-        return text(`Status: ${result.status}\n${summary}\nWebhook events Stripe sends (${result.webhooks.length}): ${hooks.join(", ")}`, result);
+        const invoices = result.invoices.map((i) => ({ ...i, total_display: formatMoney(i.total, i.currency, locale) }));
+        return text(`Status: ${result.status}\n${summary}\nWebhook events Stripe sends (${result.webhooks.length}): ${hooks.join(", ")}`, { ...result, invoices });
       }),
     );
 
@@ -157,6 +202,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
           currency: z.string().regex(/^[a-zA-Z]{3}$/).optional().describe("ISO code for the summary line; default usd"),
           customers: z.array(z.union([z.number().int().min(1).max(1e6), z.object({ name: z.string(), seats: z.number().int().min(1).max(1e6) })])),
         }),
+        outputSchema: migrationOut,
         annotations: readOnly,
       },
       guard(({ currency: code = "usd", ...input }) => {
@@ -184,7 +230,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
           const stripe = stripeClient();
           if (!stripe_price) {
             const prices = await migratablePrices(stripe);
-            return text(prices.map((p) => `${p.id} ${p.name} ${formatMoney(p.unit_amount, p.currency)} / ${p.interval}`).join("\n") || "No per-seat recurring prices in the connected Stripe account", prices);
+            return text(prices.map((p) => `${p.id} ${p.name} ${formatMoney(p.unit_amount, p.currency)} / ${p.interval}`).join("\n") || "No per-seat recurring prices in the connected Stripe account", { prices });
           }
           if (new_unit_amount === undefined) throw new BadRequest("new_unit_amount is required with stripe_price");
           const base = await subscribersOf(stripe, stripe_price);
@@ -234,11 +280,14 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
           rule: z.string().optional().describe("A billing rule id such as R6 (tax) or R16 (flexible billing mode)"),
           query: z.string().optional().describe('Words that must all appear in the title, such as "coupon trial"'),
         }),
+        outputSchema: scenarioListOut,
         annotations: readOnly,
       },
       guard(({ rule, query }) => {
         const found = findScenarios(rule, query);
-        return text(found.length ? found.map((s) => `${s.id} ${s.title}`).join("\n") : "No golden scenario matches; omit rule and query to list all");
+        return text(found.length ? found.map((s) => `${s.id} ${s.title}`).join("\n") : "No golden scenario matches; omit rule and query to list all", {
+          scenarios: found.map(({ id, title, rules }) => ({ id, title, rules })),
+        });
       }),
     );
 
@@ -248,6 +297,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         title: "Get one golden scenario",
         description: "Timeline, expected invoices and the hand math for a golden scenario id such as S05.",
         inputSchema: z.object({ id: z.string() }),
+        outputSchema: scenarioOut,
         annotations: readOnly,
       },
       guard(({ id }) => {
@@ -269,7 +319,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
       guard(({ id }) => {
         if (id === undefined) {
           const all = evidenceSummary();
-          return text(`${all.filter((e) => e.match).length} / ${all.length} recorded replays match Stripe to the cent`, all);
+          return text(`${all.filter((e) => e.match).length} / ${all.length} recorded replays match Stripe to the cent`, { scenarios: all });
         }
         const e = evidence.find((x) => x.id.toLowerCase() === id.toLowerCase());
         if (!e) throw new BadRequest(`No Stripe evidence for ${id} (scenarios without a timeline are not replayable)`);
@@ -284,6 +334,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         description:
           "Validate a timeline (and optional custom catalog) and return a link that opens it in Tera's web simulator with the same invoices, for a human to inspect or share.",
         inputSchema: z.object({ timeline: z.array(event).min(1), catalog }),
+        outputSchema: z.object({ url: z.string().url() }),
         annotations: readOnly,
       },
       guard(({ timeline, catalog: raw }) => {
