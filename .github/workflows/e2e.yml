@@ -64,7 +64,8 @@ jobs:
       - name: Redocly (OpenAPI lint, rules in redocly.yaml)
         if: ${{ !cancelled() }}
         run: curl -sf "${{ steps.url.outputs.url }}/api/openapi.json" -o openapi.json && npx -y @redocly/cli@2.1.0 lint openapi.json
-      # Budgets in lighthouserc.json: accessibility, best practices and SEO at 100, performance at least 80, CLS under 0.1.
+      # Budgets in lighthouserc.json (median of 3 runs): accessibility, best practices and SEO at 100, performance at least 70
+      # (shared runners score ~15 points under a desktop), CLS under 0.1. is-crawlable is skipped: Vercel marks previews noindex.
       - name: Lighthouse CI
         if: ${{ !cancelled() }}
         env:

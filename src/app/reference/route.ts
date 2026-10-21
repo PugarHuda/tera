@@ -13,6 +13,8 @@ const html = `<!doctype html>
       // Tera's accent, and muted text / method badges darkened to WCAG AA contrast (axe flagged Scalar's defaults).
       const customCss = ".light-mode{--scalar-color-accent:#b31004;--scalar-color-3:#6b6b6b;--scalar-color-green:#047857}.dark-mode{--scalar-color-accent:#f6a04a;--scalar-color-3:#9a9a9a}";
       Scalar.createApiReference("#app", { url: "/api/openapi.json", theme: "default", hideClientButton: false, customCss });
+      // Scalar's scrolling code and schema blocks cannot take keyboard focus (axe scrollable-region-focusable).
+      new MutationObserver(() => document.querySelectorAll(".overflow-x-auto:not([tabindex])").forEach((e) => (e.tabIndex = 0))).observe(document.body, { childList: true, subtree: true });
     </script>
   </body>
 </html>`;
