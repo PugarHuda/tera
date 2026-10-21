@@ -1,0 +1,14 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Simulator: S05 lists the webhook events Stripe sent for it, per timeline event, with their invoice and subscription status",
+  "description": "FR10, R24. For S05 (subscribe 01-01, upgrade 01-17, timeline ends on the 02-01 renewal) a Stripe test clock sent: event 1 invoice.created/finalized/paid for invoice 1 and customer.subscription.created (active); event 2 two invoiceitem.created and customer.subscription.updated (active); event 3 only invoice.created for invoice 2 and customer.subscription.updated (active), because Stripe finalizes a renewal an hour later.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Below the invoices, click 'Webhook events Stripe sends (9)' to expand it" },
+    { "type": "assertion", "description": "Assert the group 'Event 1' lists invoice.created, invoice.finalized and invoice.paid each with '→ invoice 1', and customer.subscription.created with '(active)'" },
+    { "type": "assertion", "description": "Assert the group 'Event 2' lists invoiceitem.created exactly twice and customer.subscription.updated '(active)' once, all dated 2027-01-17" },
+    { "type": "assertion", "description": "Assert the group 'Event 3' lists exactly two events: invoice.created '→ invoice 2' and customer.subscription.updated '(active)', both dated 2027-02-01, and no invoice.paid for invoice 2" }
+  ]
+}
