@@ -126,7 +126,17 @@ describe("found by Playwright QA", () => {
   });
   it("rejects __proto__ as an id", () => expect(() => parseCatalog(JSON.parse('{"prices":{"__proto__":{"currency":"usd","unit_amount":1,"interval":"month"}}}'))).toThrow());
   it.each(["x", "", "en_US", 7])("rejects the locale %j with a 400, not a RangeError", (l) => expect(() => parseLocale(l)).toThrow(BadRequest));
-  it("keeps a valid locale", () => expect(parseLocale("de-DE")).toBe("de-DE"));
+  it.each(["de-DE", "ja", "zh-Hant-TW", "es-419"])("keeps the locale %s", (l) => expect(parseLocale(l)).toBe(l));
+  // Found by Schemathesis against the OpenAPI spec: these were accepted, though the spec (and the engine) has no use for them.
+  it("rejects an unknown usage_type instead of billing it as licensed", () =>
+    expect(() => parseCatalog({ prices: { p: { ...price, usage_type: "seats" } } })).toThrow('usage_type must be "licensed" or "metered"'));
+  it.each([
+    [{ type: "change_quantity", quantity: 2, price: 5 }, "price must be an id string"],
+    [{ type: "advance_to", coupon: {} }, "coupon must be an id string"],
+    [{ type: "advance_to", tax_rate: 1 }, "tax_rate must be an id string"],
+    [{ type: "advance_to", amount: 1.5 }, "amount must be a whole number"],
+  ])("rejects %j", (e, msg) =>
+    expect(() => parseTimeline([{ at: "2027-01-01", type: "subscribe", price: "p" }, { at: "2027-01-02", ...e }])).toThrow(msg));
   it("rejects a migration with no customers", () => expect(() => parseMigration({ unit_amount: 1, new_unit_amount: 2, grandfather: false, customers: [] })).toThrow("at least one"));
   it("reads a bare seat list with a negative as a bad list, not a CSV row", () =>
     expect(parseCustomers("1, 2, -3").errors).toEqual(['Item 3: "-3" is not a positive whole number of seats']));

@@ -1,7 +1,7 @@
 // OpenAPI 3.1 for the public API. Served at /api/openapi.json and as an MCP resource (tera://openapi.json).
 import golden from "../../golden/scenarios.json";
 import evidence from "../../golden/parity/index.json";
-import { EVENT_TYPES } from "./validate";
+import { DECIMAL, EVENT_TYPES, ID, LOCALE, STRIPE_CURRENCIES } from "./validate";
 import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS } from "./billing";
 
 // Counted from the recorded evidence so the description never goes stale.
@@ -9,6 +9,15 @@ const timelines = golden.scenarios.filter((s) => "timeline" in s).length;
 const verified = evidence.filter((e) => e.match).length;
 
 const error = { type: "object", properties: { error: { type: "string" } }, required: ["error"] };
+
+// The schemas below state what src/lib/validate.ts accepts, so a generated client or a schema fuzzer (Schemathesis in
+// CI) sees the real contract. What JSON Schema cannot say (events in date order, a span of 10 years, ascending tiers,
+// prices that exist in the catalog) is in the descriptions and answered 400 or 422.
+// A day 1970-2099 with valid month and day ranges, optionally a UTC time: validate.ts also rejects 2027-02-30.
+const date = { type: "string", pattern: /^(19[7-9]\d|20\d\d)-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?(\.\d+)?Z)?$/.source };
+const currency = { type: "string", enum: [...STRIPE_CURRENCIES, ...STRIPE_CURRENCIES.map((c) => c.toUpperCase())], description: "ISO 4217, any case; Stripe's form is lowercase" };
+const ids = { propertyNames: { pattern: ID.source, not: { const: "__proto__" } } };
+const when = (type: string | string[], then: object) => ({ if: { properties: { type: Array.isArray(type) ? { enum: type } : { const: type } }, required: ["type"] }, then });
 
 export const spec = {
   openapi: "3.1.0",
@@ -55,16 +64,23 @@ export const spec = {
                 type: "object",
                 required: ["unit_amount", "new_unit_amount", "grandfather", "customers"],
                 properties: {
-                  unit_amount: { type: "integer", minimum: 1 },
-                  new_unit_amount: { type: "integer", minimum: 1 },
+                  unit_amount: { type: "integer", minimum: 1, maximum: 1e12 },
+                  new_unit_amount: { type: "integer", minimum: 1, maximum: 1e12 },
                   grandfather: { type: "boolean" },
                   interval: { type: "string", enum: ["month", "year"], default: "month", description: "Annual prices count as amount/12 MRR per customer" },
                   customers: {
                     type: "array",
+                    minItems: 1,
+                    maxItems: 100000,
+                    description: "unit_amount × total seats is at most 1e15 minor units (400 otherwise)",
                     items: {
                       oneOf: [
-                        { type: "integer", minimum: 1, description: "Seat count" },
-                        { type: "object", required: ["name", "seats"], properties: { name: { type: "string" }, seats: { type: "integer", minimum: 1 } } },
+                        { type: "integer", minimum: 1, maximum: 1000000, description: "Seat count" },
+                        {
+                          type: "object",
+                          required: ["name", "seats"],
+                          properties: { name: { type: "string", maxLength: 200, pattern: "\\S" }, seats: { type: "integer", minimum: 1, maximum: 1000000 } },
+                        },
                       ],
                     },
                   },
@@ -220,44 +236,70 @@ export const spec = {
             type: "object",
             minProperties: 1,
             maxProperties: 50,
+            ...ids,
             additionalProperties: {
               type: "object",
               required: ["currency", "interval"],
               properties: {
-                currency: { type: "string", pattern: "^[a-zA-Z]{3}$" },
+                currency,
                 interval: { type: "string", enum: ["month", "year"] },
-                unit_amount: { type: "integer", minimum: 1, description: "Licensed prices: amount per seat in minor units" },
+                unit_amount: { description: "Licensed prices: amount per seat in minor units" },
                 usage_type: { type: "string", enum: ["licensed", "metered"] },
-                tiers: {
-                  type: "array",
-                  description: "Metered prices: graduated tiers, ascending, the last with up_to: null",
-                  items: { type: "object", required: ["up_to", "unit_amount_decimal"], properties: { up_to: { type: ["integer", "null"] }, unit_amount_decimal: { type: "string" } } },
+                tiers: { description: "Metered prices: graduated tiers, ascending, the last with up_to: null" },
+              },
+              if: { properties: { usage_type: { const: "metered" } }, required: ["usage_type"] },
+              then: {
+                required: ["tiers"],
+                properties: {
+                  tiers: {
+                    type: "array",
+                    minItems: 1,
+                    items: {
+                      type: "object",
+                      required: ["up_to", "unit_amount_decimal"],
+                      properties: { up_to: { type: ["integer", "null"], minimum: 1, maximum: 1e12 }, unit_amount_decimal: { type: "string", pattern: DECIMAL.source } },
+                    },
+                  },
                 },
               },
+              else: { required: ["unit_amount"], properties: { unit_amount: { type: "integer", minimum: 1, maximum: 1e12 } } },
             },
           },
           coupons: {
             type: "object",
             maxProperties: 50,
+            ...ids,
             additionalProperties: {
               type: "object",
               required: ["duration"],
               properties: {
-                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100, description: "At most two decimals (Stripe's limit)." },
-                amount_off: { type: "integer", minimum: 1 },
-                currency: { type: "string", description: "Required with amount_off" },
+                percent_off: { type: "number", exclusiveMinimum: 0, maximum: 100, multipleOf: 0.01, description: "At most two decimals (Stripe's limit)." },
+                amount_off: { type: "integer", minimum: 1, maximum: 1e12 },
+                currency: { description: "Required with amount_off" },
                 duration: { type: "string", enum: ["once", "repeating", "forever"] },
-                duration_in_months: { type: "integer", minimum: 1, maximum: 120 },
+                duration_in_months: { description: "Required with duration repeating: 1-120" },
               },
+              oneOf: [{ required: ["percent_off"] }, { required: ["amount_off"] }],
+              allOf: [
+                { if: { required: ["amount_off"] }, then: { required: ["currency"], properties: { currency } } },
+                {
+                  if: { properties: { duration: { const: "repeating" } }, required: ["duration"] },
+                  then: { required: ["duration_in_months"], properties: { duration_in_months: { type: "integer", minimum: 1, maximum: 120 } } },
+                },
+              ],
             },
           },
           tax_rates: {
             type: "object",
             maxProperties: 20,
+            ...ids,
             additionalProperties: {
               type: "object",
               required: ["percentage", "behavior"],
-              properties: { percentage: { type: "number", minimum: 0, exclusiveMaximum: 100, description: "At most four decimals (Stripe's limit)." }, behavior: { type: "string", enum: ["inclusive", "exclusive"] } },
+              properties: {
+                percentage: { type: "number", minimum: 0, exclusiveMaximum: 100, multipleOf: 0.0001, description: "At most four decimals (Stripe's limit)." },
+                behavior: { type: "string", enum: ["inclusive", "exclusive"] },
+              },
             },
           },
         },
@@ -267,16 +309,19 @@ export const spec = {
         required: ["timeline"],
         properties: {
           catalog: { $ref: "#/components/schemas/Catalog" },
-          locale: { type: "string", default: "en-US" },
+          locale: { type: "string", pattern: LOCALE.source, default: "en-US", description: "Language, optional script and region: en-US, de-DE, zh-Hant-TW" },
           timeline: {
             type: "array",
             minItems: 1,
             maxItems: 100,
+            description:
+              "Events in date order (400 otherwise), spanning at most 10 years, starting with subscribe or start_trial. Prices, coupons and tax rates must exist in the catalog, and actions Stripe rejects or Tera does not model are answered 422.",
+            prefixItems: [{ properties: { type: { enum: ["subscribe", "start_trial"] } } }],
             items: {
               type: "object",
               required: ["at", "type"],
               properties: {
-                at: { type: "string", format: "date-time" },
+                at: { ...date, description: "ISO-8601 UTC day or time, 1970-2099" },
                 type: { type: "string", enum: EVENT_TYPES },
                 price: { type: "string" },
                 quantity: { type: "integer", minimum: 0, maximum: 1000000000, description: "Seats, or usage units for report_usage. change_quantity needs at least 1." },
@@ -284,8 +329,11 @@ export const spec = {
                 tax_rate: { type: "string" },
                 trial_days: { type: "integer", minimum: 1, maximum: 730 },
                 proration_behavior: { type: "string", enum: [...PRORATION_BEHAVIORS] },
-                billing_cycle_anchor: { type: "string", description: "subscribe: ISO-8601 first billing date (Stripe billing_cycle_anchor), at most one period ahead (R20). resume of a paused subscription: \"now\" (default) or \"unchanged\" (R21)." },
-                cancel_at: { type: "string", format: "date-time", description: "cancel_at events: when the subscription ends (Stripe cancel_at, R19)." },
+                billing_cycle_anchor: {
+                  type: "string",
+                  description: "subscribe: ISO-8601 first billing date (Stripe billing_cycle_anchor), at most one period ahead (R20). resume of a paused subscription: \"now\" (default) or \"unchanged\" (R21).",
+                },
+                cancel_at: { ...date, description: "cancel_at events: when the subscription ends (Stripe cancel_at, R19)." },
                 billing_mode: {
                   type: "string",
                   enum: [...BILLING_MODES],
@@ -298,6 +346,16 @@ export const spec = {
                   description: "start_trial: the customer has no card, so the trial ends canceled or paused (Stripe trial_settings.end_behavior.missing_payment_method, R22).",
                 },
               },
+              allOf: [
+                when(["subscribe", "start_trial", "change_price"], { required: ["price"] }),
+                when("apply_coupon", { required: ["coupon"] }),
+                when("change_quantity", { required: ["quantity"], properties: { quantity: { minimum: 1 } } }),
+                when("cancel_at", { required: ["cancel_at"] }),
+                when("adjust_balance", { required: ["amount"], properties: { amount: { minimum: -1e10, maximum: 1e10, not: { const: 0 } } } }),
+                when("resume", { properties: { billing_cycle_anchor: { enum: ["now", "unchanged"] } } }),
+                { if: { properties: { type: { const: "resume" } }, required: ["type"] }, else: { properties: { billing_cycle_anchor: date } } },
+                { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, else: { not: { required: ["trial_end_behavior"] } } },
+              ],
             },
           },
         },

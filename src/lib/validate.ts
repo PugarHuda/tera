@@ -44,7 +44,7 @@ export const EVENT_TYPES = [
 ] as const;
 
 const MAX_EVENTS = 100;
-const ID = /^[A-Za-z0-9_]{1,40}$/;
+export const ID = /^[A-Za-z0-9_]{1,40}$/;
 const MAX_SPAN_MS = 10 * 366 * 86_400_000;
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
 // 1970-2099: a half-typed year (0002, 0202) is not a date a subscription can have, and year 9999 renders as
@@ -59,6 +59,8 @@ const RETIRED = new Set(["bgn", "hrk"]);
 const NOT_ON_STRIPE = new Set([...RETIRED, "cuc", "cup", "ern", "iqd", "irr", "kpw", "lyd", "mru", "sdg", "ssp", "stn", "syp", "tmt", "ves", "xdr", "xsu", "zwg", "zwl"]);
 const CURRENCIES = new Set(Intl.supportedValuesOf("currency").map((c) => c.toLowerCase()));
 const isCurrency = (v: unknown): v is string => typeof v === "string" && CURRENCIES.has(v.toLowerCase()) && !NOT_ON_STRIPE.has(v.toLowerCase());
+/** The currency codes the API takes, for the OpenAPI enum. */
+export const STRIPE_CURRENCIES = [...CURRENCIES].filter((c) => !NOT_ON_STRIPE.has(c));
 const currencyError = (at: string, v: unknown) =>
   typeof v === "string" && RETIRED.has(v.toLowerCase())
     ? `${at} ${v.toLowerCase()} was retired for eur; Stripe no longer accepts it`
@@ -68,7 +70,7 @@ const currencyError = (at: string, v: unknown) =>
 // Stripe's decimal limits: percent_off takes two decimals, a tax rate's percentage four.
 const places = (n: number, max: number) => Number(n.toFixed(max)) === n;
 // Stripe's unit_amount_decimal: a plain decimal with at most 12 places (no "Infinity", "1e400" or "0x10").
-const DECIMAL = /^\d{1,15}(\.\d{1,12})?$/;
+export const DECIMAL = /^\d{1,15}(\.\d{1,12})?$/;
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
 const isInt = (x: unknown, min = 0, max = 1e12): x is number => Number.isInteger(x) && (x as number) >= min && (x as number) <= max;
@@ -94,6 +96,7 @@ export function parseCatalog(x: unknown): Catalog {
     if (!isCurrency(p.currency)) fail(currencyError(`${at}.currency`, p.currency));
     p.currency = p.currency.toLowerCase(); // Stripe's form: "USD" and "usd" are one currency
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
+    if (p.usage_type !== undefined && p.usage_type !== "licensed" && p.usage_type !== "metered") fail(`${at}.usage_type must be "licensed" or "metered"`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
       let prev = 0;
@@ -144,6 +147,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date from 1970 to 2099`);
     if (!EVENT_TYPES.includes(e.type as (typeof EVENT_TYPES)[number])) fail(`${at}.type must be one of ${EVENT_TYPES.join(", ")}`);
     if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a whole number from 0 to 1,000,000,000`);
+    for (const ref of ["price", "coupon", "tax_rate"]) if (e[ref] !== undefined && typeof e[ref] !== "string") fail(`${at}.${ref} must be an id string`);
+    if (e.amount !== undefined && !Number.isInteger(e.amount)) fail(`${at}.amount must be a whole number of minor units`);
     if (e.trial_days !== undefined && !isInt(e.trial_days, 1, 730)) fail(`${at}.trial_days must be 1-730`);
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a whole number from 1 to 1,000,000,000`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
@@ -196,10 +201,13 @@ export function parseCurrency(x: unknown): string {
   return x.toLowerCase();
 }
 
+/** language, optional script, optional region: "en-US", "de", "zh-Hant-TW". The OpenAPI spec states the same pattern. */
+export const LOCALE = /^[a-zA-Z]{2,3}(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|\d{3}))?$/;
+
 export function parseLocale(x: unknown): string {
   if (x === undefined) return "en-US";
   try {
-    if (typeof x === "string" && x) {
+    if (typeof x === "string" && LOCALE.test(x)) {
       new Intl.NumberFormat(x);
       return x;
     }
