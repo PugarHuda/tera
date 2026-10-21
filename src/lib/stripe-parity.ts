@@ -329,7 +329,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     step.map(({ type, data: { object } }) => (type.startsWith("invoice.") ? `${type} #${number.get((object as { id: string }).id)}` : type.startsWith("customer.subscription.") ? `${type} ${(object as { status: string }).status}` : type)),
   );
   // The events themselves, as Stripe sent them, for a webhook handler's test fixtures (`step`: the timeline event).
-  const payloads = steps.flatMap((step, i) => step.map((ev) => ({ step: i, id: ev.id, type: ev.type, created: ev.created, api_version: ev.api_version, data: ev.data })));
+  const payloads = steps.flatMap((step, i) => step.map((ev) => ({ step: i, ...ev })));
   return { clockId: clock.id, customerId: customer.id, invoices: out, events: recorded, payloads };
 }
 

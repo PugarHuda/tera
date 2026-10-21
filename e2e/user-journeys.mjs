@@ -6,6 +6,9 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
+import Stripe from "stripe";
 const B = process.argv[2] ?? process.env.BASE_URL;
 const out = process.argv[3] ?? mkdtempSync(join(tmpdir(), "tera-e2e-"));
 let fails = 0;
@@ -77,6 +80,24 @@ const [hookFile] = await Promise.all([page.waitForEvent("download"), page.getByT
 const sentEvents = JSON.parse(readFileSync(await hookFile.path(), "utf8"));
 ok(sentEvents.length > 0 && sentEvents.every((e) => /^evt_/.test(e.id) && e.data.object.id) && sentEvents.some((e) => e.type === "invoice.paid" && e.data.object.object === "invoice"),
   `downloaded ${sentEvents.length} real Stripe events with payloads (${[...new Set(sentEvents.map((e) => e.type))].join(", ").slice(0, 120)})`);
+// ... and replayed with the deployed public/replay-webhooks.mjs into a local handler that verifies them with Stripe's SDK.
+{
+  const script = join(out, "replay-webhooks.mjs");
+  writeFileSync(script, await (await fetch(B + "/replay-webhooks.mjs")).text());
+  const { replay } = await import(pathToFileURL(script).href);
+  const verify = new Stripe("sk_test_unused").webhooks;
+  const got = [];
+  const server = createServer((req, res) => {
+    let raw = "";
+    req.on("data", (c) => (raw += c)).on("end", () => {
+      try { got.push(verify.constructEvent(raw, req.headers["stripe-signature"], "whsec_e2e").type); res.writeHead(200).end(); } catch { res.writeHead(400).end(); }
+    });
+  });
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const results = await replay(sentEvents, `http://127.0.0.1:${server.address().port}/webhooks`, "whsec_e2e");
+  server.close();
+  ok(results.every((r) => r.status === 200) && got.join() === sentEvents.map((e) => e.type).join(), `replay-webhooks.mjs: Stripe's constructEvent accepted all ${got.length} replayed events, in order`);
+}
 
 // FR10 — the webhook events Stripe sends, per timeline event. Event 2's step: the 03-05 renewal (invoice created, finalized,
 // paid; subscription updated), then the seat change: a credit and a charge as two invoice items, and the update.
