@@ -21,7 +21,8 @@ export default function SimulatorPage({ searchParams }: { searchParams: SearchPa
         Run a virtual customer through upgrades, coupons, trials and taxes and see every invoice to the cent — computed with
         Stripe&apos;s billing rules, before any real customer sees it.
       </p>
-      <Suspense fallback={<p className="opacity-60">Loading simulator…</p>}>
+      {/* The fallback holds the simulator's height, so the footer does not jump when it streams in (CLS 0.14 before). */}
+      <Suspense fallback={<p className="min-h-screen opacity-60">Loading simulator…</p>}>
         <SimulatorFromUrl searchParams={searchParams} />
       </Suspense>
     </>
