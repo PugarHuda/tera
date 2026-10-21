@@ -1,0 +1,29 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Edit a timeline event and verify recomputed invoice totals",
+  "description": "Validates that changing an event's price, date, and coupon instantly recomputes the invoice totals.",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert Invoice 2 totals $103.20"
+    },
+    {
+      "type": "action",
+      "description": "Set the 'Event 2 date' field to 2027-01-16, one day earlier"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert Invoice 2 totals exactly $104.80 with lines -$14.97, $40.77 and $79.00 (16 of 31 days: -round(2900*16/31), +round(7900*16/31), plus the $79.00 renewal)"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the golden badge is no longer shown, because the timeline was edited"
+    }
+  ]
+}

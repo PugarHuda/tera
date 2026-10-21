@@ -23,7 +23,7 @@ TERA_BASE_URL=https://tera-git-<branch>-hudas-projects-a8e7f558.vercel.app pytho
 PR checks run TestSprite's agent against each plan, and its judge checks every plan assertion. The code a test stores
 is different: the agent's generated code often ends with `assert current_url` (or a `select_option("")` that selects
 nothing), so running it proves only that a page loaded. In October 2026, 18 of the 26 UI tests stored such code.
-Every UI test now stores hand-written Playwright that asserts exact, hand-derived values on `data-testid`s and labels:
+All 28 UI tests now store hand-written Playwright that asserts exact, hand-derived values on `data-testid`s and labels:
 
 - `testsprite test run <id>` executes the stored code. Checked: with `$104.80` changed to `$999.99`, the cloud run
   failed with `Locator expected to have text '$999.99'`; restored, it passes.
@@ -32,6 +32,12 @@ Every UI test now stores hand-written Playwright that asserts exact, hand-derive
 [`code/_generate.py`](code/_generate.py) writes most of the files (same browser setup as TestSprite's generated code,
 one `# @@ts-step` per action and assertion) and prints the test id of each. Every file passes locally against
 production before it is uploaded:
+
+The plans in `plans/` are the same suite as the cloud project: [`scripts/testsprite-sync.mjs`](../scripts/testsprite-sync.mjs)
+runs in CI and fails when a plan file and its cloud test differ, or a cloud test has no plan file. Its first run found
+five cloud plans still opening the home page for the scenario dropdown that moved to `/simulator`, and 13 dashboard-era
+tests with no plan file and vague steps ("verify the expected totals"); those plans now name exact amounts, and
+`testsprite test plan put` pushed them. `testsprite test lint --plan-from-dir testsprite/plans` runs in CI too.
 
 ```bash
 python testsprite/code/_generate.py
@@ -64,3 +70,6 @@ testsprite test run <test-id> --wait
 | `code/ui-locale.py` | `4a8ea845-999a-4124-8bd6-1622198eb27f` |
 | `code/ui-locale-de.py` | `09b27128-0c42-4a81-8042-b947933af9f0` |
 | `code/ui-s05-totals.py` | `1fcef436-d9e7-4495-972c-f89ad5f41e80` |
+| `code/ui-s05-breakdown.py` | `f7b22cff-b30a-4a3f-84ba-c2e36dd0ec89` |
+| `code/ui-default-scenario.py` | `eba65601-5329-4bbc-9098-92141021f57a` |
+| `code/ui-add-delete-events.py` | `72cc5f49-85af-4404-a683-3aa77e6dd173` |

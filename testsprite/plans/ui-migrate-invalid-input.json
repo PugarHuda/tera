@@ -1,0 +1,37 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Show validation for invalid migration planner input",
+  "description": "Validates that the migration planner shows an error alert when prices or seat counts are invalid.",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, then click the 'Migration' link in the top navigation bar"
+    },
+    {
+      "type": "action",
+      "description": "Clear the 'Current price (USD)' field and type 0"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert an alert with text 'Prices must be positive amounts.' is visible and 'MRR change' is not shown"
+    },
+    {
+      "type": "action",
+      "description": "Set 'Current price (USD)' back to 29.00, then replace the seats field with '1, 2.5'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert an alert with text 'Seat counts must be positive whole numbers.' is visible"
+    },
+    {
+      "type": "action",
+      "description": "Replace the seats field with '1, 1, 3'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert 'MRR change' shows exactly +$50.00 again"
+    }
+  ]
+}

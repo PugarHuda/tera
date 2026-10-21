@@ -1,0 +1,21 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Migration planner with grandfathering keeps MRR unchanged",
+  "description": "Verify enabling grandfathering removes affected customers and keeps the MRR change at zero.",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, then click the 'Migration' link in the top navigation bar"
+    },
+    {
+      "type": "action",
+      "description": "Tick the 'Grandfather existing customers' checkbox"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert 'Customers affected' shows 0, 'MRR before' and 'MRR after' both show $145.00, and 'MRR change' shows +$0.00"
+    }
+  ]
+}

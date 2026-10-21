@@ -1,0 +1,21 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Timeline simulator default scenario matches golden totals",
+  "description": "Verify the timeline simulator loads the default scenario and shows the golden match badge with expected invoice totals.",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page and click 'Simulator' in the top navigation bar, without choosing a scenario"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the 'Load scenario' dropdown shows S05 and the '✅ Matches golden expected' badge is shown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert Invoice 1 totals $29.00 and Invoice 2 totals $103.20"
+    }
+  ]
+}

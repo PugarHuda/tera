@@ -1,0 +1,29 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Switch locale and verify amount formatting",
+  "description": "Validates that changing locale reformats invoice amounts without changing the underlying totals.",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "action",
+      "description": "Choose 'de-DE' in the locale dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert Invoice 2 totals '103,20 $' and its first line reads '-14,03 $'"
+    },
+    {
+      "type": "action",
+      "description": "Choose 'en-US' in the locale dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert Invoice 2 totals $103.20"
+    }
+  ]
+}

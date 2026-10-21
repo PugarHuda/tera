@@ -18,6 +18,8 @@ jobs:
     name: Tests, types, lint, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      TESTSPRITE_API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -31,3 +33,10 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm run lint
       - run: npm run build
+      # The TestSprite plans in testsprite/plans/, checked offline by the validators `testsprite test create` runs.
+      - run: npx -y @testsprite/testsprite-cli@0.15.0 test lint --plan-from-dir testsprite/plans
+      # And the same suite as the TestSprite UI project: every plan a cloud test with the same steps, every cloud test a
+      # plan. Read-only, no credits; skipped where the secret is unavailable (forks).
+      - name: TestSprite plans match the cloud suite
+        if: ${{ env.TESTSPRITE_API_KEY != '' }}
+        run: node scripts/testsprite-sync.mjs

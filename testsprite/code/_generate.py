@@ -233,6 +233,24 @@ TESTS = {
     "ui-migrate-invalid-input.py": ("571aec8c-a24d-496e-ae6f-8002ede422ba", "Show validation for invalid migration planner input", INVALID_MIGRATION),
     "ui-locale.py": ("4a8ea845-999a-4124-8bd6-1622198eb27f", "Switch locale and verify amount formatting", LOCALE),
     "ui-locale-de.py": ("09b27128-0c42-4a81-8042-b947933af9f0", "Timeline simulator locale switch reformats amounts in de-DE", LOCALE),
+    "ui-s05-breakdown.py": ("f7b22cff-b30a-4a3f-84ba-c2e36dd0ec89", "Timeline simulator S05 shows the expected invoice breakdown", scenario("S05") + '''        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
+        await expect(page.get_by_test_id("invoice-1")).to_contain_text("Invoice 1 · 2027-01-01")
+        await expect(page.get_by_test_id("invoice-2")).to_contain_text("Invoice 2 · 2027-02-01")
+''' + S05_TOTALS),
+    "ui-default-scenario.py": ("eba65601-5329-4bbc-9098-92141021f57a", "Timeline simulator default scenario matches golden totals", '''        await page.goto(APP + "/simulator")
+        await expect(page.get_by_test_id("scenario-select")).to_have_value("S05")
+        await expect(page.get_by_test_id("golden-badge")).to_have_text("✅ Matches golden expected")
+''' + S05_TOTALS),
+    "ui-add-delete-events.py": ("72cc5f49-85af-4404-a683-3aa77e6dd173", "Add and delete events in the timeline", scenario("S05") + '''        events = page.locator("select[aria-label^='Event '][aria-label$=' type']")
+        await expect(events).to_have_count(3)
+        await expect(page.get_by_test_id("invoice-2-total")).to_have_text("$103.20")
+        await page.get_by_test_id("add-event").click()
+        await expect(events).to_have_count(4)
+        await page.get_by_label("Delete event 4").click()
+        await expect(events).to_have_count(3)
+        await expect(page.get_by_test_id("invoice-2-total")).to_have_text("$103.20")
+        await expect(page.get_by_test_id("golden-badge")).to_have_text("✅ Matches golden expected")
+'''),
     "ui-s05-totals.py": ("1fcef436-d9e7-4495-972c-f89ad5f41e80", "Load golden scenario S05 and verify invoice totals", scenario("S05") + '''        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
 ''' + S05_TOTALS + '''        await expect(page.locator("[data-testid^=invoice-][data-testid$=-total]")).to_have_count(2)
 '''),

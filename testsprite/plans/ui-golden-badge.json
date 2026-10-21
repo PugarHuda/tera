@@ -1,0 +1,25 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Timeline simulator load scenario switch shows golden badge for shipped scenarios",
+  "description": "Verify loading a different shipped scenario updates the timeline and shows the golden match badge when totals are correct.",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the badge reads '✅ Matches golden expected' and Invoice 2 totals $103.20"
+    },
+    {
+      "type": "action",
+      "description": "Choose 'S27' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the badge reads '✅ Matches golden expected' and Invoice 2 totals -$24.20"
+    }
+  ]
+}
