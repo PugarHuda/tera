@@ -432,6 +432,15 @@ export function Simulator({
                     Download the {stripeCheck.webhooks.payloads.length} events Stripe sent (JSON, full payloads)
                   </button>
                 )}
+                {stripeCheck.webhooks.payloads.length > 0 && (
+                  <span className="mt-1 block text-xs opacity-80" data-testid="replay-hint">
+                    Replay them into your handler, signed with your endpoint secret as Stripe signs them:{" "}
+                    <code className="break-all">
+                      STRIPE_WEBHOOK_SECRET=whsec_… node <a className="underline" href="/replay-webhooks.mjs" download>replay-webhooks.mjs</a> stripe-webhooks-
+                      {stripeCheck.clock}.json http://localhost:3000/api/webhooks
+                    </code>
+                  </span>
+                )}
               </p>
             )}
           </div>
