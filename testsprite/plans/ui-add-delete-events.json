@@ -1,0 +1,33 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Add and delete events in the timeline",
+  "description": "Validates that timeline rows can be added and removed while the invoices remain in sync.",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the timeline has 3 events and Invoice 2 totals $103.20"
+    },
+    {
+      "type": "action",
+      "description": "Click '+ Add event'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the timeline has 4 events"
+    },
+    {
+      "type": "action",
+      "description": "Click 'Delete event 4'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the timeline has 3 events, Invoice 2 totals $103.20 and the '✅ Matches golden expected' badge is shown"
+    }
+  ]
+}

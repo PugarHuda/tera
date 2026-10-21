@@ -1,0 +1,33 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Apply grandfathering in the migration planner",
+  "description": "Validates that grandfathering keeps existing customers on the current price and yields zero migration delta.",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, then click the 'Migration' link in the top navigation bar"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert 'MRR change' shows exactly +$50.00"
+    },
+    {
+      "type": "action",
+      "description": "Tick the 'Grandfather existing customers' checkbox"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert 'Customers affected' shows 0, 'MRR after' shows $145.00 and 'MRR change' shows +$0.00"
+    },
+    {
+      "type": "action",
+      "description": "Untick the 'Grandfather existing customers' checkbox"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert 'Customers affected' shows 3 and 'MRR change' shows +$50.00"
+    }
+  ]
+}

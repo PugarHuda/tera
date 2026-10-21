@@ -1,0 +1,21 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Timeline simulator S05 shows the expected invoice breakdown",
+  "description": "Verify the shipped S05 scenario displays the known golden invoice totals and line items.",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S05' in the 'Load scenario' dropdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert the '✅ Matches golden expected' badge is shown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert exactly 2 invoices: Invoice 1 dated 2027-01-01 totals $29.00, Invoice 2 dated 2027-02-01 totals $103.20 with lines -$14.03, $38.23 and $79.00"
+    }
+  ]
+}
