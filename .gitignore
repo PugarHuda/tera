@@ -50,3 +50,8 @@ next-env.d.ts
 
 # TestSprite CLI run bundles (contain presigned recording URLs)
 .testsprite/
+
+# Stryker (mutation testing) sandbox and reports; Schemathesis cache
+.stryker-tmp/
+reports/mutation/
+.schemathesis/
