@@ -1,8 +1,9 @@
-import { BadRequest, badRequest, methodNotAllowed, parseCatalog, readJson } from "@/lib/validate";
+import { BadRequest, badRequest, methodNotAllowed, preflight, parseCatalog, readJson } from "@/lib/validate";
 import { pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
 
 export const maxDuration = 120;
 export const GET = methodNotAllowed("POST");
+export const OPTIONS = preflight("POST");
 export { GET as PUT, GET as PATCH, GET as DELETE };
 
 // FR5: create (or reuse) the catalog's products, prices, coupons and tax rates in Stripe test mode.

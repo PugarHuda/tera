@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { methodNotAllowed } from "@/lib/validate";
+import { methodNotAllowed, preflight } from "@/lib/validate";
 import { migratablePrices, NotMigratable, stripeClient, subscribersOf } from "@/lib/stripe-parity";
 
 export const maxDuration = 60;
@@ -24,4 +24,5 @@ export async function GET(req: Request) {
   }
 }
 export const POST = methodNotAllowed("GET");
+export const OPTIONS = preflight("GET");
 export { POST as PUT, POST as PATCH, POST as DELETE };

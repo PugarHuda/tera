@@ -215,7 +215,12 @@ export function parseLocale(x: unknown): string {
   fail('locale must be a BCP 47 language tag such as "en-US" or "de-DE"');
 }
 
-export const methodNotAllowed = (allow: string) => () => Response.json({ error: `Method not allowed; use ${allow}` }, { status: 405, headers: { allow } });
+// What a route serves, as RFC 9110's Allow header lists it: GET implies HEAD, and every route answers OPTIONS.
+const allowHeader = (allow: string) => `${allow}${allow.includes("GET") ? ", HEAD" : ""}, OPTIONS`;
+export const methodNotAllowed = (allow: string) => () =>
+  Response.json({ error: `Method not allowed; use ${allow}` }, { status: 405, headers: { allow: allowHeader(allow) } });
+/** CORS preflight naming only the methods served; Next's automatic OPTIONS would list the 405 stubs as allowed. */
+export const preflight = (allow: string) => () => new Response(null, { status: 204, headers: { allow: allowHeader(allow) } });
 
 export function badRequest(e: unknown) {
   if (e instanceof TooLarge) return Response.json({ error: e.message }, { status: 413 });
