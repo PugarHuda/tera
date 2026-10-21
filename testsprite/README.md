@@ -73,3 +73,5 @@ testsprite test run <test-id> --wait
 | `code/ui-s05-breakdown.py` | `f7b22cff-b30a-4a3f-84ba-c2e36dd0ec89` |
 | `code/ui-default-scenario.py` | `eba65601-5329-4bbc-9098-92141021f57a` |
 | `code/ui-add-delete-events.py` | `72cc5f49-85af-4404-a683-3aa77e6dd173` |
+| `code/ui-mcp.py` | `bf8fdd0f-a19c-407c-accc-49a7d0a85fc5` |
+| `code/ui-parity.py` | `49344480-c875-4f49-ade4-c446d637585c` |

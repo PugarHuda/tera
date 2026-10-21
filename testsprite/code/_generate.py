@@ -233,6 +233,28 @@ TESTS = {
     "ui-migrate-invalid-input.py": ("571aec8c-a24d-496e-ae6f-8002ede422ba", "Show validation for invalid migration planner input", INVALID_MIGRATION),
     "ui-locale.py": ("4a8ea845-999a-4124-8bd6-1622198eb27f", "Switch locale and verify amount formatting", LOCALE),
     "ui-locale-de.py": ("09b27128-0c42-4a81-8042-b947933af9f0", "Timeline simulator locale switch reformats amounts in de-DE", LOCALE),
+    "ui-mcp.py": ("bf8fdd0f-a19c-407c-accc-49a7d0a85fc5", "MCP setup page lists the live tools served by /api/mcp", '''        await page.goto(APP)
+        await page.get_by_role("link", name="MCP", exact=True).click()
+        tools = page.get_by_test_id("mcp-tools")
+        for name in ["simulate_timeline", "verify_timeline_in_stripe", "plan_price_migration", "plan_stripe_price_migration", "import_stripe_catalog",
+                     "push_catalog_to_stripe", "create_share_link", "list_golden_scenarios", "get_golden_scenario", "get_parity_evidence"]:
+            await expect(tools).to_contain_text(name)
+        await expect(page.get_by_text("claude mcp add --transport http tera").first).to_be_visible()
+'''),
+    "ui-parity.py": ("49344480-c875-4f49-ade4-c446d637585c", "Stripe parity page: every scenario matches and S05 shows identical Tera and Stripe invoices", '''        await page.goto(APP)
+        await page.get_by_role("link", name="Stripe parity", exact=True).click()
+        summary = await page.get_by_test_id("parity-summary").inner_text()
+        m = re.search(r"(\\d+) / (\\d+)", summary)
+        assert m and m.group(1) == m.group(2) and int(m.group(1)) >= 40, summary
+        for sid in ["S05", "S11", "S23", "S27"]:
+            await expect(page.get_by_test_id(f"parity-{sid}")).to_contain_text("✅ Match")
+        row = page.get_by_test_id("parity-S05")
+        await row.get_by_role("button", expanded=False).first.click()
+        text = await row.inner_text()
+        assert text.count("$103.20") >= 2, text
+        for amount in ["-$14.03", "$38.23", "$79.00"]:
+            await expect(row).to_contain_text(amount)
+'''),
     "ui-s05-breakdown.py": ("f7b22cff-b30a-4a3f-84ba-c2e36dd0ec89", "Timeline simulator S05 shows the expected invoice breakdown", scenario("S05") + '''        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
         await expect(page.get_by_test_id("invoice-1")).to_contain_text("Invoice 1 · 2027-01-01")
         await expect(page.get_by_test_id("invoice-2")).to_contain_text("Invoice 2 · 2027-02-01")
