@@ -36,6 +36,11 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The simulator lived at / before the landing page: shared links (?t= timeline, ?s= scenario, ?c= catalog) still open
+  // it, with their query passed through.
+  async redirects() {
+    return ["t", "s", "c"].map((key) => ({ source: "/", has: [{ type: "query" as const, key }], destination: "/simulator", permanent: true }));
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

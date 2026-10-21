@@ -5,7 +5,7 @@
   "description": "R4. Nothing was paid during the trial, so changing the price mid-trial must not produce proration lines.",
   "priority": "p1",
   "planSteps": [
-    { "type": "action", "description": "Open the app home page and choose 'S26 · Price change during a trial does not prorate' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S26 · Price change during a trial does not prorate' in the 'Load scenario' dropdown" },
     { "type": "assertion", "description": "Assert there are exactly 3 invoices with totals $0.00, $79.00 and $79.00" },
     { "type": "assertion", "description": "Assert no invoice line carries a 'proration' badge and no line amount is negative" }
   ]

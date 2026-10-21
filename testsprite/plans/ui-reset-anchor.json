@@ -5,7 +5,7 @@
   "description": "R15 reset_anchor (Stripe billing_cycle_anchor=now): an immediate invoice with the unused-time credit plus a full new period, and later renewals on the new anchor day.",
   "priority": "p1",
   "planSteps": [
-    { "type": "action", "description": "Open the app home page and choose 'S51' in the 'Load scenario' dropdown" },
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S51' in the 'Load scenario' dropdown" },
     { "type": "assertion", "description": "Assert the '✅ Matches golden expected' badge is shown" },
     { "type": "assertion", "description": "Assert the timeline contains an event whose type is 'Reset billing anchor to now'" },
     { "type": "assertion", "description": "Assert exactly 4 invoices are shown: Invoice 1 dated 2026-01-01 totals $158.00, Invoice 2 dated 2026-01-11 totals $50.97 and contains a line of -$107.03, Invoice 3 dated 2026-02-11 totals $158.00, Invoice 4 dated 2026-03-11 totals $158.00" },

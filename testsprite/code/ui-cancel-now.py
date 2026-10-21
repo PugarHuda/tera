@@ -18,8 +18,8 @@ async def run_test():
         context.set_default_timeout(15000)
         page = await context.new_page()
 
-        # @@ts-step {"i":1,"type":"action","action":"navigate","selector":null,"desc":"Navigate to https://tera-orpin-three.vercel.app","input":"https://tera-orpin-three.vercel.app","field":null}
-        await page.goto("https://tera-orpin-three.vercel.app")
+        # @@ts-step {"i":1,"type":"action","action":"navigate","selector":null,"desc":"Navigate to https://tera-orpin-three.vercel.app/simulator","input":"https://tera-orpin-three.vercel.app/simulator","field":null}
+        await page.goto("https://tera-orpin-three.vercel.app/simulator")
         await page.wait_for_load_state("domcontentloaded")
 
         # @@ts-step {"i":2,"type":"action","action":"select","selector":"[data-testid=scenario-select]","desc":"Load golden scenario S46","input":"S46","field":null}

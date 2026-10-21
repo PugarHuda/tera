@@ -290,7 +290,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         const parsed = parseTimeline(timeline);
         const cat = raw === undefined ? null : parseCatalog(raw);
         simulate(cat ?? defaultCatalog, parsed); // a link that only shows an error is not worth sharing
-        const url = `${APP}/?t=${encodeTimeline(parsed)}${cat ? `&c=${encodeCatalog(cat)}` : ""}`;
+        const url = `${APP}/simulator?t=${encodeTimeline(parsed)}${cat ? `&c=${encodeCatalog(cat)}` : ""}`;
         return text(url, { url });
       }),
     );

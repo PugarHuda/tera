@@ -41,6 +41,11 @@ export async function GET() {
 
 Amounts are integers in the currency's minor unit (cents; yen for JPY). Dates are ISO-8601 UTC. ${scenarios.length} golden scenarios cite ${rules.size} billing rules (${[...rules].sort((a, b) => +a.slice(1) - +b.slice(1)).join(", ")}), defined in the PRD.
 
+## App
+
+- [Simulator](${SITE}/simulator): \`?s=S05\` opens a golden scenario; \`create_share_link\` (MCP) builds a \`?t=\` link to any timeline
+- [Pricing builder](${SITE}/builder), [Migration planner](${SITE}/migrate)
+
 ## API
 
 - [OpenAPI document](${SITE}/api/openapi.json): every endpoint and schema

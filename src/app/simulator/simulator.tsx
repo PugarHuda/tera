@@ -153,7 +153,7 @@ export function Simulator({
   })();
 
   // The address bar always replays what is on screen, so a reload or Back keeps the user's edits.
-  const keepInUrl = (q: string) => history.replaceState(null, "", `/?${q}${catalogParam ? `&c=${catalogParam}` : ""}`);
+  const keepInUrl = (q: string) => history.replaceState(null, "", `/simulator?${q}${catalogParam ? `&c=${catalogParam}` : ""}`);
   const load = (id: string) => {
     setScenarioId(id);
     setTimeline(playable.find((s) => s.id === id)?.timeline ?? []);
@@ -196,7 +196,7 @@ export function Simulator({
     }
   };
   const share = async () => {
-    const url = `${location.origin}/?t=${encodeTimeline(timeline)}${catalogParam ? `&c=${catalogParam}` : ""}`;
+    const url = `${location.origin}/simulator?t=${encodeTimeline(timeline)}${catalogParam ? `&c=${catalogParam}` : ""}`;
     setShareUrl(url);
     try {
       await navigator.clipboard.writeText(url);

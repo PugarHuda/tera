@@ -318,7 +318,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
         <div className="flex flex-wrap gap-2">
           <a
             className={`btn ${catalog ? "" : "pointer-events-none opacity-40"}`}
-            href={catalog ? `/?c=${encodeCatalog(catalog)}` : undefined}
+            href={catalog ? `/simulator?c=${encodeCatalog(catalog)}` : undefined}
             aria-disabled={!catalog}
             data-testid="simulate-catalog"
           >
