@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { createServer } from "node:http";
 import { pathToFileURL } from "node:url";
 import Stripe from "stripe";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 const B = process.argv[2] ?? process.env.BASE_URL;
 const out = process.argv[3] ?? mkdtempSync(join(tmpdir(), "tera-e2e-"));
 let fails = 0;
@@ -225,6 +226,20 @@ ok(/clock_\w+/.test(await page.getByTestId("parity-S74-evidence").innerText()), 
 // J5 — API reference and MCP pages.
 await page.getByRole("link", { name: "MCP" }).click();
 ok((await page.getByTestId("mcp-tools").innerText()).includes("simulate_timeline"), "MCP page lists simulate_timeline");
+// The endpoint that page tells agents to add, with the official MCP client over Streamable HTTP, as an agent connects.
+{
+  const mcp = new Client({ name: "tera-e2e", version: "1" });
+  await mcp.connect(new StreamableHTTPClientTransport(new URL(B + "/api/mcp")));
+  const sim = await mcp.callTool({
+    name: "simulate_timeline",
+    arguments: { timeline: [{ at: "2027-01-01T00:00:00Z", type: "subscribe", price: "starter_m" }, { at: "2027-01-17T00:00:00Z", type: "change_price", price: "pro_m" }, { at: "2027-02-01T00:00:00Z", type: "advance_to" }] },
+  });
+  const inv = sim.structuredContent?.invoices ?? [];
+  ok(inv[1]?.total === 10320 && inv[1]?.total_display === "$103.20", `MCP simulate_timeline on the deployment returns S05's $103.20 as structured content (${inv[1]?.total_display})`);
+  const tools = (await mcp.listTools()).tools;
+  ok(tools.length === 10 && tools.find((t) => t.name === "simulate_timeline")?.outputSchema?.type === "object", "MCP tools/list: 10 tools, simulate_timeline with an output schema");
+  await mcp.close();
+}
 await page.getByRole("link", { name: "API" }).click();
 await page.getByText("POST").first().waitFor({ timeout: 30000 });
 ok(/Tera/i.test(await page.title()), `API reference renders (${await page.title()})`);
