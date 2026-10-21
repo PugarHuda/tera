@@ -22,6 +22,12 @@ CASES = {
         [{"at": "2027-01-01T00:00:00Z", "type": "start_trial", "price": "pro_m", "trial_days": 14}, {"at": "2027-01-05T00:00:00Z", "type": "reset_anchor"}],
         "trial",
     ),
+    # R22 dropped "the first event must be subscribe": advance_to and adjust_balance may come first (a balance granted
+    # before subscribing), and any other event before the subscribe is a 422.
+    "change before subscribe": ([{"at": "2027-01-01T00:00:00Z", "type": "change_price", "price": "pro_m"}, SUB], "before subscribe"),
+    # Schema-valid but not billable (/api/openapi.json states the schema; Schemathesis checks it in CI).
+    "events out of date order": ([SUB, {"at": "2026-12-31T00:00:00Z", "type": "advance_to"}], "chronological"),
+    "a day that is not on the calendar": ([SUB, {"at": "2027-02-30T00:00:00Z", "type": "advance_to"}], "calendar"),
     "change after cancel_now": (
         [SUB, {"at": "2027-01-10T00:00:00Z", "type": "cancel_now"}, {"at": "2027-01-12T00:00:00Z", "type": "change_quantity", "quantity": 2}],
         "canceled",
@@ -42,7 +48,8 @@ def test_malformed_input_returns_400() -> None:
         "empty timeline": {"timeline": []},
         "bad date": {"timeline": [{**SUB, "at": "next tuesday"}]},
         "negative quantity": {"timeline": [{**SUB, "quantity": -1}]},
-        "first event not subscribe": {"timeline": [{"at": "2027-01-01T00:00:00Z", "type": "advance_to"}]},
+        "month 13": {"timeline": [SUB, {"at": "2027-13-01T00:00:00Z", "type": "advance_to"}]},
+        "unknown usage_type": {"catalog": {"prices": {"p": {"currency": "usd", "interval": "month", "unit_amount": 100, "usage_type": "seats"}}}, "timeline": [{**SUB, "price": "p"}]},
         "unknown proration_behavior": {
             "timeline": [SUB, {"at": "2027-01-10T00:00:00Z", "type": "change_quantity", "quantity": 2, "proration_behavior": "sometimes"}]
         },

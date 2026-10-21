@@ -1,0 +1,12 @@
+# Schemathesis fuzzes the public API from its own OpenAPI spec (/api/openapi.json) in e2e.yml: schema-valid requests
+# must be accepted and never 500, schema-invalid ones must be rejected, responses must match the spec.
+# /api/parity and /api/stripe/* call Stripe and are left to their own tests.
+[checks.positive_data_acceptance]
+# A schema-valid timeline can still be one Stripe rejects or Tera does not model (a second subscribe, pause on a
+# classic subscription): the documented 422.
+expected-statuses = ["2XX", "422"]
+
+[checks.unsupported_method]
+# Vercel's edge answers TRACE itself, before the app; the app's own 405s (PUT, PATCH, DELETE) carry Allow and are
+# covered by the TestSprite API suite.
+enabled = false

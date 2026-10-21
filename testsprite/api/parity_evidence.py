@@ -25,7 +25,7 @@ def test_live_replay_rejects_bad_input_before_stripe() -> None:
     too_many = [sub] + [{"at": f"2027-02-{d:02d}T00:00:00Z", "type": "advance_to"} for d in range(1, 16)]
     too_long = [sub, {"at": "2029-02-01T00:00:00Z", "type": "advance_to"}]
     cases = [
-        ({"scenario": "S99"}, 400), ({"scenario": "S24"}, 400), ({}, 400),
+        ({"scenario": "S9999"}, 400), ({"scenario": "S24"}, 400), ({}, 400),
         ({"timeline": too_many}, 400), ({"timeline": too_long}, 400),
         ({"timeline": [{**sub, "price": "nope"}]}, 422),
         ({"timeline": [sub, {"at": "2027-01-10T00:00:00Z", "type": "subscribe", "price": "pro_m"}]}, 422),
