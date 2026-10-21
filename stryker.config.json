@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "The command runner runs the whole Vitest suite per mutant (about 3 s). @stryker-mutator/vitest-runner 10 does not activate mutants under Vitest 5: csv.ts scored 1.4% with it, 76.6% with this.",
+  "testRunner": "command",
+  "commandRunner": { "command": "npx vitest run" },
+  "mutate": ["src/lib/validate.ts", "src/lib/money.ts", "src/lib/csv.ts", "src/lib/share.ts"],
+  "coverageAnalysis": "off",
+  "concurrency": 4,
+  "reporters": ["clear-text", "html", "json"],
+  "thresholds": { "high": 90, "low": 80, "break": 75 },
+  "tempDirName": ".stryker-tmp"
+}
