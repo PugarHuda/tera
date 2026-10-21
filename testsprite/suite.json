@@ -1,0 +1,9 @@
+{
+  "$comment": "Test lists and schedules of the TestSprite UI project, kept like the plans: scripts/testsprite-sync.mjs fails CI when the cloud differs, and --apply makes the cloud match.",
+  "lists": {
+    "Money math canary": ["ui-s05-totals", "ui-edit-event", "ui-credit-balance", "ui-golden-badge"]
+  },
+  "schedules": [
+    { "name": "Nightly money-math canary on production", "list": "Money math canary", "cron": "0 3 * * *", "timezone": "UTC" }
+  ]
+}

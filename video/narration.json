@@ -1,0 +1,38 @@
+[
+ {
+  "id": "intro",
+  "text": "Pricing changes break invoices. Tera is a billing simulator that charges a virtual customer exactly the way Stripe does: prorations, trials, coupons, tax and credit balances, before a real customer ever sees the invoice."
+ },
+ {
+  "id": "simulator",
+  "text": "This is scenario five. A customer upgrades from Starter to Pro on day seventeen of a thirty-one day month. Tera credits the unused time on Starter, charges the remaining time on Pro, and bills the next month. One hundred and three dollars and twenty cents. The green badge means it matches the value I derived by hand."
+ },
+ {
+  "id": "edit",
+  "text": "Everything is editable. Move the upgrade one day earlier, and the invoice recomputes to one hundred and four dollars and eighty cents. The badge disappears, because this is no longer the golden timeline. Switch the locale, and the same invoice is formatted for Germany."
+ },
+ {
+  "id": "parity",
+  "text": "A simulator is only worth something if it agrees with Stripe. Every one of the one hundred and fourteen hand-derived timelines was replayed in real Stripe test clocks, and every invoice matches to the cent. The evidence, with test clock and invoice IDs, is committed to the repo."
+ },
+ {
+  "id": "builder",
+  "text": "Design your own catalog in the pricing builder, and simulate on it. The migration planner previews what a price increase does to monthly recurring revenue. Grandfather existing customers, and the impact drops to zero."
+ },
+ {
+  "id": "agents",
+  "text": "Coding agents get the same engine over MCP, with structured output, and the REST API has a full OpenAPI reference."
+ },
+ {
+  "id": "loop",
+  "text": "Now the loop. Every pull request is tested by TestSprite against its Vercel preview, and the merge is blocked until it is green. On pull request eighteen, TestSprite caught a real bug: a custom catalog billed zero dollars instead of four thousand five hundred yen. One fix later, every test passed."
+ },
+ {
+  "id": "suite",
+  "text": "The suite has twenty-eight UI tests with exact hand-derived amounts and hand-written Playwright code, plus fifty API tests. When a check fails, a triage job reads TestSprite's failure bundle and runs the same scenarios against Stripe's recorded invoices, to tell a UI bug from a billing regression. And every night, a money-math test list runs on production."
+ },
+ {
+  "id": "outro",
+  "text": "On top of that, every pull request runs user journeys with accessibility checks, API fuzzing from the OpenAPI spec, and Lighthouse budgets. Nightly jobs fuzz against Stripe and run mutation testing. Tera: every invoice, to the cent, before your customers see it."
+ }
+]

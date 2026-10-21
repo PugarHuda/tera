@@ -1,0 +1,45 @@
+# When the TestSprite check fails on a pull request, scripts/testsprite-triage.mjs pulls TestSprite's failure bundles and
+# runs the golden scenarios behind each failed test through the PR preview's billing engine: one PR comment says whether
+# the engine still matches Stripe's test clocks (a UI regression) or not (an engine regression).
+name: TestSprite triage
+
+on:
+  check_run:
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  triage:
+    if: github.event_name == 'workflow_dispatch' || (github.event.check_run.name == 'TestSprite V3' && github.event.check_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TESTSPRITE_API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Pull request and preview
+        id: pr
+        env:
+          PR: ${{ inputs.pr || github.event.check_run.pull_requests[0].number }}
+        run: |
+          [ -n "$PR" ] || { echo "Not a pull request check"; exit 0; }
+          branch=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefName --jq .headRefName)
+          # Vercel's branch alias, the address TestSprite tested (same as e2e.yml).
+          slug=$(echo "$branch" | tr 'A-Z' 'a-z' | sed 's/[^a-z0-9]/-/g')
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+          echo "url=https://tera-git-$slug-hudas-projects-a8e7f558.vercel.app" >> "$GITHUB_OUTPUT"
+      - if: steps.pr.outputs.number
+        run: node scripts/testsprite-triage.mjs "${{ steps.pr.outputs.number }}" "${{ steps.pr.outputs.url }}"
