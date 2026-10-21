@@ -133,7 +133,7 @@ const handler = createMcpHandler(
             ? `Matches Stripe: ${r.stripe.length} invoice(s) identical to the cent (test clock ${r.test_clock}).`
             : `Differs from Stripe on ${r.diffs.length} field(s) (test clock ${r.test_clock}).`;
           const hooks = r.webhooks.match
-            ? `Webhook events match: ${r.webhooks.stripe.flat().length} sent, the same types, invoices and subscription statuses for every timeline event.`
+            ? `Webhook events match: ${r.webhooks.stripe.flat().length} sent, the same types, invoices and subscription statuses for every timeline event (full Stripe payloads in webhooks.payloads).`
             : `Webhook events differ: ${r.webhooks.diffs.map((d) => `event ${d.event} ${d.type} Tera ${d.tera}, Stripe ${d.stripe}`).join("; ")}.`;
           return text(`${head}
 ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webhooks });

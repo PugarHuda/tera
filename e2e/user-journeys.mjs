@@ -72,6 +72,11 @@ await page.getByTestId("stripe-check").waitFor({ timeout: 180000 });
 const v = (await page.getByTestId("stripe-check").innerText()).replace(/\s+/g, " ");
 ok(/matches stripe/i.test(v), `Verify in Stripe: ${v.slice(0, 100)}`);
 ok(/webhooks match/i.test(v), `Verify in Stripe compares webhooks too: ${v.slice(-120)}`);
+// The events the test clock sent, downloaded with their full Stripe payloads (fixtures for a webhook handler).
+const [hookFile] = await Promise.all([page.waitForEvent("download"), page.getByTestId("export-stripe-webhooks").click()]);
+const sentEvents = JSON.parse(readFileSync(await hookFile.path(), "utf8"));
+ok(sentEvents.length > 0 && sentEvents.every((e) => /^evt_/.test(e.id) && e.data.object.id) && sentEvents.some((e) => e.type === "invoice.paid" && e.data.object.object === "invoice"),
+  `downloaded ${sentEvents.length} real Stripe events with payloads (${[...new Set(sentEvents.map((e) => e.type))].join(", ").slice(0, 120)})`);
 
 // FR10 — the webhook events Stripe sends, per timeline event. Event 2's step: the 03-05 renewal (invoice created, finalized,
 // paid; subscription updated), then the seat change: a credit and a charge as two invoice items, and the update.

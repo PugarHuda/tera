@@ -172,7 +172,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   });
 
   // Events are read after each step from a cursor: the account's newest event before this customer existed.
-  const steps: { type: string; object: { id?: string; status?: string } }[][] = [];
+  const steps: Stripe.Event[][] = [];
   let cursor = opts.events ? (await stripe.events.list({ limit: 1 })).data[0]?.id : undefined;
   const mine = (o: { customer?: unknown; id?: unknown }) => o.customer === customer.id || (o.customer as { id?: string } | null)?.id === customer.id;
   const collect = async () => {
@@ -181,7 +181,7 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     for await (const ev of stripe.events.list({ limit: 100, ...(cursor ? { ending_before: cursor } : {}) })) fresh.push(ev);
     fresh.sort((a, b) => a.created - b.created);
     if (fresh.length) cursor = fresh[fresh.length - 1].id;
-    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)).map((ev) => ({ type: ev.type, object: ev.data.object as never })));
+    steps.push(fresh.filter((ev) => (WEBHOOK_TYPES as readonly string[]).includes(ev.type) && mine(ev.data.object as never)));
   };
 
   let now = start;
@@ -326,9 +326,11 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   // Each event as "type #n" (its invoice, numbered as listed) or "type status" (the subscription's status in its payload).
   const number = new Map(out.map((inv, i) => [inv.id, i + 1]));
   const recorded = steps.map((step) =>
-    step.map(({ type, object }) => (type.startsWith("invoice.") ? `${type} #${number.get(object.id!)}` : type.startsWith("customer.subscription.") ? `${type} ${object.status}` : type)),
+    step.map(({ type, data: { object } }) => (type.startsWith("invoice.") ? `${type} #${number.get((object as { id: string }).id)}` : type.startsWith("customer.subscription.") ? `${type} ${(object as { status: string }).status}` : type)),
   );
-  return { clockId: clock.id, customerId: customer.id, invoices: out, events: recorded };
+  // The events themselves, as Stripe sent them, for a webhook handler's test fixtures (`step`: the timeline event).
+  const payloads = steps.flatMap((step, i) => step.map((ev) => ({ step: i, id: ev.id, type: ev.type, created: ev.created, api_version: ev.api_version, data: ev.data })));
+  return { clockId: clock.id, customerId: customer.id, invoices: out, events: recorded, payloads };
 }
 
 export type InvoiceDiff = { invoice: number; field: string; tera: unknown; stripe: unknown };
@@ -412,7 +414,7 @@ export async function liveParity(catalog: Catalog, timeline: TimelineEvent[], si
     diffs,
     tera,
     stripe: replay.invoices,
-    webhooks: { match: hookDiffs.length === 0, diffs: hookDiffs, stripe: replay.events },
+    webhooks: { match: hookDiffs.length === 0, diffs: hookDiffs, stripe: replay.events, payloads: replay.payloads },
     test_clock: replay.clockId,
     ran_at: new Date().toISOString(),
   };
