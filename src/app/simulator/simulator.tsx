@@ -129,7 +129,7 @@ export function Simulator({
         diffs: { invoice: number; field: string; tera: unknown; stripe: unknown }[];
         clock: string;
         count: number;
-        webhooks: { match: boolean; diffs: { event: number; type: string; tera: number; stripe: number }[]; sent: number };
+        webhooks: { match: boolean; diffs: { event: number; type: string; tera: number; stripe: number }[]; sent: number; payloads: unknown[] };
       }
     | { state: "error"; error: string }
     | null
@@ -189,7 +189,7 @@ export function Simulator({
         diffs: body.diffs,
         clock: body.test_clock,
         count: body.stripe.length,
-        webhooks: { match: hooks.match, diffs: hooks.diffs, sent: hooks.stripe.flat().length },
+        webhooks: { match: hooks.match, diffs: hooks.diffs, sent: hooks.stripe.flat().length, payloads: hooks.payloads },
       });
     } catch (e) {
       setStripeCheck({ state: "error", error: (e as Error).message });
@@ -220,6 +220,15 @@ export function Simulator({
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(csvBlob(toCsv(rows))),
       download: `tera-invoices${scenarioId ? `-${scenarioId}` : ""}.csv`,
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  // The events the test clock really sent, full payloads, to replay into a webhook handler's tests.
+  const exportPayloads = (payloads: unknown[], clock: string) => {
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([JSON.stringify(payloads, null, 2)], { type: "application/json" })),
+      download: `stripe-webhooks-${clock}.json`,
     });
     a.click();
     URL.revokeObjectURL(a.href);
@@ -412,6 +421,16 @@ export function Simulator({
                       {stripeCheck.webhooks.diffs.map((d) => `event ${d.event + 1} ${d.type}: Tera ${d.tera} · Stripe ${d.stripe}`).join("; ")}
                     </span>
                   </>
+                )}
+                {stripeCheck.webhooks.payloads.length > 0 && (
+                  <button
+                    type="button"
+                    className="btn-ghost mt-1 block border border-current/20 text-xs"
+                    data-testid="export-stripe-webhooks"
+                    onClick={() => exportPayloads(stripeCheck.webhooks.payloads, stripeCheck.clock)}
+                  >
+                    Download the {stripeCheck.webhooks.payloads.length} events Stripe sent (JSON, full payloads)
+                  </button>
                 )}
               </p>
             )}
