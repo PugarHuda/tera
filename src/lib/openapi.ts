@@ -1,7 +1,7 @@
 // OpenAPI 3.1 for the public API. Served at /api/openapi.json and as an MCP resource (tera://openapi.json).
 import golden from "../../golden/scenarios.json";
 import evidence from "../../golden/parity/index.json";
-import { DECIMAL, EVENT_TYPES, ID, LOCALE, STRIPE_CURRENCIES } from "./validate";
+import { DATE_PATTERN, DECIMAL, EVENT_TYPES, ID, LOCALE, STRIPE_CURRENCIES } from "./validate";
 import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS } from "./billing";
 
 // Counted from the recorded evidence so the description never goes stale.
@@ -11,10 +11,10 @@ const verified = evidence.filter((e) => e.match).length;
 const error = { type: "object", properties: { error: { type: "string" } }, required: ["error"] };
 
 // The schemas below state what src/lib/validate.ts accepts, so a generated client or a schema fuzzer (Schemathesis in
-// CI) sees the real contract. What JSON Schema cannot say (events in date order, a span of 10 years, ascending tiers,
-// prices that exist in the catalog) is in the descriptions and answered 400 or 422.
-// A day 1970-2099 with valid month and day ranges, optionally a UTC time: validate.ts also rejects 2027-02-30.
-const date = { type: "string", pattern: /^(19[7-9]\d|20\d\d)-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?(\.\d+)?Z)?$/.source };
+// CI) sees the real contract: a request that breaks these schemas is a 400, and one they allow but that cannot be
+// billed (events out of date order, a span over 10 years, tiers that do not ascend, 30 February, a price missing from
+// the catalog, an action Stripe rejects) is a 422.
+const date = { type: "string", pattern: DATE_PATTERN };
 const currency = { type: "string", enum: [...STRIPE_CURRENCIES, ...STRIPE_CURRENCIES.map((c) => c.toUpperCase())], description: "ISO 4217, any case; Stripe's form is lowercase" };
 const ids = { propertyNames: { pattern: ID.source, not: { const: "__proto__" } } };
 const when = (type: string | string[], then: object) => ({ if: { properties: { type: Array.isArray(type) ? { enum: type } : { const: type } }, required: ["type"] }, then });
@@ -48,8 +48,11 @@ export const spec = {
         },
         responses: {
           "200": { description: "Invoices", content: { "application/json": { schema: { $ref: "#/components/schemas/SimulationResult" } } } },
-          "400": { description: "Malformed input", content: { "application/json": { schema: error } } },
-          "422": { description: "Unknown price/coupon/tax rate or event before subscribe", content: { "application/json": { schema: error } } },
+          "400": { description: "The body breaks the request schema", content: { "application/json": { schema: error } } },
+          "422": {
+            description: "Schema-valid but not billable: events out of date order, a day not on the calendar, an unknown price/coupon/tax rate, an event before subscribe, an action Stripe rejects",
+            content: { "application/json": { schema: error } },
+          },
         },
       },
     },
@@ -120,7 +123,8 @@ export const spec = {
               },
             },
           },
-          "400": { description: "Malformed input", content: { "application/json": { schema: error } } },
+          "400": { description: "The body breaks the request schema", content: { "application/json": { schema: error } } },
+          "422": { description: "unit_amount × total seats over 1e15 minor units", content: { "application/json": { schema: error } } },
         },
       },
     },
@@ -220,7 +224,7 @@ export const spec = {
     "/api/scenarios/{id}": {
       get: {
         summary: "Get a golden scenario (timeline + hand-derived expected invoices + catalog)",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", example: "S05" } }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", enum: golden.scenarios.flatMap((s) => [s.id, s.id.toLowerCase()]), example: "S05", description: "Any case" } }],
         responses: { "200": { description: "Scenario" }, "404": { description: "Not found", content: { "application/json": { schema: error } } } },
       },
     },
@@ -315,9 +319,7 @@ export const spec = {
             minItems: 1,
             maxItems: 100,
             description:
-              "Events in date order (400 otherwise), spanning at most 10 years, starting with subscribe or start_trial. Prices, coupons and tax rates must exist in the catalog, and actions Stripe rejects or Tera does not model are answered 422.",
-            // prefixItems replaces items for index 0, so the first event repeats the event schema.
-            prefixItems: [{ $ref: "#/components/schemas/TimelineEvent", properties: { type: { enum: ["subscribe", "start_trial"] } } }],
+              "Events in date order, spanning at most 10 years. Only advance_to and adjust_balance may come before the subscribe (or start_trial). Prices, coupons and tax rates must exist in the catalog, and actions Stripe rejects or Tera does not model are answered 422.",
             items: { $ref: "#/components/schemas/TimelineEvent" },
           },
         },

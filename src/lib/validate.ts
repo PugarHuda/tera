@@ -4,6 +4,9 @@ import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, type Catalog, 
 
 export class BadRequest extends Error {}
 class TooLarge extends BadRequest {}
+/** 400 means the request breaks the published schema (/api/openapi.json); a request the schema allows but that cannot be
+ *  billed (events out of order, tiers that do not ascend, 30 February) is a 422, like the engine's domain errors. */
+class Unprocessable extends BadRequest {}
 
 // A timeline of 100 events or a 100,000-customer migration is well under 4 MB; anything bigger is refused before parsing.
 const MAX_BODY = 4_000_000;
@@ -52,6 +55,14 @@ const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?Z)?$/;
 // Date.parse rolls 2027-02-30 over to 03-02; a date that does not exist on the calendar is rejected instead.
 const isDate = (v: unknown): v is string =>
   typeof v === "string" && ISO.test(v) && Date.parse(v) >= 0 && Date.parse(v) < Date.UTC(2100, 0, 1) && new Date(v).toISOString().slice(0, 10) === v.slice(0, 10);
+// The schema's date pattern (OpenAPI) admits 2027-02-30; validate.ts answers it 422 rather than 400.
+const DATE_SHAPE = /^(19[7-9]\d|20\d\d)-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?(\.\d+)?Z)?$/;
+export const DATE_PATTERN = DATE_SHAPE.source;
+function date(v: unknown, msg: string): asserts v is string {
+  if (isDate(v)) return;
+  if (typeof v === "string" && DATE_SHAPE.test(v)) unprocessable(`${msg}: ${v} is not a day on the calendar`);
+  fail(msg);
+}
 // ISO 4217 codes this runtime knows (Stripe rejects made-up ones such as "zzz"), minus the ones no Stripe account can
 // use (probed in test mode, 2026-10). BHD, KWD, GHS and the like stay: Stripe takes them once the account has a bank
 // account in that currency, and a push without one returns Stripe's own message.
@@ -78,6 +89,9 @@ const isInt = (x: unknown, min = 0, max = 1e12): x is number => Number.isInteger
 function fail(msg: string): never {
   throw new BadRequest(msg);
 }
+function unprocessable(msg: string): never {
+  throw new Unprocessable(msg);
+}
 
 export function parseCatalog(x: unknown): Catalog {
   if (x === undefined) return defaultCatalog;
@@ -103,8 +117,9 @@ export function parseCatalog(x: unknown): Catalog {
       p.tiers.forEach((t: unknown, i: number) => {
         if (!isObj(t) || typeof t.unit_amount_decimal !== "string" || !DECIMAL.test(t.unit_amount_decimal))
           fail(`${at}.tiers[${i}].unit_amount_decimal must be a non-negative decimal string with at most 12 decimals`);
+        if (t.up_to !== null && !isInt(t.up_to, 1)) fail(`${at}.tiers[${i}].up_to must be a positive whole number or null`);
         const last = i === (p.tiers as unknown[]).length - 1;
-        if (last ? t.up_to !== null : !isInt(t.up_to, prev + 1)) fail(`${at}.tiers must ascend and end with up_to: null`);
+        if (last ? t.up_to !== null : !isInt(t.up_to, prev + 1)) unprocessable(`${at}.tiers must ascend and end with up_to: null`);
         prev = t.up_to as number;
       });
     } else if (!isInt(p.unit_amount, 1)) fail(`${at}.unit_amount must be a positive integer in minor units`);
@@ -144,7 +159,7 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
   const times = x.map((e, i) => {
     const at = `timeline[${i}]`;
     if (!isObj(e)) fail(`${at} must be an object`);
-    if (!isDate(e.at)) fail(`${at}.at must be an ISO-8601 UTC date from 1970 to 2099`);
+    date(e.at, `${at}.at must be an ISO-8601 UTC date from 1970 to 2099`);
     if (!EVENT_TYPES.includes(e.type as (typeof EVENT_TYPES)[number])) fail(`${at}.type must be one of ${EVENT_TYPES.join(", ")}`);
     if (e.quantity !== undefined && !isInt(e.quantity, 0, 1e9)) fail(`${at}.quantity must be a whole number from 0 to 1,000,000,000`);
     for (const ref of ["price", "coupon", "tax_rate"]) if (e[ref] !== undefined && typeof e[ref] !== "string") fail(`${at}.${ref} must be an id string`);
@@ -156,8 +171,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.type === "resume") {
       if (e.billing_cycle_anchor !== undefined && e.billing_cycle_anchor !== "now" && e.billing_cycle_anchor !== "unchanged")
         fail(`${at}.billing_cycle_anchor on resume must be "now" or "unchanged"`);
-    } else if (e.billing_cycle_anchor !== undefined && !isDate(e.billing_cycle_anchor)) fail(`${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
-    if ((e.cancel_at !== undefined || e.type === "cancel_at") && !isDate(e.cancel_at)) fail(`${at}.cancel_at must be an ISO-8601 UTC date`);
+    } else if (e.billing_cycle_anchor !== undefined) date(e.billing_cycle_anchor, `${at}.billing_cycle_anchor must be an ISO-8601 UTC date`);
+    if (e.cancel_at !== undefined || e.type === "cancel_at") date(e.cancel_at, `${at}.cancel_at must be an ISO-8601 UTC date`);
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     if (e.billing_mode !== undefined && !BILLING_MODES.includes(e.billing_mode as never)) fail(`${at}.billing_mode must be one of ${BILLING_MODES.join(", ")}`);
@@ -169,10 +184,10 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     }
     return Date.parse(e.at);
   });
-  if (Math.max(...times) - Math.min(...times) > MAX_SPAN_MS) fail("timeline may span at most 10 years");
+  if (Math.max(...times) - Math.min(...times) > MAX_SPAN_MS) unprocessable("timeline may span at most 10 years");
   // Same rule as the simulator page: events in date order, not silently re-sorted. An event before the subscribe is a
   // domain error from the engine (422, FR7).
-  for (let i = 1; i < times.length; i++) if (times[i] < times[i - 1]) fail(`timeline[${i}].at is before timeline[${i - 1}].at: keep events in chronological order`);
+  for (let i = 1; i < times.length; i++) if (times[i] < times[i - 1]) unprocessable(`timeline[${i}].at is before timeline[${i - 1}].at: keep events in chronological order`);
   return x as TimelineEvent[];
 }
 
@@ -191,7 +206,7 @@ export function parseMigration(x: unknown) {
   });
   // MRR sums must stay exact integers in a double (2^53 ≈ 9e15).
   const seats = (x.customers as unknown[]).reduce((a: number, c) => a + ((isObj(c) ? c.seats : c) as number), 0);
-  if (seats * Math.max(x.unit_amount as number, x.new_unit_amount as number) > 1e15) fail("unit_amount × total seats must be at most 1e15 minor units");
+  if (seats * Math.max(x.unit_amount as number, x.new_unit_amount as number) > 1e15) unprocessable("unit_amount × total seats must be at most 1e15 minor units");
   return x as unknown as Parameters<typeof migrate>[0];
 }
 
@@ -224,6 +239,7 @@ export const preflight = (allow: string) => () => new Response(null, { status: 2
 
 export function badRequest(e: unknown) {
   if (e instanceof TooLarge) return Response.json({ error: e.message }, { status: 413 });
+  if (e instanceof Unprocessable) return Response.json({ error: e.message }, { status: 422 });
   if (e instanceof BadRequest || e instanceof SyntaxError) return Response.json({ error: e.message }, { status: 400 });
   // Engine domain errors (unknown price/coupon, event before subscribe) are the caller's fault too.
   if (e instanceof Error && e.constructor === Error) return Response.json({ error: e.message }, { status: 422 });

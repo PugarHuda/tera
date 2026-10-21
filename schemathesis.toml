@@ -3,5 +3,10 @@
 # /api/parity and /api/stripe/* call Stripe and are left to their own tests.
 [checks.positive_data_acceptance]
 # A schema-valid timeline can still be one Stripe rejects or Tera does not model (a second subscribe, pause on a
-# classic subscription): the documented 422. Events out of date order are a 400 JSON Schema cannot rule out.
-expected-statuses = ["2XX", "400", "422"]
+# classic subscription): the documented 422.
+expected-statuses = ["2XX", "422"]
+
+[checks.unsupported_method]
+# Vercel's edge answers TRACE itself, before the app; the app's own 405s (PUT, PATCH, DELETE) carry Allow and are
+# covered by the TestSprite API suite.
+enabled = false

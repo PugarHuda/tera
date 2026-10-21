@@ -32,8 +32,14 @@ def test_every_golden_scenario_matches_to_the_cent() -> None:
             # I1 + I6 on every invoice
             assert inv["subtotal"] == sum(l["amount"] for l in inv["lines"]), f"{sid} invoice {n}: subtotal != sum(lines)"
             assert inv["amount_due"] >= 0, f"{sid} invoice {n}: negative amount_due"
-            assert inv["amount_due"] == max(0, inv["total"] + inv["starting_balance"]), f"{sid} invoice {n}: amount_due formula"
-        for date, status in scenario.get("expect_status", {}).items():  # e.g. S22 {"2027-02-01": "canceled"}
+            # R18: a positive amount under Stripe's minimum charge (50 cents/yen, 30 pence) is carried, not collected (S69)
+            owed = max(0, inv["total"] + inv["starting_balance"])
+            carried = 0 < owed < {"gbp": 30}.get(inv["currency"], 50)
+            assert inv["amount_due"] == (0 if carried else owed), f"{sid} invoice {n}: amount_due formula"
+        expect_status = scenario.get("expect_status")  # "canceled", or with the day: S22 {"2027-02-01": "canceled"}
+        if isinstance(expect_status, str):
+            assert body["status"] == expect_status, f"{sid}: status {body['status']} != {expect_status}"
+        for date, status in (expect_status if isinstance(expect_status, dict) else {}).items():
             assert body["status"] == status, f"{sid}: status {body['status']} != {status}"
             assert body["canceled_at"] == date, f"{sid}: canceled_at {body['canceled_at']} != {date}"
         checked += 1
