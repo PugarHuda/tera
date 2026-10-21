@@ -1,9 +1,9 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
-  "_comment": "The command runner runs the whole Vitest suite per mutant (about 3 s). @stryker-mutator/vitest-runner 10 does not activate mutants under Vitest 5: csv.ts scored 1.4% with it, 76.6% with this. Two runs at a time with a 60 s timeout: at concurrency 4 on a 4-vCPU runner, 928 of 1,000 mutants timed out from CPU contention and counted as killed (98.8%).",
+  "_comment": "The command runner runs the whole Vitest suite per mutant (about 3 s). @stryker-mutator/vitest-runner 10 does not activate mutants under Vitest 5: csv.ts scored 1.4% with it, 76.6% with this. Two runs at a time with a 60 s timeout: at concurrency 4 on a 4-vCPU runner, 928 of 1,000 mutants timed out from CPU contention and counted as killed (98.8%). The command runs the test files that import these modules (billing.test.ts, the engine's 5,000 random timelines, is left out).",
   "testRunner": "command",
   "commandRunner": {
-    "command": "npx vitest run --maxWorkers=2"
+    "command": "npx vitest run --maxWorkers=2 src/lib/validate.test.ts src/lib/validate-boundaries.test.ts src/lib/api-status.test.ts src/lib/csv.test.ts src/lib/share.test.ts src/lib/money.test.ts src/lib/parity-route.test.ts src/lib/stripe-import.test.ts src/lib/mcp.test.ts"
   },
   "mutate": [
     "src/lib/validate.ts",
