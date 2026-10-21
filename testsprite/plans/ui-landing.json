@@ -1,0 +1,15 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Landing page: the hero invoice is S05's computed upgrade invoice, the proof counts match, and the CTA opens the simulator",
+  "description": "The landing page shows only computed content: S05's upgrade invoice (verified in Stripe: $103.20 with lines -$14.03, $38.23, $79.00) and the parity counts from the Stripe evidence. Its call to action opens the simulator.",
+  "priority": "p1",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page" },
+    { "type": "assertion", "description": "Assert the headline reads 'Change your pricing without breaking a single invoice.'" },
+    { "type": "assertion", "description": "Assert the invoice card next to the headline shows 'Invoice 2 · 2027-02-01' with total $103.20 and the lines 'Unused time' -$14.03, 'Remaining time' $38.23 and 'pro_m × 1' $79.00, and below them a line containing 'invoice.created → invoice 2'" },
+    { "type": "assertion", "description": "Assert a card reads 'N / N' with both numbers equal and N at least 100, labelled 'timelines replayed in real Stripe test clocks match Tera to the cent'" },
+    { "type": "action", "description": "Click the first 'Open the simulator' button" },
+    { "type": "assertion", "description": "Assert the page heading is 'Customer timeline simulator', the URL path is /simulator, and the 'Load scenario' dropdown shows S05" }
+  ]
+}

@@ -29,3 +29,5 @@ testsprite test code put <test-id> --code-file testsprite/code/ui-cancel-now.py 
 | File | Cloud test |
 |---|---|
 | `code/ui-cancel-now.py` | `03eeaac1-01b2-4af8-b622-de0d7f68cf3f` |
+| `code/ui-landing.py` | `581fbcef-2652-4f6b-9ee0-ca2e5bda540b` |
+| `code/ui-webhooks.py` | `4e5d466b-356a-438f-8200-69a8c73d62d3` |
