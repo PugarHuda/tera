@@ -1,12 +1,28 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
-  "_comment": "The command runner runs the whole Vitest suite per mutant (about 3 s). @stryker-mutator/vitest-runner 10 does not activate mutants under Vitest 5: csv.ts scored 1.4% with it, 76.6% with this.",
+  "_comment": "The command runner runs the whole Vitest suite per mutant (about 3 s). @stryker-mutator/vitest-runner 10 does not activate mutants under Vitest 5: csv.ts scored 1.4% with it, 76.6% with this. Two runs at a time with a 60 s timeout: at concurrency 4 on a 4-vCPU runner, 928 of 1,000 mutants timed out from CPU contention and counted as killed (98.8%).",
   "testRunner": "command",
-  "commandRunner": { "command": "npx vitest run" },
-  "mutate": ["src/lib/validate.ts", "src/lib/money.ts", "src/lib/csv.ts", "src/lib/share.ts"],
+  "commandRunner": {
+    "command": "npx vitest run --maxWorkers=2"
+  },
+  "mutate": [
+    "src/lib/validate.ts",
+    "src/lib/money.ts",
+    "src/lib/csv.ts",
+    "src/lib/share.ts"
+  ],
   "coverageAnalysis": "off",
-  "concurrency": 4,
-  "reporters": ["clear-text", "html", "json"],
-  "thresholds": { "high": 90, "low": 80, "break": 75 },
-  "tempDirName": ".stryker-tmp"
+  "concurrency": 2,
+  "reporters": [
+    "clear-text",
+    "html",
+    "json"
+  ],
+  "thresholds": {
+    "high": 90,
+    "low": 80,
+    "break": 75
+  },
+  "tempDirName": ".stryker-tmp",
+  "timeoutMS": 60000
 }
