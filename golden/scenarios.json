@@ -7302,6 +7302,103 @@
         }
       ],
       "parity": "golden/parity/S136.json"
+    },
+    {
+      "id": "S137",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R5"
+      ],
+      "title": "A coupon discounts one-off charges but not one-off credits (fuzz seeds 97001, 97007)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "coupon": "FOREVER25"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 2000
+        },
+        {
+          "at": "2027-01-11T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": -1000
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "01-01: 7900 less 25% = 5925. 02-01: lines 2000, -1000, 7900 (subtotal 8900). FOREVER25 applies to the positive lines only: 25% of 2000 + 7900 = 2475, not 25% of 8900. Total 8900 - 2475 = 6425.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 5925
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            2000,
+            -1000,
+            7900
+          ],
+          "total": 6425
+        }
+      ],
+      "parity": "golden/parity/S137.json"
+    },
+    {
+      "id": "S138",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R5",
+        "R10"
+      ],
+      "title": "An amount_off coupon still takes its full amount off when a one-off credit leaves little to pay (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "starter_m",
+          "coupon": "TENOFF3"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": -2500
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "TENOFF3 is 1000 off for 3 months. 01-01: 2900 - 1000 = 1900. 02-01: lines -2500, 2900 (subtotal 400); the 1000 comes off the 2900 line, the credit is not discounted, so the total is 400 - 1000 = -600: nothing due and 600 of credit (R10).",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            2900
+          ],
+          "total": 1900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -2500,
+            2900
+          ],
+          "total": -600
+        }
+      ],
+      "parity": "golden/parity/S138.json"
     }
   ]
 }

@@ -310,7 +310,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const claimed = draft.claimed;
     const subtotal = draft.lines.reduce((a, l) => a + l.amount, 0);
     // R5: proration lines are not discountable (they were already priced at the discounted rate).
-    const discountable = draft.lines.filter((l) => !l.proration).reduce((a, l) => a + l.amount, 0);
+    // R25: a negative one-off item (a credit) is not discounted: a coupon applies to the positive lines only (fuzz
+    // seeds 97001, 97007: 25% of 9000, not of 9000 - 4100).
+    const discountable = draft.lines.filter((l) => !l.proration && l.amount > 0).reduce((a, l) => a + l.amount, 0);
     let discount = 0;
     const d = draft.coupon;
     const live = d && d.remaining > 0 && draft.at < d.end ? catalog.coupons![d.code] : null;
@@ -326,7 +328,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     }
     const taxable = subtotal - discount;
     // The invoice discount spread over its discountable lines (one, in practice), for per-line taxable amounts.
-    const share = (l: InvoiceLine) => (discountable === 0 ? 0 : roundMinor((discount * l.amount) / discountable));
+    const share = (l: InvoiceLine) => (discountable === 0 || l.amount <= 0 ? 0 : roundMinor((discount * l.amount) / discountable));
     let tax = 0;
     let total = taxable;
     const r = sub.taxRate;

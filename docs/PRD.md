@@ -200,6 +200,7 @@ Derived by replaying all 54 classic goldens in Stripe with `billing_mode: flexib
 
 ### R25 — One-off invoice items
 - `add_invoice_item` with `amount` (minor units; negative = credit) is a Stripe invoice item on the subscription. It is not invoiced on its own: it joins the subscription's next invoice (the renewal, the first paid invoice after a trial, or the final invoice of a cancel at period end), and that invoice's coupon and tax apply to it like to the subscription's own line (S132–S136). `cancel_now` without `invoice_now` drops it with the other pending items. It sends `invoiceitem.created` when added.
+- A coupon discounts the positive lines only: a negative item (a credit) is never discounted, so a percent coupon takes its share of the charges alone and an amount_off coupon its full amount even when a credit leaves less to pay (fuzz seeds 97001, 97007; S137, S138).
 - Found by eight Stripe probes (plain, forever coupon, exclusive tax, flexible with both, a credit, cancel at period end, cancel now, during a trial); the engine matched all eight before the goldens were written.
 
 ### R24 — Webhook events
