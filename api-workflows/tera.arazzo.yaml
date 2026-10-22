@@ -1,0 +1,165 @@
+# Stateful API contract tests: each workflow chains real calls the way a client would, and checks every response
+# against the OpenAPI spec as well as the success criteria below. Run against a deployment with
+#   npx @redocly/cli@2.1.0 respect api-workflows/tera.arazzo.yaml -S tera=https://tera-orpin-three.vercel.app
+# Expected amounts are the hand-derived goldens (golden/scenarios.json), never engine output.
+# Respect's `jsonpath` criteria substitute `$.name` paths into a JavaScript expression (no JSONPath filters), hence
+# `$.webhooks.some(...)`; plain criteria use JSON pointers.
+arazzo: 1.0.1
+info:
+  title: Tera API workflows
+  version: 1.0.0
+sourceDescriptions:
+  - name: tera
+    type: openapi
+    url: ../openapi.json
+
+workflows:
+  - workflowId: goldenRoundTrip
+    summary: A client fetches a golden scenario and replays it through the simulator; the engine must reproduce the hand-derived invoices.
+    steps:
+      - stepId: findProration
+        operationId: listScenarios
+        parameters:
+          - { name: rule, in: query, value: R3 }
+          - { name: q, in: query, value: upgrade day 17 }
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            type: jsonpath
+            condition: $.length == 1
+          - condition: $response.body#/0/id == 'S05'
+      - stepId: getS05
+        operationId: getScenario
+        parameters:
+          - { name: id, in: path, value: s05 }
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/status == 'verified'
+        outputs:
+          firstTotal: $response.body#/expect/0/total
+          secondTotal: $response.body#/expect/1/total
+      - stepId: simulateS05
+        operationId: simulate
+        requestBody:
+          contentType: application/json
+          # S05's timeline (objects cannot be step outputs: Respect strips braces from inlined JSON); the totals below
+          # are compared with the hand-derived ones the previous step fetched.
+          payload:
+            timeline:
+              - { at: "2027-01-01T00:00:00Z", type: subscribe, price: starter_m }
+              - { at: "2027-01-17T00:00:00Z", type: change_price, price: pro_m }
+              - { at: "2027-02-01T00:00:00Z", type: advance_to }
+        successCriteria:
+          - condition: $statusCode == 200
+          # S05 math: remaining 15/31 → −round(2900×15/31) = −1403, +round(7900×15/31) = 3823, plus the 7900 renewal.
+          - condition: $response.body#/invoices/0/total == $steps.getS05.outputs.firstTotal
+          - condition: $response.body#/invoices/1/total == $steps.getS05.outputs.secondTotal
+          - condition: $response.body#/invoices/0/total == 2900
+          - context: $response.body
+            type: jsonpath
+            condition: $.invoices[1].lines[0].amount === -1403 && $.invoices[1].lines[0].proration === true
+          - condition: $response.body#/invoices/1/lines/1/amount == 3823
+          - condition: $response.body#/invoices/1/lines/2/amount == 7900
+          - condition: $response.body#/invoices/1/total == 10320
+          - condition: $response.body#/invoices/1/amount_due == 10320
+          - condition: $response.body#/invoices/1/total_display == "$103.20"
+          - context: $response.body
+            type: jsonpath
+            condition: $.webhooks.some(e => e.type === 'invoice.created' && e.invoice === 2)
+
+  - workflowId: everyRuleHasEvidence
+    summary: Every timeline golden has a recorded Stripe test-clock replay, S05's matches, and the rule filter returns scenarios citing that rule.
+    steps:
+      - stepId: evidence
+        operationId: listParityEvidence
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/4/id == 'S05'
+          - condition: $response.body#/4/match == true
+          - context: $response.body
+            type: jsonpath
+            condition: $.length >= 114
+      - stepId: taxScenarios
+        operationId: listScenarios
+        parameters:
+          - { name: rule, in: query, value: R6 }
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            type: jsonpath
+            condition: $.length > 0 && $.0.rules.includes('R6')
+
+  - workflowId: priceIncreasePlan
+    summary: Planning a $29 → $39 increase for three customers (1, 1 and 3 seats), with and without grandfathering.
+    steps:
+      - stepId: everyonePays
+        operationId: previewMigration
+        requestBody:
+          contentType: application/json
+          payload: { unit_amount: 2900, new_unit_amount: 3900, grandfather: false, customers: [1, 1, 3] }
+        successCriteria:
+          - condition: $statusCode == 200
+          # 5 seats: 5 × 2900 = 14500 → 5 × 3900 = 19500.
+          - condition: $response.body#/mrr_before == 14500
+          - condition: $response.body#/mrr_after == 19500
+          - condition: $response.body#/mrr_delta == 5000
+          - condition: $response.body#/affected == 3
+          - condition: $response.body#/per_customer/2/mrr_delta == 3000
+      - stepId: grandfathered
+        operationId: previewMigration
+        requestBody:
+          contentType: application/json
+          payload: { unit_amount: 2900, new_unit_amount: 3900, grandfather: true, customers: [1, 1, 3] }
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/mrr_before == 14500
+          - condition: $response.body#/mrr_delta == 0
+      - stepId: annual
+        operationId: previewMigration
+        requestBody:
+          contentType: application/json
+          payload: { unit_amount: 29000, new_unit_amount: 39000, grandfather: false, interval: year, customers: [{ name: Acme, seats: 2 }] }
+        successCriteria:
+          - condition: $statusCode == 200
+          # Annual prices count as amount/12 MRR: 2 × 29000 / 12 = 4833.33 → 2 × 39000 / 12 = 6500.
+          - condition: $response.body#/per_customer/0/name == 'Acme'
+          - condition: $response.body#/mrr_after == 6500
+
+  - workflowId: rejections
+    summary: The 400 vs 422 vs 404 contract, as a client meets it.
+    steps:
+      - stepId: outOfOrder
+        operationId: simulate
+        requestBody:
+          contentType: application/json
+          payload:
+            timeline:
+              - { at: "2027-02-01T00:00:00Z", type: subscribe, price: starter_m }
+              - { at: "2027-01-17T00:00:00Z", type: change_price, price: pro_m }
+        successCriteria:
+          - condition: $statusCode == 422
+          - context: $response.body
+            type: jsonpath
+            condition: $.error.includes('order')
+      - stepId: unknownPrice
+        operationId: simulate
+        requestBody:
+          contentType: application/json
+          payload:
+            timeline:
+              - { at: "2027-01-01T00:00:00Z", type: subscribe, price: no_such_price }
+        successCriteria:
+          - condition: $statusCode == 422
+      - stepId: notJsonSchema
+        operationId: simulate
+        requestBody:
+          contentType: application/json
+          payload: { timeline: "S05" }
+        successCriteria:
+          - condition: $statusCode == 400
+      - stepId: unknownScenario
+        operationId: getScenario
+        parameters:
+          - { name: id, in: path, value: S9999 }
+        successCriteria:
+          - condition: $statusCode == 404
