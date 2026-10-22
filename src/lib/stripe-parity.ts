@@ -26,9 +26,11 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   const prices: Record<string, string> = {};
   const wanted = Object.entries(catalog.prices);
   const lookup = Object.fromEntries(wanted.map(([id, p]) => [id, key("tera", id, p)]));
-  const existing = await stripe.prices.list({ lookup_keys: Object.values(lookup), limit: 100 });
+  // Stripe takes at most 10 lookup_keys per list call; a catalog may have 50 prices.
+  const keys = Object.values(lookup);
+  const existing = (await Promise.all(Array.from({ length: Math.ceil(keys.length / 10) }, (_, i) => stripe.prices.list({ lookup_keys: keys.slice(i * 10, i * 10 + 10), limit: 100 })))).flatMap((l) => l.data);
   for (const [id, k] of Object.entries(lookup)) {
-    const found = existing.data.find((p) => p.lookup_key === k);
+    const found = existing.find((p) => p.lookup_key === k);
     if (found) prices[id] = found.id;
   }
   let meterId: string | null = null;
@@ -42,8 +44,12 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
             currency: p.currency,
             recurring: { interval: p.interval, usage_type: "metered", meter: meterId! },
             billing_scheme: "tiered",
-            tiers_mode: "graduated",
-            tiers: (p.tiers ?? []).map((t) => ({ up_to: t.up_to ?? "inf", unit_amount_decimal: Stripe.Decimal.from(t.unit_amount_decimal) })),
+            tiers_mode: p.tiers_mode ?? "graduated",
+            tiers: (p.tiers ?? []).map((t) => ({
+              up_to: t.up_to ?? "inf",
+              unit_amount_decimal: Stripe.Decimal.from(t.unit_amount_decimal),
+              ...(t.flat_amount !== undefined ? { flat_amount: t.flat_amount } : {}),
+            })),
             product_data: { name: `Tera ${id}` },
           })
         : await stripe.prices.create({
