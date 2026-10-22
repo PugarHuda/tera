@@ -206,7 +206,9 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   for (const e of events) {
     const at = sec(e.at);
     const periodEnd = sub?.items.data[0].current_period_end;
-    if (usage.total > 0 && periodEnd && at >= periodEnd) {
+    // An empty window (usage.from already at period end) has nothing to wait for; Stripe rejects end_time <= start_time
+    // (fuzz seed 9010).
+    if (usage.total > 0 && periodEnd && at >= periodEnd && periodEnd > usage.from) {
       // Summaries are minute-aligned windows; the closing period's window ends exactly at period end.
       await waitForUsage(stripe, ids.meterId!, customer.id, usage.from, periodEnd, usage.total);
       usage = { from: periodEnd, total: 0 };
@@ -214,6 +216,9 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     if (at > now) {
       await advance(stripe, clock.id, now, at);
       now = at;
+      // Renewals moved the period on: the next usage window must close at the new period end, not the first one
+      // (flexible fuzz seeds 9101, 9102, 9105 waited on a stale or empty window).
+      if (sub) sub = await stripe.subscriptions.retrieve(sub.id);
     }
     switch (e.type) {
       case "subscribe":

@@ -56,6 +56,50 @@
             "unit_amount_decimal": "0.5"
           }
         ]
+      },
+      "api_volume_m": {
+        "currency": "usd",
+        "interval": "month",
+        "usage_type": "metered",
+        "billing_scheme": "tiered",
+        "tiers_mode": "volume",
+        "tiers": [
+          {
+            "up_to": 1000,
+            "unit_amount_decimal": "2"
+          },
+          {
+            "up_to": 10000,
+            "unit_amount_decimal": "1"
+          },
+          {
+            "up_to": null,
+            "unit_amount_decimal": "0.5"
+          }
+        ]
+      },
+      "api_flat_m": {
+        "currency": "usd",
+        "interval": "month",
+        "usage_type": "metered",
+        "billing_scheme": "tiered",
+        "tiers": [
+          {
+            "up_to": 1000,
+            "unit_amount_decimal": "0",
+            "flat_amount": 500
+          },
+          {
+            "up_to": 10000,
+            "unit_amount_decimal": "1",
+            "flat_amount": 1000
+          },
+          {
+            "up_to": null,
+            "unit_amount_decimal": "0.5",
+            "flat_amount": 2000
+          }
+        ]
       }
     },
     "coupons": {
@@ -6719,6 +6763,267 @@
         }
       ],
       "parity": "golden/parity/S124.json"
+    },
+    {
+      "id": "S125",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Volume tiers: 5000 units all at the second tier rate (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_volume_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "api_volume_m: volume tiers, 0-1000 at 2c, 1001-10000 at 1c, above at 0.5c: every unit is billed at the rate of the tier the total falls in. 5000 is in tier 2: 5000 x 1 = 5000, one line.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            5000
+          ],
+          "total": 5000
+        }
+      ],
+      "parity": "golden/parity/S125.json"
+    },
+    {
+      "id": "S126",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Volume tiers: 12346 units all at the third tier rate, half a cent each (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_volume_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 12346
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "api_volume_m: volume tiers, 0-1000 at 2c, 1001-10000 at 1c, above at 0.5c: every unit is billed at the rate of the tier the total falls in. 12346 is in tier 3: 12346 x 0.5 = 6173 exactly, one line.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            6173
+          ],
+          "total": 6173
+        }
+      ],
+      "parity": "golden/parity/S126.json"
+    },
+    {
+      "id": "S127",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Volume tiers with no usage: one 0-unit tier-1 line (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_volume_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "api_volume_m: volume tiers, 0-1000 at 2c, 1001-10000 at 1c, above at 0.5c: every unit is billed at the rate of the tier the total falls in. No usage: 0 x 2 = 0.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "parity": "golden/parity/S127.json"
+    },
+    {
+      "id": "S128",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Tier flat fees: no usage still pays the first tier's $5 (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_flat_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "api_flat_m: graduated tiers 0-1000 at 0 + $5 flat, 1001-10000 at 1c + $10 flat, above at 0.5c + $20 flat; a tier reached bills its units and its flat fee as two lines. 0 units reach tier 1: 0 x 0 = 0 plus the 500 flat fee.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            500
+          ],
+          "total": 500
+        }
+      ],
+      "parity": "golden/parity/S128.json"
+    },
+    {
+      "id": "S129",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Tier flat fees on all three tiers at 12346 units (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_flat_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 12346
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "api_flat_m: graduated tiers 0-1000 at 0 + $5 flat, 1001-10000 at 1c + $10 flat, above at 0.5c + $20 flat; a tier reached bills its units and its flat fee as two lines. 12346 units: tier 1 1000 x 0 = 0 + 500; tier 2 9000 x 1 = 9000 + 1000; tier 3 2346 x 0.5 = 1173 + 2000. Total 0 + 500 + 9000 + 1000 + 1173 + 2000 = 13673.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            500,
+            9000,
+            1000,
+            1173,
+            2000
+          ],
+          "total": 13673
+        }
+      ],
+      "parity": "golden/parity/S129.json"
+    },
+    {
+      "id": "S130",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R8"
+      ],
+      "title": "Metered cancel at period end with no usage in the last period: a $0 final invoice (fuzz seed 9002)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-02-05T00:00:00Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-03-15T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Tiers 0-1000 at 0, 1001-10000 at 1 cent. 02-01 renewal bills January usage: 1000 x 0 + 4000 x 1 = 4000. Cancelled at the period end (03-01) with no usage in February: Stripe still finalizes a final invoice, one 0 x tier 1 line, total 0.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        },
+        {
+          "date": "2027-03-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "parity": "golden/parity/S130.json"
     }
   ]
 }

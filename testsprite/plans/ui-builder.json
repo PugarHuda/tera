@@ -6,7 +6,7 @@
   "priority": "p0",
   "planSteps": [
     { "type": "action", "description": "Open the app home page, click 'Builder' in the top navigation bar, then click 'Reset to reference catalog'" },
-    { "type": "assertion", "description": "Assert the text 'Catalog is valid: 8 prices, 4 coupons, 2 tax rates.' is shown" },
+    { "type": "assertion", "description": "Assert the text 'Catalog is valid: 10 prices, 4 coupons, 2 tax rates.' is shown" },
     { "type": "action", "description": "In the first price row, change Currency to JPY and set Amount to 29.5" },
     { "type": "assertion", "description": "Assert an alert reads 'starter_m: JPY has no minor unit, so the amount cannot have decimals'" },
     { "type": "action", "description": "Set the first price's Amount to 4500 and its Price id to starter_jpy, then click 'Simulate with this catalog'" },

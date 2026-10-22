@@ -111,6 +111,9 @@ export function parseCatalog(x: unknown): Catalog {
     p.currency = p.currency.toLowerCase(); // Stripe's form: "USD" and "usd" are one currency
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
     if (p.usage_type !== undefined && p.usage_type !== "licensed" && p.usage_type !== "metered") fail(`${at}.usage_type must be "licensed" or "metered"`);
+    if (p.tiers_mode !== undefined && p.tiers_mode !== "graduated" && p.tiers_mode !== "volume") fail(`${at}.tiers_mode must be "graduated" or "volume"`);
+    // Tiers only price metered usage here; on a licensed price they would be silently ignored (audit).
+    if (p.usage_type !== "metered" && (p.tiers !== undefined || p.tiers_mode !== undefined)) fail(`${at}: tiers and tiers_mode are only for metered prices`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
       let prev = 0;
@@ -118,6 +121,7 @@ export function parseCatalog(x: unknown): Catalog {
         if (!isObj(t) || typeof t.unit_amount_decimal !== "string" || !DECIMAL.test(t.unit_amount_decimal))
           fail(`${at}.tiers[${i}].unit_amount_decimal must be a non-negative decimal string with at most 12 decimals`);
         if (t.up_to !== null && !isInt(t.up_to, 1)) fail(`${at}.tiers[${i}].up_to must be a positive whole number or null`);
+        if (t.flat_amount !== undefined && !isInt(t.flat_amount, 0)) fail(`${at}.tiers[${i}].flat_amount must be a whole number of minor units, at most 1,000,000,000,000`);
         const last = i === (p.tiers as unknown[]).length - 1;
         if (last ? t.up_to !== null : !isInt(t.up_to, prev + 1)) unprocessable(`${at}.tiers must ascend and end with up_to: null`);
         prev = t.up_to as number;

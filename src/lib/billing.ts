@@ -2,7 +2,8 @@
 
 export type Interval = "month" | "year";
 
-export type Tier = { up_to: number | null; unit_amount_decimal: string };
+/** A metered price tier; flat_amount (minor units) is a fee charged once when the tier applies. */
+export type Tier = { up_to: number | null; unit_amount_decimal: string; flat_amount?: number };
 
 export type Price = {
   currency: string;
@@ -11,6 +12,8 @@ export type Price = {
   usage_type?: "licensed" | "metered";
   billing_scheme?: "per_unit" | "tiered";
   tiers?: Tier[];
+  /** graduated (default): each tier bills its own units; volume: every unit at the rate of the tier the total falls in. */
+  tiers_mode?: "graduated" | "volume";
 };
 
 export type Coupon = {
@@ -380,19 +383,26 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   };
 
   // R7: one line per tier, each rounded once, up to the tier the usage reaches; no usage is one 0-unit tier-1 line
-  // (Stripe probes P4, P5: an untouched higher tier gets no line).
+  // (Stripe probes P4, P5: an untouched higher tier gets no line). A tier's flat_amount is its own line after the
+  // tier's units, charged whenever the tier is reached, even by 0 units (Stripe probes: 0 units -> the tier-1 fee).
   const usageLines = (s: Sub): InvoiceLine[] => {
     const all = price(s.priceId).tiers ?? [];
-    const reached = all.findIndex((t) => t.up_to === null || s.usage <= t.up_to);
-    const tiers = all.slice(0, Math.max(1, reached + 1));
+    const reached = Math.max(0, all.findIndex((t) => t.up_to === null || s.usage <= t.up_to));
+    const flat = (t: Tier, n: number): InvoiceLine[] => (t.flat_amount ? [{ description: `Usage tier ${n} flat fee`, amount: t.flat_amount, proration: false }] : []);
+    // Volume: every unit at the rate of the tier the total falls in, one line (probe: 12346 units, Tier 3 at 0.5c = 6173).
+    if (price(s.priceId).tiers_mode === "volume") {
+      const t = all[reached];
+      return [{ description: `Usage tier ${reached + 1}: ${s.usage} units (volume)`, amount: roundMinor(s.usage * Number(t.unit_amount_decimal)), proration: false }, ...flat(t, reached + 1)];
+    }
     let floor = 0;
-    return tiers.map((t, i) => {
+    return all.slice(0, reached + 1).flatMap((t, i) => {
       const cap = t.up_to ?? Infinity;
       const units = Math.max(0, Math.min(s.usage, cap) - floor);
       floor = cap;
-      return { description: `Usage tier ${i + 1}: ${units} units`, amount: roundMinor(units * Number(t.unit_amount_decimal)), proration: false };
+      return [{ description: `Usage tier ${i + 1}: ${units} units`, amount: roundMinor(units * Number(t.unit_amount_decimal)), proration: false }, ...flat(t, i + 1)];
     });
   };
+
 
   // trial_will_end: three days before the trial ends; for a trial of three days or less, not with the call that starts it
   // but once the clock moves on (probes: 2- and 3-day trials).
@@ -416,7 +426,8 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
       const at = s.periodEnd;
       if (s.cancelAtPeriodEnd) {
         // R8: no renewal, but prorations still pending (and metered usage) are billed on a final invoice.
-        const final = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : [])];
+        // A metered subscription always gets one, a $0 "0 units" invoice when nothing was used (fuzz seed 9002, S130).
+        const final = [...s.pending, ...(price(s.priceId).usage_type === "metered" ? usageLines(s) : [])];
         if (final.length) openInvoice(s, at, final, true, true);
         s.pending = [];
         s.status = "canceled";

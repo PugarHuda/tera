@@ -169,7 +169,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
         <h2 id="prices-h" className="text-2xl font-medium">Prices</h2>
         {Object.keys(metered).length > 0 && (
           <p className="text-xs opacity-60">
-            Metered prices with graduated tiers ({Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
+            Metered prices (graduated or volume tiers, {Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
           </p>
         )}
         {rows.prices.map((p, i) => (

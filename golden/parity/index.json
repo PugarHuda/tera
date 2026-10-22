@@ -3008,6 +3008,339 @@
     ]
   },
   {
+    "id": "S125",
+    "title": "Volume tiers: 5000 units all at the second tier rate (Stripe probe)",
+    "verified_at": "2026-10-22T03:23:51.215Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCak2QR5nixgqN7sAc3LNf",
+    "customer": "cus_VUAwF0U0ipg37J",
+    "stripe": [
+      {
+        "id": "in_1UTCal2QR5nixgqNsykpBggw",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_volume_m (at $0.02 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCbW2QR5nixgqNKkgFs039",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "5000 × Tera api_volume_m (Tier 2 at $0.01 / month)",
+            "amount": 5000,
+            "proration": false
+          }
+        ],
+        "subtotal": 5000,
+        "discount": 0,
+        "tax": 0,
+        "total": 5000,
+        "amount_due": 5000,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S126",
+    "title": "Volume tiers: 12346 units all at the third tier rate, half a cent each (Stripe probe)",
+    "verified_at": "2026-10-22T03:23:50.856Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCak2QR5nixgqNAnwYDLaw",
+    "customer": "cus_VUAwi2vBM3If3O",
+    "stripe": [
+      {
+        "id": "in_1UTCal2QR5nixgqNqo5jChwI",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_volume_m (at $0.02 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCbV2QR5nixgqNowlmbA2i",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "12346 × Tera api_volume_m (Tier 3 at $0.005 / month)",
+            "amount": 6173,
+            "proration": false
+          }
+        ],
+        "subtotal": 6173,
+        "discount": 0,
+        "tax": 0,
+        "total": 6173,
+        "amount_due": 6173,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S127",
+    "title": "Volume tiers with no usage: one 0-unit tier-1 line (Stripe probe)",
+    "verified_at": "2026-10-22T03:23:12.703Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCak2QR5nixgqNmELlPLz6",
+    "customer": "cus_VUAwUPVEmV33xH",
+    "stripe": [
+      {
+        "id": "in_1UTCal2QR5nixgqN9kobkawF",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_volume_m (at $0.02 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCat2QR5nixgqNFlyggg3u",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_volume_m (Tier 1 at $0.02 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S128",
+    "title": "Tier flat fees: no usage still pays the first tier's $5 (Stripe probe)",
+    "verified_at": "2026-10-22T03:23:32.432Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCaz2QR5nixgqNKnMo9yOJ",
+    "customer": "cus_VUAwefiafKTj74",
+    "stripe": [
+      {
+        "id": "in_1UTCb02QR5nixgqNCFI7ILPF",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_flat_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCbD2QR5nixgqNNf76TlWH",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_flat_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "Tera api_flat_m (Tier 1 at $5.00 / month)",
+            "amount": 500,
+            "proration": false
+          }
+        ],
+        "subtotal": 500,
+        "discount": 0,
+        "tax": 0,
+        "total": 500,
+        "amount_due": 500,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S129",
+    "title": "Tier flat fees on all three tiers at 12346 units (Stripe probe)",
+    "verified_at": "2026-10-22T03:24:25.282Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCbI2QR5nixgqNcB7jXk6P",
+    "customer": "cus_VUAxJ1ilp369Hw",
+    "stripe": [
+      {
+        "id": "in_1UTCbK2QR5nixgqN12RIpIYy",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_flat_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCc32QR5nixgqNpXUgyV8A",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_flat_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "Tera api_flat_m (Tier 1 at $5.00 / month)",
+            "amount": 500,
+            "proration": false
+          },
+          {
+            "description": "9000 × Tera api_flat_m (Tier 2 at $0.01 / month)",
+            "amount": 9000,
+            "proration": false
+          },
+          {
+            "description": "Tera api_flat_m (Tier 2 at $10.00 / month)",
+            "amount": 1000,
+            "proration": false
+          },
+          {
+            "description": "2346 × Tera api_flat_m (Tier 3 at $0.005 / month)",
+            "amount": 1173,
+            "proration": false
+          },
+          {
+            "description": "Tera api_flat_m (Tier 3 at $20.00 / month)",
+            "amount": 2000,
+            "proration": false
+          }
+        ],
+        "subtotal": 13673,
+        "discount": 0,
+        "tax": 0,
+        "total": 13673,
+        "amount_due": 13673,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
     "id": "S13",
     "title": "$10 off for 3 months",
     "verified_at": "2026-10-20T15:26:10.365Z",
@@ -3108,6 +3441,99 @@
         "invoice.paid #3",
         "invoice.created #4",
         "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S130",
+    "title": "Metered cancel at period end with no usage in the last period: a $0 final invoice (fuzz seed 9002)",
+    "verified_at": "2026-10-22T03:27:29.573Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCe32QR5nixgqNNPrMtlO6",
+    "customer": "cus_VUB0CTVohel57x",
+    "stripe": [
+      {
+        "id": "in_1UTCe42QR5nixgqNvJnVVzwN",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCek2QR5nixgqN0y6WsjCn",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 4000,
+        "discount": 0,
+        "tax": 0,
+        "total": 4000,
+        "amount_due": 4000,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCey2QR5nixgqN7FT5Lffc",
+        "date": "2027-03-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.finalized #1",
+        "invoice.created #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active",
+        "invoice.finalized #2",
+        "invoice.paid #2",
+        "customer.subscription.updated active"
+      ],
+      [
+        "customer.subscription.deleted canceled",
+        "invoice.created #3",
+        "invoice.finalized #3",
+        "invoice.paid #3"
       ]
     ]
   },

@@ -1,0 +1,61 @@
+{
+  "id": "S125",
+  "title": "Volume tiers: 5000 units all at the second tier rate (Stripe probe)",
+  "verified_at": "2026-10-22T03:23:51.215Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTCak2QR5nixgqN7sAc3LNf",
+  "customer": "cus_VUAwF0U0ipg37J",
+  "stripe": [
+    {
+      "id": "in_1UTCal2QR5nixgqNsykpBggw",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "0 × Tera api_volume_m (at $0.02 / month)",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTCbW2QR5nixgqNKkgFs039",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "5000 × Tera api_volume_m (Tier 2 at $0.01 / month)",
+          "amount": 5000,
+          "proration": false
+        }
+      ],
+      "subtotal": 5000,
+      "discount": 0,
+      "tax": 0,
+      "total": 5000,
+      "amount_due": 5000,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
+  ]
+}

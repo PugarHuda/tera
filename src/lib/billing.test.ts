@@ -205,3 +205,18 @@ describe("migration input limits", () => {
     expect(() => parseMigration({ ...body, unit_amount: 1e8, new_unit_amount: 1e8 - 1 })).not.toThrow();
   });
 });
+
+describe("R7 volume tiers with flat fees (Stripe probe volflat_m, not in the golden catalog)", () => {
+  const tier = (up_to: number | null, unit_amount_decimal: string, flat_amount: number) => ({ up_to, unit_amount_decimal, flat_amount });
+  const cat = {
+    ...(golden.catalog as unknown as Catalog),
+    prices: { volflat_m: { currency: "usd", interval: "month" as const, usage_type: "metered" as const, tiers_mode: "volume" as const, tiers: [tier(1000, "0", 500), tier(10000, "1", 1000), tier(null, "0.5", 2000)] } },
+  };
+  const run = (q: number) =>
+    simulate(cat, [{ at: "2027-01-01T00:00:00Z", type: "subscribe", price: "volflat_m" }, ...(q ? [{ at: "2027-01-10T00:00:00Z", type: "report_usage" as const, quantity: q }] : []), { at: "2027-02-01T00:00:00Z", type: "advance_to" }]).invoices[1];
+  // Stripe: 0 units -> 0 x Tier 1 + Tier 1 flat $5.00; 5000 units -> 5000 x 1c + Tier 2 flat $10.00 (only the reached tier's fee).
+  it("charges only the reached tier's fee, as its own line", () => {
+    expect([run(0).lines.map((l) => l.amount), run(0).total]).toEqual([[0, 500], 500]);
+    expect([run(5000).lines.map((l) => l.amount), run(5000).total]).toEqual([[5000, 1000], 6000]);
+  });
+});

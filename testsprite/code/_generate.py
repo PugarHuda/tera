@@ -159,7 +159,7 @@ TESTS = {
     "ui-migrate-invalid.py": ("813488e6-ced3-4f7f-af0e-759e84acbf01", "Migration planner: non-positive price and bad seat counts ...", INVALID_MIGRATION),
     "ui-builder.py": ("048f474c-eb9a-4012-a50f-63dd022f95f3", "Pricing builder: JPY rejects decimals ...", '''        await page.goto(APP + "/builder")
         await page.get_by_role("button", name="Reset to reference catalog").click()
-        await expect(page.get_by_test_id("builder-valid")).to_contain_text("Catalog is valid: 8 prices, 4 coupons, 2 tax rates.")
+        await expect(page.get_by_test_id("builder-valid")).to_contain_text("Catalog is valid: 10 prices, 4 coupons, 2 tax rates.")
         await page.get_by_label("Price 1 currency").select_option("jpy")
         await page.get_by_label("Price 1 amount").fill("29.5")
         await expect(page.get_by_test_id("builder-error")).to_contain_text("starter_m: JPY has no minor unit, so the amount cannot have decimals")

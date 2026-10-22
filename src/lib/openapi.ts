@@ -281,7 +281,8 @@ export const spec = {
                 interval: { type: "string", enum: ["month", "year"] },
                 unit_amount: { description: "Licensed prices: amount per seat in minor units" },
                 usage_type: { type: "string", enum: ["licensed", "metered"] },
-                tiers: { description: "Metered prices: graduated tiers, ascending, the last with up_to: null" },
+                tiers: { description: "Metered prices only: tiers, ascending, the last with up_to: null" },
+                tiers_mode: { type: "string", enum: ["graduated", "volume"], description: "Metered prices: graduated (default) bills each tier's units at its rate; volume bills every unit at the rate of the tier the total falls in (R7)" },
               },
               if: { properties: { usage_type: { const: "metered" } }, required: ["usage_type"] },
               then: {
@@ -293,7 +294,11 @@ export const spec = {
                     items: {
                       type: "object",
                       required: ["up_to", "unit_amount_decimal"],
-                      properties: { up_to: { type: ["integer", "null"], minimum: 1, maximum: 1e12 }, unit_amount_decimal: { type: "string", pattern: DECIMAL.source } },
+                      properties: {
+                        up_to: { type: ["integer", "null"], minimum: 1, maximum: 1e12 },
+                        unit_amount_decimal: { type: "string", pattern: DECIMAL.source },
+                        flat_amount: { type: "integer", minimum: 0, maximum: 1e12, description: "A flat fee in minor units, charged once when the tier applies (R7)" },
+                      },
                     },
                   },
                 },
