@@ -487,17 +487,3 @@ export const spec = {
     },
   },
 };
-
-// Redocly Respect (api-workflows/) checks responses with Ajv's defaultUnevaluatedProperties: false, which makes every
-// subschema without its own setting strict, so a conditional branch would reject the properties its parent declares.
-// Branches say true explicitly (a no-op for other validators); the objects that declare properties stay strict there.
-const BRANCHES = ["if", "then", "else", "not"];
-const LISTS = ["allOf", "oneOf", "anyOf"];
-function openBranches(node: unknown): void {
-  if (!node || typeof node !== "object") return;
-  const o = node as Record<string, unknown>;
-  for (const k of BRANCHES) if (o[k] && typeof o[k] === "object") (o[k] as Record<string, unknown>).unevaluatedProperties ??= true;
-  for (const k of LISTS) if (Array.isArray(o[k])) for (const s of o[k]) if (s && typeof s === "object" && !("$ref" in s)) s.unevaluatedProperties ??= true;
-  for (const v of Object.values(o)) openBranches(v);
-}
-openBranches(spec);

@@ -68,7 +68,7 @@ jobs:
       # response checked against the deployed spec (downloaded by the step above).
       - name: Redocly Respect (Arazzo API workflows)
         if: ${{ !cancelled() }}
-        run: npx -y @redocly/cli@2.1.0 respect api-workflows/tera.arazzo.yaml -S tera="${{ steps.url.outputs.url }}" --json-output respect-report.json
+        run: node api-workflows/respect-spec.mjs openapi.json && npx -y @redocly/cli@2.1.0 respect api-workflows/tera.arazzo.yaml -S tera="${{ steps.url.outputs.url }}" --json-output respect-report.json
       # Budgets in lighthouserc.json (median of 3 runs): accessibility, best practices and SEO at 100, performance at least 70
       # (shared runners score ~15 points under a desktop), CLS under 0.1. is-crawlable is skipped: Vercel marks previews noindex.
       - name: Lighthouse CI
