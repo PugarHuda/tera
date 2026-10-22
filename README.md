@@ -12,6 +12,23 @@
 - **Loop ledger:** [`docs/LOOP.md`](docs/LOOP.md), every PR and each commit's `TestSprite V3` verdict, generated from the GitHub API, including the PRs merged while the workspace was out of credits
 - **PRD:** [`docs/PRD.md`](docs/PRD.md). Billing rules R1–R24, invariants I1–I6, every feature tagged SHIPPED.
 
+| Simulator: S05, an upgrade on day 17 | Stripe parity: every golden replayed in a test clock |
+|---|---|
+| ![Simulator showing S05's invoices: $29.00, then $103.20 with the unused-time credit and remaining-time charge](docs/screens/simulator-s05.png) | ![Parity page: 127 of 127 golden scenarios match Stripe to the cent](docs/screens/parity.png) |
+
+## For judges: two minutes
+
+1. Open [/simulator?s=S05](https://tera-orpin-three.vercel.app/simulator?s=S05): invoice 2 is **$103.20** (−14.03 + 38.23 + 79.00, derived by hand in [`golden/scenarios.json`](golden/scenarios.json)), with the green "Matches golden expected" badge.
+2. Change any event, then press **Verify in Stripe**: the same timeline runs in a fresh Stripe test clock and is diffed to the cent.
+3. Open [/parity](https://tera-orpin-three.vercel.app/parity): every golden timeline with its recorded Stripe test clock.
+4. Open [`docs/LOOP.md`](docs/LOOP.md): every PR and each commit's `TestSprite V3` verdict. [PR #18](https://github.com/PugarHuda/tera/pull/18) is TestSprite catching a real bug (a custom catalog billed $0.00 instead of ¥4,500) before merge.
+
+| Judging line | Where it shows |
+|---|---|
+| **Project quality** | The live app (simulator, builder, migration planner, parity, API reference, MCP setup). Lighthouse budgets of 100 for accessibility, best practices and SEO and axe WCAG 2.2 AA checks on every PR; an exploratory Playwright QA pass on production found 13 defects, all fixed with tests ([#38](https://github.com/PugarHuda/tera/pull/38)) |
+| **Tests that run themselves** | On every PR: `TestSprite V3` (28 UI tests with hand-written code and exact amounts, required by branch protection) and the TestSprite API tests against the PR's own preview; Stripe parity replays for engine changes; Playwright journeys, Schemathesis, Arazzo workflows, Lighthouse. Nightly: differential fuzzing against Stripe and a TestSprite money-math canary. A CI check fails if a cloud test's plan or code drifts from the repo. See [Tests that run themselves](#tests-that-run-themselves) |
+| **Innovation** | Stripe is the test oracle: expected values are hand-derived and confirmed in real Stripe test clocks, never taken from the engine; differential fuzzing turns every disagreement into a Stripe probe and a new golden; a failed TestSprite check is triaged against Stripe's recorded invoices in one PR comment; an MCP server lets coding agents simulate and verify a price change |
+
 ## Why it exists
 
 Founders are afraid to touch pricing. A mid-cycle upgrade, a coupon or a tax rule produces invoices nobody previewed, and mistakes are found by customers on their card statements. Stripe executes billing; Tera lets you *simulate* it across customers and time first. It never moves money.
