@@ -1,0 +1,86 @@
+{
+  "id": "S129",
+  "title": "Tier flat fees on all three tiers at 12346 units (Stripe probe)",
+  "verified_at": "2026-10-22T03:24:25.282Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTCbI2QR5nixgqNcB7jXk6P",
+  "customer": "cus_VUAxJ1ilp369Hw",
+  "stripe": [
+    {
+      "id": "in_1UTCbK2QR5nixgqN12RIpIYy",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "0 × Tera api_flat_m (at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTCc32QR5nixgqNpXUgyV8A",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1000 × Tera api_flat_m (Tier 1 at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        },
+        {
+          "description": "Tera api_flat_m (Tier 1 at $5.00 / month)",
+          "amount": 500,
+          "proration": false
+        },
+        {
+          "description": "9000 × Tera api_flat_m (Tier 2 at $0.01 / month)",
+          "amount": 9000,
+          "proration": false
+        },
+        {
+          "description": "Tera api_flat_m (Tier 2 at $10.00 / month)",
+          "amount": 1000,
+          "proration": false
+        },
+        {
+          "description": "2346 × Tera api_flat_m (Tier 3 at $0.005 / month)",
+          "amount": 1173,
+          "proration": false
+        },
+        {
+          "description": "Tera api_flat_m (Tier 3 at $20.00 / month)",
+          "amount": 2000,
+          "proration": false
+        }
+      ],
+      "subtotal": 13673,
+      "discount": 0,
+      "tax": 0,
+      "total": 13673,
+      "amount_due": 13673,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
+  ]
+}

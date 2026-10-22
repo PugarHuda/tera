@@ -111,6 +111,10 @@ export function parseCatalog(x: unknown): Catalog {
     p.currency = p.currency.toLowerCase(); // Stripe's form: "USD" and "usd" are one currency
     if (p.interval !== "month" && p.interval !== "year") fail(`${at}.interval must be "month" or "year"`);
     if (p.usage_type !== undefined && p.usage_type !== "licensed" && p.usage_type !== "metered") fail(`${at}.usage_type must be "licensed" or "metered"`);
+    if (p.tiers_mode !== undefined && p.tiers_mode !== "graduated" && p.tiers_mode !== "volume") fail(`${at}.tiers_mode must be "graduated" or "volume"`);
+    // Tiers only price metered usage here; on a licensed price they would be silently ignored (audit).
+    // Schema-valid but not billable, so 422 (Schemathesis ST202 found it answered 400).
+    if (p.usage_type !== "metered" && (p.tiers !== undefined || p.tiers_mode !== undefined)) unprocessable(`${at}: tiers and tiers_mode are only for metered prices`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
       let prev = 0;
@@ -118,11 +122,12 @@ export function parseCatalog(x: unknown): Catalog {
         if (!isObj(t) || typeof t.unit_amount_decimal !== "string" || !DECIMAL.test(t.unit_amount_decimal))
           fail(`${at}.tiers[${i}].unit_amount_decimal must be a non-negative decimal string with at most 12 decimals`);
         if (t.up_to !== null && !isInt(t.up_to, 1)) fail(`${at}.tiers[${i}].up_to must be a positive whole number or null`);
+        if (t.flat_amount !== undefined && !isInt(t.flat_amount, 0)) fail(`${at}.tiers[${i}].flat_amount must be a whole number of minor units, at most 1,000,000,000,000`);
         const last = i === (p.tiers as unknown[]).length - 1;
         if (last ? t.up_to !== null : !isInt(t.up_to, prev + 1)) unprocessable(`${at}.tiers must ascend and end with up_to: null`);
         prev = t.up_to as number;
       });
-    } else if (!isInt(p.unit_amount, 1)) fail(`${at}.unit_amount must be a positive integer in minor units`);
+    } else if (!isInt(p.unit_amount, 1)) fail(`${at}.unit_amount must be a positive integer in minor units, at most 1,000,000,000,000`);
   }
   if (x.coupons !== undefined) {
     if (!isObj(x.coupons)) fail("catalog.coupons must be an object");
@@ -165,6 +170,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     for (const ref of ["price", "coupon", "tax_rate"]) if (e[ref] !== undefined && typeof e[ref] !== "string") fail(`${at}.${ref} must be an id string`);
     if (e.amount !== undefined && !Number.isInteger(e.amount)) fail(`${at}.amount must be a whole number of minor units`);
     if (e.trial_days !== undefined && !isInt(e.trial_days, 1, 730)) fail(`${at}.trial_days must be 1-730`);
+    // Without trial_period_days Stripe starts no trial at all; a zero-day trial would bill differently (QA).
+    if (e.type === "start_trial" && e.trial_days === undefined) fail(`${at}.trial_days is required for start_trial (1-730)`);
     if (e.type === "change_quantity" && !isInt(e.quantity, 1, 1e9)) fail(`${at}.quantity must be a whole number from 1 to 1,000,000,000`);
     if (["subscribe", "start_trial", "change_price"].includes(e.type as string) && typeof e.price !== "string") fail(`${at}.price is required`);
     if (e.type === "apply_coupon" && typeof e.coupon !== "string") fail(`${at}.coupon is required`);
@@ -188,6 +195,8 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
   // Same rule as the simulator page: events in date order, not silently re-sorted. An event before the subscribe is a
   // domain error from the engine (422, FR7).
   for (let i = 1; i < times.length; i++) if (times[i] < times[i - 1]) unprocessable(`timeline[${i}].at is before timeline[${i - 1}].at: keep events in chronological order`);
+  // Like any other event before a subscribe (422), a timeline that never subscribes bills nothing rather than nothing silently.
+  if (!x.some((e) => e.type === "subscribe" || e.type === "start_trial")) unprocessable("timeline needs a subscribe or start_trial event");
   return x as TimelineEvent[];
 }
 
@@ -201,8 +210,8 @@ export function parseMigration(x: unknown) {
   if (x.customers.length === 0) fail("customers needs at least one customer");
   x.customers.forEach((c: unknown, i: number) => {
     const seats = isObj(c) ? c.seats : c;
-    if (!isInt(seats, 1, 1e6)) fail(`customers[${i}] needs a positive whole number of seats`);
-    if (isObj(c) && (typeof c.name !== "string" || !c.name.trim() || c.name.length > 200)) fail(`customers[${i}].name must be a non-empty string`);
+    if (!isInt(seats, 1, 1e6)) fail(`customers[${i}] needs a positive whole number of seats, at most 1,000,000`);
+    if (isObj(c) && (typeof c.name !== "string" || !c.name.trim() || c.name.length > 200)) fail(`customers[${i}].name must be a non-empty string of at most 200 characters`);
   });
   // MRR sums must stay exact integers in a double (2^53 ≈ 9e15).
   const seats = (x.customers as unknown[]).reduce((a: number, c) => a + ((isObj(c) ? c.seats : c) as number), 0);

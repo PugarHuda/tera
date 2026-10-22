@@ -51,6 +51,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
   for (const r of rows.coupons) {
     if (Object.hasOwn(coupons, r.code)) return { error: `Coupon code ${r.code} is used twice` };
     if (r.kind === "percent" && !PLAIN.test(r.value.trim())) return { error: `${r.code}: "${r.value}" is not a percentage` };
+    if (r.duration === "repeating" && !/^\d+$/.test(r.months.trim())) return { error: `${r.code}: "${r.months}" is not a whole number of months` };
     const off = r.kind === "amount" ? minorOf(r.value, r.currency, r.code) : 0;
     if (typeof off === "string") return { error: off };
     coupons[r.code] = {
@@ -168,7 +169,7 @@ export function Builder({ reference, stripeLive = false }: { reference: Catalog;
         <h2 id="prices-h" className="text-2xl font-medium">Prices</h2>
         {Object.keys(metered).length > 0 && (
           <p className="text-xs opacity-60">
-            Metered prices with graduated tiers ({Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
+            Metered prices (graduated or volume tiers, {Object.keys(metered).join(", ")}) are kept unchanged and included in the catalog.
           </p>
         )}
         {rows.prices.map((p, i) => (

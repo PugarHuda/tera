@@ -36,8 +36,8 @@ async def run_test():
         await page.goto(APP + "/builder")
         # @@ts-step {"i": 2, "type": "action", "action": "act", "selector": null, "desc": "await page.get_by_role(\"button\", name=\"Reset to reference catalog\").click()", "input": null, "field": null}
         await page.get_by_role("button", name="Reset to reference catalog").click()
-        # @@ts-step {"i": 3, "type": "assertion", "action": "assert", "selector": null, "desc": "await expect(page.get_by_test_id(\"builder-valid\")).to_contain_text(\"Catalog is valid: 8 prices, 4 coupons, 2 tax rates.\")", "input": null, "field": null}
-        await expect(page.get_by_test_id("builder-valid")).to_contain_text("Catalog is valid: 8 prices, 4 coupons, 2 tax rates.")
+        # @@ts-step {"i": 3, "type": "assertion", "action": "assert", "selector": null, "desc": "await expect(page.get_by_test_id(\"builder-valid\")).to_contain_text(\"Catalog is valid: 10 prices, 4 coupons, 2 tax rates.\")", "input": null, "field": null}
+        await expect(page.get_by_test_id("builder-valid")).to_contain_text("Catalog is valid: 10 prices, 4 coupons, 2 tax rates.")
         # @@ts-step {"i": 4, "type": "action", "action": "act", "selector": null, "desc": "await page.get_by_label(\"Price 1 currency\").select_option(\"jpy\")", "input": null, "field": null}
         await page.get_by_label("Price 1 currency").select_option("jpy")
         # @@ts-step {"i": 5, "type": "action", "action": "act", "selector": null, "desc": "await page.get_by_label(\"Price 1 amount\").fill(\"29.5\")", "input": null, "field": null}

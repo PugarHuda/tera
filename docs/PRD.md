@@ -97,6 +97,12 @@ where `old_amount`/`new_amount` = unit_amount × quantity.
 
 ### R7 — Metered, graduated tiers
 - Each tier charges its own units at its own rate: `Σ units_in_tier × tier_rate`, rounded once per line.
+- Lines run only up to the tier the usage reaches; with no usage the invoice has one 0-unit tier-1 line (S118, S119).
+- A metered item has no fixed amount to prorate: switching from it writes no "Unused time" line and its unbilled usage is dropped (S120); switching to it writes no "Remaining time" line (S121). Flexible billing mode rejects a switch between metered and licensed (Stripe cannot change an item's usage type there).
+- `cancel_now` with `always_invoice` invoices the usage so far instead of a credit, in both modes (S122, S123); a cancel at period end bills the period's usage on the final invoice (S124).
+- Found by Stripe probes after an audit showed the engine silently dropped usage on these paths.
+- `tiers_mode: "volume"`: one line, every unit at the rate of the tier the total falls in (S125–S127).
+- `flat_amount` on a tier: a separate line after that tier's units, charged whenever the tier is reached, so 0 units still pay the first tier's fee (S128, S129). In volume mode only the reached tier's fee is charged.
 
 ### R8 — Cancellation
 - `cancel_at_period_end`: no renewal; the status becomes `canceled` at period end. Prorations still pending (and metered usage) are billed on a **final invoice** at that moment instead of being dropped (S39).

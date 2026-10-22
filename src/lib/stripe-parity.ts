@@ -26,9 +26,11 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   const prices: Record<string, string> = {};
   const wanted = Object.entries(catalog.prices);
   const lookup = Object.fromEntries(wanted.map(([id, p]) => [id, key("tera", id, p)]));
-  const existing = await stripe.prices.list({ lookup_keys: Object.values(lookup), limit: 100 });
+  // Stripe takes at most 10 lookup_keys per list call; a catalog may have 50 prices.
+  const keys = Object.values(lookup);
+  const existing = (await Promise.all(Array.from({ length: Math.ceil(keys.length / 10) }, (_, i) => stripe.prices.list({ lookup_keys: keys.slice(i * 10, i * 10 + 10), limit: 100 })))).flatMap((l) => l.data);
   for (const [id, k] of Object.entries(lookup)) {
-    const found = existing.data.find((p) => p.lookup_key === k);
+    const found = existing.find((p) => p.lookup_key === k);
     if (found) prices[id] = found.id;
   }
   let meterId: string | null = null;
@@ -42,8 +44,12 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
             currency: p.currency,
             recurring: { interval: p.interval, usage_type: "metered", meter: meterId! },
             billing_scheme: "tiered",
-            tiers_mode: "graduated",
-            tiers: (p.tiers ?? []).map((t) => ({ up_to: t.up_to ?? "inf", unit_amount_decimal: Stripe.Decimal.from(t.unit_amount_decimal) })),
+            tiers_mode: p.tiers_mode ?? "graduated",
+            tiers: (p.tiers ?? []).map((t) => ({
+              up_to: t.up_to ?? "inf",
+              unit_amount_decimal: Stripe.Decimal.from(t.unit_amount_decimal),
+              ...(t.flat_amount !== undefined ? { flat_amount: t.flat_amount } : {}),
+            })),
             product_data: { name: `Tera ${id}` },
           })
         : await stripe.prices.create({
@@ -83,6 +89,16 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
       : (await stripe.taxRates.create({ display_name: name, percentage: r.percentage, inclusive: r.behavior === "inclusive" })).id;
   }
   return { prices, coupons, taxRates, meterId };
+}
+
+// A public catalog push (POST /api/stripe/push and the MCP tool share it) creates up to 50 prices in the test account,
+// so it is throttled like a live replay. ponytail: per instance, like every cooldown here; a shared store if abused.
+const PUSH_COOLDOWN_MS = 10_000;
+let lastPush = 0;
+export function claimPush() {
+  const wait = lastPush + PUSH_COOLDOWN_MS - Date.now();
+  if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000), "A catalog was pushed moments ago");
+  lastPush = Date.now();
 }
 
 // Concurrent replays share one push per catalog so they never race to create the same lookup key.
@@ -190,7 +206,9 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
   for (const e of events) {
     const at = sec(e.at);
     const periodEnd = sub?.items.data[0].current_period_end;
-    if (usage.total > 0 && periodEnd && at >= periodEnd) {
+    // An empty window (usage.from already at period end) has nothing to wait for; Stripe rejects end_time <= start_time
+    // (fuzz seed 9010).
+    if (usage.total > 0 && periodEnd && at >= periodEnd && periodEnd > usage.from) {
       // Summaries are minute-aligned windows; the closing period's window ends exactly at period end.
       await waitForUsage(stripe, ids.meterId!, customer.id, usage.from, periodEnd, usage.total);
       usage = { from: periodEnd, total: 0 };
@@ -198,6 +216,9 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
     if (at > now) {
       await advance(stripe, clock.id, now, at);
       now = at;
+      // Renewals moved the period on: the next usage window must close at the new period end, not the first one
+      // (flexible fuzz seeds 9101, 9102, 9105 waited on a stale or empty window).
+      if (sub) sub = await stripe.subscriptions.retrieve(sub.id);
     }
     switch (e.type) {
       case "subscribe":
@@ -347,6 +368,8 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
       ["date", t.date, s.date],
       ["currency", t.currency, s.currency],
       ["lines", sorted(t.lines.map((l) => l.amount)), sorted(s.lines.map((l) => l.amount))],
+      // Which of them are prorations (Stripe's line `proration` flag), so a renewal line is not mistaken for a charge.
+      ["proration lines", sorted(t.lines.filter((l) => l.proration).map((l) => l.amount)), sorted(s.lines.filter((l) => l.proration).map((l) => l.amount))],
       ["subtotal", t.subtotal, s.subtotal],
       ["discount", t.discount, s.discount],
       ["tax", t.tax, s.tax],
@@ -364,8 +387,8 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
 // No parameter properties: scripts run this file with Node's type stripping, which rejects them.
 export class Cooldown extends Error {
   retryAfter: number;
-  constructor(retryAfter: number) {
-    super(`A live Stripe replay ran moments ago; retry in ${retryAfter}s`);
+  constructor(retryAfter: number, what = "A live Stripe replay ran moments ago") {
+    super(`${what}; retry in ${retryAfter}s`);
     this.retryAfter = retryAfter;
   }
 }

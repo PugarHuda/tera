@@ -109,6 +109,11 @@ describe("rejects timelines Stripe would reject", () => {
     ["a coupon id that is an Object.prototype member", [sub("pro_m", { coupon: "constructor" })], /unknown coupon/i],
     ["an amount too large to stay an exact integer", [sub("pro_m", { quantity: 1e9 })], /exceeds/i],
     ["reset_anchor during a trial", [{ at: "2027-01-01T00:00:00Z", type: "start_trial", price: "pro_m", trial_days: 14 }, { at: "2027-01-05T00:00:00Z", type: "reset_anchor" }], /trial/i],
+    [
+      "a flexible switch between metered and licensed (Stripe probe P1)",
+      [sub("api_metered_m", { billing_mode: "flexible" }), { at: "2027-01-20T00:00:00Z", type: "change_price", price: "pro_m" }],
+      /usage type/i,
+    ],
     ["changes after cancel_now", [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_now" }, { at: "2027-01-12T00:00:00Z", type: "change_quantity", quantity: 2 }], /canceled/i],
   ];
   for (const [name, timeline, msg] of cases) it(name, () => expect(() => simulate(catalog, timeline)).toThrow(msg));
@@ -198,5 +203,20 @@ describe("migration input limits", () => {
     const body = { unit_amount: 1e12, new_unit_amount: 1e12 - 1, grandfather: false, customers: [{ name: "a", seats: 1e6 }] };
     expect(() => parseMigration(body)).toThrow(BadRequest);
     expect(() => parseMigration({ ...body, unit_amount: 1e8, new_unit_amount: 1e8 - 1 })).not.toThrow();
+  });
+});
+
+describe("R7 volume tiers with flat fees (Stripe probe volflat_m, not in the golden catalog)", () => {
+  const tier = (up_to: number | null, unit_amount_decimal: string, flat_amount: number) => ({ up_to, unit_amount_decimal, flat_amount });
+  const cat = {
+    ...(golden.catalog as unknown as Catalog),
+    prices: { volflat_m: { currency: "usd", interval: "month" as const, usage_type: "metered" as const, tiers_mode: "volume" as const, tiers: [tier(1000, "0", 500), tier(10000, "1", 1000), tier(null, "0.5", 2000)] } },
+  };
+  const run = (q: number) =>
+    simulate(cat, [{ at: "2027-01-01T00:00:00Z", type: "subscribe", price: "volflat_m" }, ...(q ? [{ at: "2027-01-10T00:00:00Z", type: "report_usage" as const, quantity: q }] : []), { at: "2027-02-01T00:00:00Z", type: "advance_to" }]).invoices[1];
+  // Stripe: 0 units -> 0 x Tier 1 + Tier 1 flat $5.00; 5000 units -> 5000 x 1c + Tier 2 flat $10.00 (only the reached tier's fee).
+  it("charges only the reached tier's fee, as its own line", () => {
+    expect([run(0).lines.map((l) => l.amount), run(0).total]).toEqual([[0, 500], 500]);
+    expect([run(5000).lines.map((l) => l.amount), run(5000).total]).toEqual([[5000, 1000], 6000]);
   });
 });

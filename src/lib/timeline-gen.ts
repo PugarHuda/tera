@@ -112,6 +112,44 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
   return events;
 }
 
+// R7: a metered (graduated tiers) subscription with usage across one to three periods, sometimes a coupon or tax, a
+// switch to or from a licensed price (classic only: flexible rejects it) and a cancellation.
+export function generateMetered(seed: number, mode: BillingMode = "classic"): TimelineEvent[] {
+  const r = rng(seed);
+  const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
+  const int = (lo: number, hi: number) => lo + Math.floor(r() * (hi - lo + 1));
+  let t = Date.UTC(pick([2027, 2028]), int(0, 5), int(1, 28));
+  const at = () => new Date(t).toISOString().replace(".000", "");
+  const startsMetered = mode === "flexible" || r() < 0.7;
+  const first: TimelineEvent = { at: at(), type: "subscribe", price: startsMetered ? "api_metered_m" : pick(["starter_m", "pro_m"]) };
+  if (mode === "flexible") first.billing_mode = mode;
+  if (r() < 0.3) first.coupon = pick(["SAVE20", "FOREVER25", "TENOFF3"]);
+  if (r() < 0.3) first.tax_rate = pick(["tax10_ex", "vat20_in"]);
+  const events = [first];
+  let metered = startsMetered;
+  const usage = () => metered && events.push({ at: at(), type: "report_usage", quantity: pick([0, int(1, 1000), int(1001, 10000), int(10001, 30000)]) });
+  for (let i = int(1, 3); i > 0; i--) {
+    t += int(2, 25) * 86_400_000;
+    usage();
+  }
+  if (mode === "classic" && r() < 0.4) {
+    t += int(1, 20) * 86_400_000;
+    metered = !metered;
+    events.push({ at: at(), type: "change_price", price: metered ? "api_metered_m" : pick(["starter_m", "pro_m"]) });
+    t += int(1, 10) * 86_400_000;
+    usage();
+  }
+  if (r() < 0.35) {
+    t += int(1, 15) * 86_400_000;
+    const c: TimelineEvent = { at: at(), type: r() < 0.5 ? "cancel_now" : "cancel_at_period_end" };
+    if (c.type === "cancel_now" && r() < 0.6) c.proration_behavior = "always_invoice";
+    events.push(c);
+  }
+  t += int(35, 70) * 86_400_000;
+  events.push({ at: at(), type: "advance_to" });
+  return events;
+}
+
 // R22: a trial with no card that ends canceled or paused; a paused one is resumed later (classic only with the old
 // anchor, R22) and sometimes changed afterwards. Plan changes during the trial bill nothing until it ends.
 export function generateNoCard(seed: number, mode: BillingMode = "classic"): TimelineEvent[] {

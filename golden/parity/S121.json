@@ -1,0 +1,75 @@
+{
+  "id": "S121",
+  "title": "Licensed to metered on day 20: credit only, then usage at renewal (Stripe probe)",
+  "verified_at": "2026-10-22T03:10:52.940Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTCNj2QR5nixgqN6WomTWci",
+  "customer": "cus_VUAjlMay3OO43P",
+  "stripe": [
+    {
+      "id": "in_1UTCNl2QR5nixgqNnCNSjJtj",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTCOy2QR5nixgqNZ4wPqAjI",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "Unused time on Tera pro_m after 20 Jan 2027",
+          "amount": -3058,
+          "proration": true
+        },
+        {
+          "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        },
+        {
+          "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+          "amount": 4000,
+          "proration": false
+        }
+      ],
+      "subtotal": 942,
+      "discount": 0,
+      "tax": 0,
+      "total": 942,
+      "amount_due": 942,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created",
+      "customer.subscription.updated active"
+    ],
+    [],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
+  ]
+}

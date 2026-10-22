@@ -27,7 +27,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R23 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R24 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   // Relative: the API is served by the deployment that serves this spec (production or a preview). Public, no auth.
   servers: [{ url: "/" }],
@@ -112,6 +112,7 @@ export const spec = {
                     mrr_before: { type: "integer" },
                     mrr_after: { type: "integer" },
                     mrr_delta: { type: "integer" },
+                    arr_delta: { type: "integer", description: "Exact annual change: (new - old) × seats × 12 / months per interval; 0 when grandfathered" },
                     per_customer: {
                       type: "array",
                       items: {
@@ -194,7 +195,7 @@ export const spec = {
                 },
               },
             },
-          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown", content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
+          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Another push holds the cooldown (shared with the MCP push_catalog_to_stripe tool)", headers: { "retry-after": { schema: { type: "integer" }, description: "Seconds to wait" } }, content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
       },
     },
     "/api/migrate/stripe": {
@@ -245,7 +246,7 @@ export const spec = {
         operationId: "listScenarios",
         summary: "List golden scenarios",
         parameters: [
-          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R23, see docs/PRD.md)" },
+          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R24, see docs/PRD.md)" },
           { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
         ],
         responses: { "200": { description: "Scenario summaries", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ScenarioSummary" } } } } } },
@@ -280,7 +281,8 @@ export const spec = {
                 interval: { type: "string", enum: ["month", "year"] },
                 unit_amount: { description: "Licensed prices: amount per seat in minor units" },
                 usage_type: { type: "string", enum: ["licensed", "metered"] },
-                tiers: { description: "Metered prices: graduated tiers, ascending, the last with up_to: null" },
+                tiers: { description: "Metered prices only: tiers, ascending, the last with up_to: null" },
+                tiers_mode: { type: "string", enum: ["graduated", "volume"], description: "Metered prices: graduated (default) bills each tier's units at its rate; volume bills every unit at the rate of the tier the total falls in (R7)" },
               },
               if: { properties: { usage_type: { const: "metered" } }, required: ["usage_type"] },
               then: {
@@ -292,7 +294,11 @@ export const spec = {
                     items: {
                       type: "object",
                       required: ["up_to", "unit_amount_decimal"],
-                      properties: { up_to: { type: ["integer", "null"], minimum: 1, maximum: 1e12 }, unit_amount_decimal: { type: "string", pattern: DECIMAL.source } },
+                      properties: {
+                        up_to: { type: ["integer", "null"], minimum: 1, maximum: 1e12 },
+                        unit_amount_decimal: { type: "string", pattern: DECIMAL.source },
+                        flat_amount: { type: "integer", minimum: 0, maximum: 1e12, description: "A flat fee in minor units, charged once when the tier applies (R7)" },
+                      },
                     },
                   },
                 },
@@ -392,7 +398,8 @@ export const spec = {
             when("adjust_balance", { required: ["amount"], properties: { amount: { minimum: -1e10, maximum: 1e10, not: { const: 0 } } } }),
             when("resume", { properties: { billing_cycle_anchor: { enum: ["now", "unchanged"] } } }),
             { if: { properties: { type: { const: "resume" } }, required: ["type"] }, else: { properties: { billing_cycle_anchor: date } } },
-            { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, else: { not: { required: ["trial_end_behavior"] } } },
+            // One conditional per type: Schemathesis cannot generate from two `if`s on the same const.
+            { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, then: { required: ["trial_days"] }, else: { not: { required: ["trial_end_behavior"] } } },
           ],
         },
       ScenarioSummary: {
@@ -480,4 +487,3 @@ export const spec = {
     },
   },
 };
-

@@ -15,6 +15,20 @@ describe("customer CSV", () => {
     expect(customers).toEqual([{ name: "Acme", seats: 2 }]);
     expect(errors).toEqual(['Line 3: "2.5" is not a positive whole number of seats', "Line 4: missing customer name"]);
   });
+  it("takes seat counts only in digits (QA: 0x10 and 1e2 were read as 16 and 100)", () => {
+    const { customers, errors } = parseCustomers("name,seats\nAcme,0x10\nB,1e2\nC, 5");
+    expect(customers).toEqual([{ name: "C", seats: 5 }]);
+    expect(errors).toEqual(['Line 2: "0x10" is not a positive whole number of seats', 'Line 3: "1e2" is not a positive whole number of seats']);
+  });
+  it("names the limit a row breaks", () => {
+    expect(parseCustomers(`Acme,2000000\n${"x".repeat(201)},1`).errors).toEqual(["Line 1: 2000000 seats is over the limit of 1,000,000", "Line 2: the name is longer than 200 characters"]);
+  });
+  it("reads semicolon and tab separated exports, CR-only line breaks and swapped header columns", () => {
+    const want = [{ name: "Acme", seats: 12 }, { name: "Globex", seats: 3 }];
+    expect(parseCustomers("name;seats\nAcme;12\nGlobex;3")).toEqual({ customers: want, errors: [] });
+    expect(parseCustomers("name\tseats\rAcme\t12\rGlobex\t3")).toEqual({ customers: want, errors: [] });
+    expect(parseCustomers("seats,name\n12,Acme\n3,Globex")).toEqual({ customers: want, errors: [] });
+  });
   it("round-trips through toCsv", () => {
     const csv = toCsv([{ name: "Globex, LLC", seats: 1 }]);
     expect(csv).toBe('name,seats\n"Globex, LLC",1\n');

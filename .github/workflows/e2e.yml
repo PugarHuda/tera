@@ -64,6 +64,11 @@ jobs:
       - name: Redocly (OpenAPI lint, rules in redocly.yaml)
         if: ${{ !cancelled() }}
         run: curl -sf "${{ steps.url.outputs.url }}/api/openapi.json" -o openapi.json && npx -y @redocly/cli@2.1.0 lint openapi.json
+      # Stateful contract tests (Arazzo): chained calls a client makes, with hand-derived expectations, and every
+      # response checked against the deployed spec (downloaded by the step above).
+      - name: Redocly Respect (Arazzo API workflows)
+        if: ${{ !cancelled() }}
+        run: node api-workflows/respect-spec.mjs openapi.json && npx -y @redocly/cli@2.1.0 respect api-workflows/tera.arazzo.yaml -S tera="${{ steps.url.outputs.url }}" --json-output respect-report.json
       # Budgets in lighthouserc.json (median of 3 runs): accessibility, best practices and SEO at 100, performance at least 70
       # (shared runners score ~15 points under a desktop), CLS under 0.1. is-crawlable is skipped: Vercel marks previews noindex.
       - name: Lighthouse CI
@@ -81,7 +86,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: schemathesis-report
-          path: schemathesis-report
+          path: |
+            schemathesis-report
+            respect-report.json
           retention-days: 14
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

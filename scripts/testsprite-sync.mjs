@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Checks that testsprite/plans/*.json and the TestSprite UI project are the same suite: every plan file is a cloud test
-// with the same steps, and every cloud test has a plan file. Exits 1 on any difference.
+// Checks that testsprite/plans/*.json, testsprite/code/*.py and the TestSprite UI project are the same suite: every plan file is a cloud test
+// with the same steps and the same stored code, and every cloud test has a plan file. Exits 1 on any difference.
 //   TESTSPRITE_API_KEY=... node scripts/testsprite-sync.mjs [path to the testsprite CLI]
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
@@ -27,6 +27,18 @@ for (const file of readdirSync("testsprite/plans").filter((f) => f.endsWith(".js
   const i = want.findIndex((s, n) => s !== steps[n]);
   if (i !== -1 || want.length !== steps.length)
     problems.push(`${file}: cloud steps differ from step ${i === -1 ? want.length + 1 : i + 1} (push them: testsprite test plan put ${test.id} --steps <{ planSteps }>)`);
+  // The stored code is what `test run` executes; an auto-healing run can rewrite it (pinning a preview URL, loosening
+  // an assertion), so it must still be the hand-written file.
+  const local = `testsprite/code/${file.replace(/\.json$/, ".py")}`;
+  const norm = (s) => s.replace(/\r\n/g, "\n").trimEnd();
+  let code;
+  try {
+    code = readFileSync(local, "utf8");
+  } catch {
+    problems.push(`${file}: no hand-written code at ${local}`);
+    continue;
+  }
+  if (norm(cli("test", "code", "get", test.id).code) !== norm(code)) problems.push(`${local}: cloud code differs (push it: testsprite test code put ${test.id} --code-file ${local})`);
 }
 for (const t of cloud) if (!seen.has(t.id)) problems.push(`cloud test ${t.id} "${t.name}" has no plan file in testsprite/plans/`);
 

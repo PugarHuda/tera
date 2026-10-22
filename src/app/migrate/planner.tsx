@@ -210,8 +210,8 @@ export function Planner({ stripeLive = false }: { stripeLive?: boolean }) {
               <dd className="text-right font-mono" data-testid="mrr-after">{usd(report.mrr_after)}</dd>
               <dt className="opacity-70">MRR change</dt>
               <dd className="text-right font-mono font-semibold" data-testid="mrr-delta">{signed(report.mrr_delta)}</dd>
-              <dt className="opacity-70">ARR change (× 12)</dt>
-              <dd className="text-right font-mono" data-testid="arr-delta">{signed(report.mrr_delta * 12)}</dd>
+              <dt className="opacity-70">ARR change</dt>
+              <dd className="text-right font-mono" data-testid="arr-delta">{signed(report.arr_delta)}</dd>
             </dl>
             <div>
               <div className="mb-2 flex items-center justify-between">

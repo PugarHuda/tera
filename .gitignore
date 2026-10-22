@@ -62,3 +62,7 @@ video/node_modules/
 video/out/
 video/public/*.webm
 video/public/*.mp3
+
+# local copies of the deployed spec and Respect output (CI downloads them)
+/openapi.json
+/respect-report.json
