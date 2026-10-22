@@ -1,6 +1,6 @@
 ---
 title: "I let Stripe grade my tests: building a billing simulator where no expected value comes from my own code"
-published: false
+published: true
 tags: testing, stripe, testsprite, typescript
 canonical_url: https://github.com/PugarHuda/tera/blob/main/docs/WRITEUP.md
 ---
