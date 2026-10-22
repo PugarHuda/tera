@@ -8,9 +8,11 @@
 - **Stripe parity:** [/parity](https://tera-orpin-three.vercel.app/parity). **All 127 golden timeline scenarios match Stripe to the cent, in both classic and flexible billing mode, including Stripe's new pause and resume (API 2026-09-30.endive) and trials that end without a card.**
 - **API:** [/reference](https://tera-orpin-three.vercel.app/reference) (Scalar, interactive) · [OpenAPI](https://tera-orpin-three.vercel.app/api/openapi.json)
 - **MCP for AI agents:** `claude mcp add --transport http tera https://tera-orpin-three.vercel.app/api/mcp`
-- **Demo video:** [on X](https://x.com/BangDropID/status/2111838540552442282) (recorded from [`video/`](video), a Playwright script)
+- **Demo video:** [`docs/tera-demo.mp4`](docs/tera-demo.mp4) (plays on GitHub) or [on X](https://x.com/BangDropID/status/2111838540552442282); built from code in [`video/`](video): Playwright records the live app, Remotion assembles it with narration
 - **Loop ledger:** [`docs/LOOP.md`](docs/LOOP.md), every PR and each commit's `TestSprite V3` verdict, generated from the GitHub API, including the PRs merged while the workspace was out of credits
 - **PRD:** [`docs/PRD.md`](docs/PRD.md). Billing rules R1–R24, invariants I1–I6, every feature tagged SHIPPED.
+
+[![Demo video: click to play](docs/screens/demo-poster.png)](docs/tera-demo.mp4)
 
 | Simulator: S05, an upgrade on day 17 | Stripe parity: every golden replayed in a test clock |
 |---|---|
