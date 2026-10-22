@@ -113,7 +113,8 @@ export function parseCatalog(x: unknown): Catalog {
     if (p.usage_type !== undefined && p.usage_type !== "licensed" && p.usage_type !== "metered") fail(`${at}.usage_type must be "licensed" or "metered"`);
     if (p.tiers_mode !== undefined && p.tiers_mode !== "graduated" && p.tiers_mode !== "volume") fail(`${at}.tiers_mode must be "graduated" or "volume"`);
     // Tiers only price metered usage here; on a licensed price they would be silently ignored (audit).
-    if (p.usage_type !== "metered" && (p.tiers !== undefined || p.tiers_mode !== undefined)) fail(`${at}: tiers and tiers_mode are only for metered prices`);
+    // Schema-valid but not billable, so 422 (Schemathesis ST202 found it answered 400).
+    if (p.usage_type !== "metered" && (p.tiers !== undefined || p.tiers_mode !== undefined)) unprocessable(`${at}: tiers and tiers_mode are only for metered prices`);
     if (p.usage_type === "metered") {
       if (!Array.isArray(p.tiers) || p.tiers.length === 0) fail(`${at}.tiers required for metered prices`);
       let prev = 0;

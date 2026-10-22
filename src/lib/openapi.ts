@@ -392,14 +392,14 @@ export const spec = {
           },
           allOf: [
             when(["subscribe", "start_trial", "change_price"], { required: ["price"] }),
-            when("start_trial", { required: ["trial_days"] }),
             when("apply_coupon", { required: ["coupon"] }),
             when("change_quantity", { required: ["quantity"], properties: { quantity: { minimum: 1 } } }),
             when("cancel_at", { required: ["cancel_at"] }),
             when("adjust_balance", { required: ["amount"], properties: { amount: { minimum: -1e10, maximum: 1e10, not: { const: 0 } } } }),
             when("resume", { properties: { billing_cycle_anchor: { enum: ["now", "unchanged"] } } }),
             { if: { properties: { type: { const: "resume" } }, required: ["type"] }, else: { properties: { billing_cycle_anchor: date } } },
-            { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, else: { not: { required: ["trial_end_behavior"] } } },
+            // One conditional per type: Schemathesis cannot generate from two `if`s on the same const.
+            { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, then: { required: ["trial_days"] }, else: { not: { required: ["trial_end_behavior"] } } },
           ],
         },
       ScenarioSummary: {
