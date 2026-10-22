@@ -37,6 +37,9 @@ describe("parseTimeline", () => {
     [[{ ...sub, trial_days: 731 }], "trial_days must be 1-730"],
     [[{ ...sub, billing_mode: "elastic" }], "billing_mode must be one of"],
     [Array.from({ length: 101 }, () => sub), "limited to 100 events"],
+    // QA: without trial_period_days Stripe starts no trial; a zero-day one billed 4 invoices to Stripe's 3.
+    [[{ ...sub, type: "start_trial" }], "trial_days is required"],
+    [[{ at: "2027-01-01T00:00:00Z", type: "advance_to" }], "needs a subscribe or start_trial"],
   ])("rejects %j", (timeline, message) => expect(() => parseTimeline(timeline)).toThrow(message));
   it("throws BadRequest, which the API maps to 400", () => expect(() => parseTimeline("x")).toThrow(BadRequest));
 });
@@ -54,6 +57,12 @@ describe("findScenarios", () => {
 });
 
 describe("migrate (R9)", () => {
+  it("totals annual prices from exact amounts and reports exact ARR (QA: per-customer rounding drifted)", () => {
+    const r = migrate(parseMigration({ unit_amount: 10000, new_unit_amount: 12000, grandfather: false, interval: "year", customers: Array(10000).fill(1) }));
+    // 10,000 × 10000 / 12 = 8,333,333.3 → 8,333,333; 10,000 × 12000 / 12 = 10,000,000; ARR 10,000 × 2000 = 20,000,000.
+    expect([r.mrr_before, r.mrr_after, r.arr_delta]).toEqual([8333333, 10000000, 20000000]);
+    expect(migrate(parseMigration({ unit_amount: 10000, new_unit_amount: 12000, grandfather: true, interval: "year", customers: [1] })).arr_delta).toBe(0);
+  });
   it("counts annual prices as amount / 12 per customer, rounded half up", () => {
     const r = migrate(parseMigration({ unit_amount: 29900, new_unit_amount: 35900, grandfather: false, interval: "year", customers: [1, { name: "Acme", seats: 3 }] }));
     expect(r.per_customer.map((c) => [c.name, c.mrr_before, c.mrr_after])).toEqual([

@@ -1010,14 +1010,18 @@ export function migrate(input: {
     const mrr_after = input.grandfather ? mrr_before : mrr(input.new_unit_amount, seats);
     return { name, seats, mrr_before, mrr_after, mrr_delta: mrr_after - mrr_before };
   });
-  const sum = (k: "mrr_before" | "mrr_after") => per_customer.reduce((a, c) => a + c[k], 0);
-  const mrr_before = sum("mrr_before");
-  const mrr_after = sum("mrr_after");
+  // Totals from the exact amounts, rounded once: summing per-customer roundings drifted on annual prices (10,000 one-seat
+  // customers at 10000/year: 8,330,000 instead of 8,333,333). ARR is exact, not the rounded MRR × 12.
+  const seats = per_customer.reduce((a, c) => a + c.seats, 0);
+  const newUnit = input.grandfather ? input.unit_amount : input.new_unit_amount;
+  const mrr_before = mrr(input.unit_amount, seats);
+  const mrr_after = mrr(newUnit, seats);
   return {
     affected: per_customer.filter((c) => c.mrr_delta !== 0).length,
     mrr_before,
     mrr_after,
     mrr_delta: mrr_after - mrr_before,
+    arr_delta: ((newUnit - input.unit_amount) * seats * 12) / months,
     per_customer,
   };
 }

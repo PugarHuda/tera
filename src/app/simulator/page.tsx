@@ -33,7 +33,8 @@ export default function SimulatorPage({ searchParams }: { searchParams: SearchPa
 async function SimulatorFromUrl({ searchParams }: { searchParams: SearchParams }) {
   const { s, t, c } = await searchParams;
   const custom = typeof c === "string" ? decodeCatalog(c) : null;
-  const shared = typeof t === "string" ? decodeTimeline(t) : null;
+  // `?t=` (empty) is a timeline whose events were all deleted: reload it empty.
+  const shared = t === "" ? [] : typeof t === "string" ? decodeTimeline(t) : null;
   const scenarioId = typeof s === "string" ? scenarios.find((x) => x.timeline && x.id.toLowerCase() === s.toLowerCase())?.id : undefined;
   // A custom catalog has its own price ids, so golden scenarios do not apply; start with its first licensed
   // price (a metered one would bill $0 until usage is reported).

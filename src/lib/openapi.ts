@@ -112,6 +112,7 @@ export const spec = {
                     mrr_before: { type: "integer" },
                     mrr_after: { type: "integer" },
                     mrr_delta: { type: "integer" },
+                    arr_delta: { type: "integer", description: "Exact annual change: (new - old) × seats × 12 / months per interval; 0 when grandfathered" },
                     per_customer: {
                       type: "array",
                       items: {
@@ -386,6 +387,7 @@ export const spec = {
           },
           allOf: [
             when(["subscribe", "start_trial", "change_price"], { required: ["price"] }),
+            when("start_trial", { required: ["trial_days"] }),
             when("apply_coupon", { required: ["coupon"] }),
             when("change_quantity", { required: ["quantity"], properties: { quantity: { minimum: 1 } } }),
             when("cancel_at", { required: ["cancel_at"] }),

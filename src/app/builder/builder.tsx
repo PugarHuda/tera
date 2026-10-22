@@ -51,6 +51,7 @@ function toCatalog(rows: Rows, fixed: Record<string, Price>): { catalog?: Catalo
   for (const r of rows.coupons) {
     if (Object.hasOwn(coupons, r.code)) return { error: `Coupon code ${r.code} is used twice` };
     if (r.kind === "percent" && !PLAIN.test(r.value.trim())) return { error: `${r.code}: "${r.value}" is not a percentage` };
+    if (r.duration === "repeating" && !/^\d+$/.test(r.months.trim())) return { error: `${r.code}: "${r.months}" is not a whole number of months` };
     const off = r.kind === "amount" ? minorOf(r.value, r.currency, r.code) : 0;
     if (typeof off === "string") return { error: off };
     coupons[r.code] = {

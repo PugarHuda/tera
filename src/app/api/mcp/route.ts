@@ -110,6 +110,7 @@ const migrationOut = z.object({
   mrr_before: int,
   mrr_after: int,
   mrr_delta: int,
+  arr_delta: int,
   per_customer: z.array(z.object({ name: z.string(), seats: int, mrr_before: int, mrr_after: int, mrr_delta: int })),
 });
 const scenarioListOut = z.object({ scenarios: z.array(z.object({ id: z.string(), title: z.string(), rules: z.array(z.string()) })) });

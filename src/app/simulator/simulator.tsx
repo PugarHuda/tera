@@ -81,7 +81,7 @@ function DateField({ label, value, onCommit }: { label: string; value: string | 
       />
       {stale && (
         <span role="alert" className="mt-0.5 text-xs text-red-700 dark:text-red-400">
-          Not a date from 1970 to 2099; still using {day(value)}
+          Not a valid calendar date from 1970 to 2099; still using {day(value)}
         </span>
       )}
     </span>
@@ -136,6 +136,9 @@ export function Simulator({
   >(null);
 
   const scenario = playable.find((s) => s.id === scenarioId);
+  // An edited scenario is no longer that scenario (its label and CSV name would claim golden numbers it does not show);
+  // reverting the edits makes it the scenario again.
+  const shownId = scenario?.timeline && sameTimeline(timeline, scenario.timeline) ? scenarioId : "";
 
   // React Compiler memoizes this; it only re-runs when catalog or timeline change.
   const outcome = ((): { error: string; result?: undefined } | { result: ReturnType<typeof simulate>; error?: undefined } => {
@@ -148,7 +151,11 @@ export function Simulator({
       return { result: simulate(catalog, parseTimeline(timeline)) };
     } catch (e) {
       // The API counts events from 0 (timeline[1]); the page numbers them from 1.
-      return { error: (e as Error).message.replace(/timeline\[(\d+)\]\.?/g, (_, n) => `Event ${Number(n) + 1} `) };
+      // Engine messages name event types by their API ids; the page shows its own labels.
+      const ids = new RegExp(`\\b(${Object.keys(LABEL).join("|")})\\b`, "g");
+      return {
+        error: (e as Error).message.replace(/timeline\[(\d+)\]\.?/g, (_, n) => `Event ${Number(n) + 1} `).replace(ids, (t) => `"${LABEL[t as EventType]}"`),
+      };
     }
   })();
 
@@ -166,6 +173,8 @@ export function Simulator({
     setShareUrl("");
     setStripeCheck(null);
     // Only a timeline a reload can decode goes in the URL; a half-typed one keeps the last good link.
+    // An emptied timeline drops the link, so a reload does not bring back the events just deleted.
+    if (!next.length) keepInUrl("t=");
     try {
       if (parseTimeline(next).length) keepInUrl(`t=${encodeTimeline(next)}`);
     } catch {}
@@ -219,7 +228,7 @@ export function Simulator({
     }));
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(csvBlob(toCsv(rows))),
-      download: `tera-invoices${scenarioId ? `-${scenarioId}` : ""}.csv`,
+      download: `tera-invoices${shownId ? `-${shownId}` : ""}.csv`,
     });
     a.click();
     URL.revokeObjectURL(a.href);
@@ -272,8 +281,8 @@ export function Simulator({
           {playable.length > 0 && (
             <label className="max-w-full text-sm">
               <span className="block text-xs opacity-70">Load scenario</span>
-              <select data-testid="scenario-select" className="input" value={scenarioId} onChange={(e) => load(e.target.value)}>
-                {!scenarioId && <option value="">Custom (shared link)</option>}
+              <select data-testid="scenario-select" className="input" value={shownId} onChange={(e) => load(e.target.value)}>
+                {!shownId && <option value="">{scenarioId ? "Custom (edited)" : "Custom (shared link)"}</option>}
                 {playable.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.id} · {s.title}
@@ -302,7 +311,9 @@ export function Simulator({
                     // Fields the new type does not show must not keep billing: a hidden coupon on a trial was still applied.
                     const type = ev.target.value as EventType;
                     const kept = FIELDS[type].filter((f) => e[f] !== undefined && !(f === "billing_cycle_anchor" && (type === "resume") !== (e.type === "resume")));
-                    edit(timeline.map((x, j) => (j === i ? { at: x.at, type, ...Object.fromEntries(kept.map((f) => [f, x[f]])) } : x)));
+                    // A trial needs a length (Stripe starts none without trial_period_days): start from 14 days.
+                    const trial = type === "start_trial" && !kept.includes("trial_days") ? { trial_days: 14 } : {};
+                    edit(timeline.map((x, j) => (j === i ? { at: x.at, type, ...Object.fromEntries(kept.map((f) => [f, x[f]])), ...trial } : x)));
                   }}
                 >
                   {(Object.keys(FIELDS) as EventType[]).map((t) => (
@@ -401,7 +412,7 @@ export function Simulator({
                 <ul className="mt-2 font-mono text-xs">
                   {stripeCheck.diffs.map((d, i) => (
                     <li key={i}>
-                      invoice {d.invoice} {d.field}: Tera {JSON.stringify(d.tera)} · Stripe {JSON.stringify(d.stripe)}
+                      {d.invoice ? `invoice ${d.invoice} ` : ""}{d.field}: Tera {JSON.stringify(d.tera)} · Stripe {JSON.stringify(d.stripe)}
                     </li>
                   ))}
                 </ul>
@@ -536,8 +547,8 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
   const m = (x: number) => formatMoney(x, inv.currency, locale);
   return (
     <li className="card" data-testid={`invoice-${n}`}>
-      <div className="mb-2 flex items-baseline justify-between">
-        <span className="font-medium">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-2">
+        <span className="whitespace-nowrap font-medium">
           Invoice {n} · {inv.date}
         </span>
         <span className="font-mono text-lg font-semibold" data-testid={`invoice-${n}-total`}>
@@ -568,7 +579,7 @@ function InvoiceCard({ n, inv, locale }: { n: number; inv: Invoice; locale: stri
             <tr>
               <td className="opacity-70">Discount</td>
               <td className="text-right font-mono" data-testid={`invoice-${n}-discount`}>
-                −{m(inv.discount)}
+                {m(-inv.discount)}
               </td>
             </tr>
           )}
