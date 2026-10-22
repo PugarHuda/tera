@@ -7024,6 +7024,57 @@
         }
       ],
       "parity": "golden/parity/S130.json"
+    },
+    {
+      "id": "S131",
+      "status": "verified",
+      "rules": [
+        "R16",
+        "R5"
+      ],
+      "title": "Flexible: a change a coupon makes free is still a $0 remaining-time line (fuzz seed 95503)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-05T00:00:00Z",
+          "type": "apply_coupon",
+          "coupon": "FIFTYOFF"
+        },
+        {
+          "at": "2027-01-17T00:00:00Z",
+          "type": "change_price",
+          "price": "starter_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "pro_m was debited at full price on 01-01 (FIFTYOFF, $50 once, came on 01-05). The 01-17 change leaves 15/31: credit -round(7900*15/31) = -3823; charge starter_m round(2900*15/31) = 1403 gross, discount min(5000, 2900) prorated = 1403, so a $0 line that still uses the once coupon up. 02-01 renewal: starter_m 2900 at full price. Invoice 2: -3823 + 0 + 2900 = -923, amount due 0 (R10 credit).",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -3823,
+            0,
+            2900
+          ],
+          "total": -923
+        }
+      ],
+      "parity": "golden/parity/S131.json"
     }
   ]
 }
