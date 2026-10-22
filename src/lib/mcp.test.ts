@@ -22,8 +22,20 @@ describe("MCP server over the wire", () => {
       "plan_price_migration", "plan_stripe_price_migration", "push_catalog_to_stripe", "simulate_timeline", "verify_timeline_in_stripe",
     ]);
     for (const t of tools) expect(t.annotations, t.name).toBeDefined();
-    for (const name of ["simulate_timeline", "plan_price_migration", "create_share_link", "list_golden_scenarios", "get_golden_scenario"])
-      expect(tools.find((t) => t.name === name)?.outputSchema, name).toMatchObject({ type: "object" });
+    for (const t of tools) expect(t.outputSchema, t.name).toMatchObject({ type: "object" });
+  });
+
+  it("get_parity_evidence returns the recorded replays as structured content", async () => {
+    const all = (await call("get_parity_evidence", {})).structuredContent as { scenarios: { id: string; match: boolean }[] };
+    expect(all.scenarios.length).toBeGreaterThanOrEqual(114);
+    expect(all.scenarios.find((e) => e.id === "S05")?.match).toBe(true);
+    expect((await call("get_parity_evidence", { id: "s05" })).structuredContent).toMatchObject({ id: "S05", match: true });
+  });
+
+  it("completes explain_invoice's scenario id with timeline scenarios only", async () => {
+    const { completion } = await client.complete({ ref: { type: "ref/prompt", name: "explain_invoice" }, argument: { name: "id", value: "S2" } });
+    expect(completion.values).toContain("S23");
+    expect(completion.values).not.toContain("S24"); // a migration scenario: no invoices to explain
   });
 
   it("simulate_timeline returns S05's invoices as structured content, the same numbers as the engine", async () => {

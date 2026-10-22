@@ -1,5 +1,5 @@
 // MCP server (Streamable HTTP): lets coding agents run Tera's billing engine as tools, read its evidence as resources.
-import { ResourceNotFoundError, ResourceTemplate } from "@modelcontextprotocol/server";
+import { ResourceNotFoundError, ResourceTemplate, completable } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import golden from "../../../../golden/scenarios.json";
@@ -115,6 +115,23 @@ const migrationOut = z.object({
 });
 const scenarioListOut = z.object({ scenarios: z.array(z.object({ id: z.string(), title: z.string(), rules: z.array(z.string()) })) });
 const scenarioOut = z.object({ id: z.string(), title: z.string(), rules: z.array(z.string()), expect: z.array(z.record(z.string(), z.unknown())).optional() }).passthrough();
+const parityOut = z.object({
+  match: z.boolean(),
+  diffs: z.array(z.object({ invoice: int, field: z.string(), tera: z.unknown(), stripe: z.unknown() })),
+  stripe: z.array(z.record(z.string(), z.unknown())).describe("Stripe's invoices from the test clock"),
+  webhooks: z.object({ match: z.boolean(), diffs: z.array(z.record(z.string(), z.unknown())), stripe: z.array(z.array(z.string())), payloads: z.array(z.record(z.string(), z.unknown())) }).passthrough(),
+});
+const ids = z.record(z.string(), z.string());
+const pushOut = z.object({ prices: ids, coupons: ids, taxRates: ids, meterId: z.string().nullable() });
+const skippedOut = z.object({ prices: int, coupons: int, tax_rates: int });
+// One tool, three answers: the account's prices to choose from, an empty base, or the migration report.
+const stripeMigrationOut = migrationOut
+  .partial()
+  .extend({ prices: z.array(z.record(z.string(), z.unknown())).optional(), currency: z.string().optional(), interval: z.string().optional(), unit_amount: int.optional(), skipped: int.optional() })
+  .passthrough();
+const evidenceOut = z
+  .object({ scenarios: z.array(z.object({ id: z.string(), match: z.boolean() }).passthrough()).optional(), id: z.string().optional(), match: z.boolean().optional() })
+  .passthrough();
 
 // Domain errors are the caller's to fix, so they come back as tool errors instead of protocol failures.
 function guard<A>(fn: (a: A) => ReturnType<typeof text>) {
@@ -161,6 +178,7 @@ const handler = createMcpHandler(
         description:
           "Replay a customer timeline (max 15 events, 2 years) in a fresh Stripe test-mode test clock and compare Stripe's invoices with Tera's to the cent. Takes up to a minute; one run per 30 seconds.",
         inputSchema: z.object({ timeline: z.array(event).min(1), catalog }),
+        outputSchema: parityOut,
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       },
       async ({ timeline, catalog: raw }) => {
@@ -224,6 +242,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
           new_unit_amount: z.number().int().min(1).max(1e12).optional().describe("The new price per seat, minor units of the price's currency"),
           grandfather: z.boolean().optional().describe("Keep existing customers on the current price; default false"),
         }),
+        outputSchema: stripeMigrationOut,
         annotations: { readOnlyHint: true, openWorldHint: true },
       },
       async ({ stripe_price, new_unit_amount, grandfather = false }) => {
@@ -255,6 +274,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         description:
           "Read the active per-seat prices, valid coupons and active tax rates of the connected Stripe test-mode account as a Tera catalog. Pass it as `catalog` to simulate_timeline or verify_timeline_in_stripe to simulate customers on the prices a team already has.",
         inputSchema: z.object({}),
+        outputSchema: z.object({ catalog: z.record(z.string(), z.unknown()), skipped: skippedOut }),
         annotations: { readOnlyHint: true, openWorldHint: true },
       },
       async () => {
@@ -315,6 +335,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         description:
           "The stored result of replaying golden scenarios in Stripe test clocks: match flag, diffs, test clock id, API version and, for one id, Stripe's own invoice ids and lines. No Stripe call.",
         inputSchema: z.object({ id: z.string().optional().describe("Scenario id such as S05; omitted = a summary of all") }),
+        outputSchema: evidenceOut,
         annotations: readOnly,
       },
       guard(({ id }) => {
@@ -354,6 +375,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         description:
           "Create (or reuse, keyed by a hash of each definition) the catalog's products, prices, coupons, tax rates and usage meter in Tera's Stripe TEST-mode account and return the Stripe ids. Never touches live mode.",
         inputSchema: z.object({ catalog: z.record(z.string(), z.unknown()).describe("{ prices, coupons?, tax_rates? } in the /api/openapi.json Catalog shape") }),
+        outputSchema: pushOut,
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       },
       async ({ catalog: raw }) => {
@@ -410,10 +432,13 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
         description: "Walk through every line of a golden scenario's invoices and the Stripe rule behind it",
         // Only timeline scenarios have invoices (S24-style migration scenarios do not).
         argsSchema: z.object({
-          id: z
-            .string()
-            .refine((id) => !!scenarioById(id)?.timeline, "not a golden timeline scenario id (see tera://scenarios)")
-            .describe("Golden scenario id, e.g. S05"),
+          id: completable(
+            z
+              .string()
+              .refine((id) => !!scenarioById(id)?.timeline, "not a golden timeline scenario id (see tera://scenarios)")
+              .describe("Golden scenario id, e.g. S05"),
+            (v) => golden.scenarios.filter((s) => "timeline" in s && s.id.toLowerCase().startsWith((v ?? "").toLowerCase())).map((s) => s.id),
+          ),
         }),
       },
       ({ id }) =>
