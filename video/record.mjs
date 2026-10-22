@@ -136,7 +136,7 @@ for (const id of order) {
   const video = page.video();
   await ctx.close();
   renameSync(await video.path(), join(dir, `${id}.webm`));
-  manifest[id] = { trimMs: t0 - created, lengthMs: Date.now() - t0 };
+  manifest[id] = { ...manifest[id], trimMs: t0 - created, lengthMs: Date.now() - t0 }; // keep tts.py's audioMs
   console.log(id, manifest[id]);
 }
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 1));
