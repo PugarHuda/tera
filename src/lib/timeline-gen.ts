@@ -109,6 +109,15 @@ export function generate(seed: number, mode: BillingMode = "classic"): TimelineE
         res.at = new Date(on).toISOString().replace(".000", "");
     }
   }
+  // R25: a one-off charge or credit, drawn after everything else so older seeds keep their timelines. Only while the
+  // subscription is live: right after an event that leaves it active or trialing.
+  if (r() < 0.25) {
+    const live = ["subscribe", "start_trial", "end_trial", "change_price", "change_quantity", "apply_coupon", "remove_coupon", "reset_anchor", "resume"];
+    const i = int(1, events.length - 1);
+    const when = Date.parse(events[i - 1].at) + 86_400_000;
+    if (live.includes(events[i - 1].type) && when < Date.parse(events[i].at))
+      events.splice(i, 0, { at: new Date(when).toISOString().replace(".000", ""), type: "add_invoice_item", amount: pick([-1, 1, 1, 1]) * int(1, 50) * 100 });
+  }
   return events;
 }
 

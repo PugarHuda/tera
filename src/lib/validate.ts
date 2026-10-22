@@ -43,6 +43,7 @@ export const EVENT_TYPES = [
   "cancel_at",
   "pause",
   "adjust_balance",
+  "add_invoice_item",
   "advance_to",
 ] as const;
 
@@ -183,7 +184,7 @@ export function parseTimeline(x: unknown): TimelineEvent[] {
     if (e.proration_behavior !== undefined && !PRORATION_BEHAVIORS.includes(e.proration_behavior as never))
       fail(`${at}.proration_behavior must be one of ${PRORATION_BEHAVIORS.join(", ")}`);
     if (e.billing_mode !== undefined && !BILLING_MODES.includes(e.billing_mode as never)) fail(`${at}.billing_mode must be one of ${BILLING_MODES.join(", ")}`);
-    if (e.type === "adjust_balance" && !(isInt(Math.abs(e.amount as number), 1, 1e10) && Number.isInteger(e.amount)))
+    if ((e.type === "adjust_balance" || e.type === "add_invoice_item") && !(isInt(Math.abs(e.amount as number), 1, 1e10) && Number.isInteger(e.amount)))
       fail(`${at}.amount must be a non-zero whole number of minor units (negative = credit), at most 10,000,000,000`);
     if (e.trial_end_behavior !== undefined) {
       if (e.type !== "start_trial") fail(`${at}.trial_end_behavior is only for start_trial`);

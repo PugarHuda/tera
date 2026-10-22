@@ -26,6 +26,7 @@ const FIELDS: Record<EventType, Field[]> = {
   cancel_at: ["cancel_at", "proration_behavior"],
   pause: ["proration_behavior"],
   adjust_balance: ["amount"],
+  add_invoice_item: ["amount"],
   advance_to: [],
 };
 const LABEL: Record<EventType, string> = {
@@ -44,6 +45,7 @@ const LABEL: Record<EventType, string> = {
   cancel_at: "Cancel on a date",
   pause: "Pause (flexible mode)",
   adjust_balance: "Adjust customer balance (minor units, negative = credit)",
+  add_invoice_item: "Add a one-off charge (minor units, negative = credit)",
   advance_to: "Advance clock to",
 };
 const LOCALES = ["en-US", "de-DE", "ja-JP", "en-GB"];

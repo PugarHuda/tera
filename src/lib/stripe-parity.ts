@@ -303,6 +303,10 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
           e.proration_behavior === "always_invoice" ? { prorate: true, invoice_now: true } : e.proration_behavior === "create_prorations" ? { prorate: true } : {},
         );
         break;
+      case "add_invoice_item":
+        // A one-off charge or credit (Stripe invoice item) on the subscription: it waits for the subscription's next invoice.
+        await stripe.invoiceItems.create({ customer: customer.id, subscription: sub!.id, amount: e.amount!, currency: catalog.prices[events.find((x) => x.price)!.price!].currency });
+        break;
       case "adjust_balance":
         // R23: a customer balance transaction, in the subscription's currency.
         await stripe.customers.createBalanceTransaction(customer.id, {

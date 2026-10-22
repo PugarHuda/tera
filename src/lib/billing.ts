@@ -54,6 +54,7 @@ export type TimelineEvent = {
     | "cancel_at"
     | "pause"
     | "adjust_balance"
+    | "add_invoice_item"
     | "advance_to";
   price?: string;
   quantity?: number;
@@ -728,6 +729,16 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         // (R10): a credit lowers what is due, a debit is added to it (S103, S104).
         balance += e.amount!;
         break;
+      case "add_invoice_item": {
+        // R25: a one-off charge (or credit) on the subscription waits for its next invoice (renewal, trial end, or the
+        // final invoice of a cancel at period end), discounted and taxed like the subscription's own line; an immediate
+        // cancellation without invoice_now drops it with the other pending items (Stripe probes P1–P8).
+        const s = active(e.type);
+        const line = { description: "One-off item", amount: e.amount!, proration: false };
+        emit(at, "invoiceitem.created");
+        s.pending.push(line);
+        break;
+      }
       case "advance_to":
         break;
     }

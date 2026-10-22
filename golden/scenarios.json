@@ -7075,6 +7075,233 @@
         }
       ],
       "parity": "golden/parity/S131.json"
+    },
+    {
+      "id": "S132",
+      "status": "verified",
+      "rules": [
+        "R25"
+      ],
+      "title": "A one-off charge waits for the next subscription invoice (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 1500
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "The 01-10 invoice item is not invoiced on its own: it joins the 02-01 renewal. 1500 + 7900 = 9400.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            1500,
+            7900
+          ],
+          "total": 9400
+        }
+      ],
+      "parity": "golden/parity/S132.json"
+    },
+    {
+      "id": "S133",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R5",
+        "R6",
+        "R16"
+      ],
+      "title": "Flexible: a one-off charge is discounted and taxed with the renewal (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m",
+          "billing_mode": "flexible",
+          "coupon": "FOREVER25",
+          "tax_rate": "tax10_ex"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 1000
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "FOREVER25 takes 25% of every line, the item included; tax10_ex is 10% of what is left. 01-01: 7900 - 1975 = 5925, tax 592.5 -> 593, total 6518. 02-01: 1000 + 7900 = 8900, discount 2225, 6675 taxed 667.5 -> 668, total 7343.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 6518
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            1000,
+            7900
+          ],
+          "total": 7343
+        }
+      ],
+      "parity": "golden/parity/S133.json"
+    },
+    {
+      "id": "S134",
+      "status": "verified",
+      "rules": [
+        "R25"
+      ],
+      "title": "A negative one-off item is a credit on the next invoice (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": -500
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "-500 joins the 02-01 renewal: 7900 - 500 = 7400.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -500,
+            7900
+          ],
+          "total": 7400
+        }
+      ],
+      "parity": "golden/parity/S134.json"
+    },
+    {
+      "id": "S135",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R8"
+      ],
+      "title": "A one-off charge pending at a cancel at period end is the final invoice (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 1500
+        },
+        {
+          "at": "2027-01-15T00:00:00Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "R8: no renewal on 02-01, but the pending item is billed on a final invoice: 1500.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            1500
+          ],
+          "total": 1500
+        }
+      ],
+      "parity": "golden/parity/S135.json"
+    },
+    {
+      "id": "S136",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R4"
+      ],
+      "title": "A one-off charge added during a trial is billed with the first paid invoice (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "pro_m",
+          "trial_days": 14
+        },
+        {
+          "at": "2027-01-04T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 1500
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "The 14-day trial ends on 01-15; its first paid invoice carries the item: 1500 + 7900 = 9400.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-15",
+          "lines": [
+            1500,
+            7900
+          ],
+          "total": 9400
+        }
+      ],
+      "parity": "golden/parity/S136.json"
     }
   ]
 }

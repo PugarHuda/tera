@@ -27,7 +27,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R24 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R25 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   // Relative: the API is served by the deployment that serves this spec (production or a preview). Public, no auth.
   servers: [{ url: "/" }],
@@ -246,7 +246,7 @@ export const spec = {
         operationId: "listScenarios",
         summary: "List golden scenarios",
         parameters: [
-          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R24, see docs/PRD.md)" },
+          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R25, see docs/PRD.md)" },
           { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
         ],
         responses: { "200": { description: "Scenario summaries", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ScenarioSummary" } } } } } },
@@ -383,7 +383,7 @@ export const spec = {
               enum: [...BILLING_MODES],
               description: "subscribe/start_trial: Stripe billing mode (default classic). Flexible credits original debits and keeps the anchor (R16).",
             },
-            amount: { type: "integer", description: "adjust_balance: customer balance transaction in minor units; negative = credit applied to the next invoice, positive = debit (R23)." },
+            amount: { type: "integer", description: "adjust_balance: customer balance transaction in minor units; negative = credit applied to the next invoice, positive = debit (R23). add_invoice_item: a one-off charge (negative = credit) on the next subscription invoice (R25)." },
             trial_end_behavior: {
               type: "string",
               enum: [...TRIAL_END_BEHAVIORS],
@@ -395,7 +395,7 @@ export const spec = {
             when("apply_coupon", { required: ["coupon"] }),
             when("change_quantity", { required: ["quantity"], properties: { quantity: { minimum: 1 } } }),
             when("cancel_at", { required: ["cancel_at"] }),
-            when("adjust_balance", { required: ["amount"], properties: { amount: { minimum: -1e10, maximum: 1e10, not: { const: 0 } } } }),
+            when(["adjust_balance", "add_invoice_item"], { required: ["amount"], properties: { amount: { minimum: -1e10, maximum: 1e10, not: { const: 0 } } } }),
             when("resume", { properties: { billing_cycle_anchor: { enum: ["now", "unchanged"] } } }),
             { if: { properties: { type: { const: "resume" } }, required: ["type"] }, else: { properties: { billing_cycle_anchor: date } } },
             // One conditional per type: Schemathesis cannot generate from two `if`s on the same const.
