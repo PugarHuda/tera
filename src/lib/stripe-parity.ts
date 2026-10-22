@@ -347,6 +347,8 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
       ["date", t.date, s.date],
       ["currency", t.currency, s.currency],
       ["lines", sorted(t.lines.map((l) => l.amount)), sorted(s.lines.map((l) => l.amount))],
+      // Which of them are prorations (Stripe's line `proration` flag), so a renewal line is not mistaken for a charge.
+      ["proration lines", sorted(t.lines.filter((l) => l.proration).map((l) => l.amount)), sorted(s.lines.filter((l) => l.proration).map((l) => l.amount))],
       ["subtotal", t.subtotal, s.subtotal],
       ["discount", t.discount, s.discount],
       ["tax", t.tax, s.tax],
