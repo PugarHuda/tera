@@ -27,7 +27,7 @@ export const spec = {
     title: "Tera API",
     version: "0.1.0",
     description:
-      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R23 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
+      `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R24 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
   // Relative: the API is served by the deployment that serves this spec (production or a preview). Public, no auth.
   servers: [{ url: "/" }],
@@ -194,7 +194,7 @@ export const spec = {
                 },
               },
             },
-          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Cooldown", content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
+          }, "400": { description: "Missing or invalid catalog", content: { "application/json": { schema: error } } }, "429": { description: "Another push holds the cooldown (shared with the MCP push_catalog_to_stripe tool)", headers: { "retry-after": { schema: { type: "integer" }, description: "Seconds to wait" } }, content: { "application/json": { schema: error } } }, "502": { description: "Stripe call failed, or no test-mode key is configured", content: { "application/json": { schema: error } } } },
       },
     },
     "/api/migrate/stripe": {
@@ -245,7 +245,7 @@ export const spec = {
         operationId: "listScenarios",
         summary: "List golden scenarios",
         parameters: [
-          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R23, see docs/PRD.md)" },
+          { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R24, see docs/PRD.md)" },
           { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
         ],
         responses: { "200": { description: "Scenario summaries", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ScenarioSummary" } } } } } },

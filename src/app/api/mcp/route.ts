@@ -7,7 +7,7 @@ import evidence from "../../../../golden/parity/index.json";
 import { BILLING_MODES, PRORATION_BEHAVIORS, TRIAL_END_BEHAVIORS, formatMoney, migrate, simulate } from "@/lib/billing";
 import { spec } from "@/lib/openapi";
 import { encodeCatalog, encodeTimeline } from "@/lib/share";
-import { Cooldown, checkLiveLimits, liveParity, migratablePrices, pushCatalogOnce, stripeCatalog, stripeClient, subscribersOf } from "@/lib/stripe-parity";
+import { Cooldown, checkLiveLimits, claimPush, liveParity, migratablePrices, pushCatalogOnce, stripeCatalog, stripeClient, subscribersOf } from "@/lib/stripe-parity";
 import { BadRequest, EVENT_TYPES, defaultCatalog, findScenarios, parseCatalog, parseCurrency, parseLocale, parseMigration, parseTimeline } from "@/lib/validate";
 
 const event = z.object({
@@ -363,7 +363,9 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
           return text(`Rejected: ${(e as Error).message}`, undefined, true);
         }
         try {
-          const ids = await pushCatalogOnce(stripeClient(), cat);
+          const stripe = stripeClient();
+          claimPush();
+          const ids = await pushCatalogOnce(stripe, cat);
           return text(`Created or reused ${Object.keys(ids.prices).length} price(s) in Stripe test mode`, ids);
         } catch (e) {
           return text(`Stripe push failed: ${(e as Error).message}`, undefined, true);
@@ -415,7 +417,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
       },
       ({ id }) =>
         ask(
-          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R23 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
+          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R24 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
         ),
     );
     server.registerPrompt(

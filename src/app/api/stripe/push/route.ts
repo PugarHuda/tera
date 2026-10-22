@@ -1,5 +1,5 @@
 import { BadRequest, badRequest, methodNotAllowed, preflight, parseCatalog, readJson } from "@/lib/validate";
-import { pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
+import { claimPush, Cooldown, pushCatalogOnce, stripeClient } from "@/lib/stripe-parity";
 
 export const maxDuration = 120;
 export const GET = methodNotAllowed("POST");
@@ -7,8 +7,6 @@ export const OPTIONS = preflight("POST");
 export { GET as PUT, GET as PATCH, GET as DELETE };
 
 // FR5: create (or reuse) the catalog's products, prices, coupons and tax rates in Stripe test mode.
-let lastPush = 0;
-const COOLDOWN_MS = 10_000;
 
 export async function POST(req: Request) {
   let catalog;
@@ -20,14 +18,13 @@ export async function POST(req: Request) {
   } catch (e) {
     return badRequest(e);
   }
-  const wait = lastPush + COOLDOWN_MS - Date.now();
-  if (wait > 0) return Response.json({ error: `Pushed moments ago; retry in ${Math.ceil(wait / 1000)}s` }, { status: 429 });
   try {
     const stripe = stripeClient(); // a missing key is a config error, not a push that holds the cooldown
-    lastPush = Date.now();
+    claimPush();
     const ids = await pushCatalogOnce(stripe, catalog);
     return Response.json(ids);
   } catch (e) {
+    if (e instanceof Cooldown) return Response.json({ error: e.message }, { status: 429, headers: { "retry-after": String(e.retryAfter) } });
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 }

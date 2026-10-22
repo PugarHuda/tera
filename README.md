@@ -8,7 +8,7 @@
 - **Stripe parity:** [/parity](https://tera-orpin-three.vercel.app/parity). **All 114 golden timeline scenarios match Stripe to the cent, in both classic and flexible billing mode, including Stripe's new pause and resume (API 2026-09-30.endive) and trials that end without a card.**
 - **API:** [/reference](https://tera-orpin-three.vercel.app/reference) (Scalar, interactive) · [OpenAPI](https://tera-orpin-three.vercel.app/api/openapi.json)
 - **MCP for AI agents:** `claude mcp add --transport http tera https://tera-orpin-three.vercel.app/api/mcp`
-- **PRD:** [`docs/PRD.md`](docs/PRD.md). Billing rules R1–R23, invariants I1–I6, every feature tagged SHIPPED.
+- **PRD:** [`docs/PRD.md`](docs/PRD.md). Billing rules R1–R24, invariants I1–I6, every feature tagged SHIPPED.
 
 ## Why it exists
 

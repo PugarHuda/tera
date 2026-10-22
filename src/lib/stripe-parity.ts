@@ -85,6 +85,16 @@ export async function pushCatalog(stripe: Stripe, catalog: Catalog) {
   return { prices, coupons, taxRates, meterId };
 }
 
+// A public catalog push (POST /api/stripe/push and the MCP tool share it) creates up to 50 prices in the test account,
+// so it is throttled like a live replay. ponytail: per instance, like every cooldown here; a shared store if abused.
+const PUSH_COOLDOWN_MS = 10_000;
+let lastPush = 0;
+export function claimPush() {
+  const wait = lastPush + PUSH_COOLDOWN_MS - Date.now();
+  if (wait > 0) throw new Cooldown(Math.ceil(wait / 1000), "A catalog was pushed moments ago");
+  lastPush = Date.now();
+}
+
 // Concurrent replays share one push per catalog so they never race to create the same lookup key.
 const pushes = new Map<string, ReturnType<typeof pushCatalog>>();
 export function pushCatalogOnce(stripe: Stripe, catalog: Catalog) {
@@ -366,8 +376,8 @@ export function diffInvoices(tera: Invoice[], stripe: ParityInvoice[]): InvoiceD
 // No parameter properties: scripts run this file with Node's type stripping, which rejects them.
 export class Cooldown extends Error {
   retryAfter: number;
-  constructor(retryAfter: number) {
-    super(`A live Stripe replay ran moments ago; retry in ${retryAfter}s`);
+  constructor(retryAfter: number, what = "A live Stripe replay ran moments ago") {
+    super(`${what}; retry in ${retryAfter}s`);
     this.retryAfter = retryAfter;
   }
 }
