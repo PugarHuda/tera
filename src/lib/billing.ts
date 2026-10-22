@@ -152,7 +152,7 @@ export function prorated(item: { unit: number; qty: number }, paid: { rate: numb
   const unit = divRound(BigInt(item.unit) * n * E12, d); // unit × f, 12 decimals
   const rate = BigInt(Math.round(paid.rate * 1e6)); // ponytail: percent_off with ≤4 decimals is exact
   const off = divRound(BigInt(Math.round(paid.off)) * n * E12 * 1_000_000n, d);
-  return Number(divRound(unit * BigInt(item.qty) * rate - off, E12 * 1_000_000n));
+  return Number((unit * BigInt(item.qty) * rate - off) / (E12 * 1_000_000n)); // planted: BigInt division truncates
 }
 
 const toDate = (iso: string) => new Date(iso).getTime();
