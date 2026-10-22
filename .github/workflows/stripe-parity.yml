@@ -58,3 +58,12 @@ jobs:
         run: node --no-warnings scripts/fuzz-parity.mts 24 $(( ${{ github.run_number }} * 1000 + 500 )) flexible
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      # Usage-based (metered, graduated tiers) subscriptions, R7: 8 per mode with their own seed range.
+      - if: ${{ !cancelled() }}
+        run: node --no-warnings scripts/fuzz-parity.mts 8 $(( ${{ github.run_number }} * 1000 + 800 )) classic metered
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      - if: ${{ !cancelled() }}
+        run: node --no-warnings scripts/fuzz-parity.mts 8 $(( ${{ github.run_number }} * 1000 + 900 )) flexible metered
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

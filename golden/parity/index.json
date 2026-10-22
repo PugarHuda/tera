@@ -2467,6 +2467,132 @@
     ]
   },
   {
+    "id": "S118",
+    "title": "Metered usage inside the second tier: no line for the untouched third tier (Stripe probe)",
+    "verified_at": "2026-10-22T03:10:08.824Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCNO2QR5nixgqNOEJyH79D",
+    "customer": "cus_VUAiJOMwfZqfpy",
+    "stripe": [
+      {
+        "id": "in_1UTCNP2QR5nixgqNXbt4tmgK",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCOF2QR5nixgqNXgFhGCMa",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 4000,
+        "discount": 0,
+        "tax": 0,
+        "total": 4000,
+        "amount_due": 4000,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S119",
+    "title": "Metered with no usage: one 0-unit tier-1 line (Stripe probe)",
+    "verified_at": "2026-10-22T03:09:31.081Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCNO2QR5nixgqNomf0PCIN",
+    "customer": "cus_VUAiif3wQ1Itg7",
+    "stripe": [
+      {
+        "id": "in_1UTCNP2QR5nixgqNc39vzXKX",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCNd2QR5nixgqNQoLZltoS",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
     "id": "S12",
     "title": "FOREVER25 on Pro",
     "verified_at": "2026-10-20T15:26:01.830Z",
@@ -2545,6 +2671,339 @@
         "invoice.paid #2",
         "invoice.created #3",
         "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S120",
+    "title": "Metered to licensed on day 20: no unused-time line, the usage is dropped (Stripe probe)",
+    "verified_at": "2026-10-22T03:10:16.618Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCNO2QR5nixgqNO1l2YolQ",
+    "customer": "cus_VUAiMDdnG1r3uG",
+    "stripe": [
+      {
+        "id": "in_1UTCNP2QR5nixgqNyEWSbqrX",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCON2QR5nixgqNzK7hxeLu",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Remaining time on Tera pro_m after 20 Jan 2027",
+            "amount": 3058,
+            "proration": true
+          },
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 10958,
+        "discount": 0,
+        "tax": 0,
+        "total": 10958,
+        "amount_due": 10958,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated active"
+      ],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S121",
+    "title": "Licensed to metered on day 20: credit only, then usage at renewal (Stripe probe)",
+    "verified_at": "2026-10-22T03:10:52.940Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCNj2QR5nixgqN6WomTWci",
+    "customer": "cus_VUAjlMay3OO43P",
+    "stripe": [
+      {
+        "id": "in_1UTCNl2QR5nixgqNnCNSjJtj",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1 × Tera pro_m (at $79.00 / month)",
+            "amount": 7900,
+            "proration": false
+          }
+        ],
+        "subtotal": 7900,
+        "discount": 0,
+        "tax": 0,
+        "total": 7900,
+        "amount_due": 7900,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCOy2QR5nixgqNZ4wPqAjI",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "Unused time on Tera pro_m after 20 Jan 2027",
+            "amount": -3058,
+            "proration": true
+          },
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 942,
+        "discount": 0,
+        "tax": 0,
+        "total": 942,
+        "amount_due": 942,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [
+        "invoiceitem.created",
+        "customer.subscription.updated active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.updated active"
+      ]
+    ]
+  },
+  {
+    "id": "S122",
+    "title": "Metered cancel_now with always_invoice invoices the usage so far (Stripe probe)",
+    "verified_at": "2026-10-22T03:11:21.517Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCOL2QR5nixgqNvzwEQekE",
+    "customer": "cus_VUAjCzh0971Nzc",
+    "stripe": [
+      {
+        "id": "in_1UTCOM2QR5nixgqNnI23xll2",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCPK2QR5nixgqNbxqxORfT",
+        "date": "2027-01-20",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 4000,
+        "discount": 0,
+        "tax": 0,
+        "total": 4000,
+        "amount_due": 4000,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #2",
+        "customer.subscription.deleted canceled"
+      ],
+      [
+        "invoice.finalized #2",
+        "invoice.paid #2"
+      ]
+    ]
+  },
+  {
+    "id": "S123",
+    "title": "Flexible: metered cancel_now with always_invoice invoices the usage so far (Stripe probe)",
+    "verified_at": "2026-10-22T03:11:28.575Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCOT2QR5nixgqNqMOiV6ug",
+    "customer": "cus_VUAjBKJpdYIzOy",
+    "stripe": [
+      {
+        "id": "in_1UTCPQ2QR5nixgqNV24cDVvZ",
+        "date": "2027-01-20",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 4000,
+        "discount": 0,
+        "tax": 0,
+        "total": 4000,
+        "amount_due": 4000,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "invoice.created #1",
+        "customer.subscription.deleted canceled"
+      ],
+      [
+        "invoice.finalized #1",
+        "invoice.paid #1"
+      ]
+    ]
+  },
+  {
+    "id": "S124",
+    "title": "Metered cancel at period end bills the period's usage on the final invoice (Stripe probe)",
+    "verified_at": "2026-10-22T03:11:58.516Z",
+    "stripe_api_version": "2026-09-30.endive",
+    "match": true,
+    "diffs": [],
+    "test_clock": "clock_1UTCP32QR5nixgqNls5ICzNy",
+    "customer": "cus_VUAkwHmJMWD1ge",
+    "stripe": [
+      {
+        "id": "in_1UTCP52QR5nixgqNGlSNZBC1",
+        "date": "2027-01-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "0 × Tera api_metered_m (at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          }
+        ],
+        "subtotal": 0,
+        "discount": 0,
+        "tax": 0,
+        "total": 0,
+        "amount_due": 0,
+        "starting_balance": 0
+      },
+      {
+        "id": "in_1UTCQ22QR5nixgqN1kHnmPbS",
+        "date": "2027-02-01",
+        "currency": "usd",
+        "lines": [
+          {
+            "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+            "amount": 0,
+            "proration": false
+          },
+          {
+            "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+            "amount": 4000,
+            "proration": false
+          }
+        ],
+        "subtotal": 4000,
+        "discount": 0,
+        "tax": 0,
+        "total": 4000,
+        "amount_due": 4000,
+        "starting_balance": 0
+      }
+    ],
+    "webhooks": [
+      [
+        "invoice.created #1",
+        "invoice.finalized #1",
+        "invoice.paid #1",
+        "customer.subscription.created active"
+      ],
+      [],
+      [
+        "customer.subscription.updated active"
+      ],
+      [
+        "customer.subscription.deleted canceled",
+        "invoice.created #2"
       ]
     ]
   },

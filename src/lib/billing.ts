@@ -379,9 +379,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     draft = pending;
   };
 
-  // R7: one line per tier, each rounded once.
+  // R7: one line per tier, each rounded once, up to the tier the usage reaches; no usage is one 0-unit tier-1 line
+  // (Stripe probes P4, P5: an untouched higher tier gets no line).
   const usageLines = (s: Sub): InvoiceLine[] => {
-    const tiers = price(s.priceId).tiers ?? [];
+    const all = price(s.priceId).tiers ?? [];
+    const reached = all.findIndex((t) => t.up_to === null || s.usage <= t.up_to);
+    const tiers = all.slice(0, Math.max(1, reached + 1));
     let floor = 0;
     return tiers.map((t, i) => {
       const cap = t.up_to ?? Infinity;
@@ -560,12 +563,15 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         }
         emit(at, "customer.subscription.updated");
         const old = item(s);
+        const wasMetered = price(s.priceId).usage_type === "metered";
         const oldInterval = price(s.priceId).interval;
         // R13: like Stripe, a *different* price without a quantity resets the item to quantity 1.
         if (e.type === "change_price") [s.priceId, s.quantity] = [e.price!, e.price === s.priceId ? (e.quantity ?? s.quantity) : (e.quantity ?? 1)];
         else s.quantity = e.quantity!;
         const p = price(s.priceId);
         if (s.mode === "flexible") {
+          if (wasMetered !== (p.usage_type === "metered"))
+            throw new Error("Stripe rejects changing between a metered and a licensed price in flexible billing mode (it cannot change a subscription item's usage type)");
           flexibleChange(s, at, p.interval !== oldInterval, e.proration_behavior);
           if (e.proration_behavior === "none") s.coveredUntil = s.periodEnd;
           break;
@@ -576,7 +582,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         } else if (e.proration_behavior !== "none") {
           // R14: with "none" nothing is prorated; the new amount bills from the next renewal, and a later
           // proration credits the item as it is then, not what was paid (Stripe probe, S44).
-          const lines = prorate(s, at, old);
+          // A metered item has no fixed amount: Stripe writes no "Unused time" line for the old one and no "Remaining
+          // time" line for a new one (probes A, P3), and drops the old item's unbilled usage.
+          const lines = prorate(s, at, old).filter((_, i) => (i === 0 ? !wasMetered : p.usage_type !== "metered"));
           items(at, lines);
           if (e.proration_behavior === "always_invoice") openInvoice(s, at, lines, true);
           else s.pending.push(...lines);
@@ -685,7 +693,9 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         // each original debit). create_prorations leaves the credit pending on a canceled subscription, unbilled.
         const s = active(e.type);
         if (e.proration_behavior === "always_invoice" && s.status === "active") {
-          const lines = [...s.pending, ...(s.mode === "flexible" ? creditDebits(s, at) : [prorate(s, at, item(s), false)[0]])];
+          // A metered subscription invoices its usage so far instead of a credit (probes B, P2, P6).
+          const metered = price(s.priceId).usage_type === "metered";
+          const lines = [...s.pending, ...(metered ? usageLines(s) : s.mode === "flexible" ? creditDebits(s, at) : [prorate(s, at, item(s), false)[0]])];
           // Canceling finalizes a renewal still in draft first, so the final invoice's credit does not reach it
           // (seed 100178: the 05-02 renewal is 8211 due from a 0 balance, the -2900 credit stays on the customer).
           // Stripe finalizes that renewal an hour later too, like the final invoice (S111).

@@ -1,0 +1,69 @@
+{
+  "id": "S124",
+  "title": "Metered cancel at period end bills the period's usage on the final invoice (Stripe probe)",
+  "verified_at": "2026-10-22T03:11:58.516Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTCP32QR5nixgqNls5ICzNy",
+  "customer": "cus_VUAkwHmJMWD1ge",
+  "stripe": [
+    {
+      "id": "in_1UTCP52QR5nixgqNGlSNZBC1",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "0 × Tera api_metered_m (at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        }
+      ],
+      "subtotal": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 0,
+      "amount_due": 0,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTCQ22QR5nixgqN1kHnmPbS",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1000 × Tera api_metered_m (Tier 1 at $0.00 / month)",
+          "amount": 0,
+          "proration": false
+        },
+        {
+          "description": "4000 × Tera api_metered_m (Tier 2 at $0.01 / month)",
+          "amount": 4000,
+          "proration": false
+        }
+      ],
+      "subtotal": 4000,
+      "discount": 0,
+      "tax": 0,
+      "total": 4000,
+      "amount_due": 4000,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.deleted canceled",
+      "invoice.created #2"
+    ]
+  ]
+}

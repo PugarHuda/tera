@@ -6399,6 +6399,326 @@
         }
       ],
       "parity": "golden/parity/S117.json"
+    },
+    {
+      "id": "S118",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Metered usage inside the second tier: no line for the untouched third tier (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent. 5000 units: tier 1 = 1000 x 0 = 0, tier 2 = 4000 x 1 = 4000. Stripe lists tiers only up to the one the usage reaches, so no 0-unit tier-3 line.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        }
+      ],
+      "parity": "golden/parity/S118.json"
+    },
+    {
+      "id": "S119",
+      "status": "verified",
+      "rules": [
+        "R7"
+      ],
+      "title": "Metered with no usage: one 0-unit tier-1 line (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent. No usage reported: the renewal invoice has a single 0 x tier 1 line.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "parity": "golden/parity/S119.json"
+    },
+    {
+      "id": "S120",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R3"
+      ],
+      "title": "Metered to licensed on day 20: no unused-time line, the usage is dropped (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "A metered item has no fixed amount, so Stripe writes no Unused time line, and the 5000 units reported on the replaced item are never invoiced. Remaining time 01-20 -> 02-01 = 12/31: +round(7900 x 12/31) = +round(3058.06) = 3058, then the 7900 renewal.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            3058,
+            7900
+          ],
+          "total": 10958
+        }
+      ],
+      "parity": "golden/parity/S120.json"
+    },
+    {
+      "id": "S121",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R3"
+      ],
+      "title": "Licensed to metered on day 20: credit only, then usage at renewal (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "pro_m"
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_price",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-25T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Unused time 12/31 of pro_m: -round(7900 x 12/31) = -3058; no Remaining time line for the metered price. Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent. The 02-01 renewal bills 5000 units: 0 + 4000. Total -3058 + 0 + 4000 = 942.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            -3058,
+            0,
+            4000
+          ],
+          "total": 942
+        }
+      ],
+      "parity": "golden/parity/S121.json"
+    },
+    {
+      "id": "S122",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R17"
+      ],
+      "title": "Metered cancel_now with always_invoice invoices the usage so far (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "cancel_now",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Stripe prorate + invoice_now on a metered subscription: the final invoice bills the 5000 units reported so far (tier 1 = 0, tier 2 = 4000) and has no credit line. Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        }
+      ],
+      "parity": "golden/parity/S122.json"
+    },
+    {
+      "id": "S123",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R17",
+        "R16"
+      ],
+      "title": "Flexible: metered cancel_now with always_invoice invoices the usage so far (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "cancel_now",
+          "proration_behavior": "always_invoice"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Flexible creates no $0 invoice for a metered item at creation (S59), so the only invoice is the final one: 5000 units, 0 + 4000. Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent.",
+      "expect": [
+        {
+          "date": "2027-01-20",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        }
+      ],
+      "parity": "golden/parity/S123.json"
+    },
+    {
+      "id": "S124",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R8"
+      ],
+      "title": "Metered cancel at period end bills the period's usage on the final invoice (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "cancel_at_period_end"
+        },
+        {
+          "at": "2027-02-01T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "R8: no renewal, but the final invoice at 02-01 bills the period's 5000 units: 0 + 4000. Tiers: 0-1000 at 0, 1001-10000 at 1 cent, above at 0.5 cent.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-02-01",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        }
+      ],
+      "parity": "golden/parity/S124.json"
     }
   ]
 }

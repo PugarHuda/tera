@@ -109,6 +109,11 @@ describe("rejects timelines Stripe would reject", () => {
     ["a coupon id that is an Object.prototype member", [sub("pro_m", { coupon: "constructor" })], /unknown coupon/i],
     ["an amount too large to stay an exact integer", [sub("pro_m", { quantity: 1e9 })], /exceeds/i],
     ["reset_anchor during a trial", [{ at: "2027-01-01T00:00:00Z", type: "start_trial", price: "pro_m", trial_days: 14 }, { at: "2027-01-05T00:00:00Z", type: "reset_anchor" }], /trial/i],
+    [
+      "a flexible switch between metered and licensed (Stripe probe P1)",
+      [sub("api_metered_m", { billing_mode: "flexible" }), { at: "2027-01-20T00:00:00Z", type: "change_price", price: "pro_m" }],
+      /usage type/i,
+    ],
     ["changes after cancel_now", [sub(), { at: "2027-01-10T00:00:00Z", type: "cancel_now" }, { at: "2027-01-12T00:00:00Z", type: "change_quantity", quantity: 2 }], /canceled/i],
   ];
   for (const [name, timeline, msg] of cases) it(name, () => expect(() => simulate(catalog, timeline)).toThrow(msg));
