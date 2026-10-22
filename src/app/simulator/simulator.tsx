@@ -484,6 +484,22 @@ export function Simulator({
           </label>
         </div>
 
+        <details className="mb-4 text-sm" data-testid="how-to-read">
+          <summary className="cursor-pointer opacity-80">How to read these invoices</summary>
+          <ul className="mt-2 list-disc space-y-1 pl-5 opacity-80">
+            <li>Each invoice is what Stripe would charge on that date, to the cent, for the timeline on the left.</li>
+            <li>
+              Lines marked <em>proration</em> are Stripe&rsquo;s credit for the old plan and charge for the new one when something changes
+              mid-period; they are billed on the next invoice unless the event says otherwise.
+            </li>
+            <li>The green badge means these totals equal the scenario&rsquo;s expected invoices, derived by hand, not by this engine.</li>
+            <li>
+              <strong>Verify in Stripe</strong> replays this exact timeline in a fresh Stripe test clock and shows any difference, so you can check
+              any edit yourself.
+            </li>
+          </ul>
+        </details>
+
         {outcome.error ? (
           <p role="alert" data-testid="sim-error" className="card border-red-500 text-red-700 dark:text-red-400">
             {outcome.error}
