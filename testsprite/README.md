@@ -39,6 +39,14 @@ five cloud plans still opening the home page for the scenario dropdown that move
 tests with no plan file and vague steps ("verify the expected totals"); those plans now name exact amounts, and
 `testsprite test plan put` pushed them. `testsprite test lint --plan-from-dir testsprite/plans` runs in CI too.
 
+Test lists and schedules live in [`suite.json`](suite.json) and the same check covers them: `Money math canary` (the tests that
+assert Stripe-verified amounts) runs nightly on production. `node scripts/testsprite-sync.mjs --apply` creates or fixes them
+(set `TESTSPRITE_NOTIFY` to the emails the schedule reports to).
+
+When the PR check fails, [`scripts/testsprite-triage.mjs`](../scripts/testsprite-triage.mjs) reads each failed run's bundle and
+runs the golden scenarios behind the test through the preview's engine: if they still match Stripe's test clocks, the PR
+comment says the regression is in the UI; otherwise it names the invoice the engine now gets wrong.
+
 ```bash
 python testsprite/code/_generate.py
 testsprite test code put <test-id> --code-file testsprite/code/<file> --expected-version <current codeVersion>

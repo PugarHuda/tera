@@ -1,0 +1,10 @@
+# Lints the deployed /api/openapi.json in CI (e2e.yml), alongside Schemathesis.
+extends:
+  - recommended
+rules:
+  info-license: off # no license chosen yet
+  operation-4xx-response: off # the list endpoints have no client error to report
+  # False positives, checked otherwise: Redocly misreads if/then/else, so it flags the request examples (an Ajv 2020 pass
+  # accepts every one) and `required` inside a `then` that names a property declared on the parent object.
+  no-invalid-media-type-examples: off
+  no-required-schema-properties-undefined: off

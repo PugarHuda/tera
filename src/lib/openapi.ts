@@ -15,6 +15,8 @@ const error = { type: "object", properties: { error: { type: "string" } }, requi
 // billed (events out of date order, a span over 10 years, tiers that do not ascend, 30 February, a price missing from
 // the catalog, an action Stripe rejects) is a 422.
 const date = { type: "string", pattern: DATE_PATTERN };
+const count = { type: "integer", minimum: 0 };
+const rules = { type: "array", items: { type: "string", pattern: "^R\\d+$" } };
 const currency = { type: "string", enum: [...STRIPE_CURRENCIES, ...STRIPE_CURRENCIES.map((c) => c.toUpperCase())], description: "ISO 4217, any case; Stripe's form is lowercase" };
 const ids = { propertyNames: { pattern: ID.source, not: { const: "__proto__" } } };
 const when = (type: string | string[], then: object) => ({ if: { properties: { type: Array.isArray(type) ? { enum: type } : { const: type } }, required: ["type"] }, then });
@@ -27,9 +29,13 @@ export const spec = {
     description:
       `Stripe-parity pricing simulator. All amounts are integers in the currency's minor unit (USD cents; JPY yen). Rules R1-R23 in docs/PRD.md (billing_mode classic or flexible). ${verified}/${timelines} golden timeline scenarios verified against Stripe test mode (see /parity).`,
   },
+  // Relative: the API is served by the deployment that serves this spec (production or a preview). Public, no auth.
+  servers: [{ url: "/" }],
+  security: [],
   paths: {
     "/api/simulate": {
       post: {
+        operationId: "simulate",
         summary: "Run a customer timeline and return every invoice",
         requestBody: {
           required: true,
@@ -58,6 +64,7 @@ export const spec = {
     },
     "/api/migrate": {
       post: {
+        operationId: "previewMigration",
         summary: "Preview the MRR impact of a price change",
         requestBody: {
           required: true,
@@ -129,8 +136,13 @@ export const spec = {
       },
     },
     "/api/parity": {
-      get: { summary: "Recorded Stripe test-clock evidence for every golden scenario", responses: { "200": { description: "Evidence records" } } },
+      get: {
+        operationId: "listParityEvidence",
+        summary: "Recorded Stripe test-clock evidence for every golden scenario",
+        responses: { "200": { description: "Evidence records", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ParityRecord" } } } } } },
+      },
       post: {
+        operationId: "replayParity",
         summary: "Replay a golden scenario, or your own timeline and catalog, live in a Stripe test clock and diff it against Tera",
         description: "Custom timelines are limited to 15 events spanning at most 2 years. Timelines Tera rejects (R11) are answered with 422 and never reach Stripe.",
         requestBody: {
@@ -155,6 +167,7 @@ export const spec = {
     },
     "/api/stripe/push": {
       post: {
+        operationId: "pushCatalogToStripe",
         summary: "Create or reuse a catalog's prices, coupons and tax rates in Stripe test mode",
         requestBody: {
           required: true,
@@ -186,6 +199,7 @@ export const spec = {
     },
     "/api/migrate/stripe": {
       get: {
+        operationId: "importMigrationFromStripe",
         summary: "Import a migration's customer base from Stripe (test mode)",
         description:
           "Without `price`: the connected account's per-seat recurring prices. With `price`: that price's unit_amount, currency, interval and one customer per live subscription (item quantity as seats), ready for POST /api/migrate.",
@@ -201,11 +215,26 @@ export const spec = {
     },
     "/api/stripe/catalog": {
       get: {
+        operationId: "importCatalogFromStripe",
         summary: "Import the connected Stripe account's catalog (test mode)",
         description:
           "Active per-seat monthly and yearly prices, valid coupons and active tax rates as a Tera catalog, ready for POST /api/simulate. Objects Tera pushed get their Tera id back; others are named from the lookup key, product, coupon or tax rate name. `skipped` counts what Tera does not model (metered, tiered or other intervals) or what exceeds the catalog limits.",
         responses: {
-          "200": { description: "{ catalog: { prices, coupons, tax_rates }, skipped: { prices, coupons, tax_rates } }" },
+          "200": {
+            description: "The account's catalog, and how many objects of each kind were skipped",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["catalog", "skipped"],
+                  properties: {
+                    catalog: { $ref: "#/components/schemas/Catalog" },
+                    skipped: { type: "object", required: ["prices", "coupons", "tax_rates"], properties: { prices: count, coupons: count, tax_rates: count } },
+                  },
+                },
+              },
+            },
+          },
           "502": { description: "Stripe API error", content: { "application/json": { schema: error } } },
           "503": { description: "No test-mode Stripe key configured", content: { "application/json": { schema: error } } },
         },
@@ -213,19 +242,21 @@ export const spec = {
     },
     "/api/scenarios": {
       get: {
+        operationId: "listScenarios",
         summary: "List golden scenarios",
         parameters: [
           { name: "rule", in: "query", schema: { type: "string", example: "R6" }, description: "Only scenarios citing this billing rule (R1-R23, see docs/PRD.md)" },
           { name: "q", in: "query", schema: { type: "string", example: "coupon trial" }, description: "Only scenarios whose title contains every word" },
         ],
-        responses: { "200": { description: "Scenario summaries" } },
+        responses: { "200": { description: "Scenario summaries", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ScenarioSummary" } } } } } },
       },
     },
     "/api/scenarios/{id}": {
       get: {
+        operationId: "getScenario",
         summary: "Get a golden scenario (timeline + hand-derived expected invoices + catalog)",
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", enum: golden.scenarios.flatMap((s) => [s.id, s.id.toLowerCase()]), example: "S05", description: "Any case" } }],
-        responses: { "200": { description: "Scenario" }, "404": { description: "Not found", content: { "application/json": { schema: error } } } },
+        responses: { "200": { description: "Scenario", content: { "application/json": { schema: { $ref: "#/components/schemas/Scenario" } } } }, "404": { description: "Not found", content: { "application/json": { schema: error } } } },
       },
     },
   },
@@ -364,6 +395,42 @@ export const spec = {
             { if: { properties: { type: { const: "start_trial" } }, required: ["type"] }, else: { not: { required: ["trial_end_behavior"] } } },
           ],
         },
+      ScenarioSummary: {
+        type: "object",
+        required: ["id", "title", "status", "rules"],
+        properties: { id: { type: "string", pattern: "^S\\d+$" }, title: { type: "string" }, status: { type: "string", enum: ["verified", "draft"] }, rules },
+      },
+      Scenario: {
+        description: "A billing timeline with its hand-derived expected invoices, or a migration with its expected report",
+        allOf: [
+          { $ref: "#/components/schemas/ScenarioSummary" },
+          {
+            type: "object",
+            required: ["catalog"],
+            properties: { catalog: { $ref: "#/components/schemas/Catalog" }, timeline: { type: "array", items: { $ref: "#/components/schemas/TimelineEvent" } }, expect: {
+                type: "array",
+                description: "Hand-derived invoices: date, line amounts and total in minor units",
+                items: { type: "object", required: ["date", "total"], properties: { date: { type: "string" }, lines: { type: "array", items: { type: "integer" } }, total: { type: "integer" } } },
+              },
+              migration: { type: "object", required: ["price", "new_unit_amount", "grandfather", "customers"] },
+              expect_report: { type: "object", required: ["affected", "mrr_before", "mrr_after", "mrr_delta"], properties: { affected: count, mrr_before: count, mrr_after: count, mrr_delta: { type: "integer" } } },
+            },
+            oneOf: [{ required: ["timeline", "expect"] }, { required: ["migration", "expect_report"] }],
+          },
+        ],
+      },
+      ParityRecord: {
+        type: "object",
+        required: ["id", "title", "verified_at", "match", "diffs", "test_clock"],
+        properties: {
+          id: { type: "string", pattern: "^S\\d+$" },
+          title: { type: "string" },
+          verified_at: { type: "string", format: "date-time" },
+          match: { type: "boolean" },
+          diffs: { type: "array", items: { type: "string" } },
+          test_clock: { type: "string", pattern: "^clock_" },
+        },
+      },
       SimulationResult: {
         type: "object",
         properties: {

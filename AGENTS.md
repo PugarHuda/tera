@@ -15,6 +15,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   cover the CLI workflow.
 - The repo is the source of truth. After editing a plan, push it with `testsprite test plan put <id> --steps <{ planSteps }>`;
   after editing `testsprite/code/_generate.py`, run it, check each file locally, then `testsprite test code put`.
-  `node scripts/testsprite-sync.mjs` (in CI) fails when a plan and its cloud test differ.
+  `node scripts/testsprite-sync.mjs` (in CI) fails when a plan and its cloud test differ, or when the test lists and
+  schedules differ from `testsprite/suite.json`; `--apply` makes the cloud lists and schedules match it.
+- A failed `TestSprite V3` check triggers `scripts/testsprite-triage.mjs`: it reads the failure bundles and checks the
+  golden scenarios behind each failed test against Stripe's recorded invoices on the same preview, in one PR comment.
 - `testsprite test run <id>` executes the stored hand-written code; `testsprite test rerun <id>` replays the last agent
   recording instead. A UI run costs 0.5 credits, so the whole suite on a PR costs 14: check `testsprite credits` first.

@@ -55,3 +55,10 @@ next-env.d.ts
 .stryker-tmp/
 reports/mutation/
 .schemathesis/
+lighthouse-report/
+.lighthouseci/
+# Demo video: generated narration, recordings and renders (video/README.md rebuilds them)
+video/node_modules/
+video/out/
+video/public/*.webm
+video/public/*.mp3

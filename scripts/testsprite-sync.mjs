@@ -30,6 +30,38 @@ for (const file of readdirSync("testsprite/plans").filter((f) => f.endsWith(".js
 }
 for (const t of cloud) if (!seen.has(t.id)) problems.push(`cloud test ${t.id} "${t.name}" has no plan file in testsprite/plans/`);
 
-console.log(`${cloud.length} cloud tests, ${seen.size} matched to plan files, ${problems.length} problem(s)`);
+// Test lists and schedules (testsprite/suite.json). With --apply, missing ones are created and differing ones fixed.
+const apply = process.argv.includes("--apply");
+const suite = JSON.parse(readFileSync("testsprite/suite.json", "utf8"));
+const planName = (file) => JSON.parse(readFileSync(`testsprite/plans/${file}.json`, "utf8")).name;
+const lists = new Map(cli("testlist", "list").map((l) => [l.name, l]));
+for (const [name, files] of Object.entries(suite.lists)) {
+  let list = lists.get(name);
+  if (!list && apply) list = cli("testlist", "create", "--name", name, "--project-env", `${PROJECT}:default`);
+  if (!list) { problems.push(`test list "${name}" is missing (node scripts/testsprite-sync.mjs --apply)`); continue; }
+  lists.set(name, list);
+  const want = new Set(files.map((f) => byName.get(planName(f))?.id));
+  const have = new Set(cli("testlist", "get", list.id).cases.map((c) => c.testId ?? c.id));
+  const add = [...want].filter((id) => id && !have.has(id));
+  const remove = [...have].filter((id) => !want.has(id));
+  if (apply && add.length) cli("testlist", "add", list.id, ...add);
+  if (apply && remove.length) cli("testlist", "remove", list.id, ...remove);
+  if (!apply && (add.length || remove.length)) problems.push(`test list "${name}": ${add.length} test(s) to add, ${remove.length} to remove`);
+}
+const schedules = new Map(cli("schedule", "list").schedules.map((s) => [s.name, s]));
+for (const s of suite.schedules) {
+  const list = lists.get(s.list);
+  const have = schedules.get(s.name);
+  const flags = ["--cron", s.cron, "--timezone", s.timezone, ...(process.env.TESTSPRITE_NOTIFY ? ["--send-to", process.env.TESTSPRITE_NOTIFY] : [])];
+  if (!have) {
+    if (apply && list) cli("schedule", "create", "--name", s.name, "--target-type", "testList", "--target-id", list.id, ...flags);
+    else problems.push(`schedule "${s.name}" is missing (node scripts/testsprite-sync.mjs --apply)`);
+  } else if (have.cron !== s.cron || have.timezone !== s.timezone || have.targetId !== list?.id || !have.enabled) {
+    if (apply) cli("schedule", "update", have.scheduleId, ...flags, ...(have.enabled ? [] : ["--resume"]));
+    else problems.push(`schedule "${s.name}" differs from testsprite/suite.json (cron ${have.cron} ${have.timezone}${have.enabled ? "" : ", paused"})`);
+  }
+}
+
+console.log(`${cloud.length} cloud tests, ${seen.size} matched to plan files, ${Object.keys(suite.lists).length} test list(s), ${suite.schedules.length} schedule(s), ${problems.length} problem(s)`);
 for (const p of problems) console.log(`  ${p}`);
 process.exitCode = problems.length ? 1 : 0;

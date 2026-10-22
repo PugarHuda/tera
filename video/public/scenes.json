@@ -1,0 +1,43 @@
+{
+ "intro": {
+  "trimMs": 3234,
+  "lengthMs": 16118,
+  "audioMs": 15072
+ },
+ "simulator": {
+  "trimMs": 3747,
+  "lengthMs": 20509,
+  "audioMs": 19368
+ },
+ "edit": {
+  "trimMs": 3344,
+  "lengthMs": 17603,
+  "audioMs": 16368
+ },
+ "parity": {
+  "trimMs": 3099,
+  "lengthMs": 18632,
+  "audioMs": 17472
+ },
+ "builder": {
+  "trimMs": 3080,
+  "lengthMs": 14965,
+  "audioMs": 13680
+ },
+ "agents": {
+  "trimMs": 4398,
+  "lengthMs": 8949,
+  "audioMs": 8184
+ },
+ "loop": {
+  "trimMs": 6860,
+  "lengthMs": 19405,
+  "audioMs": 18672
+ },
+ "suite": {
+  "audioMs": 21432
+ },
+ "outro": {
+  "audioMs": 17808
+ }
+}
