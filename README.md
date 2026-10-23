@@ -26,6 +26,10 @@
 3. Open [/parity](https://tera-orpin-three.vercel.app/parity): every golden timeline with its recorded Stripe test clock.
 4. Open [`docs/LOOP.md`](docs/LOOP.md): every PR and each commit's `TestSprite V3` verdict. [PR #18](https://github.com/PugarHuda/tera/pull/18) is TestSprite catching a real bug (a custom catalog billed $0.00 instead of ¥4,500) before merge.
 
+**Red on purpose.** [PR #40](https://github.com/PugarHuda/tera/pull/40) plants a one-line bug (proration rounds by truncation, so S05 bills $103.19 instead of $103.20). The required checks refused it, admins included: 105 unit tests failed, the browser journeys saw the wrong amounts on the PR's preview, and 52 goldens differed from Stripe's own test-clock invoices. It was closed without merging.
+
+![PR #40's merge box: required checks failing, merging blocked](docs/screens/pr40-merge-blocked.png)
+
 | Judging line | Where it shows |
 |---|---|
 | **Project quality** | The live app (simulator, builder, migration planner, parity, API reference, MCP setup). Lighthouse budgets of 100 for accessibility, best practices and SEO and axe WCAG 2.2 AA checks on every PR; an exploratory Playwright QA pass on production found 13 defects, all fixed with tests ([#38](https://github.com/PugarHuda/tera/pull/38)) |

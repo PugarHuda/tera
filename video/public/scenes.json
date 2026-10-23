@@ -1,43 +1,43 @@
 {
  "intro": {
-  "trimMs": 3234,
-  "lengthMs": 16118,
-  "audioMs": 15072
+  "trimMs": 21922,
+  "lengthMs": 16193,
+  "audioMs": 15000
  },
  "simulator": {
-  "trimMs": 3747,
-  "lengthMs": 20509,
-  "audioMs": 19368
+  "trimMs": 3502,
+  "lengthMs": 20581,
+  "audioMs": 19512
  },
  "edit": {
-  "trimMs": 3344,
-  "lengthMs": 17603,
-  "audioMs": 16368
+  "trimMs": 3193,
+  "lengthMs": 18557,
+  "audioMs": 16392
  },
  "parity": {
-  "trimMs": 3099,
-  "lengthMs": 18632,
-  "audioMs": 17472
+  "trimMs": 3140,
+  "lengthMs": 18693,
+  "audioMs": 17544
  },
  "builder": {
-  "trimMs": 3080,
-  "lengthMs": 14965,
-  "audioMs": 13680
+  "trimMs": 3487,
+  "lengthMs": 15079,
+  "audioMs": 13584
  },
  "agents": {
-  "trimMs": 4398,
-  "lengthMs": 8949,
-  "audioMs": 8184
+  "trimMs": 6019,
+  "lengthMs": 9272,
+  "audioMs": 8424
  },
  "loop": {
-  "trimMs": 6860,
-  "lengthMs": 19405,
-  "audioMs": 18672
+  "trimMs": 7031,
+  "lengthMs": 18998,
+  "audioMs": 18408
  },
  "suite": {
-  "audioMs": 21432
+  "audioMs": 22368
  },
  "outro": {
-  "audioMs": 17808
+  "audioMs": 18024
  }
 }
