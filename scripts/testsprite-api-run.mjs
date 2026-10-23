@@ -51,13 +51,23 @@ try {
   for (const file of files) {
     store(file, target);
     let verdict;
-    try {
-      const out = JSON.parse(cli("test", "run", TESTS[file], "--no-auto-heal", "--wait", "--timeout", "300"));
-      verdict = out.status ?? out.result ?? "passed";
-    } catch (e) {
-      // Exit 1 = failed/blocked; the JSON verdict is still on stdout.
-      verdict = (() => { try { return JSON.parse(e.stdout).status ?? "failed"; } catch { return "failed"; } })();
-      failed++;
+    // Exit 11 = rate limited: a PR's UI suite can hold TestSprite's 50 in-flight runs per user, so wait for room
+    // (up to 30 minutes) instead of reporting a failure that tested nothing.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const out = JSON.parse(cli("test", "run", TESTS[file], "--no-auto-heal", "--wait", "--timeout", "300"));
+        verdict = out.status ?? out.result ?? "passed";
+      } catch (e) {
+        if (e.status === 11 && attempt < 30) {
+          console.log(`${file}: TestSprite's in-flight run limit is reached; retrying in 60s`);
+          execFileSync(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+          continue;
+        }
+        // Exit 1 = failed/blocked; the JSON verdict is still on stdout.
+        verdict = (() => { try { return JSON.parse(e.stdout).status ?? "failed"; } catch { return "failed"; } })();
+        failed++;
+      }
+      break;
     }
     rows.push(`| \`${file}\` | ${TESTS[file].slice(0, 8)} | ${verdict} |`);
   }
