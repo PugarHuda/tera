@@ -7399,6 +7399,263 @@
         }
       ],
       "parity": "golden/parity/S138.json"
+    },
+    {
+      "id": "S139",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R3"
+      ],
+      "title": "Metered to a yearly price: invoiced at once with no unused-time line, the usage dropped (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "change_price",
+          "price": "pro_y"
+        },
+        {
+          "at": "2027-02-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "An interval change invoices at once (classic). A metered item has nothing to credit, and the replaced item's unbilled usage is dropped as in S120: the 01-20 invoice is the yearly price alone, 29000.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            29000
+          ],
+          "total": 29000
+        }
+      ],
+      "parity": "golden/parity/S139.json"
+    },
+    {
+      "id": "S140",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R15"
+      ],
+      "title": "Classic anchor reset on a metered price bills the usage so far, with no unused-time line (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2027-02-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "The 01-20 reset starts a new period and invoices the usage reported so far: Tiers 0-1000 at 0, 1001-10000 at 1 cent: 5000 units = 0 + 4000. No credit line. The 02-20 renewal has no usage: one 0-unit tier-1 line.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        },
+        {
+          "date": "2027-02-20",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "parity": "golden/parity/S140.json"
+    },
+    {
+      "id": "S141",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R19"
+      ],
+      "title": "cancel_at on a metered price bills the usage, with no unused-time credit (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-12T00:00:00Z",
+          "type": "cancel_at",
+          "cancel_at": "2027-01-20T00:00:00Z"
+        },
+        {
+          "at": "2027-02-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "The subscription ends on 01-20; its final invoice bills the period's usage, Tiers 0-1000 at 0, 1001-10000 at 1 cent: 5000 units = 0 + 4000. A metered item has nothing to credit.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-20",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        }
+      ],
+      "parity": "golden/parity/S141.json"
+    },
+    {
+      "id": "S142",
+      "status": "verified",
+      "rules": [
+        "R7",
+        "R16"
+      ],
+      "title": "Flexible: an anchor reset on a metered price invoices the usage at once (Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "subscribe",
+          "price": "api_metered_m",
+          "billing_mode": "flexible"
+        },
+        {
+          "at": "2027-01-10T00:00:00Z",
+          "type": "report_usage",
+          "quantity": 5000
+        },
+        {
+          "at": "2027-01-20T00:00:00Z",
+          "type": "reset_anchor"
+        },
+        {
+          "at": "2027-02-25T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "Flexible creates no $0 invoice for a metered item at creation (S59). The 01-20 reset invoices the usage so far like a period end, Tiers 0-1000 at 0, 1001-10000 at 1 cent: 5000 units = 0 + 4000. with no remaining-time line; the 02-20 renewal has no usage.",
+      "expect": [
+        {
+          "date": "2027-01-20",
+          "lines": [
+            0,
+            4000
+          ],
+          "total": 4000
+        },
+        {
+          "date": "2027-02-20",
+          "lines": [
+            0
+          ],
+          "total": 0
+        }
+      ],
+      "parity": "golden/parity/S142.json"
+    },
+    {
+      "id": "S143",
+      "status": "verified",
+      "rules": [
+        "R25",
+        "R4"
+      ],
+      "title": "Ending a trial early bills a one-off item added during it on the first paid invoice (QA, Stripe probe)",
+      "timeline": [
+        {
+          "at": "2027-01-01T00:00:00Z",
+          "type": "start_trial",
+          "price": "pro_m",
+          "trial_days": 14
+        },
+        {
+          "at": "2027-01-04T00:00:00Z",
+          "type": "add_invoice_item",
+          "amount": 1500
+        },
+        {
+          "at": "2027-01-06T00:00:00Z",
+          "type": "end_trial"
+        },
+        {
+          "at": "2027-02-10T00:00:00Z",
+          "type": "advance_to"
+        }
+      ],
+      "math": "end_trial on 01-06 starts the first paid period now; that invoice carries the pending 1500 item: 1500 + 7900 = 9400. The 02-06 renewal is 7900.",
+      "expect": [
+        {
+          "date": "2027-01-01",
+          "lines": [
+            0
+          ],
+          "total": 0
+        },
+        {
+          "date": "2027-01-06",
+          "lines": [
+            1500,
+            7900
+          ],
+          "total": 9400
+        },
+        {
+          "date": "2027-02-06",
+          "lines": [
+            7900
+          ],
+          "total": 7900
+        }
+      ],
+      "parity": "golden/parity/S143.json"
     }
   ]
 }
