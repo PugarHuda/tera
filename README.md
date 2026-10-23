@@ -17,7 +17,7 @@
 
 | Simulator: S05, an upgrade on day 17 | Stripe parity: every golden replayed in a test clock |
 |---|---|
-| ![Simulator showing S05's invoices: $29.00, then $103.20 with the unused-time credit and remaining-time charge](docs/screens/simulator-s05.png) | ![Parity page: 127 of 127 golden scenarios match Stripe to the cent](docs/screens/parity.png) |
+| ![Simulator showing S05's invoices: $29.00, then $103.20 with the unused-time credit and remaining-time charge](docs/screens/simulator-s05.png) | ![Parity page: 135 of 135 golden timelines match Stripe to the cent](docs/screens/parity.png) |
 
 ## For judges: two minutes
 
@@ -33,7 +33,7 @@
 | Judging line | Where it shows |
 |---|---|
 | **Project quality** | The live app (simulator, builder, migration planner, parity, API reference, MCP setup). Lighthouse budgets of 100 for accessibility, best practices and SEO and axe WCAG 2.2 AA checks on every PR; an exploratory Playwright QA pass on production found 13 defects, all fixed with tests ([#38](https://github.com/PugarHuda/tera/pull/38)) |
-| **Tests that run themselves** | On every PR: `TestSprite V3` (28 UI tests with hand-written code and exact amounts, required by branch protection) and the TestSprite API tests against the PR's own preview; Stripe parity replays for engine changes; Playwright journeys, Schemathesis, Arazzo workflows, Lighthouse. Nightly: differential fuzzing against Stripe and a TestSprite money-math canary. A CI check fails if a cloud test's plan or code drifts from the repo. See [Tests that run themselves](#tests-that-run-themselves) |
+| **Tests that run themselves** | On every PR: `TestSprite V3` (28 UI tests with hand-written code and exact amounts, required by branch protection) and the TestSprite API tests against the PR's own preview; Stripe parity replays for engine changes; Playwright journeys, Schemathesis, Arazzo workflows, Lighthouse. Nightly: differential fuzzing against Stripe and a TestSprite money-math canary. A CI check fails if a cloud test's plan or code drifts from the repo. Since the credit boost on Oct 23, every PR has merged through all four required checks with admins included ([#41](https://github.com/PugarHuda/tera/pull/41)–[#44](https://github.com/PugarHuda/tera/pull/44)). See [Tests that run themselves](#tests-that-run-themselves) |
 | **Innovation** | Stripe is the test oracle: expected values are hand-derived and confirmed in real Stripe test clocks, never taken from the engine; differential fuzzing turns every disagreement into a Stripe probe and a new golden; a failed TestSprite check is triaged against Stripe's recorded invoices in one PR comment; an MCP server lets coding agents simulate and verify a price change |
 
 ## Why it exists
