@@ -695,242 +695,242 @@
    {
     "text": "A",
     "startMs": 96.166,
-    "endMs": 144.249
+    "endMs": 156.249
    },
    {
     "text": "simulator",
     "startMs": 156.25,
-    "endMs": 793.25
+    "endMs": 757.208
    },
    {
     "text": "is",
-    "startMs": 997.583,
-    "endMs": 1213.916
+    "startMs": 937.5,
+    "endMs": 1153.833
    },
    {
     "text": "only",
-    "startMs": 1274.041,
-    "endMs": 1538.457
+    "startMs": 1165.875,
+    "endMs": 1442.291
    },
    {
     "text": "worth",
-    "startMs": 1538.458,
-    "endMs": 1802.874
+    "startMs": 1442.291,
+    "endMs": 1706.707
    },
    {
     "text": "something",
-    "startMs": 1814.916,
-    "endMs": 2379.832
+    "startMs": 1706.75,
+    "endMs": 2259.625
    },
    {
     "text": "if",
-    "startMs": 2500.0,
-    "endMs": 2644.25
+    "startMs": 2427.875,
+    "endMs": 2560.083
    },
    {
     "text": "it",
-    "startMs": 2656.25,
-    "endMs": 2704.333
+    "startMs": 2560.083,
+    "endMs": 2620.166
    },
    {
     "text": "agrees",
-    "startMs": 2704.333,
-    "endMs": 3112.999
+    "startMs": 2620.208,
+    "endMs": 3124.999
    },
    {
     "text": "with",
-    "startMs": 3113.0,
-    "endMs": 3221.166
+    "startMs": 3125.0,
+    "endMs": 3269.25
    },
    {
     "text": "Stripe.",
-    "startMs": 3221.166,
-    "endMs": 3677.916
+    "startMs": 3269.25,
+    "endMs": 3750.0
    },
    {
     "text": "Every",
-    "startMs": 4062.5,
-    "endMs": 4278.833
+    "startMs": 4122.583,
+    "endMs": 4350.958
    },
    {
     "text": "one",
-    "startMs": 4278.833,
-    "endMs": 4483.166
+    "startMs": 4350.958,
+    "endMs": 4507.208
    },
    {
     "text": "of",
-    "startMs": 4483.166,
-    "endMs": 4555.291
+    "startMs": 4507.208,
+    "endMs": 4543.2489
    },
    {
     "text": "the",
-    "startMs": 4555.291,
-    "endMs": 4639.416
+    "startMs": 4543.25,
+    "endMs": 4615.375
    },
    {
     "text": "one",
-    "startMs": 4651.458,
-    "endMs": 4771.624
+    "startMs": 4627.416,
+    "endMs": 4759.624
    },
    {
     "text": "hundred",
-    "startMs": 4771.625,
-    "endMs": 5012.0
+    "startMs": 4759.625,
+    "endMs": 5000.0
    },
    {
     "text": "and",
     "startMs": 5012.0,
-    "endMs": 5048.0409
+    "endMs": 5072.083
    },
    {
-    "text": "twenty-seven",
-    "startMs": 5048.083,
-    "endMs": 5516.833
+    "text": "thirty-five",
+    "startMs": 5084.125,
+    "endMs": 5757.208
    },
    {
     "text": "hand-derived",
-    "startMs": 5516.833,
-    "endMs": 6033.666
+    "startMs": 5757.208,
+    "endMs": 6249.999
    },
    {
     "text": "timelines",
-    "startMs": 6033.666,
-    "endMs": 6646.666
+    "startMs": 6250.0,
+    "endMs": 6863.0
    },
    {
     "text": "was",
-    "startMs": 6863.0,
-    "endMs": 7043.25
+    "startMs": 7067.291,
+    "endMs": 7223.541
    },
    {
     "text": "replayed",
-    "startMs": 7043.25,
-    "endMs": 7788.458
+    "startMs": 7235.583,
+    "endMs": 7908.666
    },
    {
     "text": "in",
-    "startMs": 7896.625,
-    "endMs": 8100.958
+    "startMs": 7920.666,
+    "endMs": 8136.999
    },
    {
     "text": "real",
-    "startMs": 8113.0,
-    "endMs": 8437.5
+    "startMs": 8137.0,
+    "endMs": 8449.5
    },
    {
     "text": "Stripe",
-    "startMs": 8437.5,
+    "startMs": 8461.541,
     "endMs": 8774.041
    },
    {
     "text": "test",
     "startMs": 8774.041,
-    "endMs": 9038.457
+    "endMs": 9062.499
    },
    {
     "text": "clocks,",
-    "startMs": 9038.458,
-    "endMs": 9531.249
+    "startMs": 9062.5,
+    "endMs": 9579.333
    },
    {
     "text": "and",
-    "startMs": 9903.833,
-    "endMs": 10096.124
+    "startMs": 9951.916,
+    "endMs": 10120.166
    },
    {
     "text": "every",
-    "startMs": 10132.208,
-    "endMs": 10492.791
+    "startMs": 10240.375,
+    "endMs": 10552.875
    },
    {
     "text": "invoice",
-    "startMs": 10492.791,
-    "endMs": 10997.582
+    "startMs": 10552.875,
+    "endMs": 11033.625
    },
    {
     "text": "matches",
-    "startMs": 10997.583,
-    "endMs": 11502.374
-   },
-   {
-    "text": "to",
-    "startMs": 11502.416,
+    "startMs": 11045.666,
     "endMs": 11598.541
    },
    {
-    "text": "the",
+    "text": "to",
     "startMs": 11598.541,
-    "endMs": 11670.666
+    "endMs": 11682.666
+   },
+   {
+    "text": "the",
+    "startMs": 11694.708,
+    "endMs": 11778.833
    },
    {
     "text": "cent.",
-    "startMs": 11670.666,
-    "endMs": 12067.291
+    "startMs": 11778.833,
+    "endMs": 12211.541
    },
    {
     "text": "The",
-    "startMs": 12451.916,
-    "endMs": 12560.082
+    "startMs": 12596.166,
+    "endMs": 12704.332
    },
    {
     "text": "evidence,",
-    "startMs": 12572.125,
-    "endMs": 13209.125
+    "startMs": 12704.333,
+    "endMs": 13293.291
    },
    {
     "text": "with",
-    "startMs": 13353.375,
-    "endMs": 13497.625
+    "startMs": 13305.291,
+    "endMs": 13461.541
    },
    {
     "text": "test",
-    "startMs": 13509.625,
-    "endMs": 13858.166
+    "startMs": 13461.541,
+    "endMs": 13810.082
    },
    {
     "text": "clock",
-    "startMs": 13858.166,
-    "endMs": 14290.874
+    "startMs": 13810.083,
+    "endMs": 14230.749
    },
    {
     "text": "and",
-    "startMs": 14387.0,
-    "endMs": 14447.083
+    "startMs": 14326.916,
+    "endMs": 14411.041
    },
    {
     "text": "invoice",
-    "startMs": 14447.125,
-    "endMs": 14915.875
+    "startMs": 14423.083,
+    "endMs": 14927.874
    },
    {
     "text": "IDs,",
-    "startMs": 14915.875,
-    "endMs": 15504.833
+    "startMs": 14939.916,
+    "endMs": 15564.916
    },
    {
     "text": "is",
-    "startMs": 15901.458,
-    "endMs": 15997.624
+    "startMs": 15949.5,
+    "endMs": 16057.666
    },
    {
     "text": "committed",
-    "startMs": 16009.625,
-    "endMs": 16502.416
+    "startMs": 16069.708,
+    "endMs": 16562.499
    },
    {
     "text": "to",
-    "startMs": 16502.416,
-    "endMs": 16586.541
+    "startMs": 16562.5,
+    "endMs": 16658.666
    },
    {
     "text": "the",
-    "startMs": 16598.541,
-    "endMs": 16682.666
+    "startMs": 16670.666,
+    "endMs": 16754.791
    },
    {
     "text": "repo.",
-    "startMs": 16694.708,
-    "endMs": 17199.499
+    "startMs": 16766.833,
+    "endMs": 17283.666
    }
   ]
  },
@@ -1480,287 +1480,322 @@
    {
     "text": "The",
     "startMs": 96.166,
-    "endMs": 144.249
+    "endMs": 156.249
    },
    {
     "text": "suite",
     "startMs": 156.25,
-    "endMs": 444.708
+    "endMs": 456.75
    },
    {
     "text": "has",
-    "startMs": 444.708,
-    "endMs": 612.958
+    "startMs": 456.75,
+    "endMs": 637.0
    },
    {
     "text": "twenty-eight",
-    "startMs": 613.0,
-    "endMs": 1105.75
+    "startMs": 637.0,
+    "endMs": 1129.791
    },
    {
     "text": "UI",
-    "startMs": 1105.75,
-    "endMs": 1454.291
+    "startMs": 1129.791,
+    "endMs": 1442.291
    },
    {
     "text": "tests",
-    "startMs": 1466.333,
-    "endMs": 1886.999
+    "startMs": 1454.333,
+    "endMs": 1874.999
    },
    {
     "text": "with",
     "startMs": 1887.0,
-    "endMs": 2019.208
+    "endMs": 2007.208
    },
    {
     "text": "exact",
-    "startMs": 2019.25,
-    "endMs": 2500.0
+    "startMs": 2007.208,
+    "endMs": 2463.958
    },
    {
     "text": "hand-derived",
-    "startMs": 2500.0,
-    "endMs": 3125.0
+    "startMs": 2463.958,
+    "endMs": 3064.916
    },
    {
     "text": "amounts",
-    "startMs": 3125.0,
-    "endMs": 3605.75
+    "startMs": 3064.916,
+    "endMs": 3473.582
    },
    {
     "text": "and",
-    "startMs": 3918.25,
-    "endMs": 4182.666
+    "startMs": 3485.583,
+    "endMs": 3581.749
    },
    {
     "text": "hand-written",
-    "startMs": 4182.708,
-    "endMs": 4699.499
+    "startMs": 3581.75,
+    "endMs": 4110.583
    },
    {
     "text": "Playwright",
-    "startMs": 4699.5,
-    "endMs": 5204.291
+    "startMs": 4110.583,
+    "endMs": 4567.291
    },
    {
     "text": "code,",
-    "startMs": 5204.333,
-    "endMs": 5528.833
+    "startMs": 4567.291,
+    "endMs": 4879.791
    },
    {
     "text": "plus",
-    "startMs": 5913.458,
-    "endMs": 6261.999
-   },
-   {
-    "text": "fifty",
-    "startMs": 6370.208,
-    "endMs": 6814.916
+    "startMs": 5252.416,
+    "endMs": 5552.916
    },
    {
     "text": "API",
-    "startMs": 6826.916,
-    "endMs": 7271.624
+    "startMs": 5564.916,
+    "endMs": 6021.666
    },
    {
-    "text": "tests.",
-    "startMs": 7271.625,
-    "endMs": 7848.541
+    "text": "tests",
+    "startMs": 6033.666,
+    "endMs": 6394.249
    },
    {
-    "text": "When",
-    "startMs": 8233.166,
-    "endMs": 8317.291
+    "text": "that",
+    "startMs": 6394.25,
+    "endMs": 6634.625
    },
    {
-    "text": "a",
-    "startMs": 8329.333,
-    "endMs": 8377.416
-   },
-   {
-    "text": "check",
-    "startMs": 8377.416,
-    "endMs": 8653.832
-   },
-   {
-    "text": "fails,",
-    "startMs": 8653.833,
-    "endMs": 9254.791
-   },
-   {
-    "text": "a",
-    "startMs": 9471.166,
-    "endMs": 9519.249
-   },
-   {
-    "text": "triage",
-    "startMs": 9531.25,
-    "endMs": 10000.0
-   },
-   {
-    "text": "job",
-    "startMs": 10000.0,
-    "endMs": 10372.583
-   },
-   {
-    "text": "reads",
-    "startMs": 10372.583,
-    "endMs": 10757.208
-   },
-   {
-    "text": "TestSprite's",
-    "startMs": 10757.208,
-    "endMs": 11418.249
-   },
-   {
-    "text": "failure",
-    "startMs": 11430.291,
-    "endMs": 11862.999
-   },
-   {
-    "text": "bundle",
-    "startMs": 11863.0,
-    "endMs": 12235.583
-   },
-   {
-    "text": "and",
-    "startMs": 12536.041,
-    "endMs": 12656.249
-   },
-   {
-    "text": "runs",
-    "startMs": 12656.25,
-    "endMs": 12980.75
-   },
-   {
-    "text": "the",
-    "startMs": 12980.75,
-    "endMs": 13076.916
-   },
-   {
-    "text": "same",
-    "startMs": 13076.916,
-    "endMs": 13377.416
-   },
-   {
-    "text": "scenarios",
-    "startMs": 13377.416,
-    "endMs": 13966.374
+    "text": "run",
+    "startMs": 6646.625,
+    "endMs": 6814.875
    },
    {
     "text": "against",
-    "startMs": 13978.375,
-    "endMs": 14230.791
-   },
-   {
-    "text": "Stripe's",
-    "startMs": 14242.791,
-    "endMs": 14651.457
-   },
-   {
-    "text": "recorded",
-    "startMs": 14651.458,
-    "endMs": 15024.041
-   },
-   {
-    "text": "invoices,",
-    "startMs": 15024.041,
-    "endMs": 15721.166
-   },
-   {
-    "text": "to",
-    "startMs": 15973.541,
-    "endMs": 16057.666
-   },
-   {
-    "text": "tell",
-    "startMs": 16069.708,
-    "endMs": 16274.041
-   },
-   {
-    "text": "a",
-    "startMs": 16274.041,
-    "endMs": 16310.0819
-   },
-   {
-    "text": "UI",
-    "startMs": 16310.083,
-    "endMs": 16766.833
-   },
-   {
-    "text": "bug",
-    "startMs": 16778.833,
-    "endMs": 17199.499
-   },
-   {
-    "text": "from",
-    "startMs": 17211.541,
-    "endMs": 17343.749
-   },
-   {
-    "text": "a",
-    "startMs": 17343.75,
-    "endMs": 17403.833
-   },
-   {
-    "text": "billing",
-    "startMs": 17403.833,
-    "endMs": 17692.291
-   },
-   {
-    "text": "regression.",
-    "startMs": 17704.333,
-    "endMs": 18161.083
-   },
-   {
-    "text": "And",
-    "startMs": 18521.625,
-    "endMs": 18653.833
+    "startMs": 6814.916,
+    "endMs": 7163.457
    },
    {
     "text": "every",
-    "startMs": 18653.833,
-    "endMs": 18918.249
+    "startMs": 7319.708,
+    "endMs": 7620.208
    },
    {
-    "text": "night,",
-    "startMs": 18918.25,
-    "endMs": 19302.875
+    "text": "pull",
+    "startMs": 7620.208,
+    "endMs": 7860.583
+   },
+   {
+    "text": "request's",
+    "startMs": 7872.583,
+    "endMs": 8413.458
+   },
+   {
+    "text": "own",
+    "startMs": 8425.5,
+    "endMs": 8629.833
+   },
+   {
+    "text": "preview.",
+    "startMs": 8641.833,
+    "endMs": 9134.624
+   },
+   {
+    "text": "When",
+    "startMs": 9531.25,
+    "endMs": 9603.375
    },
    {
     "text": "a",
-    "startMs": 19531.25,
-    "endMs": 19579.333
+    "startMs": 9615.375,
+    "endMs": 9663.458
    },
    {
-    "text": "money-math",
-    "startMs": 19579.333,
-    "endMs": 20216.333
+    "text": "check",
+    "startMs": 9663.458,
+    "endMs": 9939.916
    },
    {
-    "text": "test",
-    "startMs": 20216.333,
-    "endMs": 20624.999
+    "text": "fails,",
+    "startMs": 9939.916,
+    "endMs": 10528.874
    },
    {
-    "text": "list",
-    "startMs": 20637.0,
-    "endMs": 21009.583
+    "text": "a",
+    "startMs": 10733.166,
+    "endMs": 10781.249
+   },
+   {
+    "text": "triage",
+    "startMs": 10781.25,
+    "endMs": 11238.0
+   },
+   {
+    "text": "job",
+    "startMs": 11238.0,
+    "endMs": 11550.5
+   },
+   {
+    "text": "reads",
+    "startMs": 11550.5,
+    "endMs": 11850.958
+   },
+   {
+    "text": "TestSprite's",
+    "startMs": 11850.958,
+    "endMs": 12463.958
+   },
+   {
+    "text": "failure",
+    "startMs": 12463.958,
+    "endMs": 12824.499
+   },
+   {
+    "text": "bundle",
+    "startMs": 12824.5,
+    "endMs": 13185.083
+   },
+   {
+    "text": "and",
+    "startMs": 13497.583,
+    "endMs": 13605.749
    },
    {
     "text": "runs",
-    "startMs": 21021.625,
-    "endMs": 21394.208
+    "startMs": 13605.75,
+    "endMs": 13954.291
+   },
+   {
+    "text": "the",
+    "startMs": 13954.333,
+    "endMs": 14038.458
+   },
+   {
+    "text": "same",
+    "startMs": 14038.458,
+    "endMs": 14326.916
+   },
+   {
+    "text": "scenarios",
+    "startMs": 14326.916,
+    "endMs": 14927.874
+   },
+   {
+    "text": "against",
+    "startMs": 14927.875,
+    "endMs": 15216.333
+   },
+   {
+    "text": "Stripe's",
+    "startMs": 15216.333,
+    "endMs": 15612.958
+   },
+   {
+    "text": "recorded",
+    "startMs": 15613.0,
+    "endMs": 16021.666
+   },
+   {
+    "text": "invoices,",
+    "startMs": 16033.666,
+    "endMs": 16730.791
+   },
+   {
+    "text": "to",
+    "startMs": 16983.166,
+    "endMs": 17067.291
+   },
+   {
+    "text": "tell",
+    "startMs": 17067.291,
+    "endMs": 17247.582
+   },
+   {
+    "text": "a",
+    "startMs": 17247.583,
+    "endMs": 17295.666
+   },
+   {
+    "text": "UI",
+    "startMs": 17295.666,
+    "endMs": 17716.332
+   },
+   {
+    "text": "bug",
+    "startMs": 17716.333,
+    "endMs": 18149.041
+   },
+   {
+    "text": "from",
+    "startMs": 18161.041,
+    "endMs": 18293.249
+   },
+   {
+    "text": "a",
+    "startMs": 18293.25,
+    "endMs": 18365.375
+   },
+   {
+    "text": "billing",
+    "startMs": 18365.375,
+    "endMs": 18653.833
+   },
+   {
+    "text": "regression.",
+    "startMs": 18653.833,
+    "endMs": 19110.583
+   },
+   {
+    "text": "And",
+    "startMs": 19483.166,
+    "endMs": 19615.374
+   },
+   {
+    "text": "every",
+    "startMs": 19627.416,
+    "endMs": 19879.791
+   },
+   {
+    "text": "night,",
+    "startMs": 19879.791,
+    "endMs": 20252.374
+   },
+   {
+    "text": "a",
+    "startMs": 20685.083,
+    "endMs": 20733.166
+   },
+   {
+    "text": "money-math",
+    "startMs": 20733.166,
+    "endMs": 21322.124
+   },
+   {
+    "text": "test",
+    "startMs": 21322.125,
+    "endMs": 21730.791
+   },
+   {
+    "text": "list",
+    "startMs": 21742.791,
+    "endMs": 22091.332
+   },
+   {
+    "text": "runs",
+    "startMs": 22103.375,
+    "endMs": 22475.958
    },
    {
     "text": "on",
-    "startMs": 21406.25,
-    "endMs": 21502.416
+    "startMs": 22488.0,
+    "endMs": 22584.125
    },
    {
     "text": "production.",
-    "startMs": 21502.416,
-    "endMs": 22043.291
+    "startMs": 22584.125,
+    "endMs": 23125.0
    }
   ]
  },
@@ -1768,214 +1803,319 @@
   "id": "outro",
   "words": [
    {
-    "text": "On",
+    "text": "To",
     "startMs": 84.125,
-    "endMs": 192.291
+    "endMs": 156.25
    },
    {
-    "text": "top",
-    "startMs": 192.291,
-    "endMs": 444.707
+    "text": "prove",
+    "startMs": 156.25,
+    "endMs": 625.0
    },
    {
-    "text": "of",
-    "startMs": 444.708,
-    "endMs": 528.833
+    "text": "the",
+    "startMs": 625.0,
+    "endMs": 709.125
    },
    {
-    "text": "that,",
-    "startMs": 528.833,
-    "endMs": 817.291
+    "text": "gate",
+    "startMs": 721.166,
+    "endMs": 961.541
    },
    {
-    "text": "every",
-    "startMs": 1189.916,
-    "endMs": 1418.249
+    "text": "holds,",
+    "startMs": 961.541,
+    "endMs": 1574.541
    },
    {
     "text": "pull",
-    "startMs": 1418.25,
-    "endMs": 1646.625
+    "startMs": 1778.833,
+    "endMs": 2007.208
    },
    {
     "text": "request",
-    "startMs": 1646.625,
-    "endMs": 2163.458
+    "startMs": 2007.208,
+    "endMs": 2451.916
    },
    {
-    "text": "runs",
-    "startMs": 2175.5,
-    "endMs": 2584.166
+    "text": "forty",
+    "startMs": 2463.958,
+    "endMs": 2920.666
    },
    {
-    "text": "user",
-    "startMs": 2596.166,
-    "endMs": 2932.707
+    "text": "planted",
+    "startMs": 2920.666,
+    "endMs": 3329.332
    },
    {
-    "text": "journeys",
-    "startMs": 2932.708,
-    "endMs": 3329.333
+    "text": "a",
+    "startMs": 3413.458,
+    "endMs": 3485.583
    },
    {
-    "text": "with",
-    "startMs": 3329.333,
-    "endMs": 3437.499
+    "text": "one-cent",
+    "startMs": 3497.583,
+    "endMs": 4338.916
    },
    {
-    "text": "accessibility",
-    "startMs": 3449.5,
-    "endMs": 4146.625
-   },
-   {
-    "text": "checks,",
-    "startMs": 4146.625,
+    "text": "rounding",
+    "startMs": 4350.958,
     "endMs": 4675.458
    },
    {
-    "text": "API",
-    "startMs": 5108.166,
-    "endMs": 5829.332
-   },
-   {
-    "text": "fuzzing",
-    "startMs": 6081.75,
-    "endMs": 6490.375
-   },
-   {
-    "text": "from",
-    "startMs": 6490.375,
-    "endMs": 6598.541
-   },
-   {
-    "text": "the",
-    "startMs": 6598.541,
-    "endMs": 6682.666
-   },
-   {
-    "text": "OpenAPI",
-    "startMs": 6682.708,
-    "endMs": 7439.916
-   },
-   {
-    "text": "spec,",
-    "startMs": 7439.916,
-    "endMs": 7920.666
+    "text": "bug,",
+    "startMs": 4687.5,
+    "endMs": 5024.041
    },
    {
     "text": "and",
-    "startMs": 8185.083,
-    "endMs": 8269.208
-   },
-   {
-    "text": "Lighthouse",
-    "startMs": 8269.25,
-    "endMs": 8677.916
-   },
-   {
-    "text": "budgets.",
-    "startMs": 8689.916,
-    "endMs": 9230.791
-   },
-   {
-    "text": "Nightly",
-    "startMs": 9615.375,
-    "endMs": 9951.916
-   },
-   {
-    "text": "jobs",
-    "startMs": 9951.916,
-    "endMs": 10408.666
-   },
-   {
-    "text": "fuzz",
-    "startMs": 10420.666,
-    "endMs": 10721.166
-   },
-   {
-    "text": "against",
-    "startMs": 10721.166,
-    "endMs": 10961.541
-   },
-   {
-    "text": "Stripe",
-    "startMs": 10973.541,
-    "endMs": 11418.249
-   },
-   {
-    "text": "and",
-    "startMs": 11814.916,
-    "endMs": 11947.124
-   },
-   {
-    "text": "run",
-    "startMs": 11959.125,
-    "endMs": 12175.458
-   },
-   {
-    "text": "mutation",
-    "startMs": 12175.5,
-    "endMs": 12656.25
-   },
-   {
-    "text": "testing.",
-    "startMs": 12668.25,
-    "endMs": 13125.0
-   },
-   {
-    "text": "Tera:",
-    "startMs": 13509.625,
-    "endMs": 13942.333
+    "startMs": 5456.75,
+    "endMs": 5625.0
    },
    {
     "text": "every",
-    "startMs": 14399.041,
-    "endMs": 14735.582
+    "startMs": 5697.125,
+    "endMs": 5985.583
    },
    {
-    "text": "invoice,",
-    "startMs": 14735.583,
-    "endMs": 15468.749
+    "text": "required",
+    "startMs": 5985.583,
+    "endMs": 6430.291
    },
    {
-    "text": "to",
-    "startMs": 15613.0,
-    "endMs": 15697.125
+    "text": "check",
+    "startMs": 6442.291,
+    "endMs": 6694.707
+   },
+   {
+    "text": "refused",
+    "startMs": 6706.75,
+    "endMs": 7163.5
+   },
+   {
+    "text": "it,",
+    "startMs": 7175.5,
+    "endMs": 7295.708
+   },
+   {
+    "text": "admins",
+    "startMs": 7740.375,
+    "endMs": 8076.916
+   },
+   {
+    "text": "included.",
+    "startMs": 8076.916,
+    "endMs": 8605.749
+   },
+   {
+    "text": "On",
+    "startMs": 8990.375,
+    "endMs": 9086.541
+   },
+   {
+    "text": "top",
+    "startMs": 9086.541,
+    "endMs": 9326.916
+   },
+   {
+    "text": "of",
+    "startMs": 9326.916,
+    "endMs": 9399.041
+   },
+   {
+    "text": "that,",
+    "startMs": 9411.041,
+    "endMs": 9711.541
+   },
+   {
+    "text": "every",
+    "startMs": 10132.208,
+    "endMs": 10336.541
+   },
+   {
+    "text": "pull",
+    "startMs": 10336.541,
+    "endMs": 10564.916
+   },
+   {
+    "text": "request",
+    "startMs": 10564.916,
+    "endMs": 11153.874
+   },
+   {
+    "text": "runs",
+    "startMs": 11165.875,
+    "endMs": 11550.5
+   },
+   {
+    "text": "user",
+    "startMs": 11562.5,
+    "endMs": 11899.041
+   },
+   {
+    "text": "journeys",
+    "startMs": 11899.041,
+    "endMs": 12283.666
+   },
+   {
+    "text": "with",
+    "startMs": 12283.666,
+    "endMs": 12391.832
+   },
+   {
+    "text": "accessibility",
+    "startMs": 12403.833,
+    "endMs": 13124.999
+   },
+   {
+    "text": "checks,",
+    "startMs": 13137.0,
+    "endMs": 13653.833
+   },
+   {
+    "text": "API",
+    "startMs": 14050.5,
+    "endMs": 14747.625
+   },
+   {
+    "text": "fuzzing",
+    "startMs": 14988.0,
+    "endMs": 15432.708
+   },
+   {
+    "text": "from",
+    "startMs": 15444.708,
+    "endMs": 15552.874
    },
    {
     "text": "the",
-    "startMs": 15697.125,
-    "endMs": 15781.25
+    "startMs": 15552.875,
+    "endMs": 15625.0
+   },
+   {
+    "text": "OpenAPI",
+    "startMs": 15625.0,
+    "endMs": 16358.166
+   },
+   {
+    "text": "spec,",
+    "startMs": 16358.166,
+    "endMs": 16814.916
+   },
+   {
+    "text": "and",
+    "startMs": 17091.333,
+    "endMs": 17187.499
+   },
+   {
+    "text": "Lighthouse",
+    "startMs": 17187.5,
+    "endMs": 17584.125
+   },
+   {
+    "text": "budgets.",
+    "startMs": 17596.166,
+    "endMs": 18137.041
+   },
+   {
+    "text": "Nightly",
+    "startMs": 18533.666,
+    "endMs": 18834.124
+   },
+   {
+    "text": "jobs",
+    "startMs": 18834.125,
+    "endMs": 19290.875
+   },
+   {
+    "text": "fuzz",
+    "startMs": 19302.875,
+    "endMs": 19603.375
+   },
+   {
+    "text": "against",
+    "startMs": 19603.375,
+    "endMs": 19843.75
+   },
+   {
+    "text": "Stripe",
+    "startMs": 19843.75,
+    "endMs": 20276.458
+   },
+   {
+    "text": "and",
+    "startMs": 20673.083,
+    "endMs": 20793.291
+   },
+   {
+    "text": "run",
+    "startMs": 20805.291,
+    "endMs": 20997.582
+   },
+   {
+    "text": "mutation",
+    "startMs": 20997.583,
+    "endMs": 21490.374
+   },
+   {
+    "text": "testing.",
+    "startMs": 21502.416,
+    "endMs": 21959.166
+   },
+   {
+    "text": "Tera:",
+    "startMs": 22355.75,
+    "endMs": 22812.5
+   },
+   {
+    "text": "every",
+    "startMs": 23257.208,
+    "endMs": 23593.749
+   },
+   {
+    "text": "invoice,",
+    "startMs": 23593.75,
+    "endMs": 24314.916
+   },
+   {
+    "text": "to",
+    "startMs": 24531.25,
+    "endMs": 24603.375
+   },
+   {
+    "text": "the",
+    "startMs": 24603.375,
+    "endMs": 24687.5
    },
    {
     "text": "cent,",
-    "startMs": 15781.25,
-    "endMs": 16213.958
+    "startMs": 24699.5,
+    "endMs": 25132.208
    },
    {
     "text": "before",
-    "startMs": 16430.291,
-    "endMs": 16754.791
+    "startMs": 25312.5,
+    "endMs": 25649.041
    },
    {
     "text": "your",
-    "startMs": 16754.791,
-    "endMs": 16838.916
+    "startMs": 25649.041,
+    "endMs": 25745.207
    },
    {
     "text": "customers",
-    "startMs": 16838.958,
-    "endMs": 17283.666
+    "startMs": 25757.208,
+    "endMs": 26177.874
    },
    {
     "text": "see",
-    "startMs": 17283.666,
-    "endMs": 17499.999
+    "startMs": 26189.916,
+    "endMs": 26442.291
    },
    {
     "text": "it.",
-    "startMs": 17512.0,
-    "endMs": 17680.25
+    "startMs": 26442.291,
+    "endMs": 26622.582
    }
   ]
  }
