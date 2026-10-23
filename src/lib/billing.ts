@@ -915,8 +915,11 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const credits = creditDebits(s, at, oldEnd);
     const parts = chargeParts(s, at, at, s.periodEnd);
     const charge = { ...prorate(s, at, { unit: 0, qty: 0 })[1], amount: parts.item.unit - parts.paid.off };
-    if (charge.amount !== 0) s.debits.push(parts);
-    bill(s, at, [...credits, ...(charge.amount !== 0 ? [charge] : [])], behavior);
+    // A charge a coupon makes free is still a $0 line (and a debit a later change credits at $0), like a free stub or
+    // credit (S78, S106); only a $0 gross (a metered price) has none (fuzz seed 95503: FIFTYOFF on starter_m).
+    const priced = parts.item.unit !== 0;
+    if (priced) s.debits.push(parts);
+    bill(s, at, [...credits, ...(priced ? [charge] : [])], behavior);
   }
 
   // R16 flexible billing_cycle_anchor=now: the credit and debit for the overlap cancel out, so only the time past
