@@ -220,6 +220,11 @@ export async function replayInStripe(stripe: Stripe, catalog: Catalog, timeline:
       // (flexible fuzz seeds 9101, 9102, 9105 waited on a stale or empty window).
       if (sub) sub = await stripe.subscriptions.retrieve(sub.id);
     }
+    // A call that can invoice at once must see the usage reported so far: meter events aggregate asynchronously, and a
+    // classic anchor reset was invoiced before Stripe had counted them (QA probe B: 0 units instead of 5000).
+    const invoicesNow = ["reset_anchor", "change_price", "cancel_now", "cancel_at", "end_trial", "pause", "resume"].includes(e.type);
+    const windowEnd = Math.floor(at / 60) * 60;
+    if (invoicesNow && usage.total > 0 && windowEnd > usage.from) await waitForUsage(stripe, ids.meterId!, customer.id, usage.from, windowEnd, usage.total);
     switch (e.type) {
       case "subscribe":
       case "start_trial":

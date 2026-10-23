@@ -392,18 +392,24 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     const all = price(s.priceId).tiers ?? [];
     const reached = Math.max(0, all.findIndex((t) => t.up_to === null || s.usage <= t.up_to));
     const flat = (t: Tier, n: number): InvoiceLine[] => (t.flat_amount ? [{ description: `Usage tier ${n} flat fee`, amount: t.flat_amount, proration: false }] : []);
+    // Like a licensed amount (I1), a usage line must stay an exact integer: at most MAX_AMOUNT minor units (QA: a 1e15
+    // rate at 1e9 units returned 1e24).
+    const capped = (lines: InvoiceLine[]) => {
+      for (const l of lines) if (Math.abs(l.amount) > MAX_AMOUNT) throw new Error(`${s.priceId}: ${s.usage} units exceed ${MAX_AMOUNT.toLocaleString("en-US")} minor units per line`);
+      return lines;
+    };
     // Volume: every unit at the rate of the tier the total falls in, one line (probe: 12346 units, Tier 3 at 0.5c = 6173).
     if (price(s.priceId).tiers_mode === "volume") {
       const t = all[reached];
-      return [{ description: `Usage tier ${reached + 1}: ${s.usage} units (volume)`, amount: roundMinor(s.usage * Number(t.unit_amount_decimal)), proration: false }, ...flat(t, reached + 1)];
+      return capped([{ description: `Usage tier ${reached + 1}: ${s.usage} units (volume)`, amount: roundMinor(s.usage * Number(t.unit_amount_decimal)), proration: false }, ...flat(t, reached + 1)]);
     }
     let floor = 0;
-    return all.slice(0, reached + 1).flatMap((t, i) => {
+    return capped(all.slice(0, reached + 1).flatMap((t, i) => {
       const cap = t.up_to ?? Infinity;
       const units = Math.max(0, Math.min(s.usage, cap) - floor);
       floor = cap;
       return [{ description: `Usage tier ${i + 1}: ${units} units`, amount: roundMinor(units * Number(t.unit_amount_decimal)), proration: false }, ...flat(t, i + 1)];
-    });
+    }));
   };
 
 
@@ -592,7 +598,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         }
         if (p.interval !== oldInterval) {
           // R3: interval change resets the anchor and invoices now (R14: with "none", without the credit).
-          restartPeriod(s, at, old, e.proration_behavior);
+          restartPeriod(s, at, old, e.proration_behavior, wasMetered);
         } else if (e.proration_behavior !== "none") {
           // R14: with "none" nothing is prorated; the new amount bills from the next renewal, and a later
           // proration credits the item as it is then, not what was paid (Stripe probe, S44).
@@ -634,7 +640,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         emit(at, "customer.subscription.updated");
         // Inside the current period Stripe creates the credit for the time after cancel_at now, as a pending invoice item
         // (S71); it is billed on the final invoice then.
-        if (when < s.periodEnd && e.proration_behavior !== "none")
+        if (when < s.periodEnd && e.proration_behavior !== "none" && price(s.priceId).usage_type !== "metered")
           emit(at, ...(s.mode === "flexible" ? s.debits.filter((d) => d.end > when) : [0]).map(() => "invoiceitem.created"));
         break;
       }
@@ -681,7 +687,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         s.paid = activeDiscount(s, licensedAmount(s), at);
         s.anchor = at;
         debit(s, at);
-        openInvoice(s, at, [{ description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+        // The first paid invoice also carries what waited for it, such as a one-off item added during the trial (R25;
+        // QA, Stripe clock_1UTbeq2QR5nixgqNrbfr0BhB: [1500, 7900], not 7900 now and the item at the next renewal).
+        openInvoice(s, at, [...s.pending, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+        s.pending = [];
         emit(at, "customer.subscription.updated");
         break;
       }
@@ -690,7 +699,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
         const s = active(e.type);
         if (s.status === "trialing") throw new Error("reset_anchor during a trial: use end_trial");
         if (s.mode === "flexible") flexibleReset(s, at, e.proration_behavior);
-        else restartPeriod(s, at, item(s), e.proration_behavior);
+        else restartPeriod(s, at, item(s), e.proration_behavior, price(s.priceId).usage_type === "metered");
         emit(at, "customer.subscription.updated");
         break;
       }
@@ -813,8 +822,12 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   }
 
   // Credit the unused time (unless "none"), move the anchor to now and invoice the full new period at once.
-  function restartPeriod(s: Sub, at: number, old: Item, behavior: ProrationBehavior | undefined) {
-    const credit = behavior === "none" ? [] : [prorate(s, at, old, false)[0]];
+  // A metered item has nothing to credit (R7): a reset bills its usage so far as the new period's invoice, and a switch
+  // to a licensed price drops it (Stripe probes A, B: [29000] and [0, 4000], no unused-time line).
+  function restartPeriod(s: Sub, at: number, old: Item, behavior: ProrationBehavior | undefined, wasMetered = false) {
+    const credit = behavior === "none" || wasMetered ? [] : [prorate(s, at, old, false)[0]];
+    const usage = wasMetered && price(s.priceId).usage_type === "metered" ? usageLines(s) : null;
+    if (wasMetered) s.usage = 0;
     items(at, credit);
     s.periodStart = at;
     s.anchorDay = new Date(at).getUTCDate();
@@ -823,7 +836,7 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchor = at;
     s.debits = [];
     debit(s, at);
-    openInvoice(s, at, [...s.pending, ...credit, { description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }], true);
+    openInvoice(s, at, [...s.pending, ...credit, ...(usage ?? [{ description: `${s.priceId} × ${s.quantity}`, amount: licensedAmount(s), proration: false }])], true);
     s.pending = [];
   }
 
@@ -870,8 +883,10 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
   // R19: the subscription ends at `when` (its cancel_at). Pending prorations, unbilled usage and (unless "none")
   // the credit for the time after it go on a final invoice dated then (S71).
   function cancelOn(s: Sub, when: number) {
-    const credit = s.cancelBehavior !== "none" && when < s.periodEnd ? (s.mode === "flexible" ? creditDebits(s, when) : [prorate(s, when, item(s), false)[0]]) : [];
-    const lines = [...s.pending, ...(price(s.priceId).usage_type === "metered" && s.usage > 0 ? usageLines(s) : []), ...credit];
+    const metered = price(s.priceId).usage_type === "metered";
+    // A metered item bills its usage and has no unused-time credit (Stripe probe C: [0, 4000]).
+    const credit = s.cancelBehavior !== "none" && when < s.periodEnd && !metered ? (s.mode === "flexible" ? creditDebits(s, when) : [prorate(s, when, item(s), false)[0]]) : [];
+    const lines = [...s.pending, ...(metered && s.usage > 0 ? usageLines(s) : []), ...credit];
     if (lines.length) openInvoice(s, when, lines, true, true);
     s.pending = [];
     s.status = "canceled";
@@ -943,6 +958,16 @@ export function simulate(catalog: Catalog, timeline: TimelineEvent[]): Simulatio
     s.anchor = at;
     s.anchorDay = new Date(at).getUTCDate();
     s.periodEnd = addInterval(at, price(s.priceId).interval, s.anchorDay);
+    // A metered item is invoiced for its usage so far at once, like a period end, with no remaining-time charge
+    // (Stripe probe D: [0, 4000] on the reset date, then a new period).
+    if (price(s.priceId).usage_type === "metered") {
+      const lines = [...s.pending, ...usageLines(s)];
+      s.pending = [];
+      s.usage = 0;
+      s.debits = [];
+      openInvoice(s, at, lines, true);
+      return;
+    }
     // Like a "none" change (R21), a "none" reset leaves the new period counted as paid: an unchanged resume inside
     // it charges nothing (03-01 reset, paused 03-14, resumed 03-30: no 2/31 charge; fuzz seed 404281).
     if (behavior === "none") s.coveredUntil = Math.max(s.coveredUntil ?? 0, s.periodEnd);
