@@ -1,0 +1,66 @@
+{
+  "id": "S135",
+  "title": "A one-off charge pending at a cancel at period end is the final invoice (Stripe probe)",
+  "verified_at": "2026-10-22T16:39:41.326Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTP1P2QR5nixgqNk81PjuT2",
+  "customer": "cus_VUNnoG5Ad1JP6c",
+  "stripe": [
+    {
+      "id": "in_1UTP1R2QR5nixgqNwZ4mM442",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTP1i2QR5nixgqNLtAYPsHo",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "",
+          "amount": 1500,
+          "proration": false
+        }
+      ],
+      "subtotal": 1500,
+      "discount": 0,
+      "tax": 0,
+      "total": 1500,
+      "amount_due": 1500,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created"
+    ],
+    [
+      "customer.subscription.updated active"
+    ],
+    [
+      "customer.subscription.deleted canceled",
+      "invoice.created #2"
+    ]
+  ]
+}

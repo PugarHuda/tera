@@ -45,7 +45,7 @@ const event = z.object({
     .number()
     .int()
     .optional()
-    .describe("adjust_balance only: customer balance transaction in minor units; negative is a credit applied to the next invoice, positive a debit (R23)"),
+    .describe("adjust_balance: customer balance transaction in minor units, negative a credit applied to the next invoice (R23); add_invoice_item: a one-off charge, negative a credit, on the next subscription invoice (R25)"),
   trial_end_behavior: z
     .enum(TRIAL_END_BEHAVIORS)
     .optional()
@@ -443,7 +443,7 @@ ${hooks}`, { match: r.match, diffs: r.diffs, stripe: r.stripe, webhooks: r.webho
       },
       ({ id }) =>
         ask(
-          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R24 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
+          `Read resource tera://scenarios/${id} and its Stripe evidence (tool get_parity_evidence, id ${id}). Explain each invoice line by line: the amount, which Stripe rule (R1-R25 in the PRD, see the scenario's math) produces it, and how Stripe's own invoice confirms it. End with what the customer is charged on each date.`,
         ),
     );
     server.registerPrompt(

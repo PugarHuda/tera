@@ -40,6 +40,7 @@ describe("parseTimeline", () => {
     // QA: without trial_period_days Stripe starts no trial; a zero-day one billed 4 invoices to Stripe's 3.
     [[{ ...sub, type: "start_trial" }], "trial_days is required"],
     [[{ at: "2027-01-01T00:00:00Z", type: "advance_to" }], "needs a subscribe or start_trial"],
+    [[sub, { at: "2027-01-10T00:00:00Z", type: "add_invoice_item", amount: 0 }], "non-zero whole number"],
   ])("rejects %j", (timeline, message) => expect(() => parseTimeline(timeline)).toThrow(message));
   it("throws BadRequest, which the API maps to 400", () => expect(() => parseTimeline("x")).toThrow(BadRequest));
 });

@@ -1,0 +1,68 @@
+{
+  "id": "S134",
+  "title": "A negative one-off item is a credit on the next invoice (Stripe probe)",
+  "verified_at": "2026-10-22T16:39:21.698Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTP162QR5nixgqN35FBoRG4",
+  "customer": "cus_VUNm8JCPlF8CRD",
+  "stripe": [
+    {
+      "id": "in_1UTP172QR5nixgqNTGsddZFs",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7900,
+      "discount": 0,
+      "tax": 0,
+      "total": 7900,
+      "amount_due": 7900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTP1O2QR5nixgqNuyWCIWt5",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "",
+          "amount": -500,
+          "proration": false
+        },
+        {
+          "description": "1 × Tera pro_m (at $79.00 / month)",
+          "amount": 7900,
+          "proration": false
+        }
+      ],
+      "subtotal": 7400,
+      "discount": 0,
+      "tax": 0,
+      "total": 7400,
+      "amount_due": 7400,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
+  ]
+}

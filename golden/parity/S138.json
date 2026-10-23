@@ -1,0 +1,68 @@
+{
+  "id": "S138",
+  "title": "An amount_off coupon still takes its full amount off when a one-off credit leaves little to pay (Stripe probe)",
+  "verified_at": "2026-10-22T16:53:50.104Z",
+  "stripe_api_version": "2026-09-30.endive",
+  "match": true,
+  "diffs": [],
+  "test_clock": "clock_1UTPFA2QR5nixgqNQSfRd9Av",
+  "customer": "cus_VUO1ySEYB6BG7R",
+  "stripe": [
+    {
+      "id": "in_1UTPFB2QR5nixgqNm4XrtZ3G",
+      "date": "2027-01-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 2900,
+      "discount": 1000,
+      "tax": 0,
+      "total": 1900,
+      "amount_due": 1900,
+      "starting_balance": 0
+    },
+    {
+      "id": "in_1UTPFO2QR5nixgqNiQMb06IO",
+      "date": "2027-02-01",
+      "currency": "usd",
+      "lines": [
+        {
+          "description": "",
+          "amount": -2500,
+          "proration": false
+        },
+        {
+          "description": "1 × Tera starter_m (at $29.00 / month)",
+          "amount": 2900,
+          "proration": false
+        }
+      ],
+      "subtotal": 400,
+      "discount": 1000,
+      "tax": 0,
+      "total": -600,
+      "amount_due": 0,
+      "starting_balance": 0
+    }
+  ],
+  "webhooks": [
+    [
+      "invoice.created #1",
+      "invoice.finalized #1",
+      "invoice.paid #1",
+      "customer.subscription.created active"
+    ],
+    [
+      "invoiceitem.created"
+    ],
+    [
+      "invoice.created #2",
+      "customer.subscription.updated active"
+    ]
+  ]
+}
