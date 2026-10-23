@@ -1,0 +1,14 @@
+{
+  "projectId": "279e68e6-64c8-4c60-956e-6432e9e40f00",
+  "type": "frontend",
+  "name": "Simulator: one-off charges bill with the renewal, discounted and taxed; a coupon never discounts a one-off credit (S133, S137)",
+  "description": "R25. A one-off invoice item joins the subscription's next invoice, where its coupon and tax apply; a negative item (a credit) is not discounted. Amounts are hand-derived and verified in Stripe test clocks.",
+  "priority": "p0",
+  "planSteps": [
+    { "type": "action", "description": "Open the app home page, click 'Simulator' in the top navigation bar, and choose 'S133' in the 'Load scenario' dropdown" },
+    { "type": "assertion", "description": "Assert the badge reads '✅ Matches golden expected' and Invoice 1 totals $65.18" },
+    { "type": "assertion", "description": "Assert Invoice 2 (2027-02-01) has lines $10.00 and $79.00, a discount of -$22.25, tax of $6.68, and totals $73.43" },
+    { "type": "action", "description": "Choose 'S137' in the 'Load scenario' dropdown" },
+    { "type": "assertion", "description": "Assert Invoice 2 (2027-02-01) has lines $20.00, -$10.00 and $79.00, a discount of -$24.75 (25% of $99.00, not of $89.00), and totals $64.25" }
+  ]
+}

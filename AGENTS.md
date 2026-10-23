@@ -22,4 +22,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - The 5 hand-written API tests run on every PR against the preview via `scripts/testsprite-api-run.mjs` (it rewrites
   each file's default BASE_URL, `test code put`s it, runs it, and restores production). Map file -> cloud id lives there.
 - `testsprite test run <id>` executes the stored hand-written code; `testsprite test rerun <id>` replays the last agent
-  recording instead. A UI run costs 0.5 credits, so the whole suite on a PR costs 14: check `testsprite credits` first.
+  recording instead. A UI run costs 0.5 credits, so the whole suite (29 tests) on a PR costs 14.5: check `testsprite credits` first.
