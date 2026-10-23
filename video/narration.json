@@ -13,7 +13,7 @@
  },
  {
   "id": "parity",
-  "text": "A simulator is only worth something if it agrees with Stripe. Every one of the one hundred and twenty-seven hand-derived timelines was replayed in real Stripe test clocks, and every invoice matches to the cent. The evidence, with test clock and invoice IDs, is committed to the repo."
+  "text": "A simulator is only worth something if it agrees with Stripe. Every one of the one hundred and thirty-five hand-derived timelines was replayed in real Stripe test clocks, and every invoice matches to the cent. The evidence, with test clock and invoice IDs, is committed to the repo."
  },
  {
   "id": "builder",
@@ -29,10 +29,10 @@
  },
  {
   "id": "suite",
-  "text": "The suite has twenty-eight UI tests with exact hand-derived amounts and hand-written Playwright code, plus fifty API tests. When a check fails, a triage job reads TestSprite's failure bundle and runs the same scenarios against Stripe's recorded invoices, to tell a UI bug from a billing regression. And every night, a money-math test list runs on production."
+  "text": "The suite has twenty-eight UI tests with exact hand-derived amounts and hand-written Playwright code, plus API tests that run against every pull request's own preview. When a check fails, a triage job reads TestSprite's failure bundle and runs the same scenarios against Stripe's recorded invoices, to tell a UI bug from a billing regression. And every night, a money-math test list runs on production."
  },
  {
   "id": "outro",
-  "text": "On top of that, every pull request runs user journeys with accessibility checks, API fuzzing from the OpenAPI spec, and Lighthouse budgets. Nightly jobs fuzz against Stripe and run mutation testing. Tera: every invoice, to the cent, before your customers see it."
+  "text": "To prove the gate holds, pull request forty planted a one-cent rounding bug, and every required check refused it, admins included. On top of that, every pull request runs user journeys with accessibility checks, API fuzzing from the OpenAPI spec, and Lighthouse budgets. Nightly jobs fuzz against Stripe and run mutation testing. Tera: every invoice, to the cent, before your customers see it."
  }
 ]

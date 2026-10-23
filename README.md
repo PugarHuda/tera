@@ -10,6 +10,7 @@
 - **MCP for AI agents:** `claude mcp add --transport http tera https://tera-orpin-three.vercel.app/api/mcp`
 - **Demo video:** [`docs/tera-demo.mp4`](docs/tera-demo.mp4) (plays on GitHub) or [on X](https://x.com/BangDropID/status/2111838540552442282); built from code in [`video/`](video): Playwright records the live app, Remotion assembles it with narration
 - **Write-up:** [I let Stripe grade my tests](https://dev.to/hudapugar/i-let-stripe-grade-my-tests-building-a-billing-simulator-where-no-expected-value-comes-from-my-own-4iil) (dev.to; source in [`docs/WRITEUP.md`](docs/WRITEUP.md))
+- **Build in public:** on X, [the demo](https://x.com/BangDropID/status/2111838540552442282), [the build log](https://x.com/BangDropID/status/2113110059022791077) (one finding per post, each quoting it) and [the write-up post](https://x.com/BangDropID/status/2113136524791570793); a Discord poll in #showcase on which Stripe billing rule surprised people most
 - **Loop ledger:** [`docs/LOOP.md`](docs/LOOP.md), every PR and each commit's `TestSprite V3` verdict, generated from the GitHub API, including the PRs merged while the workspace was out of credits
 - **PRD:** [`docs/PRD.md`](docs/PRD.md). Billing rules R1–R25, invariants I1–I6, every feature tagged SHIPPED.
 

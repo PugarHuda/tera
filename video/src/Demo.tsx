@@ -80,7 +80,7 @@ function Portal() {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const scale = interpolate(frame, [0, durationInFrames], [1, 1.1]);
-  const stats = ["28 UI + 50 API tests, all passing", "Exact hand-derived amounts", "Red check → failure bundle × Stripe triage", "Nightly money-math canary on production", "Plans, lists, schedules: repo = cloud"];
+  const stats = ["28 UI tests + API tests on each PR preview", "Exact hand-derived amounts", "Red check → failure bundle × Stripe triage", "Nightly money-math canary on production", "Plans and code: repo = cloud, drift fails CI"];
   return (
     <AbsoluteFill>
       <Img src={staticFile("suite-ui.png")} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})`, transformOrigin: "60% 30%" }} />
@@ -101,9 +101,10 @@ function Portal() {
 function Outro() {
   const frame = useCurrentFrame();
   const items = [
-    "TestSprite: 28 UI + 50 API tests, merge-blocking, triaged against Stripe",
+    "TestSprite: UI + API tests on the PR preview, required for admins too",
+    "PR #40: a planted one-cent bug, refused by every required check",
     "Playwright user journeys + axe WCAG 2.2 AA",
-    "Schemathesis API fuzzing · Redocly lint",
+    "Schemathesis API fuzzing · Arazzo workflows · Redocly lint",
     "Lighthouse budgets: accessibility, SEO, CLS",
     "Nightly: differential fuzzing against Stripe",
     "Nightly: Stryker mutation testing, 87.6%",

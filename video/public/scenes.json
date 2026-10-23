@@ -15,9 +15,9 @@
   "audioMs": 16392
  },
  "parity": {
-  "trimMs": 3140,
-  "lengthMs": 18693,
-  "audioMs": 17544
+  "trimMs": 3606,
+  "lengthMs": 18809,
+  "audioMs": 17616
  },
  "builder": {
   "trimMs": 3487,
@@ -35,9 +35,9 @@
   "audioMs": 18408
  },
  "suite": {
-  "audioMs": 22368
+  "audioMs": 23472
  },
  "outro": {
-  "audioMs": 18024
+  "audioMs": 26976
  }
 }
