@@ -38,7 +38,7 @@ This week the same approach caught a real gap in usage-based billing. A code aud
 
 Stripe is the oracle for the engine. TestSprite is the gate for everything a user actually touches.
 
-- **28 UI tests on every pull request**, run by the TestSprite GitHub App against that PR's own Vercel preview. Branch protection requires the `TestSprite V3` check. Each test asserts hand-derived amounts in the browser: "Invoice 2 totals $103.20", not "an invoice is shown".
+- **29 UI tests on every pull request**, run by the TestSprite GitHub App against that PR's own Vercel preview. Branch protection requires the `TestSprite V3` check. Each test asserts hand-derived amounts in the browser: "Invoice 2 totals $103.20", not "an invoice is shown".
 - **The tests live in the repo.** Every plan is a JSON file in `testsprite/plans/` and every test has hand-written Playwright code in `testsprite/code/`. A CI check compares both with the cloud project and fails on drift. That matters because an auto-healing run can quietly rewrite stored code, for example pinning a preview URL or loosening an assertion to two words.
 - **API tests against the preview, too.** TestSprite gives backend tests no target URL, so a small script stores each API test with its base URL pointing at the PR's preview, runs it with auto-heal off, and puts production back.
 - **Triage that uses the oracle.** When `TestSprite V3` fails, a workflow downloads the failure bundle, replays the golden scenarios behind that test on the same preview, and compares them with Stripe's recorded invoices. One PR comment then says either "engine still matches Stripe, so this is a UI regression" or which invoice the engine now gets wrong.

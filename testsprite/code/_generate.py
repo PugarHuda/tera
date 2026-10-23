@@ -276,6 +276,25 @@ TESTS = {
     "ui-s05-totals.py": ("1fcef436-d9e7-4495-972c-f89ad5f41e80", "Load golden scenario S05 and verify invoice totals", scenario("S05") + '''        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
 ''' + S05_TOTALS + '''        await expect(page.locator("[data-testid^=invoice-][data-testid$=-total]")).to_have_count(2)
 '''),
+    "ui-one-off-items.py": ("3bbfcff3-57ec-4518-8048-fdc3d3a690c4", "Simulator: one-off charges bill with the renewal, discounted and taxed; a coupon never discounts a one-off credit (S133, S137)", scenario("S133") + '''        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
+        # S133 by hand: FOREVER25 and tax10_ex. 01-01: 7900 - 1975 = 5925, tax 592.5 -> 593, total 6518.
+        await expect(page.get_by_test_id("invoice-1-total")).to_have_text("$65.18")
+        # 02-01: the 1000 item joins the 7900 renewal: 8900 - 2225 = 6675, tax 667.5 -> 668, total 7343.
+        await expect(page.get_by_test_id("invoice-2")).to_contain_text("Invoice 2 · 2027-02-01")
+        await expect(page.get_by_test_id("invoice-2-line-1")).to_contain_text("$10.00")
+        await expect(page.get_by_test_id("invoice-2-line-2")).to_contain_text("$79.00")
+        await expect(page.get_by_test_id("invoice-2-discount")).to_have_text("-$22.25")
+        await expect(page.get_by_test_id("invoice-2-tax")).to_have_text("$6.68")
+        await expect(page.get_by_test_id("invoice-2-total")).to_have_text("$73.43")
+        await page.get_by_test_id("scenario-select").select_option("S137")
+        await expect(page.get_by_test_id("golden-badge")).to_contain_text("Matches golden expected")
+        # S137 by hand: lines 2000, -1000, 7900; FOREVER25 takes 25% of the positive lines only: 2475, total 8900 - 2475 = 6425.
+        await expect(page.get_by_test_id("invoice-2-line-1")).to_contain_text("$20.00")
+        await expect(page.get_by_test_id("invoice-2-line-2")).to_contain_text("-$10.00")
+        await expect(page.get_by_test_id("invoice-2-line-3")).to_contain_text("$79.00")
+        await expect(page.get_by_test_id("invoice-2-discount")).to_have_text("-$24.75")
+        await expect(page.get_by_test_id("invoice-2-total")).to_have_text("$64.25")
+'''),
 }
 
 def with_steps(body):
