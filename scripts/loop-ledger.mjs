@@ -36,7 +36,10 @@ for (const pr of prs) {
   if (fixed) tally.redToGreen++;
   const end = pr.merged_at ? `merged ${pr.merged_at.slice(0, 10)}` : pr.state === "open" ? "open" : "closed, not merged";
   const trail = verdicts.map((v) => `${v.state === "success" ? "✅" : v.state === "pending" ? "⏳" : "❌"} ${v.sha} ${v.description}`).join("<br>");
-  const note = outage.length && !realRed.length ? "credits ran out: the suite did not run (not a test result)" : realRed.length ? (fixed ? "red → green" : "red") : "";
+  const greenAfter = verdicts.at(-1)?.state === "success";
+  const note = outage.length && !realRed.length
+    ? greenAfter ? "blocked while credits ran out, then green" : "credits ran out: the suite did not run (not a test result)"
+    : realRed.length ? (fixed ? "red → green" : "red") : "";
   rows.push(`| [#${pr.number}](https://github.com/${repo}/pull/${pr.number}) | ${pr.title.replace(/\|/g, "\\|")} | ${trail || "no TestSprite check"} | ${end} | ${note} |`);
 }
 
@@ -50,6 +53,8 @@ Every pull request and the \`${CONTEXT}\` verdict GitHub recorded for each of it
 - ${tally.credits} were blocked because the workspace ran out of TestSprite credits. The check then reports
   "Not enough credits" without running a test, so those PRs were merged by the repository admin after every other
   check (unit, Stripe parity, Playwright journeys, Schemathesis, Arazzo, Lighthouse) passed. They are listed, not hidden.
+- Since the credit boost (Oct 23) \`main\` requires TestSprite V3, the TestSprite API tests, the unit tests and the browser
+  journeys, admins included, and every PR has merged through all of them.
 
 | PR | Title | ${CONTEXT} per commit | Outcome | Note |
 |---|---|---|---|---|
